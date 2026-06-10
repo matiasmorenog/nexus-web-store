@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nexus Web Store
 
-## Getting Started
+Tienda de **ropa deportiva y CrossFit** construida con Next.js — primer producto de **Nexus**, diseñada para portfolio, despliegue para clientes reales (boxes, tiendas de indumentaria funcional) y evolución futura a plataforma SaaS multi-tienda.
 
-First, run the development server:
+## Características
+
+- **Storefront:** catálogo con filtros, detalle de producto con variantes (talle/color), carrito persistente y checkout
+- **Pagos:** integración con Mercado Pago Checkout Pro (modo demo sin credenciales)
+- **Admin:** panel protegido para gestionar productos, pedidos y configuración de tienda
+- **Multi-tenant ready:** modelo de datos preparado para múltiples tiendas (`storeId` en todas las entidades)
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS 4
+- PostgreSQL + Prisma
+- NextAuth.js v5
+- Zustand (carrito)
+- Mercado Pago SDK
+
+## Inicio rápido
+
+### 1. Variables de entorno
+
+```bash
+cp .env.example .env
+```
+
+### 2. Instalar y configurar
+
+```bash
+npm install
+npm run db:setup
+```
+
+### 3. Desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrí [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Credenciales demo (admin)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **URL:** `/admin/login`
+- **Email:** `admin@crossnexus.com`
+- **Password:** `admin123`
 
-## Learn More
+## Mercado Pago
 
-To learn more about Next.js, take a look at the following resources:
+Para activar pagos reales, configurá en `.env`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+MERCADOPAGO_ACCESS_TOKEN="TEST-..."
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Sin credenciales válidas, el checkout funciona en **modo demo** (simula pago exitoso).
 
-## Deploy on Vercel
+## Deploy en Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Cambiá `provider` en `prisma/schema.prisma` a `postgresql` y configurá `DATABASE_URL`
+2. Creá un proyecto en [Neon](https://neon.tech) o [Supabase](https://supabase.com)
+3. Conectá el repo a Vercel
+4. Configurá las variables de entorno de `.env.example`
+5. Ejecutá `npm run db:setup` contra la base de producción
+6. Deploy automático
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Estructura
+
+```
+src/
+├── app/
+│   ├── (storefront)/    # Tienda pública
+│   ├── admin/           # Panel de administración
+│   └── api/             # Checkout, webhooks, auth
+├── components/
+│   ├── storefront/
+│   ├── admin/
+│   └── ui/
+├── lib/
+└── stores/
+```
+
+## Roadmap
+
+- **Fase 1 (actual):** Demo portfolio con seed data
+- **Fase 2:** Personalización para cliente real (branding del box, catálogo CrossFit, MP producción)
+- **Fase 3:** SaaS multi-tienda con onboarding y suscripciones
+
+---
+
+Built with **Nexus** — e-commerce sin comisiones.

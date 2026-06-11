@@ -112,3 +112,36 @@ button:not(:disabled),
   width: 35%;
   animation: route-loading-bar 1.1s ease-in-out infinite;
 }
+
+@keyframes cart-drawer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cart-drawer-panel-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.cart-drawer-backdrop {
+  animation: cart-drawer-backdrop-in 0.2s ease-out both;
+}
+
+.cart-drawer-panel {
+  animation: cart-drawer-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer-backdrop,
+  .cart-drawer-panel {
+    animation: none;
+  }
+}

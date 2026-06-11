@@ -1,91 +1,91 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { CartEmptyState } from "@/components/storefront/cart-empty-state";
+import { CartLineItem } from "@/components/storefront/cart-line-item";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, subtotal } = useCartStore();
+  const { items, removeItem, updateQuantity, subtotal, totalItems } =
+    useCartStore();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="mb-8 text-3xl font-bold">Carrito</h1>
+      <Link
+        href="/productos"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Seguir comprando
+      </Link>
+
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+          <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-0.5">
+            Carrito
+          </span>
+        </h1>
+        {items.length > 0 ? (
+          <p className="mt-2 text-sm text-neutral-500">
+            {totalItems()} artículo{totalItems() !== 1 ? "s" : ""} en tu pedido
+          </p>
+        ) : null}
+      </div>
 
       {items.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-neutral-500">Tu carrito está vacío</p>
-          <Link href="/productos">
-            <Button className="mt-4">Ver productos</Button>
-          </Link>
-        </div>
+        <CartEmptyState />
       ) : (
-        <>
-          <ul className="divide-y">
+        <div className="grid gap-8 lg:grid-cols-[1fr_280px] lg:items-start">
+          <ul className="space-y-4">
             {items.map((item) => (
-              <li key={item.variantId} className="flex gap-4 py-4">
-                <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-md bg-neutral-100">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.productName}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col">
-                  <div className="flex justify-between">
-                    <div>
-                      <Link href={`/producto/${item.productSlug}`} className="font-medium hover:underline">
-                        {item.productName}
-                      </Link>
-                      <p className="text-sm text-neutral-500">
-                        {item.size} · {item.color}
-                      </p>
-                    </div>
-                    <button onClick={() => removeItem(item.variantId)}>
-                      <X className="h-4 w-4 text-neutral-400" />
-                    </button>
-                  </div>
-                  <div className="mt-auto flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                        className="rounded border p-1"
-                        disabled={item.quantity <= 1}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="text-sm">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                        className="rounded border p-1"
-                        disabled={item.quantity >= item.stock}
-                      >
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                    <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
-                  </div>
-                </div>
-              </li>
+              <CartLineItem
+                key={item.variantId}
+                item={item}
+                variant="page"
+                onRemove={() => removeItem(item.variantId)}
+                onDecrease={() =>
+                  updateQuantity(item.variantId, item.quantity - 1)
+                }
+                onIncrease={() =>
+                  updateQuantity(item.variantId, item.quantity + 1)
+                }
+              />
             ))}
           </ul>
 
-          <div className="mt-6 border-t pt-6">
-            <div className="flex justify-between text-lg font-semibold">
-              <span>Subtotal</span>
-              <span>{formatPrice(subtotal())}</span>
+          <aside className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+              Resumen
+            </h2>
+            <div className="mt-4 space-y-2 border-b border-neutral-100 pb-4 text-sm">
+              <div className="flex justify-between text-neutral-600">
+                <span>Subtotal</span>
+                <span>{formatPrice(subtotal())}</span>
+              </div>
+              <div className="flex justify-between text-neutral-600">
+                <span>Envío</span>
+                <span className="text-neutral-400">En checkout</span>
+              </div>
             </div>
-            <Link href="/checkout">
-              <Button size="lg" className="mt-4 w-full">
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="font-medium text-neutral-900">Total estimado</span>
+              <span className="text-xl font-bold text-neutral-900">
+                {formatPrice(subtotal())}
+              </span>
+            </div>
+            <Link href="/checkout" className="mt-5 block">
+              <Button size="lg" className="w-full">
                 Continuar al checkout
               </Button>
             </Link>
-          </div>
-        </>
+            <p className="mt-3 text-center text-xs text-neutral-400">
+              Pagá de forma segura con Mercado Pago
+            </p>
+          </aside>
+        </div>
       )}
     </div>
   );

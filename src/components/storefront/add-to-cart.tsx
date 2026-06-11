@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 type Variant = {
   id: string;
@@ -65,11 +65,12 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
                 const firstSize = variants.find((v) => v.color === color && v.stock > 0)?.size;
                 if (firstSize) setSelectedSize(firstSize);
               }}
-              className={`rounded-full border px-4 py-1.5 text-sm ${
+              className={cn(
+                "rounded-lg border px-4 py-2 text-sm font-medium transition-colors",
                 selectedColor === color
                   ? "border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white"
-                  : "border-neutral-300 hover:border-[var(--brand-primary)]"
-              }`}
+                  : "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
+              )}
             >
               {color}
             </button>
@@ -87,13 +88,14 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
                 key={size}
                 disabled={!available}
                 onClick={() => setSelectedSize(size)}
-                className={`min-w-[3rem] rounded-md border px-3 py-1.5 text-sm ${
+                className={cn(
+                  "min-w-[3rem] rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
                   selectedSize === size
                     ? "border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white"
                     : available
-                      ? "border-neutral-300 hover:border-[var(--brand-primary)]"
-                      : "cursor-not-allowed border-neutral-200 text-neutral-300 line-through"
-                }`}
+                      ? "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
+                      : "cursor-not-allowed border-neutral-100 bg-neutral-50 text-neutral-300 line-through",
+                )}
               >
                 {size}
               </button>

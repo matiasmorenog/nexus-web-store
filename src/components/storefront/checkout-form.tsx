@@ -15,12 +15,14 @@ type CheckoutFormProps = {
   shippingCost: number;
   allowPickup: boolean;
   storeName: string;
+  showSummary?: boolean;
 };
 
 export function CheckoutForm({
   shippingCost,
   allowPickup,
   storeName,
+  showSummary = true,
 }: CheckoutFormProps) {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCartStore();
@@ -168,26 +170,35 @@ export function CheckoutForm({
         )}
       </div>
 
-      <div className="rounded-lg border bg-neutral-50 p-4 text-sm">
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span>{formatPrice(subtotal())}</span>
+      {showSummary ? (
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm">
+          <div className="flex justify-between text-neutral-600">
+            <span>Subtotal</span>
+            <span>{formatPrice(subtotal())}</span>
+          </div>
+          <div className="mt-1 flex justify-between text-neutral-600">
+            <span>
+              {deliveryMethod === "pickup" ? "Retiro en local" : "Envío"}
+            </span>
+            <span>
+              {deliveryMethod === "pickup"
+                ? "Sin costo"
+                : formatPrice(effectiveShipping)}
+            </span>
+          </div>
+          <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 text-base font-semibold text-neutral-900">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
         </div>
-        <div className="mt-1 flex justify-between">
-          <span>
-            {deliveryMethod === "pickup" ? "Retiro en local" : "Envío"}
+      ) : (
+        <div className="flex items-baseline justify-between border-t border-neutral-100 pt-4">
+          <span className="text-sm text-neutral-600">Total a pagar</span>
+          <span className="text-xl font-bold text-neutral-900">
+            {formatPrice(total)}
           </span>
-          <span>
-            {deliveryMethod === "pickup"
-              ? "Sin costo"
-              : formatPrice(effectiveShipping)}
-          </span>
         </div>
-        <div className="mt-2 flex justify-between border-t pt-2 text-base font-semibold">
-          <span>Total</span>
-          <span>{formatPrice(total)}</span>
-        </div>
-      </div>
+      )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

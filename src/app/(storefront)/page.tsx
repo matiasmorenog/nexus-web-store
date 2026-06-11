@@ -69,7 +69,8 @@ export default async function HomePage() {
             <Link
               key={cat.slug}
               href={`/productos?categoria=${cat.slug}`}
-              className="group relative aspect-square overflow-hidden rounded-lg">
+              className="group relative aspect-square overflow-hidden rounded-xl ring-1 ring-neutral-200/60 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md hover:ring-[var(--brand-primary)]/30"
+            >
               <Image
                 src={CATEGORY_IMAGES[cat.slug] ?? CATEGORY_IMAGES.tops}
                 alt={cat.label}

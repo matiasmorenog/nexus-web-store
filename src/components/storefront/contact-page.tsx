@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { CheckCircle, Mail, MapPin } from "lucide-react";
+import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ContactPageContent } from "@/lib/info-pages";
+
+const fieldClass =
+  "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 type ContactPageProps = {
   page: ContactPageContent;
@@ -53,7 +57,7 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-      <nav className="mb-6 text-sm text-neutral-500">
+      <nav className="mb-2 text-sm text-neutral-500">
         <Link href="/" className="transition-colors hover:text-[var(--brand-primary)]">
           Inicio
         </Link>
@@ -61,19 +65,16 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
         <span className="text-neutral-900">{page.title}</span>
       </nav>
 
-      <h1 className="text-3xl font-bold">
-        <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
-          {page.title}
-        </span>
-      </h1>
-      <p className="mt-3 text-neutral-600">{page.description}</p>
+      <StorefrontPageHeader title={page.title} description={page.description} />
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.15fr]">
+        <div className="space-y-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex gap-3">
-            <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[var(--brand-primary)]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-primary-soft)]">
+              <Mail className="h-5 w-5 text-[var(--brand-primary)]" />
+            </div>
             <div>
-              <p className="font-medium">Email</p>
+              <p className="font-medium text-neutral-900">Email</p>
               <a
                 href={`mailto:${email}`}
                 className="text-sm text-neutral-600 transition-colors hover:text-[var(--brand-primary)]"
@@ -83,25 +84,27 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
             </div>
           </div>
           <div className="flex gap-3">
-            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--brand-primary)]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-primary-soft)]">
+              <MapPin className="h-5 w-5 text-[var(--brand-primary)]" />
+            </div>
             <div>
-              <p className="font-medium">Retiro en local</p>
-              <p className="text-sm text-neutral-600">
+              <p className="font-medium text-neutral-900">Retiro en local</p>
+              <p className="text-sm leading-relaxed text-neutral-600">
                 Disponible según opción en checkout. Te confirmamos el punto de
                 retiro por email cuando tu pedido esté listo.
               </p>
             </div>
           </div>
-          <p className="text-sm text-neutral-500">
+          <p className="border-t border-neutral-100 pt-4 text-sm text-neutral-500">
             Respondemos de lunes a viernes en horario comercial. Para cambios o
             devoluciones, incluí tu número de pedido.
           </p>
         </div>
 
         {sent ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border bg-neutral-50 p-8 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200/80 bg-[var(--brand-primary-soft)]/40 p-8 text-center shadow-sm">
             <CheckCircle className="h-12 w-12 text-green-600" />
-            <p className="mt-4 font-medium">¡Consulta enviada!</p>
+            <p className="mt-4 font-medium text-neutral-900">¡Consulta enviada!</p>
             <p className="mt-2 text-sm text-neutral-600">
               Recibimos tu mensaje en {storeName}. Te responderemos a la brevedad.
             </p>
@@ -117,7 +120,7 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="space-y-4 rounded-lg border bg-neutral-50 p-6"
+            className="space-y-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6"
           >
             <div>
               <Label htmlFor="contact-name">Nombre</Label>
@@ -150,11 +153,11 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
                 minLength={10}
                 rows={5}
                 disabled={loading}
-                className="flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1 disabled:opacity-50"
+                className={fieldClass}
               />
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Enviando..." : "Enviar consulta"}

@@ -17,31 +17,58 @@ const legalLinks = [
   { href: "/privacidad", label: "Política de privacidad" },
 ] as const;
 
+const linkClass =
+  "transition-colors hover:text-[var(--brand-primary)]";
+
 export function Footer({ storeName }: FooterProps) {
   return (
     <footer className="mt-auto border-t border-neutral-200 bg-neutral-50">
+      <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         <div>
-          <p className="font-bold">{storeName}</p>
-          <p className="mt-2 text-sm text-neutral-600">
-            Ropa deportiva para CrossFit y entrenamiento funcional. Envíos a todo el país.
+          <p className="text-lg font-bold tracking-tight text-neutral-900">
+            {storeName}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+            Ropa deportiva para CrossFit y entrenamiento funcional. Envíos a todo
+            el país.
           </p>
         </div>
         <div>
-          <p className="font-semibold">Tienda</p>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-600">
-            <li><Link href="/productos" className="transition-colors hover:text-[var(--brand-primary)]">Catálogo</Link></li>
-            <li><Link href="/productos?categoria=tops" className="transition-colors hover:text-[var(--brand-primary)]">Tops y remeras</Link></li>
-            <li><Link href="/productos?categoria=leggings" className="transition-colors hover:text-[var(--brand-primary)]">Leggings</Link></li>
-            <li><Link href="/productos?categoria=shorts" className="transition-colors hover:text-[var(--brand-primary)]">Shorts</Link></li>
+          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Tienda
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+            <li>
+              <Link href="/productos" className={linkClass}>
+                Catálogo
+              </Link>
+            </li>
+            <li>
+              <Link href="/productos?categoria=tops" className={linkClass}>
+                Tops y remeras
+              </Link>
+            </li>
+            <li>
+              <Link href="/productos?categoria=leggings" className={linkClass}>
+                Leggings
+              </Link>
+            </li>
+            <li>
+              <Link href="/productos?categoria=shorts" className={linkClass}>
+                Shorts
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
-          <p className="font-semibold">Ayuda</p>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-600">
+          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Ayuda
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
             {helpLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="transition-colors hover:text-[var(--brand-primary)]">
+                <Link href={link.href} className={linkClass}>
                   {link.label}
                 </Link>
               </li>
@@ -49,11 +76,13 @@ export function Footer({ storeName }: FooterProps) {
           </ul>
         </div>
         <div>
-          <p className="font-semibold">Legal</p>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-600">
+          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Legal
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
             {legalLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="transition-colors hover:text-[var(--brand-primary)]">
+                <Link href={link.href} className={linkClass}>
                   {link.label}
                 </Link>
               </li>
@@ -61,7 +90,7 @@ export function Footer({ storeName }: FooterProps) {
           </ul>
         </div>
       </div>
-      <div className="border-t py-4 text-center text-xs text-neutral-500">
+      <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500">
         © {new Date().getFullYear()} {storeName}. Todos los derechos reservados.
       </div>
     </footer>

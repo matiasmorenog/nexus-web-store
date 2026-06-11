@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { ProductCard } from "@/components/storefront/product-card";
 import { ProductFilters } from "@/components/storefront/product-filters";
+import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 import { Prisma } from "@prisma/client";
@@ -76,17 +77,21 @@ export default async function ProductsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="mb-2 text-3xl font-bold">
-        <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">Productos</span>
-      </h1>
-      {searchQuery && (
-        <p className="mb-8 text-sm text-neutral-500">
-          Resultados para &ldquo;{searchQuery}&rdquo;
-        </p>
-      )}
-      {!searchQuery && <div className="mb-8" />}
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-neutral-100" />}>
+      <StorefrontPageHeader
+        title="Productos"
+        description={
+          searchQuery
+            ? `Resultados para “${searchQuery}”`
+            : "Explorá el catálogo completo de Alaska Indumentaria."
+        }
+      />
+
+      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+        <Suspense
+          fallback={
+            <div className="h-72 animate-pulse rounded-xl bg-neutral-100" />
+          }
+        >
           <ProductFilters />
         </Suspense>
         <div>
@@ -94,9 +99,14 @@ export default async function ProductsPage({
             {products.length} producto{products.length !== 1 ? "s" : ""}
           </p>
           {products.length === 0 ? (
-            <p className="py-12 text-center text-neutral-500">
-              No se encontraron productos con estos filtros.
-            </p>
+            <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
+              <p className="font-medium text-neutral-900">
+                No se encontraron productos
+              </p>
+              <p className="mt-2 text-sm text-neutral-500">
+                Probá con otros filtros o una búsqueda distinta.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
               {products.map((product) => (

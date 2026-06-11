@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
+import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
+import Link from "next/link";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal, totalItems } =
@@ -14,26 +14,16 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <Link
-        href="/productos"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Seguir comprando
-      </Link>
-
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
-          <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-0.5">
-            Carrito
-          </span>
-        </h1>
-        {items.length > 0 ? (
-          <p className="mt-2 text-sm text-neutral-500">
-            {totalItems()} artículo{totalItems() !== 1 ? "s" : ""} en tu pedido
-          </p>
-        ) : null}
-      </div>
+      <StorefrontPageHeader
+        title="Carrito"
+        description={
+          items.length > 0
+            ? `${totalItems()} artículo${totalItems() !== 1 ? "s" : ""} en tu pedido`
+            : "Revisá los productos antes de pagar."
+        }
+        backHref="/productos"
+        backLabel="Seguir comprando"
+      />
 
       {items.length === 0 ? (
         <CartEmptyState />

@@ -93,7 +93,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
         {mobileOpen && (
           <form
             onSubmit={submit}
-            className="absolute inset-x-0 top-full z-50 border-b border-neutral-100 bg-white px-4 py-3 shadow-sm lg:hidden"
+            className="absolute inset-x-0 top-full z-50 border-b border-neutral-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-md lg:hidden"
             role="search"
           >
             <div className="relative mx-auto flex max-w-7xl items-center gap-2">

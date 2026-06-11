@@ -14,7 +14,7 @@ type ProductCardProps = {
 export function ProductCard({ slug, name, category, imageUrl, price }: ProductCardProps) {
   return (
     <Link href={`/producto/${slug}`} className="group block">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-transparent transition-[transform,box-shadow] group-hover:ring-[var(--brand-primary)]/25">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60 transition-[transform,box-shadow,ring-color] group-hover:ring-[var(--brand-primary)]/40">
         <Image
           src={imageUrl}
           alt={name}

@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
 
 export default async function CheckoutSuccessPage({
   searchParams,
@@ -10,23 +9,20 @@ export default async function CheckoutSuccessPage({
   const params = await searchParams;
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-16 text-center sm:px-6">
-      <CheckCircle className="mx-auto h-16 w-16 text-green-600" />
-      <h1 className="mt-4 text-2xl font-bold">¡Compra confirmada!</h1>
-      <p className="mt-2 text-neutral-600">
-        Tu pedido fue procesado correctamente.
-        {params.order && (
-          <span className="mt-1 block text-sm">
-            Número de orden: <strong>{params.order}</strong>
-          </span>
-        )}
-        <span className="mt-2 block text-sm">
-          Te enviamos un email con el detalle de tu compra.
-        </span>
-      </p>
-      <Link href="/productos">
-        <Button className="mt-8">Seguir comprando</Button>
-      </Link>
-    </div>
+    <StorefrontStatusPage
+      icon={CheckCircle}
+      iconClassName="text-green-600"
+      title="¡Compra confirmada!"
+      actionHref="/productos"
+      actionLabel="Seguir comprando"
+    >
+      <p>Tu pedido fue procesado correctamente.</p>
+      {params.order ? (
+        <p>
+          Número de orden: <strong className="text-neutral-900">{params.order}</strong>
+        </p>
+      ) : null}
+      <p>Te enviamos un email con el detalle de tu compra.</p>
+    </StorefrontStatusPage>
   );
 }

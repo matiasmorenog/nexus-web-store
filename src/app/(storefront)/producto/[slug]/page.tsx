@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/storefront/add-to-cart";
 import { getCategoryLabel } from "@/lib/categories";
@@ -26,8 +27,16 @@ export default async function ProductPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <nav className="mb-6 text-sm text-neutral-500">
+        <Link href="/productos" className="transition-colors hover:text-[var(--brand-primary)]">
+          Catálogo
+        </Link>
+        <span className="mx-2">/</span>
+        <span className="text-neutral-900">{product.name}</span>
+      </nav>
+
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60">
           <Image
             src={mainImage}
             alt={product.name}
@@ -37,13 +46,17 @@ export default async function ProductPage({ params }: PageProps) {
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </div>
-        <div>
-          <p className="text-sm uppercase tracking-wide text-neutral-500">
+        <div className="lg:py-2">
+          <p className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--brand-primary)]">
             {getCategoryLabel(product.category)}
           </p>
-          <h1 className="mt-1 text-3xl font-bold">{product.name}</h1>
-          <p className="mt-4 text-neutral-600 leading-relaxed">{product.description}</p>
-          <div className="mt-8">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+            {product.name}
+          </h1>
+          <p className="mt-4 leading-relaxed text-neutral-600">
+            {product.description}
+          </p>
+          <div className="mt-8 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
             <AddToCart
               productId={product.id}
               productName={product.name}

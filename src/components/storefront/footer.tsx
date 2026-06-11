@@ -4,10 +4,23 @@ type FooterProps = {
   storeName: string;
 };
 
+const helpLinks = [
+  { href: "/guia-de-talles", label: "Guía de talles" },
+  { href: "/envios", label: "Envíos y entregas" },
+  { href: "/cambios-y-devoluciones", label: "Cambios y devoluciones" },
+  { href: "/faq", label: "Preguntas frecuentes" },
+  { href: "/contacto", label: "Contacto" },
+] as const;
+
+const legalLinks = [
+  { href: "/terminos", label: "Términos y condiciones" },
+  { href: "/privacidad", label: "Política de privacidad" },
+] as const;
+
 export function Footer({ storeName }: FooterProps) {
   return (
     <footer className="mt-auto border-t border-neutral-200 bg-neutral-50">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-3 sm:px-6">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         <div>
           <p className="font-bold">{storeName}</p>
           <p className="mt-2 text-sm text-neutral-600">
@@ -26,9 +39,25 @@ export function Footer({ storeName }: FooterProps) {
         <div>
           <p className="font-semibold">Ayuda</p>
           <ul className="mt-2 space-y-1 text-sm text-neutral-600">
-            <li>Guía de talles</li>
-            <li>Envíos y entregas</li>
-            <li>Cambios y devoluciones</li>
+            {helpLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="transition-colors hover:text-[var(--brand-primary)]">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="font-semibold">Legal</p>
+          <ul className="mt-2 space-y-1 text-sm text-neutral-600">
+            {legalLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="transition-colors hover:text-[var(--brand-primary)]">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

@@ -109,8 +109,8 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [ ] Wishlist / favoritos
 - [ ] Reviews y valoraciones de productos
 - [ ] Newsletter / captura de emails
-- [ ] Páginas legales (términos, privacidad, cambios y devoluciones)
-- [ ] FAQ, guía de talles y contacto
+- [x] Páginas legales (términos, privacidad, cambios y devoluciones)
+- [x] FAQ, guía de talles y contacto
 - [ ] SEO por producto/categoría (meta tags, Open Graph, sitemap)
 - [ ] Integración WhatsApp (“consultar por WA”)
 - [ ] Carrito abandonado (email recordatorio)

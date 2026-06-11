@@ -40,6 +40,7 @@ git push -u origin main
 | `RESEND_API_KEY` | Opcional (sin esto los emails se loguean en consola) |
 | `EMAIL_FROM` | `Alaska Indumentaria <onboarding@resend.dev>` o tu dominio verificado |
 | `STORE_NOTIFICATION_EMAIL` | `admin@alaskaindumentaria.com` (avisos de nueva venta) |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Opcional (email en página de contacto; default `contacto@alaskaindumentaria.com`) |
 
 5. **Deploy**
 

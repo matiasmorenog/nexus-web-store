@@ -25,3 +25,58 @@ button:not(:disabled),
 [role="button"]:not(:disabled) {
   cursor: pointer;
 }
+
+@keyframes admin-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-inline-form-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-panel-prep {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+.admin-inline-form-prep {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.admin-panel-enter {
+  animation: admin-panel-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.admin-inline-form-enter {
+  animation: admin-inline-form-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-panel-prep,
+  .admin-inline-form-prep {
+    opacity: 1;
+    transform: none;
+  }
+
+  .admin-panel-enter,
+  .admin-inline-form-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

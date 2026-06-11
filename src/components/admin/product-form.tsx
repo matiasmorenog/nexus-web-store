@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createProduct } from "@/lib/admin-actions";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminMotion } from "@/components/admin/admin-motion";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +41,11 @@ export function ProductForm() {
       />
 
       {open && (
-        <AdminCard title="Nuevo producto" description="Completá los datos del producto y su primera variante.">
+        <AdminMotion variant="panel">
+        <AdminCard
+          title="Nuevo producto"
+          description="Completá los datos del producto y su primera variante."
+        >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -119,6 +124,7 @@ export function ProductForm() {
           </div>
         </form>
         </AdminCard>
+        </AdminMotion>
       )}
     </div>
   );

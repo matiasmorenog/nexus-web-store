@@ -9,6 +9,7 @@ import {
 } from "@/lib/admin-actions";
 import { cn, formatPrice } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminMotion } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,6 +133,7 @@ function VariantInlineForm({
   return (
     <tr ref={rowRef} className="scroll-mb-24">
       <td colSpan={6} className="bg-neutral-50/80 px-6 py-4 pb-8">
+        <AdminMotion variant="inline">
         <form onSubmit={onSubmit} className="space-y-3">
           <p className="text-sm font-medium text-neutral-700">{title}</p>
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -155,6 +157,7 @@ function VariantInlineForm({
             </Button>
           </div>
         </form>
+        </AdminMotion>
       </td>
     </tr>
   );

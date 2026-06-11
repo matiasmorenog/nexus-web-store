@@ -42,7 +42,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div>
+    <div className="pb-2">
       <AdminPageHeader
         title="Dashboard"
         description="Resumen de tu tienda Alaska Indumentaria."
@@ -55,7 +55,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <AdminCard title="Pedidos recientes" padding={false}>
-        <div className="overflow-x-auto">
+        <div className="admin-table-scroll">
           <table className="w-full text-sm">
             <thead className="border-b border-neutral-100 bg-neutral-50/80">
               <tr>

@@ -51,7 +51,7 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
         </div>
       }
     >
-      <div className="grid gap-4 border-b border-neutral-100 px-6 py-4 text-sm sm:grid-cols-2">
+      <div className="grid gap-4 border-b border-neutral-100 px-4 py-4 text-sm sm:grid-cols-2 sm:px-6">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
             Contacto
@@ -82,7 +82,7 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="admin-table-scroll">
         <table className="w-full text-sm">
           <thead className="border-b border-neutral-100 bg-neutral-50/80">
             <tr>
@@ -116,7 +116,7 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 bg-neutral-50/50 px-6 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 sm:px-6">
         <p className="text-sm text-neutral-500">Cambiar estado del pedido</p>
         <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
       </div>

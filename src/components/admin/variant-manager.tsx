@@ -352,7 +352,7 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
           aria-expanded={tableOpen}
           aria-controls="variant-table"
           className={cn(
-            "flex min-w-0 flex-1 items-center gap-4 border-b border-neutral-100 bg-neutral-50/50 px-6 py-4 text-left transition-colors sm:border-b-0",
+            "flex min-w-0 flex-1 items-center gap-4 border-b border-neutral-100 bg-neutral-50/50 px-4 py-4 text-left transition-colors sm:border-b-0 sm:px-6",
             !isBusy && "cursor-pointer hover:bg-neutral-100/70",
             isBusy && "cursor-not-allowed opacity-80",
           )}>
@@ -380,7 +380,7 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
             </p>
           </div>
         </button>
-        <div className="flex items-center border-b border-neutral-100 bg-neutral-50/50 px-6 py-3 sm:border-b-0 sm:border-l sm:py-4">
+        <div className="flex items-center border-b border-neutral-100 bg-neutral-50/50 px-4 py-3 sm:border-b-0 sm:border-l sm:px-6 sm:py-4">
           <Button
             type="button"
             variant="secondary"
@@ -396,7 +396,7 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
         <AdminMotion variant="inline">
           <div
             id="variant-table"
-            className={cn("overflow-x-auto", isBusy && "pb-10")}>
+            className={cn("admin-table-scroll", isBusy && "pb-10")}>
             <table className="w-full min-w-[40rem] text-sm">
               <thead className="border-b border-neutral-100 bg-neutral-50/80">
                 <tr>

@@ -110,7 +110,7 @@ export default async function AdminOrdersPage({
       <AdminPageHeader title="Pedidos" description={description} />
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8">
-        <div className="min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto lg:max-w-3xl lg:pr-1">
+        <div className="min-h-0 min-w-0 flex-1 space-y-4 pb-6 lg:max-w-3xl lg:overflow-y-auto lg:pr-1 lg:pb-0">
           <div className="lg:hidden">
             <Suspense
               fallback={

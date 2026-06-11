@@ -145,3 +145,39 @@ button:not(:disabled),
     animation: none;
   }
 }
+
+/* Admin / storefront: espacio inferior en mobile (gesture bar + safe area) */
+.admin-content-bottom {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .admin-content-bottom {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-content-bottom {
+    padding-bottom: 6rem;
+  }
+}
+
+.storefront-content-bottom {
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+
+.admin-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Aire debajo de la última fila, dentro de la card */
+  padding-bottom: 1.25rem;
+}
+
+@media (max-width: 639px) {
+  .admin-table-scroll th,
+  .admin-table-scroll td {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

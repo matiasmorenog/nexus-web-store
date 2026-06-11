@@ -107,17 +107,20 @@ export function AdminNav({ userName, userEmail }: AdminNavProps) {
 
       <header className="shrink-0 border-b border-neutral-200 bg-white lg:hidden">
         <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
-        <div className="flex h-14 items-center justify-between px-4">
-          <Link href="/admin" className="font-bold text-neutral-900">
+        <div className="flex h-14 items-center justify-between gap-3 px-4">
+          <Link href="/admin" className="min-w-0 truncate font-bold text-neutral-900">
             Alaska <span className="text-[var(--brand-primary)]">Admin</span>
           </Link>
-          <Link
-            href="/"
-            target="_blank"
-            className="text-sm text-neutral-500 hover:text-[var(--brand-primary)]"
-          >
-            Tienda
-          </Link>
+          <div className="flex shrink-0 items-center gap-1">
+            <Link
+              href="/"
+              target="_blank"
+              className="rounded-lg px-2 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-[var(--brand-primary)]"
+            >
+              Tienda
+            </Link>
+            <SignOutButton variant="light" compact />
+          </div>
         </div>
         <nav
           aria-label="Secciones del admin"

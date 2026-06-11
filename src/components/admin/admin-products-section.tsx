@@ -30,7 +30,7 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-2">
       <AdminPageHeader
         title="Productos"
         description="Alta, edición y variantes de tu catálogo."
@@ -56,7 +56,7 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
           ) : undefined
         }
       >
-        <div className="overflow-x-auto">
+        <div className="admin-table-scroll">
           <table className="w-full text-sm">
             <thead className="border-b border-neutral-100 bg-neutral-50/80">
               <tr>

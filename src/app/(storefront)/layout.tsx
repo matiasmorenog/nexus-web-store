@@ -21,7 +21,7 @@ export default async function StorefrontLayout({
       >
         <Header storeName={store.name} />
       </Suspense>
-      <main className="flex-1">{children}</main>
+      <main className="storefront-content-bottom flex-1">{children}</main>
       <Footer storeName={store.name} />
     </>
   );

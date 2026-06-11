@@ -27,7 +27,7 @@ export function AdminCard({
       )}
     >
       {hasHeader && (
-        <div className="border-b border-neutral-100 bg-neutral-50/50 px-6 py-4">
+        <div className="border-b border-neutral-100 bg-neutral-50/50 px-4 py-4 sm:px-6">
           {(title || action) && (
             <div className="flex items-center justify-between gap-4">
               {title ? (
@@ -45,7 +45,7 @@ export function AdminCard({
           ) : null}
         </div>
       )}
-      <div className={cn(padding && "p-6")}>{children}</div>
+      <div className={cn(padding && "p-4 sm:p-6")}>{children}</div>
     </div>
   );
 }

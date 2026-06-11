@@ -111,7 +111,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [ ] Newsletter / captura de emails
 - [x] Páginas legales (términos, privacidad, cambios y devoluciones)
 - [x] FAQ, guía de talles y contacto
-- [ ] SEO por producto/categoría (meta tags, Open Graph, sitemap)
+- [ ] SEO por producto/categoría (meta tags, Open Graph, sitemap) — pospuesto para demo
 - [ ] Integración WhatsApp (“consultar por WA”)
 - [ ] Carrito abandonado (email recordatorio)
 

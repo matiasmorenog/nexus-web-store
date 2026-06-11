@@ -21,8 +21,8 @@ Backend: MP + webhook (demo sin token), multi-tenant schema, seed Alaska.
 4. ~~Búsqueda por texto~~ ✅
 5. ~~Retiro en local en checkout~~ ✅
 6. ~~Páginas legales y contacto~~ ✅
-7. SEO básico (meta, sitemap) ← siguiente
-8. Cuenta cliente + mis pedidos
+7. SEO básico (meta, sitemap, Open Graph) — pospuesto para demo
+8. Cuenta cliente + mis pedidos ← siguiente
 
 ## Fase B — competir con Tienda Nube lite
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
@@ -8,7 +9,6 @@ import {
   updateVariant,
 } from "@/lib/admin-actions";
 import { cn, formatPrice } from "@/lib/utils";
-import { AdminCard } from "@/components/admin/admin-card";
 import { AdminMotion } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -318,75 +318,138 @@ function VariantEditRow({
 }
 
 export function VariantManager({ productId, variants }: VariantManagerProps) {
+  const [tableOpen, setTableOpen] = useState(false);
   const [activeEdit, setActiveEdit] = useState<ActiveEdit>(null);
 
   const isBusy = activeEdit !== null;
 
-  return (
-    <AdminCard
-      title={`Variantes (${variants.length})`}
-      description="Talles, colores, stock y precios por variante."
-      padding={false}
-      action={
-        <Button
-          size="sm"
-          onClick={() => setActiveEdit({ type: "new" })}
-          disabled={isBusy}>
-          Agregar variante
-        </Button>
-      }>
-      <div className={cn("overflow-x-auto", isBusy && "pb-10")}>
-        <table className="w-full min-w-[40rem] text-sm">
-          <thead className="border-b border-neutral-100 bg-neutral-50/80">
-            <tr>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                Imagen
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                Talle / Color
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                SKU
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                Precio
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                Stock
-              </th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100">
-            {activeEdit?.type === "new" && (
-              <NewVariantRow
-                productId={productId}
-                onCancel={() => setActiveEdit(null)}
-                onSuccess={() => setActiveEdit(null)}
-              />
-            )}
-            {variants.map((variant) => {
-              const isEditing =
-                activeEdit?.type === "edit" && activeEdit.id === variant.id;
+  const openTable = () => setTableOpen(true);
 
-              return (
-                <VariantEditRow
-                  key={variant.id}
-                  variant={variant}
-                  isEditing={isEditing}
-                  editDisabled={isBusy && !isEditing}
-                  onStartEdit={() =>
-                    setActiveEdit({ type: "edit", id: variant.id })
-                  }
-                  onCancelEdit={() => setActiveEdit(null)}
-                />
-              );
-            })}
-          </tbody>
-        </table>
+  const handleAddVariant = () => {
+    openTable();
+    setActiveEdit({ type: "new" });
+  };
+
+  const handleStartEdit = (variantId: string) => {
+    openTable();
+    setActiveEdit({ type: "edit", id: variantId });
+  };
+
+  const toggleTable = () => {
+    if (isBusy) return;
+    setTableOpen((open) => !open);
+  };
+
+  const variantSummary = `${variants.length} variante${variants.length !== 1 ? "s" : ""} registrada${variants.length !== 1 ? "s" : ""}.`;
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-neutral-200/80 bg-white shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-stretch">
+        <button
+          type="button"
+          onClick={toggleTable}
+          disabled={isBusy}
+          aria-expanded={tableOpen}
+          aria-controls="variant-table"
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-4 border-b border-neutral-100 bg-neutral-50/50 px-6 py-4 text-left transition-colors sm:border-b-0",
+            !isBusy && "cursor-pointer hover:bg-neutral-100/70",
+            isBusy && "cursor-not-allowed opacity-80",
+          )}
+        >
+          {tableOpen ? (
+            <ChevronUp
+              className="h-8 w-8 shrink-0 text-neutral-400"
+              strokeWidth={2}
+              aria-hidden
+            />
+          ) : (
+            <ChevronDown
+              className="h-8 w-8 shrink-0 text-neutral-400"
+              strokeWidth={2}
+              aria-hidden
+            />
+          )}
+          <div className="min-w-0">
+            <h2 className="font-semibold text-neutral-900">
+              Variantes ({variants.length})
+            </h2>
+            <p className="mt-1 text-sm text-neutral-500">
+              {tableOpen
+                ? "Talles, colores, stock y precios por variante."
+                : variantSummary}
+            </p>
+          </div>
+        </button>
+        <div className="flex items-center border-b border-neutral-100 bg-neutral-50/50 px-6 py-3 sm:border-b-0 sm:border-l sm:py-4">
+          <Button
+            type="button"
+            size="sm"
+            className="w-full sm:w-auto"
+            onClick={handleAddVariant}
+            disabled={isBusy}
+          >
+            Agregar variante
+          </Button>
+        </div>
       </div>
-    </AdminCard>
+      {tableOpen ? (
+        <AdminMotion variant="inline">
+          <div
+            id="variant-table"
+            className={cn("overflow-x-auto", isBusy && "pb-10")}
+          >
+            <table className="w-full min-w-[40rem] text-sm">
+              <thead className="border-b border-neutral-100 bg-neutral-50/80">
+                <tr>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    Imagen
+                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    Talle / Color
+                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    SKU
+                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    Precio
+                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    Stock
+                  </th>
+                  <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {activeEdit?.type === "new" && (
+                  <NewVariantRow
+                    productId={productId}
+                    onCancel={() => setActiveEdit(null)}
+                    onSuccess={() => setActiveEdit(null)}
+                  />
+                )}
+                {variants.map((variant) => {
+                  const isEditing =
+                    activeEdit?.type === "edit" && activeEdit.id === variant.id;
+
+                  return (
+                    <VariantEditRow
+                      key={variant.id}
+                      variant={variant}
+                      isEditing={isEditing}
+                      editDisabled={isBusy && !isEditing}
+                      onStartEdit={() => handleStartEdit(variant.id)}
+                      onCancelEdit={() => setActiveEdit(null)}
+                    />
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </AdminMotion>
+      ) : null}
+    </div>
   );
 }

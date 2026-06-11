@@ -134,29 +134,29 @@ function VariantInlineForm({
     <tr ref={rowRef} className="scroll-mb-24">
       <td colSpan={6} className="bg-neutral-50/80 px-6 py-4 pb-8">
         <AdminMotion variant="inline">
-        <form onSubmit={onSubmit} className="space-y-3">
-          <p className="text-sm font-medium text-neutral-700">{title}</p>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <VariantFormFields formId={formId} values={values} />
-          <div
-            className={cn(
-              "ml-auto flex w-fit justify-end gap-2",
-              "sticky right-0 z-10 -mr-6 py-2 pl-3 pr-6",
-              "md:static md:mr-0 md:bg-transparent md:py-0 md:pl-0 md:pr-0",
-            )}>
-            <Button type="submit" size="sm" disabled={loading}>
-              {loading ? "..." : submitLabel}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={onCancel}
-              disabled={loading}>
-              Cancelar
-            </Button>
-          </div>
-        </form>
+          <form onSubmit={onSubmit} className="space-y-3">
+            <p className="text-sm font-medium text-neutral-700">{title}</p>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <VariantFormFields formId={formId} values={values} />
+            <div
+              className={cn(
+                "ml-auto flex w-fit justify-end gap-2",
+                "sticky right-0 z-10 -mr-6 py-2 pl-3 pr-6",
+                "md:static md:mr-0 md:bg-transparent md:py-0 md:pl-0 md:pr-0",
+              )}>
+              <Button type="submit" size="sm" disabled={loading}>
+                {loading ? "..." : submitLabel}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={onCancel}
+                disabled={loading}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
         </AdminMotion>
       </td>
     </tr>
@@ -355,8 +355,7 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
             "flex min-w-0 flex-1 items-center gap-4 border-b border-neutral-100 bg-neutral-50/50 px-6 py-4 text-left transition-colors sm:border-b-0",
             !isBusy && "cursor-pointer hover:bg-neutral-100/70",
             isBusy && "cursor-not-allowed opacity-80",
-          )}
-        >
+          )}>
           {tableOpen ? (
             <ChevronUp
               className="h-8 w-8 shrink-0 text-neutral-400"
@@ -384,11 +383,11 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
         <div className="flex items-center border-b border-neutral-100 bg-neutral-50/50 px-6 py-3 sm:border-b-0 sm:border-l sm:py-4">
           <Button
             type="button"
+            variant="secondary"
             size="sm"
             className="w-full sm:w-auto"
             onClick={handleAddVariant}
-            disabled={isBusy}
-          >
+            disabled={isBusy}>
             Agregar variante
           </Button>
         </div>
@@ -397,8 +396,7 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
         <AdminMotion variant="inline">
           <div
             id="variant-table"
-            className={cn("overflow-x-auto", isBusy && "pb-10")}
-          >
+            className={cn("overflow-x-auto", isBusy && "pb-10")}>
             <table className="w-full min-w-[40rem] text-sm">
               <thead className="border-b border-neutral-100 bg-neutral-50/80">
                 <tr>

@@ -5,17 +5,19 @@ import { createProduct } from "@/lib/admin-actions";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminMotion } from "@/components/admin/admin-motion";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Label } from "@/components/ui/label";
 
 const fieldClass =
   "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
-export function ProductForm() {
-  const [open, setOpen] = useState(false);
+type ProductCreateFormProps = {
+  onClose: () => void;
+};
+
+export function ProductCreateForm({ onClose }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,28 +26,16 @@ export function ProductForm() {
     const formData = new FormData(e.currentTarget);
     await createProduct(formData);
     setLoading(false);
-    setOpen(false);
+    onClose();
     (e.target as HTMLFormElement).reset();
   };
 
   return (
-    <div className="space-y-6">
-      <AdminPageHeader
-        title="Productos"
-        description="Alta, edición y variantes de tu catálogo."
-        action={
-          !open ? (
-            <Button onClick={() => setOpen(true)}>Nuevo producto</Button>
-          ) : undefined
-        }
-      />
-
-      {open && (
-        <AdminMotion variant="panel">
-        <AdminCard
-          title="Nuevo producto"
-          description="Completá los datos del producto y su primera variante."
-        >
+    <AdminMotion variant="panel">
+      <AdminCard
+        title="Nuevo producto"
+        description="Completá los datos del producto y su primera variante."
+      >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -111,21 +101,15 @@ export function ProductForm() {
             </div>
           </div>
           <div className="flex justify-end gap-2 border-t border-neutral-100 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
+            <Button type="button" size="sm" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" size="sm" disabled={loading}>
               {loading ? "Guardando..." : "Crear producto"}
             </Button>
           </div>
         </form>
-        </AdminCard>
-        </AdminMotion>
-      )}
-    </div>
+      </AdminCard>
+    </AdminMotion>
   );
 }

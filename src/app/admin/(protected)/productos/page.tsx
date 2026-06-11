@@ -27,11 +27,8 @@ export default async function AdminProductsPage() {
   });
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Productos</h1>
-        <ProductForm />
-      </div>
+    <div className="space-y-6">
+      <ProductForm />
 
       <div className="overflow-hidden rounded-lg border bg-white">
         <table className="w-full text-sm">

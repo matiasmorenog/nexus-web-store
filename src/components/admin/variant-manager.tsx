@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import {
   createVariant,
   deleteVariant,
@@ -262,16 +262,11 @@ function VariantEditRow({
 
   return (
     <tr className="hover:bg-neutral-50/50">
-      <td className="px-6 py-4">
-        <div className="relative h-10 w-8 overflow-hidden rounded bg-neutral-100">
-          <Image
-            src={variant.imageUrl}
-            alt={`${variant.size} ${variant.color}`}
-            fill
-            className="object-cover"
-            sizes="32px"
-          />
-        </div>
+      <td className="px-6 py-3">
+        <ProductThumbnail
+          src={variant.imageUrl}
+          alt={`${variant.size} ${variant.color}`}
+        />
       </td>
       <td className="px-6 py-4 font-medium text-neutral-900">
         {variant.size} / {variant.color}

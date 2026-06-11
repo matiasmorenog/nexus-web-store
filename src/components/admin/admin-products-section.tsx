@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { AdminCard } from "@/components/admin/admin-card";
+import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { ProductCreateForm } from "@/components/admin/product-create-form";
@@ -83,19 +83,12 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
             <tbody className="divide-y divide-neutral-100">
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-neutral-50/50">
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-10 w-8 overflow-hidden rounded bg-neutral-100">
-                        {product.variants[0] ? (
-                          <Image
-                            src={product.variants[0].imageUrl}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            sizes="32px"
-                          />
-                        ) : null}
-                      </div>
+                      <ProductThumbnail
+                        src={product.variants[0]?.imageUrl}
+                        alt={product.name}
+                      />
                       <div>
                         <p className="font-medium">{product.name}</p>
                         <Link
@@ -108,21 +101,21 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     {getCategoryLabel(product.category)}
                   </td>
-                  <td className="px-6 py-4 font-medium">
+                  <td className="px-6 py-3 font-medium">
                     {formatPrice(Number(product.variants[0]?.price ?? 0))}
                   </td>
-                  <td className="px-6 py-4">{product._count.variants}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">{product._count.variants}</td>
+                  <td className="px-6 py-3">
                     {product.featured ? (
                       <Badge variant="success">Destacado</Badge>
                     ) : (
                       <Badge>Normal</Badge>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <div className="flex gap-2">
                       <Link href={`/admin/productos/${product.id}/edit`}>
                         <Button size="sm" variant="outline">

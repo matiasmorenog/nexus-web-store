@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { Mail, MapPin } from "lucide-react";
+import { CheckCircle, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,16 +18,37 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
   const [name, setName] = useState("");
   const [fromEmail, setFromEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const subject = encodeURIComponent(`Consulta desde ${storeName}`);
-    const body = encodeURIComponent(
-      `Nombre: ${name}\nEmail: ${fromEmail}\n\n${message}`,
-    );
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email: fromEmail, message }),
+      });
 
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error ?? "No se pudo enviar la consulta");
+      }
+
+      setSent(true);
+      setName("");
+      setFromEmail("");
+      setMessage("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error inesperado");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,47 +98,69 @@ export function ContactPage({ page, email, storeName }: ContactPageProps) {
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-lg border bg-neutral-50 p-6 space-y-4"
-        >
-          <div>
-            <Label htmlFor="contact-name">Nombre</Label>
-            <Input
-              id="contact-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+        {sent ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border bg-neutral-50 p-8 text-center">
+            <CheckCircle className="h-12 w-12 text-green-600" />
+            <p className="mt-4 font-medium">¡Consulta enviada!</p>
+            <p className="mt-2 text-sm text-neutral-600">
+              Recibimos tu mensaje en {storeName}. Te responderemos a la brevedad.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-6"
+              onClick={() => setSent(false)}
+            >
+              Enviar otra consulta
+            </Button>
           </div>
-          <div>
-            <Label htmlFor="contact-email">Tu email</Label>
-            <Input
-              id="contact-email"
-              type="email"
-              value={fromEmail}
-              onChange={(e) => setFromEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="contact-message">Mensaje</Label>
-            <textarea
-              id="contact-message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
-              rows={5}
-              className="flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1"
-            />
-          </div>
-          <Button type="submit" className="w-full">
-            Enviar consulta
-          </Button>
-          <p className="text-xs text-neutral-500">
-            Al enviar se abrirá tu cliente de correo con el mensaje preparado.
-          </p>
-        </form>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 rounded-lg border bg-neutral-50 p-6"
+          >
+            <div>
+              <Label htmlFor="contact-name">Nombre</Label>
+              <Input
+                id="contact-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact-email">Tu email</Label>
+              <Input
+                id="contact-email"
+                type="email"
+                value={fromEmail}
+                onChange={(e) => setFromEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact-message">Mensaje</Label>
+              <textarea
+                id="contact-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                minLength={10}
+                rows={5}
+                disabled={loading}
+                className="flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1 disabled:opacity-50"
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Enviando..." : "Enviar consulta"}
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

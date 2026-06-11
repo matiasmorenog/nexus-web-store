@@ -1,5 +1,10 @@
 import { Resend } from "resend";
 import {
+  getFromAddress,
+  isResendConfigured,
+  logDemoEmail,
+} from "@/lib/emails/email-utils";
+import {
   buildCustomerConfirmationEmail,
   buildMerchantNotificationEmail,
   type OrderEmailData,
@@ -10,23 +15,6 @@ type SendResult = {
   customer: { to: string; subject: string };
   merchant: { to: string; subject: string };
 };
-
-function isResendConfigured() {
-  const key = process.env.RESEND_API_KEY;
-  return Boolean(key && !key.includes("your-") && key.startsWith("re_"));
-}
-
-function getFromAddress() {
-  return (
-    process.env.EMAIL_FROM ??
-    "Alaska Indumentaria <onboarding@resend.dev>"
-  );
-}
-
-function logDemoEmail(label: string, to: string, subject: string, text: string) {
-  const border = "─".repeat(50);
-  console.log(`\n${border}\n[DEMO EMAIL] ${label}\nTo: ${to}\nSubject: ${subject}\n${border}\n${text}\n${border}\n`);
-}
 
 export async function sendOrderEmails(
   data: OrderEmailData,

@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { buildOrderEmailData } from "@/lib/emails/order-email-data";
 import { sendOrderEmails } from "@/lib/emails/send-order-emails";
+import { getMerchantEmail } from "@/lib/merchant-email";
 
 const orderInclude = {
   store: true,
@@ -31,23 +32,6 @@ async function markConfirmationEmailSent(orderId: string) {
     where: { id: orderId },
     data,
   });
-}
-
-async function getMerchantEmail(storeId: string) {
-  if (process.env.STORE_NOTIFICATION_EMAIL) {
-    return process.env.STORE_NOTIFICATION_EMAIL;
-  }
-
-  const owner = await db.userStore.findFirst({
-    where: { storeId },
-    include: { user: true },
-  });
-
-  if (!owner?.user.email) {
-    throw new Error("No hay email de comerciante configurado");
-  }
-
-  return owner.user.email;
 }
 
 export async function fulfillPaidOrder(orderId: string) {

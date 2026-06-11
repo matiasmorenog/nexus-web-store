@@ -7,6 +7,7 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Label } from "@/components/ui/label";
 
 const fieldClass =
@@ -94,29 +95,26 @@ export function ProductForm() {
               <Label htmlFor="color">Color inicial</Label>
               <Input id="color" name="color" defaultValue="Negro" required />
             </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="imageUrl">URL de imagen</Label>
-              <Input
-                id="imageUrl"
-                name="imageUrl"
-                placeholder="https://images.unsplash.com/..."
-              />
-            </div>
+            <ImageUploadField
+              name="imageUrl"
+              id="imageUrl"
+              label="Imagen del producto"
+            />
             <div className="flex items-center gap-2 sm:col-span-2">
               <input type="checkbox" id="featured" name="featured" />
               <Label htmlFor="featured">Destacado</Label>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Guardando..." : "Crear producto"}
-            </Button>
+          <div className="flex justify-end gap-2 border-t border-neutral-100 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
             >
               Cancelar
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Guardando..." : "Crear producto"}
             </Button>
           </div>
         </form>

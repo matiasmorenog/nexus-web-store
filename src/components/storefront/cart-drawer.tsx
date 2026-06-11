@@ -45,7 +45,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               {items.map((item) => (
                 <li key={item.variantId} className="flex gap-3">
                   <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-md bg-neutral-100">
-                    <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" />
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
                   </div>
                   <div className="flex flex-1 flex-col">
                     <div className="flex justify-between">

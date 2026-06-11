@@ -43,7 +43,7 @@ export default async function AdminProductEditPage({
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       <div>
         <Link
           href="/admin/productos"

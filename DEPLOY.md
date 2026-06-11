@@ -41,6 +41,21 @@ git push -u origin main
 | `EMAIL_FROM` | `Alaska Indumentaria <onboarding@resend.dev>` o tu dominio verificado |
 | `STORE_NOTIFICATION_EMAIL` | `admin@alaskaindumentaria.com` (avisos de nueva venta) |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Opcional (email en página de contacto; default `contacto@alaskaindumentaria.com`) |
+| `BLOB_READ_WRITE_TOKEN` | Opcional (sin esto no se pueden subir fotos en admin; URLs externas siguen funcionando) |
+
+### Imágenes (Vercel Blob)
+
+1. En el proyecto de Vercel → **Storage** → **Create Database** → **Blob**
+2. **Access: Public** (obligatorio — las fotos se muestran en la tienda con URL directa; un store Private no sirve y no se puede cambiar después)
+3. **Region: São Paulo (gru1)** recomendado para Argentina
+4. Conectá el store al proyecto; se crea `BLOB_READ_WRITE_TOKEN` automáticamente
+5. Para desarrollo local, copiá el token a `.env`:
+
+```env
+BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
+```
+
+Las fotos se comprimen a **WebP** (máx. 1200×1600 px) al subir. Plan Hobby: 1 GB storage, 10 GB transfer/mes.
 
 5. **Deploy**
 

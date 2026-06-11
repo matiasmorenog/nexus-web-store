@@ -137,7 +137,8 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [x] Edición de productos existentes
 - [x] CRUD de variantes adicionales (talle/color/stock/precio)
 - [ ] Gestión de inventario (ajustes manuales, alertas de stock bajo)
-- [ ] Subida de imágenes (galería, múltiples fotos por producto)
+- [x] Subida de imágenes (Vercel Blob, WebP optimizado al subir)
+- [ ] Galería / múltiples fotos por producto
 - [ ] Categorías dinámicas (hoy: lista fija en código)
 - [x] Filtros y búsqueda en pedidos
 - [ ] Detalle de pedido con notas internas

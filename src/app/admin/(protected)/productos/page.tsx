@@ -56,6 +56,7 @@ export default async function AdminProductsPage() {
                           alt={product.name}
                           fill
                           className="object-cover"
+                          sizes="32px"
                         />
                       )}
                     </div>

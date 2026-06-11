@@ -98,9 +98,11 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
         </div>
       </div>
 
-      <Button type="submit" disabled={loading}>
-        {loading ? "Guardando..." : "Guardar producto"}
-      </Button>
+      <div className="flex justify-end border-t border-neutral-100 pt-4">
+        <Button type="submit" disabled={loading}>
+          {loading ? "Guardando..." : "Guardar producto"}
+        </Button>
+      </div>
     </form>
     </AdminCard>
   );

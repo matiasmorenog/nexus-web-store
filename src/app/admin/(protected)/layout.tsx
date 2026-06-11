@@ -20,7 +20,7 @@ export default async function AdminProtectedLayout({
         userEmail={session.user?.email}
       />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
-        <main className="flex min-h-0 flex-1 flex-col p-4 sm:p-6 lg:p-8">
+        <main className="flex min-h-0 flex-1 flex-col px-4 pt-4 pb-16 sm:px-6 sm:pt-6 sm:pb-20 lg:px-8 lg:pt-8 lg:pb-24">
           {children}
         </main>
       </div>

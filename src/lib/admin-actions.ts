@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { slugify } from "@/lib/utils";
 
 async function getAdminStoreId() {
@@ -60,7 +61,7 @@ export async function createProduct(formData: FormData) {
           sku: `${slug}-${formData.get("size")}-${formData.get("color")}`.toUpperCase(),
           stock: parseInt(formData.get("stock") as string) || 0,
           price: parseFloat(formData.get("price") as string) || 0,
-          imageUrl: (formData.get("imageUrl") as string) || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
+          imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
         },
       },
     },
@@ -136,9 +137,7 @@ export async function createVariant(productId: string, formData: FormData) {
       sku: `${product.slug}-${size}-${color}`.toUpperCase(),
       stock: parseInt(formData.get("stock") as string) || 0,
       price: parseFloat(formData.get("price") as string) || 0,
-      imageUrl:
-        (formData.get("imageUrl") as string) ||
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
+      imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
     },
   });
 
@@ -168,7 +167,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
       sku: `${variant.product.slug}-${size}-${color}`.toUpperCase(),
       stock: parseInt(formData.get("stock") as string) || 0,
       price: parseFloat(formData.get("price") as string) || 0,
-      imageUrl: formData.get("imageUrl") as string,
+      imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
     },
   });
 

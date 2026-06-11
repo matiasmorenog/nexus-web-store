@@ -27,7 +27,13 @@ export default function CartPage() {
             {items.map((item) => (
               <li key={item.variantId} className="flex gap-4 py-4">
                 <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-md bg-neutral-100">
-                  <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" />
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.productName}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
                 </div>
                 <div className="flex flex-1 flex-col">
                   <div className="flex justify-between">

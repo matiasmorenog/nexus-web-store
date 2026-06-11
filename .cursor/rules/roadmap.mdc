@@ -16,13 +16,13 @@ Backend: MP + webhook (demo sin token), multi-tenant schema, seed Alaska.
 ## Próximo — Fase A (1 negocio real)
 
 1. ~~Editar productos + variantes + stock en admin~~ ✅
-2. Subida de imágenes (no solo URL) — pospuesto
+2. ~~Subida de imágenes (Vercel Blob + WebP)~~ ✅
 3. ~~Emails transaccionales~~ ✅ (demo log / Resend)
 4. ~~Búsqueda por texto~~ ✅
 5. ~~Retiro en local en checkout~~ ✅
 6. ~~Páginas legales y contacto~~ ✅
 7. SEO básico (meta, sitemap, Open Graph) — pospuesto para demo
-8. Cuenta cliente + mis pedidos ← siguiente
+8. Cuenta cliente + mis pedidos ← siguiente (subida imágenes hecha)
 
 ## Fase B — competir con Tienda Nube lite
 

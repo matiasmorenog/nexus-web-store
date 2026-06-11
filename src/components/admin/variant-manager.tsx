@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   createVariant,
   deleteVariant,
   updateVariant,
 } from "@/lib/admin-actions";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/admin-card";
+import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,57 +48,58 @@ function VariantFormFields({
   values?: Partial<VariantFormValues>;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <div>
-        <Label htmlFor={`${formId}-size`}>Talle</Label>
-        <Input
-          id={`${formId}-size`}
-          name="size"
-          defaultValue={values?.size ?? "M"}
-          required
-        />
+    <div className="space-y-4">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+        <div>
+          <Label htmlFor={`${formId}-size`}>Talle</Label>
+          <Input
+            id={`${formId}-size`}
+            name="size"
+            defaultValue={values?.size ?? "M"}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor={`${formId}-color`}>Color</Label>
+          <Input
+            id={`${formId}-color`}
+            name="color"
+            defaultValue={values?.color ?? ""}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor={`${formId}-price`}>Precio</Label>
+          <Input
+            id={`${formId}-price`}
+            name="price"
+            type="number"
+            min="0"
+            step="0.01"
+            defaultValue={values?.price ?? ""}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor={`${formId}-stock`}>Stock</Label>
+          <Input
+            id={`${formId}-stock`}
+            name="stock"
+            type="number"
+            min="0"
+            defaultValue={values?.stock ?? 10}
+            required
+          />
+        </div>
       </div>
-      <div>
-        <Label htmlFor={`${formId}-color`}>Color</Label>
-        <Input
-          id={`${formId}-color`}
-          name="color"
-          defaultValue={values?.color ?? ""}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor={`${formId}-price`}>Precio</Label>
-        <Input
-          id={`${formId}-price`}
-          name="price"
-          type="number"
-          min="0"
-          step="0.01"
-          defaultValue={values?.price ?? ""}
-          required
-        />
-      </div>
-      <div>
-        <Label htmlFor={`${formId}-stock`}>Stock</Label>
-        <Input
-          id={`${formId}-stock`}
-          name="stock"
-          type="number"
-          min="0"
-          defaultValue={values?.stock ?? 10}
-          required
-        />
-      </div>
-      <div className="sm:col-span-2">
-        <Label htmlFor={`${formId}-imageUrl`}>URL imagen</Label>
-        <Input
-          id={`${formId}-imageUrl`}
-          name="imageUrl"
-          defaultValue={values?.imageUrl ?? ""}
-          placeholder="https://images.unsplash.com/..."
-        />
-      </div>
+      <ImageUploadField
+        key={`${formId}-${values?.imageUrl ?? "new"}`}
+        id={`${formId}-imageUrl`}
+        name="imageUrl"
+        label="Imagen"
+        defaultValue={values?.imageUrl ?? ""}
+        compact
+      />
     </div>
   );
 }
@@ -121,14 +123,25 @@ function VariantInlineForm({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
 }) {
+  const rowRef = useRef<HTMLTableRowElement>(null);
+
+  useEffect(() => {
+    rowRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, []);
+
   return (
-    <tr>
-      <td colSpan={6} className="bg-neutral-50/80 px-6 py-4">
+    <tr ref={rowRef} className="scroll-mb-24">
+      <td colSpan={6} className="bg-neutral-50/80 px-6 py-4 pb-8">
         <form onSubmit={onSubmit} className="space-y-3">
           <p className="text-sm font-medium text-neutral-700">{title}</p>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <VariantFormFields formId={formId} values={values} />
-          <div className="flex gap-2">
+          <div
+            className={cn(
+              "ml-auto flex w-fit justify-end gap-2",
+              "sticky right-0 z-10 -mr-6 py-2 pl-3 pr-6",
+              "md:static md:mr-0 md:bg-transparent md:py-0 md:pl-0 md:pr-0",
+            )}>
             <Button type="submit" size="sm" disabled={loading}>
               {loading ? "..." : submitLabel}
             </Button>
@@ -137,8 +150,7 @@ function VariantInlineForm({
               size="sm"
               variant="outline"
               onClick={onCancel}
-              disabled={loading}
-            >
+              disabled={loading}>
               Cancelar
             </Button>
           </div>
@@ -254,6 +266,7 @@ function VariantEditRow({
             alt={`${variant.size} ${variant.color}`}
             fill
             className="object-cover"
+            sizes="32px"
           />
         </div>
       </td>
@@ -272,8 +285,7 @@ function VariantEditRow({
               : variant.stock <= 3
                 ? "font-medium text-amber-600"
                 : ""
-          }
-        >
+          }>
           {variant.stock}
         </span>
       </td>
@@ -283,8 +295,7 @@ function VariantEditRow({
             size="sm"
             variant="outline"
             onClick={onStartEdit}
-            disabled={loading || editDisabled}
-          >
+            disabled={loading || editDisabled}>
             Editar
           </Button>
           {variant.orderItemCount === 0 && (
@@ -292,8 +303,7 @@ function VariantEditRow({
               size="sm"
               variant="destructive"
               onClick={handleDelete}
-              disabled={loading || editDisabled}
-            >
+              disabled={loading || editDisabled}>
               Eliminar
             </Button>
           )}
@@ -318,22 +328,32 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
         <Button
           size="sm"
           onClick={() => setActiveEdit({ type: "new" })}
-          disabled={isBusy}
-        >
+          disabled={isBusy}>
           Agregar variante
         </Button>
-      }
-    >
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+      }>
+      <div className={cn("overflow-x-auto", isBusy && "pb-10")}>
+        <table className="w-full min-w-[40rem] text-sm">
           <thead className="border-b border-neutral-100 bg-neutral-50/80">
             <tr>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">Imagen</th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">Talle / Color</th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">SKU</th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">Precio</th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">Stock</th>
-              <th className="px-6 py-3 text-left font-medium text-neutral-600">Acciones</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                Imagen
+              </th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                Talle / Color
+              </th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                SKU
+              </th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                Precio
+              </th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                Stock
+              </th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100">

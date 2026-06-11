@@ -1,0 +1,35 @@
+---
+description: Features implementados vs pendientes — prioridades de producto
+alwaysApply: true
+---
+
+# Roadmap (resumen)
+
+Lista completa con checkboxes en `README.md` → **Roadmap de features**. No re-inventariar el código; usar ese listado.
+
+## Ya implementado (no rehacer)
+
+Storefront: home, catálogo, filtros URL, PDP variantes, carrito Zustand, checkout, páginas post-pago, header/footer responsive.
+Admin: login, dashboard KPIs, alta/baja productos, listado pedidos + cambio estado, config (nombre, envío fijo, retiro local flag).
+Backend: MP + webhook (demo sin token), multi-tenant schema, seed Alaska.
+
+## Próximo — Fase A (1 negocio real)
+
+1. Editar productos + variantes + stock en admin
+2. Subida de imágenes (no solo URL)
+3. Emails transaccionales
+4. Búsqueda por texto
+5. Retiro en local en checkout
+6. Páginas legales y contacto
+7. SEO básico (meta, sitemap)
+8. Cuenta cliente + mis pedidos
+
+## Fase B — competir con Tienda Nube lite
+
+Cupones, home/banners editables, categorías dinámicas, dominio custom, analytics admin, envíos carrier, WhatsApp/Meta Pixel.
+
+## Fase C — SaaS
+
+Onboarding tiendas, planes/billing, temas, multi-usuario, API/webhooks.
+
+Al implementar un ítem pendiente, marcar `[x]` en `README.md`.

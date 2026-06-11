@@ -1,0 +1,37 @@
+---
+description: Contexto del proyecto y guía para ahorrar tokens
+alwaysApply: true
+---
+
+# Nexus Web Store — contexto
+
+**Marca en la tienda:** Alaska Indumentaria. **Nexus** es solo la software factory; no aparece en el storefront.
+
+## Stack y convenciones
+
+- Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand (carrito), Mercado Pago
+- Tienda única vía `DEFAULT_STORE_SLUG` (`alaska-indumentaria`); schema multi-tenant (`storeId`) listo para SaaS
+- Color de marca en `src/app/globals.css` (`--brand-primary`), no en DB ni admin
+- Categorías fijas en `src/lib/categories.ts` (no CRUD)
+- Sin `middleware.ts` (límite Edge en Vercel); admin protegido en `src/app/admin/(protected)/layout.tsx`
+- Store resuelto en `src/lib/store-context.ts`; DB en `src/lib/db.ts`
+
+## Archivos clave (leer solo si hace falta)
+
+| Área | Ruta |
+|------|------|
+| Storefront pages | `src/app/(storefront)/` |
+| Admin | `src/app/admin/(protected)/` |
+| Checkout API | `src/app/api/checkout/route.ts` |
+| Auth | `src/lib/auth.ts` |
+| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts` |
+| Deploy | `DEPLOY.md` |
+| Features / roadmap | `README.md` → sección **Roadmap de features** |
+
+## Ahorro de tokens
+
+- No explorar el repo entero ni lanzar subagentes para preguntas acotadas; usar grep/read en el archivo indicado arriba
+- Consultar `README.md` (roadmap) antes de planificar features nuevas
+- Cambios mínimos; no refactorizar ni tocar archivos no relacionados
+- Admin demo: `admin@alaskaindumentaria.com` / `admin123`
+- Producción: `https://nexus-web-store.vercel.app`; env vars en `DEPLOY.md`

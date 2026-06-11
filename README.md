@@ -44,7 +44,7 @@ Abrí [http://localhost:3000](http://localhost:3000)
 ### Credenciales demo (admin)
 
 - **URL:** `/admin/login`
-- **Email:** `admin@crossnexus.com`
+- **Email:** `admin@alaskaindumentaria.com`
 - **Password:** `admin123`
 
 ## Mercado Pago
@@ -60,12 +60,12 @@ Sin credenciales válidas, el checkout funciona en **modo demo** (simula pago ex
 
 ## Deploy en Vercel
 
-1. Cambiá `provider` en `prisma/schema.prisma` a `postgresql` y configurá `DATABASE_URL`
-2. Creá un proyecto en [Neon](https://neon.tech) o [Supabase](https://supabase.com)
-3. Conectá el repo a Vercel
-4. Configurá las variables de entorno de `.env.example`
-5. Ejecutá `npm run db:setup` contra la base de producción
-6. Deploy automático
+Ver guía paso a paso en [`DEPLOY.md`](DEPLOY.md).
+
+1. Creá un proyecto en [Neon](https://neon.tech) y copiá la connection string (pooler)
+2. Configurá las variables de entorno en Vercel (ver `DEPLOY.md`)
+3. Ejecutá `npm run db:setup` contra la base de producción
+4. Deploy / redeploy en Vercel
 
 ## Estructura
 
@@ -83,11 +83,94 @@ src/
 └── stores/
 ```
 
-## Roadmap
+## Roadmap de features
 
-- **Fase 1 (actual):** Demo portfolio con seed data
-- **Fase 2:** Personalización para cliente real (branding del box, catálogo CrossFit, MP producción)
-- **Fase 3:** SaaS multi-tienda con onboarding y suscripciones
+Estado actual del producto vs. lo necesario para operar como app real. Actualizar los checkboxes al implementar cada ítem.
+
+> Reglas de Cursor en `.cursor/rules/` (`project-context.mdc`, `roadmap.mdc`) — resumen para el agente y prioridades sin re-explorar el código.
+
+### Storefront (comprador)
+
+- [x] Home con hero, categorías y productos destacados
+- [x] Catálogo con listado de productos
+- [x] Filtros por categoría, talle y precio máximo (query params)
+- [x] Detalle de producto con variantes (talle / color / stock / precio)
+- [x] Carrito persistente (Zustand + localStorage)
+- [x] Drawer de carrito en header + página `/carrito`
+- [x] Checkout con datos de envío del cliente
+- [x] Páginas post-pago (éxito / pendiente / error)
+- [x] Header y footer responsive con navegación por categorías
+- [ ] Búsqueda por texto (el ícono hoy solo enlaza a `/productos`)
+- [ ] Cuenta de cliente (registro, login, perfil)
+- [ ] Mis pedidos y seguimiento de estado
+- [ ] Cupones y promociones
+- [ ] Retiro en local en checkout (`allowPickup` existe en DB, no en UI)
+- [ ] Múltiples opciones de envío (zonas, carriers, peso)
+- [ ] Wishlist / favoritos
+- [ ] Reviews y valoraciones de productos
+- [ ] Newsletter / captura de emails
+- [ ] Páginas legales (términos, privacidad, cambios y devoluciones)
+- [ ] FAQ, guía de talles y contacto
+- [ ] SEO por producto/categoría (meta tags, Open Graph, sitemap)
+- [ ] Integración WhatsApp (“consultar por WA”)
+- [ ] Carrito abandonado (email recordatorio)
+
+### Pagos y pedidos
+
+- [x] Integración Mercado Pago Checkout Pro
+- [x] Webhook de confirmación de pago
+- [x] Modo demo sin credenciales MP (simula pago exitoso)
+- [x] Descuento de stock al confirmar pedido
+- [ ] Mercado Pago en producción (credenciales reales)
+- [ ] Email de confirmación de compra al cliente
+- [ ] Email de notificación de venta al comerciante
+- [ ] Facturación / integración AFIP (Argentina)
+
+### Panel admin
+
+- [x] Login protegido (NextAuth, credenciales)
+- [x] Dashboard con KPIs básicos (productos, pedidos, ingresos)
+- [x] Alta de productos con variante inicial
+- [x] Listado y eliminación de productos
+- [x] Listado de pedidos con cambio de estado
+- [x] Configuración: nombre tienda, costo envío fijo, flag retiro local
+- [ ] Edición de productos existentes
+- [ ] CRUD de variantes adicionales (talle/color/stock/precio)
+- [ ] Gestión de inventario (ajustes manuales, alertas de stock bajo)
+- [ ] Subida de imágenes (galería, múltiples fotos por producto)
+- [ ] Categorías dinámicas (hoy: lista fija en código)
+- [ ] Filtros y búsqueda en pedidos
+- [ ] Detalle de pedido con notas internas
+- [ ] Exportar pedidos / productos (CSV)
+- [ ] Dashboard con gráficos y períodos
+- [ ] Gestión de clientes (CRM lite)
+- [ ] Gestión de usuarios y permisos (roles existen en schema, sin UI)
+- [ ] Configuración de marca (logo, colores, dominio custom)
+- [ ] Cupones, banners y home editable desde admin
+
+### Infraestructura y SaaS
+
+- [x] Modelo multi-tenant en Prisma (`storeId` en entidades)
+- [x] Tienda demo Alaska Indumentaria (seed)
+- [x] Deploy en Vercel + PostgreSQL (Neon)
+- [ ] Dominio propio por tienda (`customDomain` en schema, sin implementar)
+- [ ] Onboarding self-service (“creá tu tienda”)
+- [ ] Planes y facturación (suscripción mensual)
+- [ ] Temas / templates intercambiables
+- [ ] Integraciones (Instagram, Google Shopping, Meta Pixel)
+- [ ] Envíos con carriers (OCA, Andreani, Correo Argentino)
+- [ ] API pública y webhooks para terceros
+
+### Fases de producto
+
+**Fase A — Usable por un negocio real (1 tienda)**  
+Editar productos, subir fotos, emails, búsqueda, retiro en local, páginas legales, SEO básico, cuenta cliente.
+
+**Fase B — Competir con Tienda Nube lite**  
+Cupones, home editable, categorías dinámicas, dominio custom, analytics, envíos carrier, WhatsApp / Meta Pixel.
+
+**Fase C — SaaS multi-tienda**  
+Onboarding, planes/billing, temas, multi-usuario, API.
 
 ---
 

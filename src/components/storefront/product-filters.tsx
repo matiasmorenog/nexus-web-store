@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { Label } from "@/components/ui/label";
+import { ProductSearch } from "@/components/storefront/product-search";
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
 
@@ -22,6 +23,8 @@ export function ProductFilters() {
 
   return (
     <aside className="space-y-6">
+      <ProductSearch />
+
       <div>
         <Label className="mb-2 block">Categoría</Label>
         <div className="space-y-1">

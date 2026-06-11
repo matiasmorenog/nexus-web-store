@@ -11,6 +11,7 @@ type SearchParams = Promise<{
   categoria?: string;
   talle?: string;
   precioMax?: string;
+  q?: string;
 }>;
 
 export default async function ProductsPage({
@@ -25,6 +26,25 @@ export default async function ProductsPage({
 
   if (params.categoria) {
     where.category = params.categoria;
+  }
+
+  const searchQuery = params.q?.trim();
+  if (searchQuery) {
+    where.OR = [
+      { name: { contains: searchQuery, mode: "insensitive" } },
+      { description: { contains: searchQuery, mode: "insensitive" } },
+      { category: { contains: searchQuery, mode: "insensitive" } },
+      {
+        variants: {
+          some: {
+            OR: [
+              { sku: { contains: searchQuery, mode: "insensitive" } },
+              { color: { contains: searchQuery, mode: "insensitive" } },
+            ],
+          },
+        },
+      },
+    ];
   }
 
   if (params.talle) {
@@ -56,9 +76,15 @@ export default async function ProductsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="mb-8 text-3xl font-bold">
+      <h1 className="mb-2 text-3xl font-bold">
         <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">Productos</span>
       </h1>
+      {searchQuery && (
+        <p className="mb-8 text-sm text-neutral-500">
+          Resultados para &ldquo;{searchQuery}&rdquo;
+        </p>
+      )}
+      {!searchQuery && <div className="mb-8" />}
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
         <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-neutral-100" />}>
           <ProductFilters />

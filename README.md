@@ -100,7 +100,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [x] Checkout con datos de envío del cliente
 - [x] Páginas post-pago (éxito / pendiente / error)
 - [x] Header y footer responsive con navegación por categorías
-- [ ] Búsqueda por texto (el ícono hoy solo enlaza a `/productos`)
+- [x] Búsqueda por texto (header + filtros del catálogo, query `q`)
 - [ ] Cuenta de cliente (registro, login, perfil)
 - [ ] Mis pedidos y seguimiento de estado
 - [ ] Cupones y promociones

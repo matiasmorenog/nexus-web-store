@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import { Menu, ShoppingBag, X } from "lucide-react";
+import { ProductSearch } from "@/components/storefront/product-search";
 import { useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
@@ -52,7 +53,7 @@ export function Header({ storeName }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/90 shadow-sm backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/90 shadow-sm backdrop-blur-md relative">
         <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
 
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -77,13 +78,7 @@ export function Header({ storeName }: HeaderProps) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <Link
-              href="/productos"
-              aria-label="Buscar productos"
-              className="rounded-lg p-2.5 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-            >
-              <Search className="h-5 w-5" />
-            </Link>
+            <ProductSearch compact />
             <button
               type="button"
               aria-label="Abrir carrito"

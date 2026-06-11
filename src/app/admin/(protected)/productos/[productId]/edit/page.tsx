@@ -47,16 +47,20 @@ export default async function AdminProductEditPage({
       <div>
         <Link
           href="/admin/productos"
-          className="mb-2 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver a productos
         </Link>
-        <h1 className="text-2xl font-bold">{product.name}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+          <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-0.5">
+            {product.name}
+          </span>
+        </h1>
         <Link
           href={`/producto/${product.slug}`}
           target="_blank"
-          className="text-sm text-neutral-500 hover:underline"
+          className="mt-2 inline-block text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
         >
           Ver en tienda →
         </Link>

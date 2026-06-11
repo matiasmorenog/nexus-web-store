@@ -139,7 +139,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [ ] Gestión de inventario (ajustes manuales, alertas de stock bajo)
 - [ ] Subida de imágenes (galería, múltiples fotos por producto)
 - [ ] Categorías dinámicas (hoy: lista fija en código)
-- [ ] Filtros y búsqueda en pedidos
+- [x] Filtros y búsqueda en pedidos
 - [ ] Detalle de pedido con notas internas
 - [ ] Exportar pedidos / productos (CSV)
 - [ ] Dashboard con gráficos y períodos

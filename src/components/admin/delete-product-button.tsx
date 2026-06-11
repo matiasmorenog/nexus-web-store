@@ -15,7 +15,7 @@ export function DeleteProductButton({ productId }: { productId: string }) {
   };
 
   return (
-    <Button variant="danger" size="sm" onClick={handleDelete} disabled={loading}>
+    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
       {loading ? "..." : "Eliminar"}
     </Button>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { updateStoreSettings } from "@/lib/admin-actions";
+import { AdminCard } from "@/components/admin/admin-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +30,8 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg space-y-4 rounded-lg border bg-white p-6">
+    <AdminCard title="Tienda y envíos" className="max-w-lg">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="name">Nombre de la tienda</Label>
         <Input id="name" name="name" defaultValue={store.name} required />
@@ -58,5 +60,6 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
         {loading ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>
+    </AdminCard>
   );
 }

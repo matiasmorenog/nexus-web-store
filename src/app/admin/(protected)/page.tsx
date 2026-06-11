@@ -1,7 +1,12 @@
 import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
+import { AdminCard } from "@/components/admin/admin-card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminStatCard } from "@/components/admin/admin-stat-card";
+import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { formatPrice } from "@/lib/utils";
+import { getOrderStatusLabel, getOrderStatusVariant } from "@/lib/order-status";
 
 export const dynamic = "force-dynamic";
 
@@ -24,67 +29,81 @@ export default async function AdminDashboardPage() {
       where: { storeId },
       orderBy: { createdAt: "desc" },
       take: 5,
-      include: { items: { include: { variant: { include: { product: true } } } } },
     }),
   ]);
 
   const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
 
   const stats = [
-    { label: "Productos", value: productCount, icon: Package },
-    { label: "Pedidos", value: orderCount, icon: ShoppingCart },
-    { label: "Ingresos", value: formatPrice(revenue), icon: DollarSign },
-    { label: "Ventas pagadas", value: paidOrders.length, icon: TrendingUp },
+    { label: "Productos", value: productCount, icon: Package, accent: "brand" as const },
+    { label: "Pedidos", value: orderCount, icon: ShoppingCart, accent: "blue" as const },
+    { label: "Ingresos", value: formatPrice(revenue), icon: DollarSign, accent: "green" as const },
+    { label: "Ventas pagadas", value: paidOrders.length, icon: TrendingUp, accent: "amber" as const },
   ];
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <AdminPageHeader
+        title="Dashboard"
+        description="Resumen de tu tienda Alaska Indumentaria."
+      />
+
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border bg-white p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-neutral-500">{stat.label}</p>
-              <stat.icon className="h-4 w-4 text-neutral-400" />
-            </div>
-            <p className="mt-2 text-2xl font-bold">{stat.value}</p>
-          </div>
+          <AdminStatCard key={stat.label} {...stat} />
         ))}
       </div>
 
-      <h2 className="mb-4 text-lg font-semibold">Pedidos recientes</h2>
-      <div className="overflow-hidden rounded-lg border bg-white">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-neutral-50">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Cliente</th>
-              <th className="px-4 py-3 text-left font-medium">Estado</th>
-              <th className="px-4 py-3 text-left font-medium">Total</th>
-              <th className="px-4 py-3 text-left font-medium">Fecha</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {recentOrders.length === 0 ? (
+      <AdminCard title="Pedidos recientes" padding={false}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-neutral-100 bg-neutral-50/80">
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-neutral-500">
-                  No hay pedidos aún
-                </td>
+                <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                  Cliente
+                </th>
+                <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                  Estado
+                </th>
+                <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                  Total
+                </th>
+                <th className="px-6 py-3 text-left font-medium text-neutral-600">
+                  Fecha
+                </th>
               </tr>
-            ) : (
-              recentOrders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-4 py-3">{order.customerName}</td>
-                  <td className="px-4 py-3 capitalize">{order.status.toLowerCase()}</td>
-                  <td className="px-4 py-3">{formatPrice(Number(order.total))}</td>
-                  <td className="px-4 py-3">
-                    {new Date(order.createdAt).toLocaleDateString("es-AR")}
+            </thead>
+            <tbody className="divide-y divide-neutral-100">
+              {recentOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-neutral-500">
+                    No hay pedidos aún
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                recentOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-neutral-50/50">
+                    <td className="px-6 py-4 font-medium text-neutral-900">
+                      {order.customerName}
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant={getOrderStatusVariant(order.status)}>
+                        {getOrderStatusLabel(order.status)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 font-medium">
+                      {formatPrice(Number(order.total))}
+                    </td>
+                    <td className="px-6 py-4 text-neutral-500">
+                      {new Date(order.createdAt).toLocaleDateString("es-AR")}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </AdminCard>
     </div>
   );
 }

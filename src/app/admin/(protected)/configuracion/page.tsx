@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,10 @@ export default async function AdminSettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Configuración</h1>
+      <AdminPageHeader
+        title="Configuración"
+        description="Nombre de la tienda, envíos y opciones de retiro en local."
+      />
       <StoreSettingsForm
         store={{
           name: store.name,

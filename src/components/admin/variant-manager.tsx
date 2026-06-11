@@ -8,6 +8,7 @@ import {
   updateVariant,
 } from "@/lib/admin-actions";
 import { formatPrice } from "@/lib/utils";
+import { AdminCard } from "@/components/admin/admin-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,7 +123,7 @@ function VariantInlineForm({
 }) {
   return (
     <tr>
-      <td colSpan={6} className="bg-neutral-50 px-4 py-4">
+      <td colSpan={6} className="bg-neutral-50/80 px-6 py-4">
         <form onSubmit={onSubmit} className="space-y-3">
           <p className="text-sm font-medium text-neutral-700">{title}</p>
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -245,8 +246,8 @@ function VariantEditRow({
   }
 
   return (
-    <tr className="divide-y">
-      <td className="px-4 py-3">
+    <tr className="hover:bg-neutral-50/50">
+      <td className="px-6 py-4">
         <div className="relative h-10 w-8 overflow-hidden rounded bg-neutral-100">
           <Image
             src={variant.imageUrl}
@@ -256,14 +257,14 @@ function VariantEditRow({
           />
         </div>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-6 py-4 font-medium text-neutral-900">
         {variant.size} / {variant.color}
       </td>
-      <td className="px-4 py-3 font-mono text-xs text-neutral-500">
+      <td className="px-6 py-4 font-mono text-xs text-neutral-500">
         {variant.sku}
       </td>
-      <td className="px-4 py-3">{formatPrice(variant.price)}</td>
-      <td className="px-4 py-3">
+      <td className="px-6 py-4 font-medium">{formatPrice(variant.price)}</td>
+      <td className="px-6 py-4">
         <span
           className={
             variant.stock === 0
@@ -276,11 +277,11 @@ function VariantEditRow({
           {variant.stock}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-6 py-4">
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant="secondary"
+            variant="outline"
             onClick={onStartEdit}
             disabled={loading || editDisabled}
           >
@@ -289,7 +290,7 @@ function VariantEditRow({
           {variant.orderItemCount === 0 && (
             <Button
               size="sm"
-              variant="danger"
+              variant="destructive"
               onClick={handleDelete}
               disabled={loading || editDisabled}
             >
@@ -309,9 +310,11 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
   const isBusy = activeEdit !== null;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Variantes ({variants.length})</h2>
+    <AdminCard
+      title={`Variantes (${variants.length})`}
+      description="Talles, colores, stock y precios por variante."
+      padding={false}
+      action={
         <Button
           size="sm"
           onClick={() => setActiveEdit({ type: "new" })}
@@ -319,21 +322,21 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
         >
           Agregar variante
         </Button>
-      </div>
-
-      <div className="overflow-hidden rounded-lg border bg-white">
+      }
+    >
+      <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="border-b bg-neutral-50">
+          <thead className="border-b border-neutral-100 bg-neutral-50/80">
             <tr>
-              <th className="px-4 py-3 text-left font-medium">Imagen</th>
-              <th className="px-4 py-3 text-left font-medium">Talle / Color</th>
-              <th className="px-4 py-3 text-left font-medium">SKU</th>
-              <th className="px-4 py-3 text-left font-medium">Precio</th>
-              <th className="px-4 py-3 text-left font-medium">Stock</th>
-              <th className="px-4 py-3 text-left font-medium">Acciones</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">Imagen</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">Talle / Color</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">SKU</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">Precio</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">Stock</th>
+              <th className="px-6 py-3 text-left font-medium text-neutral-600">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y">
+          <tbody className="divide-y divide-neutral-100">
             {activeEdit?.type === "new" && (
               <NewVariantRow
                 productId={productId}
@@ -361,6 +364,6 @@ export function VariantManager({ productId, variants }: VariantManagerProps) {
           </tbody>
         </table>
       </div>
-    </div>
+    </AdminCard>
   );
 }

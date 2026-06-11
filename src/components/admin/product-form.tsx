@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { createProduct } from "@/lib/admin-actions";
 import { STORE_CATEGORIES } from "@/lib/categories";
+import { AdminCard } from "@/components/admin/admin-card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const fieldClass =
+  "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 export function ProductForm() {
   const [open, setOpen] = useState(false);
@@ -22,20 +27,20 @@ export function ProductForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Productos</h1>
-        {!open && (
-          <Button onClick={() => setOpen(true)}>Nuevo producto</Button>
-        )}
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Productos"
+        description="Alta, edición y variantes de tu catálogo."
+        action={
+          !open ? (
+            <Button onClick={() => setOpen(true)}>Nuevo producto</Button>
+          ) : undefined
+        }
+      />
 
       {open && (
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-lg border bg-white p-6 space-y-4"
-        >
-          <h2 className="font-semibold">Nuevo producto</h2>
+        <AdminCard title="Nuevo producto" description="Completá los datos del producto y su primera variante.">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="name">Nombre</Label>
@@ -46,7 +51,7 @@ export function ProductForm() {
               <select
                 id="category"
                 name="category"
-                className="flex h-10 w-full rounded-md border border-neutral-300 px-3 text-sm"
+                className={fieldClass}
                 required
               >
                 {STORE_CATEGORIES.map((c) => (
@@ -62,7 +67,7 @@ export function ProductForm() {
                 id="description"
                 name="description"
                 rows={3}
-                className="flex w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+                className={fieldClass}
                 required
               />
             </div>
@@ -115,6 +120,7 @@ export function ProductForm() {
             </Button>
           </div>
         </form>
+        </AdminCard>
       )}
     </div>
   );

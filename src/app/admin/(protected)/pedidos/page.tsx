@@ -1,30 +1,78 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/utils";
-import { OrderStatusSelect } from "@/components/admin/order-status-select";
-import { Badge } from "@/components/ui/badge";
+import {
+  ORDER_STATUSES,
+  formatOrderId,
+  type OrderStatus,
+} from "@/lib/order-status";
+import { AdminOrderCard } from "@/components/admin/admin-order-card";
+import { AdminCard } from "@/components/admin/admin-card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { OrdersFiltersPanel } from "@/components/admin/orders-filters-panel";
 
 export const dynamic = "force-dynamic";
 
-const statusVariant: Record<string, "default" | "success" | "warning" | "danger"> = {
-  PENDING: "warning",
-  PAID: "success",
-  SHIPPED: "default",
-  CANCELLED: "danger",
-};
+type SearchParams = Promise<{
+  estado?: string;
+  q?: string;
+}>;
 
-const statusLabel: Record<string, string> = {
-  PENDING: "Pendiente",
-  PAID: "Pagado",
-  SHIPPED: "Enviado",
-  CANCELLED: "Cancelado",
-};
+function filterOrders<
+  T extends {
+    id: string;
+    status: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+  },
+>(orders: T[], estado?: string, q?: string) {
+  let result = orders;
 
-export default async function AdminOrdersPage() {
+  if (estado && ORDER_STATUSES.includes(estado as OrderStatus)) {
+    result = result.filter((o) => o.status === estado);
+  }
+
+  const query = q?.trim().toLowerCase();
+  if (query) {
+    result = result.filter(
+      (o) =>
+        o.customerName.toLowerCase().includes(query) ||
+        o.customerEmail.toLowerCase().includes(query) ||
+        o.customerPhone.toLowerCase().includes(query) ||
+        o.id.toLowerCase().includes(query) ||
+        formatOrderId(o.id).toLowerCase().includes(query),
+    );
+  }
+
+  return result;
+}
+
+function buildStatusCounts(orders: { status: string }[]) {
+  const counts = Object.fromEntries(
+    ORDER_STATUSES.map((s) => [s, 0]),
+  ) as Record<OrderStatus, number>;
+
+  for (const order of orders) {
+    if (order.status in counts) {
+      counts[order.status as OrderStatus] += 1;
+    }
+  }
+
+  return counts;
+}
+
+export default async function AdminOrdersPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const session = await auth();
   const storeId = session?.user?.storeId;
 
   if (!storeId) return <p>No autorizado</p>;
+
+  const params = await searchParams;
 
   const orders = await db.order.findMany({
     where: { storeId },
@@ -38,58 +86,67 @@ export default async function AdminOrdersPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold">Pedidos</h1>
+  const filteredOrders = filterOrders(orders, params.estado, params.q);
+  const statusCounts = buildStatusCounts(orders);
+  const paidRevenue = orders
+    .filter((o) => o.status === "PAID" || o.status === "SHIPPED")
+    .reduce((sum, o) => sum + Number(o.total), 0);
 
-      <div className="space-y-4">
-        {orders.length === 0 ? (
-          <p className="py-12 text-center text-neutral-500">No hay pedidos aún</p>
-        ) : (
-          orders.map((order) => (
-            <div key={order.id} className="rounded-lg border bg-white p-4">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="font-semibold">{order.customerName}</p>
-                  <p className="text-sm text-neutral-500">{order.customerEmail}</p>
-                  <p className="text-sm text-neutral-500">{order.customerPhone}</p>
-                  <p className="mt-2 text-sm">
-                    {order.isPickup ? (
-                      <Badge variant="default" className="mr-2">
-                        Retiro en local
-                      </Badge>
-                    ) : null}
-                    {order.isPickup
-                      ? order.shippingCity
-                      : `${order.shippingAddress}, ${order.shippingCity} (${order.shippingZip})`}
-                  </p>
-                  <p className="mt-1 text-xs text-neutral-400">
-                    {new Date(order.createdAt).toLocaleString("es-AR")}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold">{formatPrice(Number(order.total))}</p>
-                  <Badge variant={statusVariant[order.status]} className="mt-1">
-                    {statusLabel[order.status]}
-                  </Badge>
-                  <div className="mt-2">
-                    <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
-                  </div>
-                </div>
-              </div>
-              <ul className="mt-4 border-t pt-3 text-sm">
-                {order.items.map((item) => (
-                  <li key={item.id} className="flex justify-between py-1">
-                    <span>
-                      {item.variant.product.name} — {item.variant.size}/{item.variant.color} x{item.quantity}
-                    </span>
-                    <span>{formatPrice(Number(item.unitPrice) * item.quantity)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        )}
+  const hasFilters = Boolean(params.estado || params.q?.trim());
+  const description = hasFilters
+    ? `${filteredOrders.length} de ${orders.length} pedido${orders.length !== 1 ? "s" : ""}`
+    : `${orders.length} pedido${orders.length !== 1 ? "s" : ""} en total`;
+
+  const filtersPanel = (
+    <OrdersFiltersPanel
+      counts={statusCounts}
+      totalOrders={orders.length}
+      paidRevenue={paidRevenue}
+    />
+  );
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <AdminPageHeader title="Pedidos" description={description} />
+
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8">
+        <div className="min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto lg:max-w-3xl lg:pr-1">
+          <div className="lg:hidden">
+            <Suspense
+              fallback={
+                <div className="mb-4 h-48 animate-pulse rounded-xl bg-neutral-100" />
+              }
+            >
+              {filtersPanel}
+            </Suspense>
+          </div>
+
+          {orders.length === 0 ? (
+            <AdminCard>
+              <p className="py-8 text-center text-neutral-500">No hay pedidos aún</p>
+            </AdminCard>
+          ) : filteredOrders.length === 0 ? (
+            <AdminCard>
+              <p className="py-8 text-center text-neutral-500">
+                Ningún pedido coincide con los filtros.
+              </p>
+            </AdminCard>
+          ) : (
+            filteredOrders.map((order) => (
+              <AdminOrderCard key={order.id} order={order} />
+            ))
+          )}
+        </div>
+
+        <aside className="hidden w-72 shrink-0 lg:block">
+          <Suspense
+            fallback={
+              <div className="h-64 animate-pulse rounded-xl bg-neutral-100" />
+            }
+          >
+            {filtersPanel}
+          </Suspense>
+        </aside>
       </div>
     </div>
   );

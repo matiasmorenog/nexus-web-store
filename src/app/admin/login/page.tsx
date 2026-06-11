@@ -11,18 +11,49 @@ export default async function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-md rounded-lg border bg-white p-8 shadow-sm">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold">Alaska Indumentaria</h1>
-          <p className="mt-1 text-sm text-neutral-500">Panel de administración</p>
+    <div className="flex min-h-screen">
+      <div className="relative hidden w-1/2 flex-col justify-between bg-zinc-900 p-12 text-white lg:flex">
+        <div className="h-1 w-14 bg-[var(--brand-primary)]" />
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Alaska Indumentaria</h1>
+          <p className="mt-3 text-lg text-neutral-400">Panel de administración</p>
+          <p className="mt-6 max-w-sm text-sm leading-relaxed text-neutral-500">
+            Gestioná productos, pedidos y la configuración de tu tienda desde un solo lugar.
+          </p>
         </div>
-        <LoginForm />
-        <p className="mt-6 text-center text-sm text-neutral-500">
-          <Link href="/" className="hover:underline">
-            Volver a la tienda
-          </Link>
+        <p className="text-xs text-neutral-600">
+          © {new Date().getFullYear()} Alaska Indumentaria
         </p>
+      </div>
+
+      <div className="flex flex-1 flex-col bg-[#f6f6f7]">
+        <div className="h-0.5 w-full bg-[var(--brand-primary)] lg:hidden" />
+        <div className="flex flex-1 items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md">
+            <div className="mb-8 lg:hidden">
+              <h1 className="text-2xl font-bold text-neutral-900">
+                Alaska <span className="text-[var(--brand-primary)]">Admin</span>
+              </h1>
+              <p className="mt-1 text-sm text-neutral-500">Panel de administración</p>
+            </div>
+
+            <div className="rounded-xl border border-neutral-200/80 bg-white p-8 shadow-sm">
+              <h2 className="mb-6 text-lg font-semibold text-neutral-900">
+                Iniciar sesión
+              </h2>
+              <LoginForm />
+            </div>
+
+            <p className="mt-6 text-center text-sm text-neutral-500">
+              <Link
+                href="/"
+                className="transition-colors hover:text-[var(--brand-primary)]"
+              >
+                ← Volver a la tienda
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { StoreLogo } from "@/components/storefront/store-logo";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {
@@ -79,20 +80,21 @@ export function Header({ storeName }: HeaderProps) {
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <ProductSearch compact />
-            <button
+            <Button
               type="button"
+              variant="secondary"
               aria-label="Abrir carrito"
-              className="relative flex items-center gap-2 rounded-lg border border-[var(--brand-primary)] bg-transparent px-2.5 py-2.5 text-[var(--brand-primary)] transition-colors hover:bg-[var(--brand-primary-soft)] sm:px-3"
+              className="relative gap-2 px-2.5 sm:px-3"
               onClick={() => setCartOpen(true)}
             >
               <ShoppingBag className="h-5 w-5" />
-              <span className="hidden text-sm font-medium sm:inline">Carrito</span>
+              <span className="hidden sm:inline">Carrito</span>
               {totalItems > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-white">
                   {totalItems}
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { updateProduct } from "@/lib/admin-actions";
 import { STORE_CATEGORIES } from "@/lib/categories";
+import { AdminCard } from "@/components/admin/admin-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const fieldClass =
+  "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 type ProductEditFormProps = {
   product: {
@@ -40,9 +44,8 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border bg-white p-6 space-y-4">
-      <h2 className="font-semibold">Datos del producto</h2>
-
+    <AdminCard title="Datos del producto">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       )}
@@ -63,7 +66,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
             id="category"
             name="category"
             defaultValue={product.category}
-            className="flex h-10 w-full rounded-md border border-neutral-300 px-3 text-sm"
+            className={fieldClass}
             required
           >
             {STORE_CATEGORIES.map((c) => (
@@ -80,7 +83,7 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
             name="description"
             rows={4}
             defaultValue={product.description}
-            className="flex w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className={fieldClass}
             required
           />
         </div>
@@ -99,5 +102,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
         {loading ? "Guardando..." : "Guardar producto"}
       </Button>
     </form>
+    </AdminCard>
   );
 }

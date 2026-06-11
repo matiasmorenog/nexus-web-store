@@ -54,7 +54,14 @@ export default async function AdminOrdersPage() {
                   <p className="text-sm text-neutral-500">{order.customerEmail}</p>
                   <p className="text-sm text-neutral-500">{order.customerPhone}</p>
                   <p className="mt-2 text-sm">
-                    {order.shippingAddress}, {order.shippingCity} ({order.shippingZip})
+                    {order.isPickup ? (
+                      <Badge variant="default" className="mr-2">
+                        Retiro en local
+                      </Badge>
+                    ) : null}
+                    {order.isPickup
+                      ? order.shippingCity
+                      : `${order.shippingAddress}, ${order.shippingCity} (${order.shippingZip})`}
                   </p>
                   <p className="mt-1 text-xs text-neutral-400">
                     {new Date(order.createdAt).toLocaleString("es-AR")}

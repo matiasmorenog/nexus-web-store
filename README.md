@@ -104,7 +104,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [ ] Cuenta de cliente (registro, login, perfil)
 - [ ] Mis pedidos y seguimiento de estado
 - [ ] Cupones y promociones
-- [ ] Retiro en local en checkout (`allowPickup` existe en DB, no en UI)
+- [x] Retiro en local en checkout (opción en checkout si `allowPickup`; envío $0)
 - [ ] Múltiples opciones de envío (zonas, carriers, peso)
 - [ ] Wishlist / favoritos
 - [ ] Reviews y valoraciones de productos

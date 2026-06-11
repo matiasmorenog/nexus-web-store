@@ -5,22 +5,37 @@ import { createPaymentPreference } from "@/lib/mercadopago";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import { getStoreId } from "@/lib/store-context";
 
-const checkoutSchema = z.object({
-  customer: z.object({
-    name: z.string().min(1),
-    email: z.string().email(),
-    phone: z.string().min(1),
-    address: z.string().min(1),
-    city: z.string().min(1),
-    zip: z.string().min(1),
-  }),
-  items: z.array(
-    z.object({
-      variantId: z.string(),
-      quantity: z.number().int().positive(),
+const checkoutSchema = z
+  .object({
+    deliveryMethod: z.enum(["shipping", "pickup"]).default("shipping"),
+    customer: z.object({
+      name: z.string().min(1),
+      email: z.string().email(),
+      phone: z.string().min(1),
+      address: z.string().optional(),
+      city: z.string().optional(),
+      zip: z.string().optional(),
     }),
-  ),
-});
+    items: z.array(
+      z.object({
+        variantId: z.string(),
+        quantity: z.number().int().positive(),
+      }),
+    ),
+  })
+  .superRefine((data, ctx) => {
+    if (data.deliveryMethod !== "shipping") return;
+
+    for (const field of ["address", "city", "zip"] as const) {
+      if (!data.customer[field]?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          message: `El campo ${field} es obligatorio para envío a domicilio`,
+          path: ["customer", field],
+        });
+      }
+    }
+  });
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,10 +46,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
     }
 
-    const { customer, items } = parsed.data;
+    const { customer, items, deliveryMethod } = parsed.data;
     const storeId = await getStoreId();
 
     const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
+
+    const isPickup = deliveryMethod === "pickup";
+
+    if (isPickup && !store.allowPickup) {
+      return NextResponse.json(
+        { error: "El retiro en local no está disponible" },
+        { status: 400 },
+      );
+    }
 
     const variants = await db.productVariant.findMany({
       where: {
@@ -63,7 +87,7 @@ export async function POST(request: NextRequest) {
       return sum + Number(variant.price) * item.quantity;
     }, 0);
 
-    const shippingCost = Number(store.shippingFlatRate);
+    const shippingCost = isPickup ? 0 : Number(store.shippingFlatRate);
     const total = subtotal + shippingCost;
 
     const order = await db.order.create({
@@ -71,12 +95,15 @@ export async function POST(request: NextRequest) {
         storeId,
         total,
         shippingCost,
-        customerName: customer.name as string,
-        customerEmail: customer.email as string,
-        customerPhone: customer.phone as string,
-        shippingAddress: customer.address as string,
-        shippingCity: customer.city as string,
-        shippingZip: customer.zip as string,
+        isPickup,
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        shippingAddress: isPickup
+          ? "Retiro en local"
+          : customer.address!.trim(),
+        shippingCity: isPickup ? store.name : customer.city!.trim(),
+        shippingZip: isPickup ? "—" : customer.zip!.trim(),
         items: {
           create: items.map((item) => {
             const variant = variants.find((v) => v.id === item.variantId)!;
@@ -126,8 +153,8 @@ export async function POST(request: NextRequest) {
     const preference = await createPaymentPreference({
       orderId: order.id,
       items: mpItems,
-      payerEmail: customer.email as string,
-      payerName: customer.name as string,
+      payerEmail: customer.email,
+      payerName: customer.name,
     });
 
     await db.order.update({

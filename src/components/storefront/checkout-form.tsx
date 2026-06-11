@@ -7,18 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+
+type DeliveryMethod = "shipping" | "pickup";
 
 type CheckoutFormProps = {
   shippingCost: number;
+  allowPickup: boolean;
+  storeName: string;
 };
 
-export function CheckoutForm({ shippingCost }: CheckoutFormProps) {
+export function CheckoutForm({
+  shippingCost,
+  allowPickup,
+  storeName,
+}: CheckoutFormProps) {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("shipping");
 
-  const total = subtotal() + shippingCost;
+  const effectiveShipping =
+    deliveryMethod === "pickup" ? 0 : shippingCost;
+  const total = subtotal() + effectiveShipping;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,6 +47,7 @@ export function CheckoutForm({ shippingCost }: CheckoutFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          deliveryMethod,
           customer: data,
           items: items.map((i) => ({
             variantId: i.variantId,
@@ -64,7 +77,65 @@ export function CheckoutForm({ shippingCost }: CheckoutFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {allowPickup && (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium text-neutral-900">
+            Forma de entrega
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label
+              className={cn(
+                "flex cursor-pointer flex-col rounded-lg border p-4 transition-colors",
+                deliveryMethod === "shipping"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="shipping"
+                checked={deliveryMethod === "shipping"}
+                onChange={() => setDeliveryMethod("shipping")}
+                className="sr-only"
+              />
+              <span className="font-medium">Envío a domicilio</span>
+              <span className="mt-1 text-sm text-neutral-600">
+                {shippingCost > 0
+                  ? formatPrice(shippingCost)
+                  : "Sin costo de envío"}
+              </span>
+            </label>
+            <label
+              className={cn(
+                "flex cursor-pointer flex-col rounded-lg border p-4 transition-colors",
+                deliveryMethod === "pickup"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="deliveryMethod"
+                value="pickup"
+                checked={deliveryMethod === "pickup"}
+                onChange={() => setDeliveryMethod("pickup")}
+                className="sr-only"
+              />
+              <span className="font-medium">Retiro en local</span>
+              <span className="mt-1 text-sm text-neutral-600">Sin costo</span>
+            </label>
+          </div>
+          {deliveryMethod === "pickup" && (
+            <p className="text-sm text-neutral-600">
+              Retirás tu pedido en {storeName}. Te avisaremos por email cuando
+              esté listo.
+            </p>
+          )}
+        </fieldset>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <Label htmlFor="name">Nombre completo</Label>
@@ -78,18 +149,23 @@ export function CheckoutForm({ shippingCost }: CheckoutFormProps) {
           <Label htmlFor="phone">Teléfono</Label>
           <Input id="phone" name="phone" required />
         </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="address">Dirección</Label>
-          <Input id="address" name="address" required />
-        </div>
-        <div>
-          <Label htmlFor="city">Ciudad</Label>
-          <Input id="city" name="city" required />
-        </div>
-        <div>
-          <Label htmlFor="zip">Código postal</Label>
-          <Input id="zip" name="zip" required />
-        </div>
+
+        {deliveryMethod === "shipping" && (
+          <>
+            <div className="sm:col-span-2">
+              <Label htmlFor="address">Dirección</Label>
+              <Input id="address" name="address" required />
+            </div>
+            <div>
+              <Label htmlFor="city">Ciudad</Label>
+              <Input id="city" name="city" required />
+            </div>
+            <div>
+              <Label htmlFor="zip">Código postal</Label>
+              <Input id="zip" name="zip" required />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="rounded-lg border bg-neutral-50 p-4 text-sm">
@@ -98,8 +174,14 @@ export function CheckoutForm({ shippingCost }: CheckoutFormProps) {
           <span>{formatPrice(subtotal())}</span>
         </div>
         <div className="mt-1 flex justify-between">
-          <span>Envío</span>
-          <span>{formatPrice(shippingCost)}</span>
+          <span>
+            {deliveryMethod === "pickup" ? "Retiro en local" : "Envío"}
+          </span>
+          <span>
+            {deliveryMethod === "pickup"
+              ? "Sin costo"
+              : formatPrice(effectiveShipping)}
+          </span>
         </div>
         <div className="mt-2 flex justify-between border-t pt-2 text-base font-semibold">
           <span>Total</span>

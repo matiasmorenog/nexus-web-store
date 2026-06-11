@@ -14,6 +14,7 @@ export type OrderEmailData = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  isPickup: boolean;
   shippingAddress: string;
   shippingCity: string;
   shippingZip: string;
@@ -26,6 +27,7 @@ export type OrderEmailData = {
 
 export function buildOrderEmailData(order: {
   id: string;
+  isPickup: boolean;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -66,6 +68,7 @@ export function buildOrderEmailData(order: {
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
+    isPickup: order.isPickup,
     shippingAddress: order.shippingAddress,
     shippingCity: order.shippingCity,
     shippingZip: order.shippingZip,
@@ -110,8 +113,35 @@ function renderItemsTable(data: OrderEmailData) {
 function renderTotals(data: OrderEmailData) {
   return `
     <p style="margin:4px 0;"><strong>Subtotal:</strong> ${formatPrice(data.subtotal)}</p>
-    <p style="margin:4px 0;"><strong>Envío:</strong> ${formatPrice(data.shippingCost)}</p>
+    <p style="margin:4px 0;"><strong>${data.isPickup ? "Entrega" : "Envío"}:</strong> ${data.isPickup ? "Sin costo (retiro en local)" : formatPrice(data.shippingCost)}</p>
     <p style="margin:8px 0 0;font-size:18px;"><strong>Total:</strong> ${formatPrice(data.total)}</p>
+  `;
+}
+
+function renderDeliverySection(data: OrderEmailData) {
+  if (data.isPickup) {
+    return `
+      <h2 style="font-size:16px;margin-top:24px;">Retiro en local</h2>
+      <p style="margin:0;">
+        ${data.shippingCity}<br>
+        Tel: ${data.customerPhone}
+      </p>
+      <p style="margin-top:12px;color:#666;font-size:13px;">
+        Te avisaremos por email cuando tu pedido esté listo para retirar.
+      </p>
+    `;
+  }
+
+  return `
+    <h2 style="font-size:16px;margin-top:24px;">Envío a</h2>
+    <p style="margin:0;">
+      ${data.shippingAddress}<br>
+      ${data.shippingCity}, CP ${data.shippingZip}<br>
+      Tel: ${data.customerPhone}
+    </p>
+    <p style="margin-top:24px;color:#666;font-size:13px;">
+      Te avisaremos cuando tu pedido sea despachado.
+    </p>
   `;
 }
 
@@ -125,15 +155,7 @@ export function buildCustomerConfirmationEmail(data: OrderEmailData) {
       <p style="color:#666;">Nº de pedido: <strong>${data.orderId}</strong></p>
       ${renderItemsTable(data)}
       ${renderTotals(data)}
-      <h2 style="font-size:16px;margin-top:24px;">Envío a</h2>
-      <p style="margin:0;">
-        ${data.shippingAddress}<br>
-        ${data.shippingCity}, CP ${data.shippingZip}<br>
-        Tel: ${data.customerPhone}
-      </p>
-      <p style="margin-top:24px;color:#666;font-size:13px;">
-        Te avisaremos cuando tu pedido sea despachado.
-      </p>
+      ${renderDeliverySection(data)}
     </div>
   `;
 
@@ -147,10 +169,14 @@ export function buildCustomerConfirmationEmail(data: OrderEmailData) {
     ),
     "",
     `Subtotal: ${formatPrice(data.subtotal)}`,
-    `Envío: ${formatPrice(data.shippingCost)}`,
+    data.isPickup
+      ? "Retiro en local: sin costo"
+      : `Envío: ${formatPrice(data.shippingCost)}`,
     `Total: ${formatPrice(data.total)}`,
     "",
-    `Envío a: ${data.shippingAddress}, ${data.shippingCity} CP ${data.shippingZip}`,
+    data.isPickup
+      ? `Retiro en local: ${data.shippingCity}`
+      : `Envío a: ${data.shippingAddress}, ${data.shippingCity} CP ${data.shippingZip}`,
   ].join("\n");
 
   return { subject, html, text };
@@ -162,7 +188,7 @@ export function buildMerchantNotificationEmail(data: OrderEmailData) {
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;color:#171717;">
       <h1 style="font-size:22px;margin-bottom:8px;">Nueva venta en ${data.storeName}</h1>
-      <p>Pedido <strong>${data.orderId}</strong> — <strong>${formatPrice(data.total)}</strong></p>
+      <p>Pedido <strong>${data.orderId}</strong> — <strong>${formatPrice(data.total)}</strong>${data.isPickup ? " — <em>Retiro en local</em>" : ""}</p>
       <h2 style="font-size:16px;">Cliente</h2>
       <p style="margin:0;">
         ${data.customerName}<br>

@@ -122,8 +122,8 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [x] Modo demo sin credenciales MP (simula pago exitoso)
 - [x] Descuento de stock al confirmar pedido
 - [ ] Mercado Pago en producción (credenciales reales)
-- [ ] Email de confirmación de compra al cliente
-- [ ] Email de notificación de venta al comerciante
+- [x] Email de confirmación de compra al cliente (demo: consola; con `RESEND_API_KEY`: envío real)
+- [x] Email de notificación de venta al comerciante
 - [ ] Facturación / integración AFIP (Argentina)
 
 ### Panel admin

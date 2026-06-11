@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
+import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import { getStoreId } from "@/lib/store-context";
 
 const checkoutSchema = z.object({
@@ -113,21 +114,12 @@ export async function POST(request: NextRequest) {
       !process.env.MERCADOPAGO_ACCESS_TOKEN.includes("your-access-token");
 
     if (!hasMpToken) {
-      await db.order.update({
-        where: { id: order.id },
-        data: { status: "PAID" },
-      });
-
-      for (const item of items) {
-        await db.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { decrement: item.quantity } },
-        });
-      }
+      const fulfillment = await fulfillPaidOrder(order.id);
 
       return NextResponse.json({
         demoMode: true,
         orderId: order.id,
+        emailMode: fulfillment.emailMode ?? "demo-log",
       });
     }
 

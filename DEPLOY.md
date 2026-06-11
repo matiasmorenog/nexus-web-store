@@ -37,6 +37,9 @@ git push -u origin main
 | `NEXT_PUBLIC_APP_URL` | Igual que `AUTH_URL` |
 | `DEFAULT_STORE_SLUG` | `alaska-indumentaria` |
 | `MERCADOPAGO_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
+| `RESEND_API_KEY` | Opcional (sin esto los emails se loguean en consola) |
+| `EMAIL_FROM` | `Alaska Indumentaria <onboarding@resend.dev>` o tu dominio verificado |
+| `STORE_NOTIFICATION_EMAIL` | `admin@alaskaindumentaria.com` (avisos de nueva venta) |
 
 5. **Deploy**
 

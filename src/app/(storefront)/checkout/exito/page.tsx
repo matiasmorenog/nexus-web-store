@@ -20,6 +20,9 @@ export default async function CheckoutSuccessPage({
             Número de orden: <strong>{params.order}</strong>
           </span>
         )}
+        <span className="mt-2 block text-sm">
+          Te enviamos un email con el detalle de tu compra.
+        </span>
       </p>
       <Link href="/productos">
         <Button className="mt-8">Seguir comprando</Button>

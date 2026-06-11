@@ -107,9 +107,10 @@ model Order {
   shippingAddress String
   shippingCity    String
   shippingZip     String
-  mpPreferenceId  String?
-  mpPaymentId     String?
-  createdAt       DateTime    @default(now())
+  mpPreferenceId            String?
+  mpPaymentId               String?
+  confirmationEmailSentAt   DateTime?
+  createdAt                 DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   store Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)

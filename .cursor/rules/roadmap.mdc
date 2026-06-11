@@ -16,9 +16,9 @@ Backend: MP + webhook (demo sin token), multi-tenant schema, seed Alaska.
 ## Próximo — Fase A (1 negocio real)
 
 1. ~~Editar productos + variantes + stock en admin~~ ✅
-2. Subida de imágenes (no solo URL)
-3. Emails transaccionales
-4. Búsqueda por texto
+2. Subida de imágenes (no solo URL) — pospuesto
+3. ~~Emails transaccionales~~ ✅ (demo log / Resend)
+4. Búsqueda por texto ← siguiente
 5. Retiro en local en checkout
 6. Páginas legales y contacto
 7. SEO básico (meta, sitemap)

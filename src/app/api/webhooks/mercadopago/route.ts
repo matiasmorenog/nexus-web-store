@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { db } from "@/lib/db";
+import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,30 +28,20 @@ export async function POST(request: NextRequest) {
 
     const order = await db.order.findUnique({
       where: { id: orderId },
-      include: { items: true },
+      select: { id: true, status: true },
     });
 
     if (!order) {
       return NextResponse.json({ received: true });
     }
 
-    if (payment.status === "approved" && order.status !== "PAID") {
-      await db.$transaction(async (tx) => {
-        await tx.order.update({
-          where: { id: orderId },
-          data: {
-            status: "PAID",
-            mpPaymentId: String(payment.id),
-          },
-        });
-
-        for (const item of order.items) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: { stock: { decrement: item.quantity } },
-          });
-        }
+    if (payment.status === "approved") {
+      await db.order.update({
+        where: { id: orderId },
+        data: { mpPaymentId: String(payment.id) },
       });
+      // Idempotente: marca PAID, descuenta stock y envía emails una sola vez
+      await fulfillPaidOrder(orderId);
     } else if (payment.status === "rejected" || payment.status === "cancelled") {
       await db.order.update({
         where: { id: orderId },

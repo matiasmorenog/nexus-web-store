@@ -11,16 +11,16 @@ export const dynamic = "force-dynamic";
 export default async function AdminProductEditPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ productId: string }>;
 }) {
-  const { id } = await params;
+  const { productId } = await params;
   const session = await auth();
   const storeId = session?.user?.storeId;
 
   if (!storeId) return <p>No autorizado</p>;
 
   const product = await db.product.findFirst({
-    where: { id, storeId },
+    where: { id: productId, storeId },
     include: {
       variants: {
         orderBy: [{ size: "asc" }, { color: "asc" }],

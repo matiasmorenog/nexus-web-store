@@ -87,7 +87,7 @@ export default async function AdminProductsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <Link href={`/admin/productos/${product.id}`}>
+                    <Link href={`/admin/productos/${product.id}/edit`}>
                       <Button size="sm" variant="secondary">
                         Editar
                       </Button>

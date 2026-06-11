@@ -116,7 +116,7 @@ export async function updateProduct(productId: string, formData: FormData) {
   });
 
   revalidatePath("/admin/productos");
-  revalidatePath(`/admin/productos/${productId}`);
+  revalidatePath(`/admin/productos/${productId}/edit`);
   revalidatePath("/productos");
   revalidatePath(`/producto/${slug}`);
 }
@@ -143,7 +143,7 @@ export async function createVariant(productId: string, formData: FormData) {
   });
 
   revalidatePath("/admin/productos");
-  revalidatePath(`/admin/productos/${productId}`);
+  revalidatePath(`/admin/productos/${productId}/edit`);
   revalidatePath("/productos");
   revalidatePath(`/producto/${product.slug}`);
 }
@@ -173,7 +173,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
   });
 
   revalidatePath("/admin/productos");
-  revalidatePath(`/admin/productos/${variant.productId}`);
+  revalidatePath(`/admin/productos/${variant.productId}/edit`);
   revalidatePath("/productos");
   revalidatePath(`/producto/${variant.product.slug}`);
 }
@@ -204,7 +204,7 @@ export async function deleteVariant(variantId: string) {
   await db.productVariant.delete({ where: { id: variantId } });
 
   revalidatePath("/admin/productos");
-  revalidatePath(`/admin/productos/${variant.productId}`);
+  revalidatePath(`/admin/productos/${variant.productId}/edit`);
   revalidatePath("/productos");
   revalidatePath(`/producto/${variant.product.slug}`);
 }

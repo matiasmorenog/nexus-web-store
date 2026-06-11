@@ -19,3 +19,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
 }
+
+/* Tailwind preflight sets button { cursor: default } */
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}

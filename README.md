@@ -134,8 +134,8 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [x] Listado y eliminación de productos
 - [x] Listado de pedidos con cambio de estado
 - [x] Configuración: nombre tienda, costo envío fijo, flag retiro local
-- [ ] Edición de productos existentes
-- [ ] CRUD de variantes adicionales (talle/color/stock/precio)
+- [x] Edición de productos existentes
+- [x] CRUD de variantes adicionales (talle/color/stock/precio)
 - [ ] Gestión de inventario (ajustes manuales, alertas de stock bajo)
 - [ ] Subida de imágenes (galería, múltiples fotos por producto)
 - [ ] Categorías dinámicas (hoy: lista fija en código)

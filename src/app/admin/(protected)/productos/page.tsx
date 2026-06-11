@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils";
 import { ProductForm } from "@/components/admin/product-form";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getCategoryLabel } from "@/lib/categories";
 
 export const dynamic = "force-dynamic";
@@ -64,14 +65,15 @@ export default async function AdminProductsPage() {
                       <Link
                         href={`/producto/${product.slug}`}
                         className="text-xs text-neutral-500 hover:underline"
-                        target="_blank"
-                      >
+                        target="_blank">
                         Ver en tienda
                       </Link>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3">{getCategoryLabel(product.category)}</td>
+                <td className="px-4 py-3">
+                  {getCategoryLabel(product.category)}
+                </td>
                 <td className="px-4 py-3">
                   {formatPrice(Number(product.variants[0]?.price ?? 0))}
                 </td>
@@ -84,7 +86,14 @@ export default async function AdminProductsPage() {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <DeleteProductButton productId={product.id} />
+                  <div className="flex gap-2">
+                    <Link href={`/admin/productos/${product.id}`}>
+                      <Button size="sm" variant="secondary">
+                        Editar
+                      </Button>
+                    </Link>
+                    <DeleteProductButton productId={product.id} />
+                  </div>
                 </td>
               </tr>
             ))}

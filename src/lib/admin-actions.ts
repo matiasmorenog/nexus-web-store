@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { normalizeBrandPrefix } from "@/lib/brand";
 import { normalizeProductImageUrl } from "@/lib/images/product-image";
 import { slugify } from "@/lib/utils";
 
@@ -31,7 +32,7 @@ export async function updateStoreSettings(formData: FormData) {
   await db.store.update({
     where: { id: storeId },
     data: {
-      name: formData.get("name") as string,
+      name: normalizeBrandPrefix(formData.get("name") as string),
       shippingFlatRate: parseFloat(formData.get("shippingFlatRate") as string) || 0,
       allowPickup: formData.get("allowPickup") === "on",
     },

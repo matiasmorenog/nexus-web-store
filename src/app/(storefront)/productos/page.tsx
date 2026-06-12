@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { ProductFilters } from "@/components/storefront/product-filters";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { db } from "@/lib/db";
-import { getStoreId } from "@/lib/store-context";
+import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +22,7 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const storeId = await getStoreId();
+  const storeDisplayName = await getStoreDisplayName();
 
   const where: Prisma.ProductWhereInput = { storeId };
 
@@ -82,7 +83,7 @@ export default async function ProductsPage({
         description={
           searchQuery
             ? `Resultados para “${searchQuery}”`
-            : "Explorá el catálogo completo de Alaska Indumentaria."
+            : `Explorá el catálogo completo de ${storeDisplayName}.`
         }
       />
 

@@ -1,5 +1,5 @@
 import { CheckoutView } from "@/components/storefront/checkout-view";
-import { getStore } from "@/lib/store-context";
+import { formatStoreName, getStore } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export default async function CheckoutPage() {
     <CheckoutView
       shippingCost={shippingCost}
       allowPickup={store.allowPickup}
-      storeName={store.name}
+      storeName={formatStoreName(store.name)}
     />
   );
 }

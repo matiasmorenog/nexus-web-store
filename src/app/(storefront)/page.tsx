@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { Button } from "@/components/ui/button";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { db } from "@/lib/db";
-import { getStoreId } from "@/lib/store-context";
+import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +20,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
 
 export default async function HomePage() {
   const storeId = await getStoreId();
+  const store = await getStore();
+  const storeDisplayName = formatStoreName(store.name);
 
   const featuredProducts = await db.product.findMany({
     where: { storeId, featured: true },
@@ -38,7 +40,7 @@ export default async function HomePage() {
       <section className="relative flex h-[70vh] min-h-[400px] items-center justify-center bg-neutral-900 text-white">
         <Image
           src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80"
-          alt="Entrenamiento funcional Alaska Indumentaria"
+          alt={`Entrenamiento funcional ${storeDisplayName}`}
           fill
           className="object-cover opacity-50"
           priority

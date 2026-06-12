@@ -3,8 +3,9 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { Badge } from "@/components/ui/badge";
-import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { getStoreDisplayName } from "@/lib/store-context";
 import { formatPrice } from "@/lib/utils";
 import { getOrderStatusLabel, getOrderStatusVariant } from "@/lib/order-status";
 
@@ -17,6 +18,8 @@ export default async function AdminDashboardPage() {
   if (!storeId) {
     return <p>No tenés una tienda asignada.</p>;
   }
+
+  const storeDisplayName = await getStoreDisplayName();
 
   const [productCount, orderCount, paidOrders, recentOrders] = await Promise.all([
     db.product.count({ where: { storeId } }),
@@ -45,7 +48,7 @@ export default async function AdminDashboardPage() {
     <div className="pb-2">
       <AdminPageHeader
         title="Dashboard"
-        description="Resumen de tu tienda Alaska Indumentaria."
+        description={`Resumen de tu tienda ${storeDisplayName}.`}
       />
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

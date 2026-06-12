@@ -1,3 +1,5 @@
+import { applyStoreName } from "@/lib/brand";
+
 export type InfoSection =
   | { type: "paragraph"; text: string }
   | { type: "heading"; text: string }
@@ -39,11 +41,11 @@ export const INFO_PAGES: Record<InfoPageSlug, PageContent> = {
     kind: "info",
     title: "Términos y condiciones",
     description:
-      "Condiciones de uso de la tienda online de Alaska Indumentaria.",
+      "Condiciones de uso de la tienda online de {{storeName}}.",
     sections: [
       {
         type: "paragraph",
-        text: "Al realizar una compra en Alaska Indumentaria aceptás estos términos y condiciones. Te recomendamos leerlos antes de finalizar tu pedido.",
+        text: "Al realizar una compra en {{storeName}} aceptás estos términos y condiciones. Te recomendamos leerlos antes de finalizar tu pedido.",
       },
       { type: "heading", text: "Compras y precios" },
       {
@@ -67,7 +69,7 @@ export const INFO_PAGES: Record<InfoPageSlug, PageContent> = {
       { type: "heading", text: "Propiedad intelectual" },
       {
         type: "paragraph",
-        text: "Todo el contenido del sitio (textos, imágenes, marcas y diseño) es propiedad de Alaska Indumentaria o de sus licenciantes. Queda prohibida su reproducción sin autorización.",
+        text: "Todo el contenido del sitio (textos, imágenes, marcas y diseño) es propiedad de {{storeName}} o de sus licenciantes. Queda prohibida su reproducción sin autorización.",
       },
       { type: "heading", text: "Modificaciones" },
       {
@@ -84,7 +86,7 @@ export const INFO_PAGES: Record<InfoPageSlug, PageContent> = {
     sections: [
       {
         type: "paragraph",
-        text: "En Alaska Indumentaria respetamos tu privacidad. Esta política describe qué datos recopilamos cuando usás nuestra tienda online y con qué fin.",
+        text: "En {{storeName}} respetamos tu privacidad. Esta política describe qué datos recopilamos cuando usás nuestra tienda online y con qué fin.",
       },
       { type: "heading", text: "Datos que recopilamos" },
       {
@@ -297,6 +299,35 @@ export const INFO_PAGES: Record<InfoPageSlug, PageContent> = {
       "Escribinos para consultas sobre productos, pedidos, cambios o devoluciones.",
   },
 };
+
+export function resolvePageContent(
+  page: PageContent,
+  storeName: string,
+): PageContent {
+  if (page.kind === "contact") {
+    return {
+      ...page,
+      description: applyStoreName(page.description, storeName),
+    };
+  }
+
+  return {
+    ...page,
+    description: applyStoreName(page.description, storeName),
+    sections: page.sections.map((section) => {
+      if (section.type === "list") {
+        return {
+          ...section,
+          items: section.items.map((item) => applyStoreName(item, storeName)),
+        };
+      }
+      return {
+        ...section,
+        text: applyStoreName(section.text, storeName),
+      };
+    }),
+  };
+}
 
 export function getContactEmail() {
   return (

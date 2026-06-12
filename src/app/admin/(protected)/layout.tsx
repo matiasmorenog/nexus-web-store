@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { auth } from "@/lib/auth";
+import { getBrandPrefix, getStore } from "@/lib/store-context";
 
 export default async function AdminProtectedLayout({
   children,
@@ -13,9 +14,13 @@ export default async function AdminProtectedLayout({
     redirect("/admin/login");
   }
 
+  const store = await getStore();
+  const brandPrefix = getBrandPrefix(store.name);
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f6f6f7] lg:flex-row">
       <AdminNav
+        brandPrefix={brandPrefix}
         userName={session.user?.name}
         userEmail={session.user?.email}
       />

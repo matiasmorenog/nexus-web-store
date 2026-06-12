@@ -7,8 +7,9 @@ import {
   INFO_PAGE_SLUGS,
   getContactEmail,
   isInfoPageSlug,
+  resolvePageContent,
 } from "@/lib/info-pages";
-import { getStore } from "@/lib/store-context";
+import { formatStoreName, getStore } from "@/lib/store-context";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -25,11 +26,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
-  const page = INFO_PAGES[slug];
   const store = await getStore();
+  const displayName = formatStoreName(store.name);
+  const page = resolvePageContent(INFO_PAGES[slug], displayName);
 
   return {
-    title: `${page.title} — ${store.name}`,
+    title: `${page.title} — ${displayName}`,
     description: page.description,
   };
 }
@@ -41,15 +43,16 @@ export default async function StoreInfoPage({ params }: PageProps) {
     notFound();
   }
 
-  const page = INFO_PAGES[slug];
   const store = await getStore();
+  const displayName = formatStoreName(store.name);
+  const page = resolvePageContent(INFO_PAGES[slug], displayName);
 
   if (page.kind === "contact") {
     return (
       <ContactPage
         page={page}
         email={getContactEmail()}
-        storeName={store.name}
+        storeName={displayName}
       />
     );
   }

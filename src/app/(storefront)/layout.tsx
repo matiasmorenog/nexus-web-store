@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
-import { getStore } from "@/lib/store-context";
+import { formatStoreName, getStore } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await getStore();
+  const displayName = formatStoreName(store.name);
+
+  return {
+    title: {
+      default: displayName,
+      template: `%s | ${displayName}`,
+    },
+    description:
+      "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",
+  };
+}
 
 export default async function StorefrontLayout({
   children,
@@ -11,6 +26,7 @@ export default async function StorefrontLayout({
   children: React.ReactNode;
 }) {
   const store = await getStore();
+  const displayName = formatStoreName(store.name);
 
   return (
     <>
@@ -19,10 +35,10 @@ export default async function StorefrontLayout({
           <div className="h-[4.625rem] border-b border-neutral-100 bg-white/90 shadow-sm" />
         }
       >
-        <Header storeName={store.name} />
+        <Header storeName={displayName} />
       </Suspense>
       <main className="storefront-content-bottom flex-1">{children}</main>
-      <Footer storeName={store.name} />
+      <Footer storeName={displayName} />
     </>
   );
 }

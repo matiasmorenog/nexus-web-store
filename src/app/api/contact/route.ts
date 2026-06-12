@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatStoreName } from "@/lib/brand";
 import { sendContactEmail } from "@/lib/emails/send-contact-email";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { getStore } from "@/lib/store-context";
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const result = await sendContactEmail(
       {
-        storeName: store.name,
+        storeName: formatStoreName(store.name),
         ...parsed.data,
       },
       merchantEmail,

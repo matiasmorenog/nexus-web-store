@@ -160,7 +160,7 @@ async function main() {
 
   const store = await prisma.store.create({
     data: {
-      name: "Alaska Indumentaria",
+      name: "Alaska",
       slug: "alaska-indumentaria",
       primaryColor: "#db2777",
       secondaryColor: "#ffffff",

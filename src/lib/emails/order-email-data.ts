@@ -1,3 +1,4 @@
+import { formatStoreName } from "@/lib/brand";
 import { formatPrice } from "@/lib/utils";
 
 export type OrderEmailItem = {
@@ -64,7 +65,7 @@ export function buildOrderEmailData(order: {
 
   return {
     orderId: order.id,
-    storeName: order.store.name,
+    storeName: formatStoreName(order.store.name),
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,

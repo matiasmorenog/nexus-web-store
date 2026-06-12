@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
 import { auth } from "@/lib/auth";
+import { getBrandPrefix } from "@/lib/brand";
+import { formatStoreName, getStore } from "@/lib/store-context";
 
 export default async function AdminLoginPage() {
   const session = await auth();
@@ -10,19 +12,23 @@ export default async function AdminLoginPage() {
     redirect("/admin");
   }
 
+  const store = await getStore();
+  const displayName = formatStoreName(store.name);
+  const brandPrefix = getBrandPrefix(store.name);
+
   return (
     <div className="flex min-h-screen">
       <div className="relative hidden w-1/2 flex-col justify-between bg-zinc-900 p-12 text-white lg:flex">
         <div className="h-1 w-14 bg-[var(--brand-primary)]" />
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Alaska Indumentaria</h1>
+          <h1 className="text-4xl font-bold tracking-tight">{displayName}</h1>
           <p className="mt-3 text-lg text-neutral-400">Panel de administración</p>
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-neutral-500">
             Gestioná productos, pedidos y la configuración de tu tienda desde un solo lugar.
           </p>
         </div>
         <p className="text-xs text-neutral-600">
-          © {new Date().getFullYear()} Alaska Indumentaria
+          © {new Date().getFullYear()} {displayName}
         </p>
       </div>
 
@@ -32,7 +38,8 @@ export default async function AdminLoginPage() {
           <div className="w-full max-w-md">
             <div className="mb-8 lg:hidden">
               <h1 className="text-2xl font-bold text-neutral-900">
-                Alaska <span className="text-[var(--brand-primary)]">Admin</span>
+                {brandPrefix}{" "}
+                <span className="text-[var(--brand-primary)]">Admin</span>
               </h1>
               <p className="mt-1 text-sm text-neutral-500">Panel de administración</p>
             </div>

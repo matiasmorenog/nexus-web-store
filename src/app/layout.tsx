@@ -22,8 +22,8 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Alaska Indumentaria",
-    template: "%s | Alaska Indumentaria",
+    default: "Indumentaria",
+    template: "%s | Indumentaria",
   },
   description: "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",
 };

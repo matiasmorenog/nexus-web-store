@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { formatStoreName } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
         shippingAddress: isPickup
           ? "Retiro en local"
           : customer.address!.trim(),
-        shippingCity: isPickup ? store.name : customer.city!.trim(),
+        shippingCity: isPickup ? formatStoreName(store.name) : customer.city!.trim(),
         shippingZip: isPickup ? "—" : customer.zip!.trim(),
         items: {
           create: items.map((item) => {

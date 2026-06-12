@@ -4,10 +4,7 @@ export function isResendConfigured() {
 }
 
 export function getFromAddress() {
-  return (
-    process.env.EMAIL_FROM ??
-    "Alaska Indumentaria <onboarding@resend.dev>"
-  );
+  return process.env.EMAIL_FROM ?? "Indumentaria <onboarding@resend.dev>";
 }
 
 export function logDemoEmail(label: string, to: string, subject: string, text: string) {

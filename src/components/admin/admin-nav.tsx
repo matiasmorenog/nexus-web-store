@@ -31,6 +31,7 @@ const navItems = [
 ];
 
 type AdminNavProps = {
+  brandPrefix: string;
   userName?: string | null;
   userEmail?: string | null;
 };
@@ -40,7 +41,7 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminNav({ userName, userEmail }: AdminNavProps) {
+export function AdminNav({ brandPrefix, userName, userEmail }: AdminNavProps) {
   const pathname = usePathname();
 
   const linkClass = (href: string, exact?: boolean, mobile = false) =>
@@ -62,7 +63,7 @@ export function AdminNav({ userName, userEmail }: AdminNavProps) {
         <div className="h-1 w-full bg-[var(--brand-primary)]" />
         <div className="flex h-16 items-center border-b border-white/10 px-6">
           <Link href="/admin" className="text-lg font-bold text-white">
-            Alaska{" "}
+            {brandPrefix}{" "}
             <span className="font-normal text-[var(--brand-primary)]">Admin</span>
           </Link>
         </div>
@@ -109,7 +110,8 @@ export function AdminNav({ userName, userEmail }: AdminNavProps) {
         <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
         <div className="flex h-14 items-center justify-between gap-3 px-4">
           <Link href="/admin" className="min-w-0 truncate font-bold text-neutral-900">
-            Alaska <span className="text-[var(--brand-primary)]">Admin</span>
+            {brandPrefix}{" "}
+            <span className="text-[var(--brand-primary)]">Admin</span>
           </Link>
           <div className="flex shrink-0 items-center gap-1">
             <Link

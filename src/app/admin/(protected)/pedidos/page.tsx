@@ -1,13 +1,12 @@
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import {
-  ORDER_STATUSES,
-  formatOrderId,
-  type OrderStatus,
-} from "@/lib/order-status";
+  adminOrdersFilterKey,
+  getAdminOrdersPage,
+  getAdminOrdersSummary,
+} from "@/lib/admin-orders-query";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminOrderCard } from "@/components/admin/admin-order-card";
+import { AdminOrdersList } from "@/components/admin/admin-orders-list";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminEmptyState } from "@/components/admin/admin-surface";
 import { AdminSkeletonFiltersPanel } from "@/components/admin/admin-skeleton";
@@ -21,50 +20,6 @@ type SearchParams = Promise<{
   q?: string;
 }>;
 
-function filterOrders<
-  T extends {
-    id: string;
-    status: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-  },
->(orders: T[], estado?: string, q?: string) {
-  let result = orders;
-
-  if (estado && ORDER_STATUSES.includes(estado as OrderStatus)) {
-    result = result.filter((o) => o.status === estado);
-  }
-
-  const query = q?.trim().toLowerCase();
-  if (query) {
-    result = result.filter(
-      (o) =>
-        o.customerName.toLowerCase().includes(query) ||
-        o.customerEmail.toLowerCase().includes(query) ||
-        o.customerPhone.toLowerCase().includes(query) ||
-        o.id.toLowerCase().includes(query) ||
-        formatOrderId(o.id).toLowerCase().includes(query),
-    );
-  }
-
-  return result;
-}
-
-function buildStatusCounts(orders: { status: string }[]) {
-  const counts = Object.fromEntries(
-    ORDER_STATUSES.map((s) => [s, 0]),
-  ) as Record<OrderStatus, number>;
-
-  for (const order of orders) {
-    if (order.status in counts) {
-      counts[order.status as OrderStatus] += 1;
-    }
-  }
-
-  return counts;
-}
-
 export default async function AdminOrdersPage({
   searchParams,
 }: {
@@ -76,35 +31,23 @@ export default async function AdminOrdersPage({
   if (!storeId) return <p>No autorizado</p>;
 
   const params = await searchParams;
+  const filters = { estado: params.estado, q: params.q };
 
-  const orders = await db.order.findMany({
-    where: { storeId },
-    include: {
-      items: {
-        include: {
-          variant: { include: { product: true } },
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const filteredOrders = filterOrders(orders, params.estado, params.q);
-  const statusCounts = buildStatusCounts(orders);
-  const paidRevenue = orders
-    .filter((o) => o.status === "PAID" || o.status === "SHIPPED")
-    .reduce((sum, o) => sum + Number(o.total), 0);
+  const [summary, page] = await Promise.all([
+    getAdminOrdersSummary(storeId),
+    getAdminOrdersPage(storeId, 1, filters),
+  ]);
 
   const hasFilters = Boolean(params.estado || params.q?.trim());
   const description = hasFilters
-    ? `${filteredOrders.length} de ${orders.length} pedido${orders.length !== 1 ? "s" : ""}`
-    : `${orders.length} pedido${orders.length !== 1 ? "s" : ""} en total`;
+    ? `${page.total} pedido${page.total !== 1 ? "s" : ""} con los filtros actuales`
+    : `${summary.totalOrders} pedido${summary.totalOrders !== 1 ? "s" : ""} en total`;
 
   const filtersPanel = (
     <OrdersFiltersPanel
-      counts={statusCounts}
-      totalOrders={orders.length}
-      paidRevenue={paidRevenue}
+      counts={summary.counts}
+      totalOrders={summary.totalOrders}
+      paidRevenue={summary.paidRevenue}
     />
   );
 
@@ -125,20 +68,24 @@ export default async function AdminOrdersPage({
             </Suspense>
           </div>
 
-          {orders.length === 0 ? (
+          {summary.totalOrders === 0 ? (
             <AdminCard>
               <AdminEmptyState>No hay pedidos aún</AdminEmptyState>
             </AdminCard>
-          ) : filteredOrders.length === 0 ? (
+          ) : page.total === 0 ? (
             <AdminCard>
               <AdminEmptyState>
                 Ningún pedido coincide con los filtros.
               </AdminEmptyState>
             </AdminCard>
           ) : (
-            filteredOrders.map((order) => (
-              <AdminOrderCard key={order.id} order={order} />
-            ))
+            <AdminOrdersList
+              key={adminOrdersFilterKey(filters)}
+              initialOrders={page.orders}
+              total={page.total}
+              hasMore={page.hasMore}
+              filters={filters}
+            />
           )}
         </div>
 

@@ -1,8 +1,17 @@
+import { Suspense } from "react";
 import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
+import { AdminActivityChart } from "@/components/admin/admin-activity-chart";
+import { AdminActivityPeriodTabs } from "@/components/admin/admin-activity-period-tabs";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
+import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import { Badge } from "@/components/ui/badge";
+import {
+  ACTIVITY_PERIOD_LABELS,
+  getDashboardAnalytics,
+  parseActivityPeriod,
+} from "@/lib/admin-analytics";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getStoreDisplayName } from "@/lib/store-context";
@@ -11,7 +20,11 @@ import { getOrderStatusLabel, getOrderStatusVariant } from "@/lib/order-status";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
   const session = await auth();
   const storeId = session?.user?.storeId;
 
@@ -19,9 +32,13 @@ export default async function AdminDashboardPage() {
     return <p>No tenés una tienda asignada.</p>;
   }
 
+  const params = await searchParams;
+  const period = parseActivityPeriod(params.period);
+  const periodLabels = ACTIVITY_PERIOD_LABELS[period];
   const storeDisplayName = await getStoreDisplayName();
 
-  const [productCount, orderCount, paidOrders, recentOrders] = await Promise.all([
+  const [productCount, orderCount, paidOrders, recentOrders, analytics] =
+    await Promise.all([
     db.product.count({ where: { storeId } }),
     db.order.count({ where: { storeId } }),
     db.order.findMany({
@@ -33,6 +50,7 @@ export default async function AdminDashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
+    getDashboardAnalytics(storeId, period),
   ]);
 
   const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
@@ -55,6 +73,32 @@ export default async function AdminDashboardPage() {
         {stats.map((stat) => (
           <AdminStatCard key={stat.label} {...stat} />
         ))}
+      </div>
+
+      <div className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <AdminCard
+          title="Actividad de ventas"
+          description={periodLabels.description}
+          action={
+            <Suspense fallback={<div className="h-8 w-40 animate-pulse rounded-lg bg-neutral-100" />}>
+              <AdminActivityPeriodTabs period={period} />
+            </Suspense>
+          }
+        >
+          <AdminActivityChart
+            period={analytics.salesActivity.period}
+            data={analytics.salesActivity.points}
+            totalOrders={analytics.salesActivity.totalOrders}
+            totalRevenue={analytics.salesActivity.totalRevenue}
+          />
+        </AdminCard>
+
+        <AdminCard
+          title="Productos más vendidos"
+          description="Ranking por unidades vendidas (histórico)"
+        >
+          <AdminTopProducts products={analytics.topProducts} />
+        </AdminCard>
       </div>
 
       <AdminCard title="Pedidos recientes" padding={false}>

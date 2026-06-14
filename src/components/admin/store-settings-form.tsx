@@ -35,19 +35,19 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="name">Nombre de marca</Label>
-          <div className="mt-1 flex rounded-lg border border-neutral-200 bg-white focus-within:border-[var(--brand-primary)] focus-within:ring-2 focus-within:ring-[var(--brand-primary)] focus-within:ring-offset-1">
+          <div className="mt-1 flex overflow-hidden rounded-lg border border-neutral-200 bg-white focus-within:border-[var(--brand-primary)] focus-within:ring-2 focus-within:ring-[var(--brand-primary)] focus-within:ring-offset-1">
             <Input
               id="name"
               name="name"
               defaultValue={store.brandPrefix}
               required
-              className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="rounded-none border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
               placeholder="Ej. Alaska"
               aria-describedby="brand-suffix-hint"
             />
             <span
               id="brand-suffix-hint"
-              className="flex shrink-0 items-center border-l border-neutral-200 bg-neutral-50 px-3 text-sm font-medium text-neutral-600"
+              className="flex shrink-0 items-center rounded-r-lg border-l border-neutral-200 bg-neutral-50 px-3 text-sm font-medium text-neutral-600"
             >
               {BRAND_SUFFIX}
             </span>

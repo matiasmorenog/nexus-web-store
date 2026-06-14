@@ -2,7 +2,14 @@ import { Suspense } from "react";
 import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 import { AdminActivityChart } from "@/components/admin/admin-activity-chart";
 import { AdminActivityPeriodTabs } from "@/components/admin/admin-activity-period-tabs";
+import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminCard } from "@/components/admin/admin-card";
+import {
+  AdminDataTable,
+  AdminTableCell,
+  AdminTableEmpty,
+  AdminTableRow,
+} from "@/components/admin/admin-table";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
@@ -101,10 +108,7 @@ export default async function AdminDashboardPage({
           description={periodLabels.description}
           className="overflow-visible"
           action={
-            <Suspense
-              fallback={
-                <div className="h-8 w-40 animate-pulse rounded-lg bg-neutral-100" />
-              }>
+            <Suspense fallback={<AdminSkeletonTabs />}>
               <AdminActivityPeriodTabs period={period} />
             </Suspense>
           }>
@@ -124,56 +128,32 @@ export default async function AdminDashboardPage({
       </div>
 
       <AdminCard title="Pedidos recientes" padding={false}>
-        <div className="admin-table-scroll">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-100 bg-neutral-50/80">
-              <tr>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Cliente
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Fecha
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {recentOrders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-6 py-12 text-center text-neutral-500">
-                    No hay pedidos aún
-                  </td>
-                </tr>
-              ) : (
-                recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-neutral-50/50">
-                    <td className="px-6 py-4 font-medium text-neutral-900">
-                      {order.customerName}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant={getOrderStatusVariant(order.status)}>
-                        {getOrderStatusLabel(order.status)}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 font-medium">
-                      {formatPrice(Number(order.total))}
-                    </td>
-                    <td className="px-6 py-4 text-neutral-500">
-                      {new Date(order.createdAt).toLocaleDateString("es-AR")}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable
+          columns={["Cliente", "Estado", "Total", "Fecha"]}
+        >
+          {recentOrders.length === 0 ? (
+            <AdminTableEmpty colSpan={4}>No hay pedidos aún</AdminTableEmpty>
+          ) : (
+            recentOrders.map((order) => (
+              <AdminTableRow key={order.id}>
+                <AdminTableCell className="font-medium text-neutral-900">
+                  {order.customerName}
+                </AdminTableCell>
+                <AdminTableCell>
+                  <Badge variant={getOrderStatusVariant(order.status)}>
+                    {getOrderStatusLabel(order.status)}
+                  </Badge>
+                </AdminTableCell>
+                <AdminTableCell className="font-medium">
+                  {formatPrice(Number(order.total))}
+                </AdminTableCell>
+                <AdminTableCell className="text-neutral-500">
+                  {new Date(order.createdAt).toLocaleDateString("es-AR")}
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          )}
+        </AdminDataTable>
       </AdminCard>
     </div>
   );

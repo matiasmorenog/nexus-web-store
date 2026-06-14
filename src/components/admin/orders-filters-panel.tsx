@@ -1,8 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
 import {
   ORDER_STATUSES,
   getOrderStatusLabel,
@@ -10,8 +9,13 @@ import {
 } from "@/lib/order-status";
 import { formatPrice } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/admin-card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  AdminClearFiltersButton,
+  AdminFilterButton,
+  AdminFilterSection,
+  AdminSearchField,
+  AdminSummaryRow,
+} from "@/components/admin/admin-filters";
 import { cn } from "@/lib/utils";
 
 type OrdersFiltersPanelProps = {
@@ -52,12 +56,7 @@ export function OrdersFiltersPanel({
     }
 
     const qs = params.toString();
-    router.push(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos");
-  };
-
-  const submitSearch = (e: FormEvent) => {
-    e.preventDefault();
-    navigate({ q: query });
+    router.push(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos", { scroll: false });
   };
 
   const hasFilters = Boolean(activeStatus || searchParams.get("q"));
@@ -65,101 +64,56 @@ export function OrdersFiltersPanel({
   return (
     <div className={cn("space-y-4", className)}>
       <AdminCard title="Buscar" description="Nombre, email, teléfono o nº de pedido.">
-        <form onSubmit={submitSearch} className="space-y-3" role="search">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-            <Input
-              type="search"
-              placeholder="Buscar pedidos..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-9 pr-8"
-              aria-label="Buscar pedidos"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  navigate({ q: "" });
-                }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-                aria-label="Limpiar búsqueda"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </form>
+        <AdminSearchField
+          value={query}
+          onChange={setQuery}
+          onClear={() => {
+            setQuery("");
+            navigate({ q: "" });
+          }}
+          onSubmit={() => navigate({ q: query })}
+          placeholder="Buscar pedidos..."
+          ariaLabel="Buscar pedidos"
+        />
       </AdminCard>
 
       <AdminCard title="Resumen" padding={false}>
         <div className="space-y-1 p-4">
-          <div className="flex justify-between text-sm">
-            <span className="text-neutral-500">Total pedidos</span>
-            <span className="font-semibold text-neutral-900">{totalOrders}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-neutral-500">Ingresos (pagados)</span>
-            <span className="font-semibold text-neutral-900">
-              {formatPrice(paidRevenue)}
-            </span>
-          </div>
+          <AdminSummaryRow label="Total pedidos" value={totalOrders} />
+          <AdminSummaryRow
+            label="Ingresos (pagados)"
+            value={formatPrice(paidRevenue)}
+          />
         </div>
 
-        <div className="border-t border-neutral-100 px-4 py-3">
-          <Label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-400">
-            Por estado
-          </Label>
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => navigate({ estado: "" })}
-              className={cn(
-                "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
-                !activeStatus
-                  ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)]"
-                  : "text-neutral-700 hover:bg-neutral-50",
-              )}
-            >
-              <span>Todos</span>
-              <span>{totalOrders}</span>
-            </button>
-            {ORDER_STATUSES.map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() =>
-                  navigate({ estado: activeStatus === status ? "" : status })
-                }
-                className={cn(
-                  "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
-                  activeStatus === status
-                    ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)]"
-                    : "text-neutral-700 hover:bg-neutral-50",
-                )}
-              >
-                <span>{getOrderStatusLabel(status)}</span>
-                <span>{counts[status]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <AdminFilterSection title="Por estado">
+          <AdminFilterButton
+            active={!activeStatus}
+            label="Todos"
+            count={totalOrders}
+            onClick={() => navigate({ estado: "" })}
+          />
+          {ORDER_STATUSES.map((status) => (
+            <AdminFilterButton
+              key={status}
+              active={activeStatus === status}
+              label={getOrderStatusLabel(status)}
+              count={counts[status]}
+              onClick={() =>
+                navigate({ estado: activeStatus === status ? "" : status })
+              }
+            />
+          ))}
+        </AdminFilterSection>
 
-        {hasFilters && (
-          <div className="border-t border-neutral-100 px-4 py-3">
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                navigate({ q: "", estado: "" });
-              }}
-              className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
-            >
-              Limpiar filtros
-            </button>
-          </div>
-        )}
+        {hasFilters ? (
+          <AdminClearFiltersButton
+            onClick={() => {
+              setQuery("");
+              navigate({ q: "", estado: "" });
+            }}
+          />
+        ) : null}
       </AdminCard>
     </div>
   );

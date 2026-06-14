@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { cn } from "@/lib/utils";
 
 type AdminStatCardProps = {
@@ -22,7 +23,12 @@ export function AdminStatCard({
   accent = "brand",
 }: AdminStatCardProps) {
   return (
-    <div className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div
+      className={cn(
+        adminSurfaceClass,
+        "p-5 transition-shadow hover:shadow-md",
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-neutral-500">{label}</p>
@@ -36,7 +42,7 @@ export function AdminStatCard({
             accentStyles[accent],
           )}
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-5 w-5" aria-hidden />
         </div>
       </div>
     </div>

@@ -2,11 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { ProductCreateForm } from "@/components/admin/product-create-form";
+import {
+  AdminDataTable,
+  AdminTableActions,
+  AdminTableCell,
+  AdminTableIconAction,
+  AdminTableRow,
+} from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCategoryLabel } from "@/lib/categories";
@@ -21,6 +29,15 @@ export type AdminProductRow = {
   variants: { imageUrl: string; price: number }[];
   _count: { variants: number };
 };
+
+const PRODUCT_COLUMNS = [
+  "Producto",
+  "Categoría",
+  "Precio",
+  "Variantes",
+  "Estado",
+  "Acciones",
+] as const;
 
 type AdminProductsSectionProps = {
   products: AdminProductRow[];
@@ -56,80 +73,54 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
           ) : undefined
         }
       >
-        <div className="admin-table-scroll">
-          <table className="w-full text-sm">
-            <thead className="border-b border-neutral-100 bg-neutral-50/80">
-              <tr>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Producto
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Categoría
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Precio
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Variantes
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left font-medium text-neutral-600">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-neutral-50/50">
-                  <td className="px-6 py-3">
-                    <div className="flex items-center gap-3">
-                      <ProductThumbnail
-                        src={product.variants[0]?.imageUrl}
-                        alt={product.name}
-                      />
-                      <div>
-                        <p className="font-medium">{product.name}</p>
-                        <Link
-                          href={`/producto/${product.slug}`}
-                          className="text-xs text-neutral-500 hover:underline"
-                          target="_blank"
-                        >
-                          Ver en tienda
-                        </Link>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-3">
-                    {getCategoryLabel(product.category)}
-                  </td>
-                  <td className="px-6 py-3 font-medium">
-                    {formatPrice(Number(product.variants[0]?.price ?? 0))}
-                  </td>
-                  <td className="px-6 py-3">{product._count.variants}</td>
-                  <td className="px-6 py-3">
-                    {product.featured ? (
-                      <Badge variant="success">Destacado</Badge>
-                    ) : (
-                      <Badge>Normal</Badge>
-                    )}
-                  </td>
-                  <td className="px-6 py-3">
-                    <div className="flex gap-2">
-                      <Link href={`/admin/productos/${product.id}/edit`}>
-                        <Button size="sm" variant="outline">
-                          Editar
-                        </Button>
-                      </Link>
-                      <DeleteProductButton productId={product.id} />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
+          {products.map((product) => (
+            <AdminTableRow key={product.id}>
+              <AdminTableCell>
+                <div className="flex items-center gap-3">
+                  <ProductThumbnail
+                    src={product.variants[0]?.imageUrl}
+                    alt={product.name}
+                  />
+                  <div>
+                    <p className="font-medium">{product.name}</p>
+                    <Link
+                      href={`/producto/${product.slug}`}
+                      className="text-xs text-neutral-500 hover:underline"
+                      target="_blank"
+                    >
+                      Ver en tienda
+                    </Link>
+                  </div>
+                </div>
+              </AdminTableCell>
+              <AdminTableCell>
+                {getCategoryLabel(product.category)}
+              </AdminTableCell>
+              <AdminTableCell className="font-medium">
+                {formatPrice(Number(product.variants[0]?.price ?? 0))}
+              </AdminTableCell>
+              <AdminTableCell>{product._count.variants}</AdminTableCell>
+              <AdminTableCell>
+                {product.featured ? (
+                  <Badge variant="success">Destacado</Badge>
+                ) : (
+                  <Badge>Normal</Badge>
+                )}
+              </AdminTableCell>
+              <AdminTableCell>
+                <AdminTableActions>
+                  <AdminTableIconAction
+                    label={`Editar ${product.name}`}
+                    icon={Pencil}
+                    href={`/admin/productos/${product.id}/edit`}
+                  />
+                  <DeleteProductButton productId={product.id} />
+                </AdminTableActions>
+              </AdminTableCell>
+            </AdminTableRow>
+          ))}
+        </AdminDataTable>
       </AdminCard>
     </div>
   );

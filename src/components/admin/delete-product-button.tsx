@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { AdminTableIconAction } from "@/components/admin/admin-table";
 import { deleteProduct } from "@/lib/admin-actions";
-import { Button } from "@/components/ui/button";
 
 export function DeleteProductButton({ productId }: { productId: string }) {
   const [loading, setLoading] = useState(false);
@@ -15,8 +16,12 @@ export function DeleteProductButton({ productId }: { productId: string }) {
   };
 
   return (
-    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={loading}>
-      {loading ? "..." : "Eliminar"}
-    </Button>
+    <AdminTableIconAction
+      label="Eliminar producto"
+      icon={Trash2}
+      onClick={handleDelete}
+      loading={loading}
+      disabled={loading}
+    />
   );
 }

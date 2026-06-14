@@ -2,14 +2,18 @@
 
 import { useState } from "react";
 import { updateProduct } from "@/lib/admin-actions";
-import { STORE_CATEGORIES } from "@/lib/categories";
 import { AdminCard } from "@/components/admin/admin-card";
+import {
+  AdminCategorySelect,
+  AdminForm,
+  AdminFormActions,
+  AdminFormAlert,
+  AdminFormGrid,
+  AdminTextarea,
+} from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const fieldClass =
-  "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 type ProductEditFormProps = {
   product: {
@@ -45,65 +49,53 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
 
   return (
     <AdminCard title="Datos del producto">
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
-      )}
-      {saved && (
-        <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-          Cambios guardados
-        </p>
-      )}
+      <AdminForm onSubmit={handleSubmit}>
+        {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
+        {saved ? (
+          <AdminFormAlert variant="success">Cambios guardados</AdminFormAlert>
+        ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="name">Nombre</Label>
-          <Input id="name" name="name" defaultValue={product.name} required />
-        </div>
-        <div>
-          <Label htmlFor="category">Categoría</Label>
-          <select
-            id="category"
-            name="category"
-            defaultValue={product.category}
-            className={fieldClass}
-            required
-          >
-            {STORE_CATEGORIES.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="description">Descripción</Label>
-          <textarea
-            id="description"
-            name="description"
-            rows={4}
-            defaultValue={product.description}
-            className={fieldClass}
-            required
-          />
-        </div>
-        <div className="flex items-center gap-2 sm:col-span-2">
-          <input
-            type="checkbox"
-            id="featured"
-            name="featured"
-            defaultChecked={product.featured}
-          />
-          <Label htmlFor="featured">Destacado en home</Label>
-        </div>
-      </div>
+        <AdminFormGrid>
+          <div>
+            <Label htmlFor="name">Nombre</Label>
+            <Input id="name" name="name" defaultValue={product.name} required />
+          </div>
+          <div>
+            <Label htmlFor="category">Categoría</Label>
+            <AdminCategorySelect
+              id="category"
+              name="category"
+              defaultValue={product.category}
+              required
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="description">Descripción</Label>
+            <AdminTextarea
+              id="description"
+              name="description"
+              rows={4}
+              defaultValue={product.description}
+              required
+            />
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <input
+              type="checkbox"
+              id="featured"
+              name="featured"
+              defaultChecked={product.featured}
+            />
+            <Label htmlFor="featured">Destacado en home</Label>
+          </div>
+        </AdminFormGrid>
 
-      <div className="flex justify-end border-t border-neutral-100 pt-4">
-        <Button type="submit" size="sm" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar producto"}
-        </Button>
-      </div>
-    </form>
+        <AdminFormActions>
+          <Button type="submit" size="sm" disabled={loading}>
+            {loading ? "Guardando..." : "Guardar producto"}
+          </Button>
+        </AdminFormActions>
+      </AdminForm>
     </AdminCard>
   );
 }

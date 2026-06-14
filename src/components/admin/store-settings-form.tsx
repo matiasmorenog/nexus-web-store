@@ -4,6 +4,7 @@ import { useState } from "react";
 import { updateStoreSettings } from "@/lib/admin-actions";
 import { BRAND_SUFFIX } from "@/lib/brand";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
 
   return (
     <AdminCard title="Tienda y envíos" className="max-w-lg">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <AdminForm onSubmit={handleSubmit}>
         <div>
           <Label htmlFor="name">Nombre de marca</Label>
           <div className="mt-1 flex overflow-hidden rounded-lg border border-neutral-200 bg-white focus-within:border-[var(--brand-primary)] focus-within:ring-2 focus-within:ring-[var(--brand-primary)] focus-within:ring-offset-1">
@@ -80,11 +81,13 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
           />
           <Label htmlFor="allowPickup">Permitir retiro en local</Label>
         </div>
-        {saved && <p className="text-sm text-green-600">Configuración guardada</p>}
+        {saved ? (
+          <AdminFormAlert variant="success">Configuración guardada</AdminFormAlert>
+        ) : null}
         <Button type="submit" disabled={loading}>
           {loading ? "Guardando..." : "Guardar cambios"}
         </Button>
-      </form>
+      </AdminForm>
     </AdminCard>
   );
 }

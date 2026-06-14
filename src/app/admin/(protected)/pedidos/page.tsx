@@ -8,6 +8,8 @@ import {
 } from "@/lib/order-status";
 import { AdminOrderCard } from "@/components/admin/admin-order-card";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminEmptyState } from "@/components/admin/admin-surface";
+import { AdminSkeletonFiltersPanel } from "@/components/admin/admin-skeleton";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { OrdersFiltersPanel } from "@/components/admin/orders-filters-panel";
 
@@ -112,24 +114,20 @@ export default async function AdminOrdersPage({
       <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8">
         <div className="min-h-0 min-w-0 flex-1 space-y-4 pb-6 lg:max-w-3xl lg:overflow-y-auto lg:pr-1 lg:pb-0">
           <div className="lg:hidden">
-            <Suspense
-              fallback={
-                <div className="mb-4 h-48 animate-pulse rounded-xl bg-neutral-100" />
-              }
-            >
+            <Suspense fallback={<AdminSkeletonFiltersPanel className="mb-4" />}>
               {filtersPanel}
             </Suspense>
           </div>
 
           {orders.length === 0 ? (
             <AdminCard>
-              <p className="py-8 text-center text-neutral-500">No hay pedidos aún</p>
+              <AdminEmptyState>No hay pedidos aún</AdminEmptyState>
             </AdminCard>
           ) : filteredOrders.length === 0 ? (
             <AdminCard>
-              <p className="py-8 text-center text-neutral-500">
+              <AdminEmptyState>
                 Ningún pedido coincide con los filtros.
-              </p>
+              </AdminEmptyState>
             </AdminCard>
           ) : (
             filteredOrders.map((order) => (
@@ -139,11 +137,7 @@ export default async function AdminOrdersPage({
         </div>
 
         <aside className="hidden w-72 shrink-0 lg:block">
-          <Suspense
-            fallback={
-              <div className="h-64 animate-pulse rounded-xl bg-neutral-100" />
-            }
-          >
+          <Suspense fallback={<AdminSkeletonFiltersPanel />}>
             {filtersPanel}
           </Suspense>
         </aside>

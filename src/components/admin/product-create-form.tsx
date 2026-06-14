@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { createProduct } from "@/lib/admin-actions";
-import { STORE_CATEGORIES } from "@/lib/categories";
 import { AdminCard } from "@/components/admin/admin-card";
+import {
+  AdminCategorySelect,
+  AdminForm,
+  AdminFormActions,
+  AdminFormGrid,
+  AdminTextarea,
+} from "@/components/admin/admin-form";
 import { AdminMotion } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const fieldClass =
-  "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 type ProductCreateFormProps = {
   onClose: () => void;
@@ -36,36 +39,19 @@ export function ProductCreateForm({ onClose }: ProductCreateFormProps) {
         title="Nuevo producto"
         description="Completá los datos del producto y su primera variante."
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <AdminForm onSubmit={handleSubmit}>
+          <AdminFormGrid>
             <div>
               <Label htmlFor="name">Nombre</Label>
               <Input id="name" name="name" required />
             </div>
             <div>
               <Label htmlFor="category">Categoría</Label>
-              <select
-                id="category"
-                name="category"
-                className={fieldClass}
-                required
-              >
-                {STORE_CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+              <AdminCategorySelect id="category" name="category" required />
             </div>
             <div className="sm:col-span-2">
               <Label htmlFor="description">Descripción</Label>
-              <textarea
-                id="description"
-                name="description"
-                rows={3}
-                className={fieldClass}
-                required
-              />
+              <AdminTextarea id="description" name="description" rows={3} required />
             </div>
             <div>
               <Label htmlFor="price">Precio</Label>
@@ -99,16 +85,17 @@ export function ProductCreateForm({ onClose }: ProductCreateFormProps) {
               <input type="checkbox" id="featured" name="featured" />
               <Label htmlFor="featured">Destacado</Label>
             </div>
-          </div>
-          <div className="flex justify-end gap-2 border-t border-neutral-100 pt-4">
+          </AdminFormGrid>
+
+          <AdminFormActions>
             <Button type="button" size="sm" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" size="sm" disabled={loading}>
               {loading ? "Guardando..." : "Crear producto"}
             </Button>
-          </div>
-        </form>
+          </AdminFormActions>
+        </AdminForm>
       </AdminCard>
     </AdminMotion>
   );

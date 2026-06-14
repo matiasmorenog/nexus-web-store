@@ -25,19 +25,19 @@ export const ACTIVITY_PERIOD_LABELS: Record<
   week: {
     short: "Semana",
     summary: "7 días",
-    description: "Pedidos pagados y enviados por día (últimos 7 días)",
+    description: "Ingresos de pedidos pagados y enviados por día (últimos 7 días)",
     empty: "Sin ventas en los últimos 7 días.",
   },
   month: {
     short: "Mes",
     summary: "30 días",
-    description: "Pedidos pagados y enviados por día (últimos 30 días)",
+    description: "Ingresos de pedidos pagados y enviados por día (últimos 30 días)",
     empty: "Sin ventas en los últimos 30 días.",
   },
   year: {
     short: "Año",
     summary: "12 meses",
-    description: "Pedidos pagados y enviados por mes (últimos 12 meses)",
+    description: "Ingresos de pedidos pagados y enviados por mes (últimos 12 meses)",
     empty: "Sin ventas en los últimos 12 meses.",
   },
 };

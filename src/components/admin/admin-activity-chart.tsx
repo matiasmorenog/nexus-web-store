@@ -43,12 +43,12 @@ function bucketX(index: number, count: number): number {
   return HORIZONTAL_INSET + (index / (count - 1)) * span;
 }
 
-function buildPlotPoints(data: ActivityPoint[], maxOrders: number): PlotPoint[] {
+function buildPlotPoints(data: ActivityPoint[], maxRevenue: number): PlotPoint[] {
   const plotHeight = PLOT.height - PLOT.top - PLOT.bottom;
 
   return data.map((point, index) => ({
     x: bucketX(index, data.length),
-    y: PLOT.top + plotHeight - (point.orders / maxOrders) * plotHeight,
+    y: PLOT.top + plotHeight - (point.revenue / maxRevenue) * plotHeight,
     point,
   }));
 }
@@ -72,10 +72,10 @@ function ChartTooltip({
       }}
     >
       <p className="text-xs font-semibold text-neutral-900">
-        {plot.point.orders} pedido{plot.point.orders !== 1 ? "s" : ""}
-      </p>
-      <p className="mt-0.5 text-[11px] font-medium text-[var(--brand-primary)]">
         {formatPrice(plot.point.revenue)}
+      </p>
+      <p className="mt-0.5 text-[11px] font-medium text-neutral-500">
+        {plot.point.orders} pedido{plot.point.orders !== 1 ? "s" : ""}
       </p>
     </div>
   );
@@ -336,12 +336,12 @@ export function AdminActivityChart({
     };
   }, [chartData, period, showMonthAsWeeks]);
 
-  const maxOrders = Math.max(...chartData.map((point) => point.orders), 1);
-  const hasData = chartData.some((point) => point.orders > 0);
+  const maxRevenue = Math.max(...chartData.map((point) => point.revenue), 1);
+  const hasData = chartData.some((point) => point.revenue > 0);
 
   const plotPoints = useMemo(
-    () => buildPlotPoints(chartData, maxOrders),
-    [chartData, maxOrders],
+    () => buildPlotPoints(chartData, maxRevenue),
+    [chartData, maxRevenue],
   );
 
   const activePlot = plotPoints.find((plot) => plot.point.key === activeKey) ?? null;
@@ -380,8 +380,8 @@ export function AdminActivityChart({
         <div>
           <p className="mb-2 text-xs text-neutral-400">
             {showMonthAsWeeks
-              ? "Vista por semanas en mobile. Pasá el mouse o tocá un punto para ver pedidos e ingresos."
-              : "Pasá el mouse o tocá un punto para ver pedidos e ingresos del período."}
+              ? "Vista por semanas en mobile. Pasá el mouse o tocá un punto para ver ingresos y pedidos."
+              : "Pasá el mouse o tocá un punto para ver ingresos y pedidos del período."}
           </p>
 
           <div
@@ -423,7 +423,7 @@ export function AdminActivityChart({
                       onClick={() =>
                         setActiveKey(isActive ? null : plot.point.key)
                       }
-                      aria-label={`${plot.point.label}: ${plot.point.orders} pedidos, ${formatPrice(plot.point.revenue)}`}
+                      aria-label={`${plot.point.label}: ${formatPrice(plot.point.revenue)}, ${plot.point.orders} pedidos`}
                       aria-hidden={!showDot}
                       tabIndex={showDot ? 0 : -1}
                     >
@@ -445,7 +445,7 @@ export function AdminActivityChart({
                   );
                 })}
 
-                {activePlot && activePlot.point.orders > 0 ? (
+                {activePlot && activePlot.point.revenue > 0 ? (
                   <ChartTooltip plot={activePlot} showBelow={showTooltipBelow} />
                 ) : null}
               </div>

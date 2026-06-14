@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ACTIVITY_PERIOD_LABELS,
   type ActivityPeriod,
@@ -13,25 +14,27 @@ type AdminActivityPeriodTabsProps = {
   period: ActivityPeriod;
 };
 
-export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+function buildPeriodHref(
+  next: ActivityPeriod,
+  searchParams: URLSearchParams,
+): string {
+  const params = new URLSearchParams(searchParams.toString());
+  if (next === "week") params.delete("period");
+  else params.set("period", next);
+  const qs = params.toString();
+  return qs ? `/admin?${qs}` : "/admin";
+}
 
-  const setPeriod = (next: ActivityPeriod) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "week") params.delete("period");
-    else params.set("period", next);
-    const qs = params.toString();
-    router.push(qs ? `/admin?${qs}` : "/admin");
-  };
+export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps) {
+  const searchParams = useSearchParams();
 
   return (
     <div className="flex gap-1 rounded-lg border border-neutral-200 bg-white p-1">
       {PERIODS.map((value) => (
-        <button
+        <Link
           key={value}
-          type="button"
-          onClick={() => setPeriod(value)}
+          href={buildPeriodHref(value, searchParams)}
+          aria-current={period === value ? "page" : undefined}
           className={cn(
             "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
             period === value
@@ -40,7 +43,7 @@ export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps
           )}
         >
           {ACTIVITY_PERIOD_LABELS[value].short}
-        </button>
+        </Link>
       ))}
     </div>
   );

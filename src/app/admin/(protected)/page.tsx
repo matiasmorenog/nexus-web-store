@@ -39,27 +39,47 @@ export default async function AdminDashboardPage({
 
   const [productCount, orderCount, paidOrders, recentOrders, analytics] =
     await Promise.all([
-    db.product.count({ where: { storeId } }),
-    db.order.count({ where: { storeId } }),
-    db.order.findMany({
-      where: { storeId, status: "PAID" },
-      select: { total: true },
-    }),
-    db.order.findMany({
-      where: { storeId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-    getDashboardAnalytics(storeId, period),
-  ]);
+      db.product.count({ where: { storeId } }),
+      db.order.count({ where: { storeId } }),
+      db.order.findMany({
+        where: { storeId, status: "PAID" },
+        select: { total: true },
+      }),
+      db.order.findMany({
+        where: { storeId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      getDashboardAnalytics(storeId, period),
+    ]);
 
   const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
 
   const stats = [
-    { label: "Productos", value: productCount, icon: Package, accent: "brand" as const },
-    { label: "Pedidos", value: orderCount, icon: ShoppingCart, accent: "blue" as const },
-    { label: "Ingresos", value: formatPrice(revenue), icon: DollarSign, accent: "green" as const },
-    { label: "Ventas pagadas", value: paidOrders.length, icon: TrendingUp, accent: "amber" as const },
+    {
+      label: "Productos",
+      value: productCount,
+      icon: Package,
+      accent: "brand" as const,
+    },
+    {
+      label: "Pedidos",
+      value: orderCount,
+      icon: ShoppingCart,
+      accent: "blue" as const,
+    },
+    {
+      label: "Ingresos",
+      value: formatPrice(revenue),
+      icon: DollarSign,
+      accent: "green" as const,
+    },
+    {
+      label: "Ventas pagadas",
+      value: paidOrders.length,
+      icon: TrendingUp,
+      accent: "amber" as const,
+    },
   ];
 
   return (
@@ -79,12 +99,15 @@ export default async function AdminDashboardPage({
         <AdminCard
           title="Actividad de ventas"
           description={periodLabels.description}
+          className="overflow-visible"
           action={
-            <Suspense fallback={<div className="h-8 w-40 animate-pulse rounded-lg bg-neutral-100" />}>
+            <Suspense
+              fallback={
+                <div className="h-8 w-40 animate-pulse rounded-lg bg-neutral-100" />
+              }>
               <AdminActivityPeriodTabs period={period} />
             </Suspense>
-          }
-        >
+          }>
           <AdminActivityChart
             period={analytics.salesActivity.period}
             data={analytics.salesActivity.points}
@@ -95,8 +118,7 @@ export default async function AdminDashboardPage({
 
         <AdminCard
           title="Productos más vendidos"
-          description="Ranking por unidades vendidas (histórico)"
-        >
+          description="Ranking por unidades vendidas (histórico)">
           <AdminTopProducts products={analytics.topProducts} />
         </AdminCard>
       </div>
@@ -123,7 +145,9 @@ export default async function AdminDashboardPage({
             <tbody className="divide-y divide-neutral-100">
               {recentOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-neutral-500">
+                  <td
+                    colSpan={4}
+                    className="px-6 py-12 text-center text-neutral-500">
                     No hay pedidos aún
                   </td>
                 </tr>

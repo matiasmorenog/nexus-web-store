@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type AdminMotionProps = {
   children: React.ReactNode;
   className?: string;
-  variant?: "panel" | "inline";
+  variant?: "panel" | "inline" | "row-expand";
 };
 
 export function AdminMotion({
@@ -26,6 +26,19 @@ export function AdminMotion({
       if (frame2) cancelAnimationFrame(frame2);
     };
   }, []);
+
+  if (variant === "row-expand") {
+    return (
+      <div
+        className={cn(
+          animate ? "admin-table-row-expand-enter" : "admin-table-row-expand-prep",
+          className,
+        )}
+      >
+        <div className="admin-table-row-expand-inner">{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div

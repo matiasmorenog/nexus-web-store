@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
+import { AdminMotion } from "@/components/admin/admin-motion";
 import {
   AdminForm,
   AdminFormActions,
@@ -145,24 +146,26 @@ function VariantInlineForm({
   return (
     <AdminTableRow ref={rowRef} className="scroll-mb-24 hover:bg-transparent">
       <AdminTableCell colSpan={6} className="bg-neutral-50/80 px-6 py-4 pb-8">
-        <AdminForm onSubmit={onSubmit} className="space-y-3">
-          <p className="text-sm font-medium text-neutral-700">{title}</p>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <VariantFormFields formId={formId} values={values} />
-          <AdminFormActions sticky>
-            <Button type="submit" size="sm" disabled={loading}>
-              {loading ? "..." : submitLabel}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={onCancel}
-              disabled={loading}>
-              Cancelar
-            </Button>
-          </AdminFormActions>
-        </AdminForm>
+        <AdminMotion variant="row-expand">
+          <AdminForm onSubmit={onSubmit} className="space-y-3">
+            <p className="text-sm font-medium text-neutral-700">{title}</p>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <VariantFormFields formId={formId} values={values} />
+            <AdminFormActions sticky>
+              <Button type="submit" size="sm" disabled={loading}>
+                {loading ? "..." : submitLabel}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={onCancel}
+                disabled={loading}>
+                Cancelar
+              </Button>
+            </AdminFormActions>
+          </AdminForm>
+        </AdminMotion>
       </AdminTableCell>
     </AdminTableRow>
   );

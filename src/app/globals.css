@@ -66,6 +66,34 @@ button:not(:disabled),
   animation: admin-inline-form-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@keyframes admin-table-row-expand-in {
+  from {
+    opacity: 0;
+    grid-template-rows: 0fr;
+  }
+  to {
+    opacity: 1;
+    grid-template-rows: 1fr;
+  }
+}
+
+.admin-table-row-expand-prep {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.admin-table-row-expand-enter {
+  display: grid;
+  grid-template-rows: 1fr;
+  animation: admin-table-row-expand-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.admin-table-row-expand-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
 @keyframes page-reveal-in {
   from {
     opacity: 0;
@@ -241,13 +269,16 @@ button:not(:disabled),
 
 @media (prefers-reduced-motion: reduce) {
   .admin-panel-prep,
-  .admin-inline-form-prep {
+  .admin-inline-form-prep,
+  .admin-table-row-expand-prep {
     opacity: 1;
     transform: none;
+    grid-template-rows: 1fr;
   }
 
   .admin-panel-enter,
-  .admin-inline-form-enter {
+  .admin-inline-form-enter,
+  .admin-table-row-expand-enter {
     animation: none;
     opacity: 1;
     transform: none;

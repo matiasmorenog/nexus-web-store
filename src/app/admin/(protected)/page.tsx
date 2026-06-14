@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { Package, ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 import { AdminActivityChart } from "@/components/admin/admin-activity-chart";
 import { AdminActivityPeriodTabs } from "@/components/admin/admin-activity-period-tabs";
 import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
@@ -10,8 +9,9 @@ import {
   AdminTableEmpty,
   AdminTableRow,
 } from "@/components/admin/admin-table";
+import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminStatCard } from "@/components/admin/admin-stat-card";
+import { AdminStatCard, type AdminStatCardIcon } from "@/components/admin/admin-stat-card";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -62,47 +62,62 @@ export default async function AdminDashboardPage({
 
   const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
 
-  const stats = [
+  const stats: {
+    label: string;
+    value: number;
+    format: "number" | "currency";
+    icon: AdminStatCardIcon;
+    accent: "brand" | "blue" | "green" | "amber";
+  }[] = [
     {
       label: "Productos",
       value: productCount,
-      icon: Package,
+      format: "number" as const,
+      icon: "package",
       accent: "brand" as const,
     },
     {
       label: "Pedidos",
       value: orderCount,
-      icon: ShoppingCart,
+      format: "number" as const,
+      icon: "shopping-cart",
       accent: "blue" as const,
     },
     {
       label: "Ingresos",
-      value: formatPrice(revenue),
-      icon: DollarSign,
+      value: revenue,
+      format: "currency" as const,
+      icon: "dollar-sign",
       accent: "green" as const,
     },
     {
       label: "Ventas pagadas",
       value: paidOrders.length,
-      icon: TrendingUp,
+      format: "number" as const,
+      icon: "trending-up",
       accent: "amber" as const,
     },
   ];
 
   return (
     <div className="pb-2">
-      <AdminPageHeader
-        title="Dashboard"
-        description={`Resumen de tu tienda ${storeDisplayName}.`}
-      />
+      <AdminDashboardReveal index={0}>
+        <AdminPageHeader
+          title="Dashboard"
+          description={`Resumen de tu tienda ${storeDisplayName}.`}
+        />
+      </AdminDashboardReveal>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <AdminStatCard key={stat.label} {...stat} />
+      <AdminDashboardReveal index={1} className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat, index) => (
+          <AdminStatCard key={stat.label} {...stat} delay={index * 80} />
         ))}
-      </div>
+      </AdminDashboardReveal>
 
-      <div className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <AdminDashboardReveal
+        index={2}
+        className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+      >
         <AdminCard
           title="Actividad de ventas"
           description={periodLabels.description}
@@ -125,36 +140,38 @@ export default async function AdminDashboardPage({
           description="Ranking por unidades vendidas (histórico)">
           <AdminTopProducts products={analytics.topProducts} />
         </AdminCard>
-      </div>
+      </AdminDashboardReveal>
 
-      <AdminCard title="Pedidos recientes" padding={false}>
-        <AdminDataTable
-          columns={["Cliente", "Estado", "Total", "Fecha"]}
-        >
-          {recentOrders.length === 0 ? (
-            <AdminTableEmpty colSpan={4}>No hay pedidos aún</AdminTableEmpty>
-          ) : (
-            recentOrders.map((order) => (
-              <AdminTableRow key={order.id}>
-                <AdminTableCell className="font-medium text-neutral-900">
-                  {order.customerName}
-                </AdminTableCell>
-                <AdminTableCell>
-                  <Badge variant={getOrderStatusVariant(order.status)}>
-                    {getOrderStatusLabel(order.status)}
-                  </Badge>
-                </AdminTableCell>
-                <AdminTableCell className="font-medium">
-                  {formatPrice(Number(order.total))}
-                </AdminTableCell>
-                <AdminTableCell className="text-neutral-500">
-                  {new Date(order.createdAt).toLocaleDateString("es-AR")}
-                </AdminTableCell>
-              </AdminTableRow>
-            ))
-          )}
-        </AdminDataTable>
-      </AdminCard>
+      <AdminDashboardReveal index={3}>
+        <AdminCard title="Pedidos recientes" padding={false}>
+          <AdminDataTable
+            columns={["Cliente", "Estado", "Total", "Fecha"]}
+          >
+            {recentOrders.length === 0 ? (
+              <AdminTableEmpty colSpan={4}>No hay pedidos aún</AdminTableEmpty>
+            ) : (
+              recentOrders.map((order) => (
+                <AdminTableRow key={order.id}>
+                  <AdminTableCell className="font-medium text-neutral-900">
+                    {order.customerName}
+                  </AdminTableCell>
+                  <AdminTableCell>
+                    <Badge variant={getOrderStatusVariant(order.status)}>
+                      {getOrderStatusLabel(order.status)}
+                    </Badge>
+                  </AdminTableCell>
+                  <AdminTableCell className="font-medium">
+                    {formatPrice(Number(order.total))}
+                  </AdminTableCell>
+                  <AdminTableCell className="text-neutral-500">
+                    {new Date(order.createdAt).toLocaleDateString("es-AR")}
+                  </AdminTableCell>
+                </AdminTableRow>
+              ))
+            )}
+          </AdminDataTable>
+        </AdminCard>
+      </AdminDashboardReveal>
     </div>
   );
 }

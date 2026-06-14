@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
+import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminCard } from "@/components/admin/admin-card";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
@@ -48,16 +49,19 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
 
   return (
     <div className="space-y-6 pb-2">
-      <AdminPageHeader
-        title="Productos"
-        description="Alta, edición y variantes de tu catálogo."
-      />
+      <AdminDashboardReveal index={0}>
+        <AdminPageHeader
+          title="Productos"
+          description="Alta, edición y variantes de tu catálogo."
+        />
+      </AdminDashboardReveal>
 
-      {createOpen ? (
-        <ProductCreateForm onClose={() => setCreateOpen(false)} />
-      ) : null}
+      <AdminDashboardReveal index={1} className="space-y-6">
+        {createOpen ? (
+          <ProductCreateForm onClose={() => setCreateOpen(false)} />
+        ) : null}
 
-      <AdminCard
+        <AdminCard
         title="Catálogo"
         description={`${products.length} producto${products.length !== 1 ? "s" : ""}`}
         padding={false}
@@ -122,6 +126,7 @@ export function AdminProductsSection({ products }: AdminProductsSectionProps) {
           ))}
         </AdminDataTable>
       </AdminCard>
+      </AdminDashboardReveal>
     </div>
   );
 }

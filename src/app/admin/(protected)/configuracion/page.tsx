@@ -1,3 +1,4 @@
+import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
 import { auth } from "@/lib/auth";
@@ -16,17 +17,21 @@ export default async function AdminSettingsPage() {
 
   return (
     <div>
-      <AdminPageHeader
-        title="Configuración"
-        description="Nombre de marca, envíos y opciones de retiro en local."
-      />
-      <StoreSettingsForm
-        store={{
-          brandPrefix: getBrandPrefix(store.name),
-          shippingFlatRate: Number(store.shippingFlatRate),
-          allowPickup: store.allowPickup,
-        }}
-      />
+      <AdminDashboardReveal index={0}>
+        <AdminPageHeader
+          title="Configuración"
+          description="Nombre de marca, envíos y opciones de retiro en local."
+        />
+      </AdminDashboardReveal>
+      <AdminDashboardReveal index={1}>
+        <StoreSettingsForm
+          store={{
+            brandPrefix: getBrandPrefix(store.name),
+            shippingFlatRate: Number(store.shippingFlatRate),
+            allowPickup: store.allowPickup,
+          }}
+        />
+      </AdminDashboardReveal>
     </div>
   );
 }

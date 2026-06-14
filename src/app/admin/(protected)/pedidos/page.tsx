@@ -6,6 +6,7 @@ import {
   formatOrderId,
   type OrderStatus,
 } from "@/lib/order-status";
+import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminOrderCard } from "@/components/admin/admin-order-card";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminEmptyState } from "@/components/admin/admin-surface";
@@ -109,9 +110,14 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <AdminPageHeader title="Pedidos" description={description} />
+      <AdminDashboardReveal index={0}>
+        <AdminPageHeader title="Pedidos" description={description} />
+      </AdminDashboardReveal>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8">
+      <AdminDashboardReveal
+        index={1}
+        className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8"
+      >
         <div className="min-h-0 min-w-0 flex-1 space-y-4 pb-6 lg:max-w-3xl lg:overflow-y-auto lg:pr-1 lg:pb-0">
           <div className="lg:hidden">
             <Suspense fallback={<AdminSkeletonFiltersPanel className="mb-4" />}>
@@ -141,7 +147,7 @@ export default async function AdminOrdersPage({
             {filtersPanel}
           </Suspense>
         </aside>
-      </div>
+      </AdminDashboardReveal>
     </div>
   );
 }

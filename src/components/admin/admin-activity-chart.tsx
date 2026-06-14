@@ -8,6 +8,7 @@ import {
   type ActivityPoint,
 } from "@/lib/admin-analytics";
 import { cn, formatPrice } from "@/lib/utils";
+import { useCountUp, easeOutExpo } from "@/components/admin/use-count-up";
 
 type AdminActivityChartProps = {
   period: ActivityPeriod;
@@ -80,19 +81,153 @@ function ChartTooltip({
   );
 }
 
-function ActivityLineSvg({ plotPoints }: { plotPoints: PlotPoint[] }) {
-  const plotHeight = PLOT.height - PLOT.top - PLOT.bottom;
-  const bottomY = PLOT.top + plotHeight;
+const CHART_WAIT_MS = 320;
+const CHART_LINE_DRAW_MS = 1100;
 
+type ChartPhase = "waiting" | "animating" | "complete";
+
+function buildFullPaths(plotPoints: PlotPoint[], bottomY: number) {
   const linePath = plotPoints
     .map((plot, index) => `${index === 0 ? "M" : "L"} ${plot.x} ${plot.y}`)
     .join(" ");
 
   const first = plotPoints[0];
   const last = plotPoints[plotPoints.length - 1];
-  const areaPath = [linePath, `L ${last.x} ${bottomY}`, `L ${first.x} ${bottomY}`, "Z"].join(
-    " ",
-  );
+  const areaPath = [
+    linePath,
+    `L ${last.x} ${bottomY}`,
+    `L ${first.x} ${bottomY}`,
+    "Z",
+  ].join(" ");
+
+  return { linePath, areaPath };
+}
+
+function buildPartialPaths(
+  plotPoints: PlotPoint[],
+  progress: number,
+  bottomY: number,
+) {
+  if (plotPoints.length === 0) {
+    return { linePath: "", areaPath: "" };
+  }
+
+  if (plotPoints.length === 1 || progress >= 1) {
+    return buildFullPaths(plotPoints, bottomY);
+  }
+
+  if (progress <= 0) {
+    return { linePath: "", areaPath: "" };
+  }
+
+  const segments: { from: PlotPoint; to: PlotPoint; length: number }[] = [];
+  for (let index = 1; index < plotPoints.length; index += 1) {
+    const from = plotPoints[index - 1];
+    const to = plotPoints[index];
+    segments.push({
+      from,
+      to,
+      length: Math.hypot(to.x - from.x, to.y - from.y),
+    });
+  }
+
+  const totalLength = segments.reduce((sum, segment) => sum + segment.length, 0);
+  const targetLength = totalLength * progress;
+  const parts = [`M ${plotPoints[0].x} ${plotPoints[0].y}`];
+  let covered = 0;
+  let endX = plotPoints[0].x;
+  let endY = plotPoints[0].y;
+
+  for (const segment of segments) {
+    if (covered + segment.length <= targetLength) {
+      parts.push(`L ${segment.to.x} ${segment.to.y}`);
+      covered += segment.length;
+      endX = segment.to.x;
+      endY = segment.to.y;
+      continue;
+    }
+
+    if (targetLength > covered) {
+      const t = (targetLength - covered) / segment.length;
+      endX = segment.from.x + (segment.to.x - segment.from.x) * t;
+      endY = segment.from.y + (segment.to.y - segment.from.y) * t;
+      parts.push(`L ${endX} ${endY}`);
+    }
+    break;
+  }
+
+  const linePath = parts.join(" ");
+  const areaPath = [
+    linePath,
+    `L ${endX} ${bottomY}`,
+    `L ${plotPoints[0].x} ${bottomY}`,
+    "Z",
+  ].join(" ");
+
+  return { linePath, areaPath };
+}
+
+function ActivityLineSvg({
+  plotPoints,
+  phase,
+}: {
+  plotPoints: PlotPoint[];
+  phase: ChartPhase;
+}) {
+  const [drawProgress, setDrawProgress] = useState(0);
+
+  const plotHeight = PLOT.height - PLOT.top - PLOT.bottom;
+  const bottomY = PLOT.top + plotHeight;
+
+  useEffect(() => {
+    let frame = 0;
+
+    if (phase === "waiting") {
+      frame = requestAnimationFrame(() => setDrawProgress(0));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    if (phase === "complete") {
+      frame = requestAnimationFrame(() => setDrawProgress(1));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    if (plotPoints.length === 0) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reducedMotion) {
+      frame = requestAnimationFrame(() => setDrawProgress(1));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    let startTime: number | null = null;
+
+    const step = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / CHART_LINE_DRAW_MS, 1);
+      setDrawProgress(easeOutExpo(progress));
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+      }
+    };
+
+    frame = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(frame);
+  }, [phase, plotPoints]);
+
+  const paths =
+    phase === "complete"
+      ? buildFullPaths(plotPoints, bottomY)
+      : buildPartialPaths(plotPoints, drawProgress, bottomY);
+
+  const showSeries = phase !== "waiting" && drawProgress > 0 && paths.linePath.length > 0;
 
   return (
     <svg
@@ -123,16 +258,18 @@ function ActivityLineSvg({ plotPoints }: { plotPoints: PlotPoint[] }) {
         );
       })}
 
-      <path d={areaPath} fill="url(#activity-area)" />
-      <path
-        d={linePath}
-        fill="none"
-        className="stroke-[var(--brand-primary)]"
-        strokeWidth={SERIES_STROKE}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
+      <g style={{ opacity: showSeries ? 1 : 0 }}>
+        <path d={paths.areaPath} fill="url(#activity-area)" />
+        <path
+          d={paths.linePath}
+          fill="none"
+          className="stroke-[var(--brand-primary)]"
+          strokeWidth={SERIES_STROKE}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </g>
     </svg>
   );
 }
@@ -159,14 +296,45 @@ export function AdminActivityChart({
   totalRevenue,
 }: AdminActivityChartProps) {
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [chartPhase, setChartPhase] = useState<ChartPhase>("waiting");
   const isMobile = useIsMobile();
   const labels = ACTIVITY_PERIOD_LABELS[period];
   const showMonthAsWeeks = period === "month" && isMobile;
+  const { displayValue: animatedOrders, isComplete: ordersComplete } =
+    useCountUp(totalOrders, { delay: 180 });
+  const { displayValue: animatedRevenue, isComplete: revenueComplete } =
+    useCountUp(totalRevenue, { delay: 260 });
 
   const chartData = useMemo(() => {
     if (showMonthAsWeeks) return aggregateActivityIntoWeeks(data);
     return data;
   }, [data, showMonthAsWeeks]);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    setChartPhase("waiting");
+
+    if (reducedMotion) {
+      const frame = requestAnimationFrame(() => setChartPhase("complete"));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    const startAnim = window.setTimeout(() => {
+      setChartPhase("animating");
+    }, CHART_WAIT_MS);
+
+    const finish = window.setTimeout(() => {
+      setChartPhase("complete");
+    }, CHART_WAIT_MS + CHART_LINE_DRAW_MS);
+
+    return () => {
+      window.clearTimeout(startAnim);
+      window.clearTimeout(finish);
+    };
+  }, [chartData, period, showMonthAsWeeks]);
 
   const maxOrders = Math.max(...chartData.map((point) => point.orders), 1);
   const hasData = chartData.some((point) => point.orders > 0);
@@ -184,12 +352,24 @@ export function AdminActivityChart({
       <div className="mb-6 flex flex-wrap gap-6 text-sm">
         <div>
           <p className="text-neutral-500">Pedidos ({labels.summary})</p>
-          <p className="mt-0.5 text-xl font-bold text-neutral-900">{totalOrders}</p>
+          <p
+            className={cn(
+              "mt-0.5 text-xl font-bold tabular-nums text-neutral-900",
+              ordersComplete && "admin-stat-landed",
+            )}
+          >
+            {animatedOrders}
+          </p>
         </div>
         <div>
           <p className="text-neutral-500">Ingresos ({labels.summary})</p>
-          <p className="mt-0.5 text-xl font-bold text-neutral-900">
-            {formatPrice(totalRevenue)}
+          <p
+            className={cn(
+              "mt-0.5 text-xl font-bold tabular-nums text-neutral-900",
+              revenueComplete && "admin-stat-landed",
+            )}
+          >
+            {formatPrice(animatedRevenue)}
           </p>
         </div>
       </div>
@@ -216,33 +396,50 @@ export function AdminActivityChart({
                 period === "month" && !isMobile ? "min-w-[35rem]" : "w-full",
               )}
             >
-              <div className="relative h-44 overflow-visible sm:h-48">
-                <ActivityLineSvg plotPoints={plotPoints} />
+              <div
+                key={`${period}-${showMonthAsWeeks ? "weeks" : "default"}`}
+                className="relative h-44 overflow-visible sm:h-48"
+              >
+                <ActivityLineSvg plotPoints={plotPoints} phase={chartPhase} />
 
-                {plotPoints.map((plot) => {
+                {plotPoints.map((plot, index) => {
                   const isActive = activeKey === plot.point.key;
+                  const showDot = chartPhase === "complete";
 
                   return (
                     <button
                       key={plot.point.key}
                       type="button"
-                      className="absolute z-10 -translate-x-1/2 -translate-y-1/2 touch-manipulation"
-                      style={{ left: `${plot.x}%`, top: `${plot.y}%` }}
+                      className={cn(
+                        "absolute z-10 -translate-x-1/2 -translate-y-1/2 touch-manipulation",
+                        !showDot && "pointer-events-none",
+                      )}
+                      style={{
+                        left: `${plot.x}%`,
+                        top: `${plot.y}%`,
+                      }}
                       onMouseEnter={() => setActiveKey(plot.point.key)}
                       onMouseLeave={() => setActiveKey(null)}
                       onClick={() =>
                         setActiveKey(isActive ? null : plot.point.key)
                       }
                       aria-label={`${plot.point.label}: ${plot.point.orders} pedidos, ${formatPrice(plot.point.revenue)}`}
+                      aria-hidden={!showDot}
+                      tabIndex={showDot ? 0 : -1}
                     >
                       <span
                         className={cn(
                           "block rounded-full border-[var(--brand-primary)] bg-white transition-transform",
+                          showDot && "admin-chart-dot-enter",
+                          !showDot && "scale-0 opacity-0",
                           isActive
                             ? "size-[17px] shadow-sm"
                             : "size-3.5",
                         )}
-                        style={{ borderWidth: SERIES_STROKE }}
+                        style={{
+                          animationDelay: showDot ? `${index * 55}ms` : undefined,
+                          borderWidth: SERIES_STROKE,
+                        }}
                       />
                     </button>
                   );

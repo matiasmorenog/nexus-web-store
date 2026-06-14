@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { StoreLogo } from "@/components/storefront/store-logo";
@@ -26,10 +26,25 @@ const navLinks = [
 export function Header({ storeName }: HeaderProps) {
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [badgePulse, setBadgePulse] = useState(false);
+  const [cartReady, setCartReady] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems());
+  const lastAddedAt = useCartStore((s) => s.lastAddedAt);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("categoria");
+
+  useEffect(() => {
+    setCartReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!cartReady || !lastAddedAt) return;
+
+    setBadgePulse(true);
+    const timeout = window.setTimeout(() => setBadgePulse(false), 500);
+    return () => window.clearTimeout(timeout);
+  }, [lastAddedAt, cartReady]);
 
   const isActive = (match: (typeof navLinks)[number]["match"]) => {
     if (pathname !== "/productos") return false;
@@ -89,8 +104,13 @@ export function Header({ storeName }: HeaderProps) {
             >
               <ShoppingBag className="h-5 w-5" />
               <span className="hidden sm:inline">Carrito</span>
-              {totalItems > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-white">
+              {cartReady && totalItems > 0 && (
+                <span
+                  className={cn(
+                    "absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-white",
+                    badgePulse && "cart-badge-pop",
+                  )}
+                >
                   {totalItems}
                 </span>
               )}

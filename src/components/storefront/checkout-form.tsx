@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,26 @@ import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type DeliveryMethod = "shipping" | "pickup";
+
+function DeliverySection({
+  method,
+  active,
+  children,
+  className,
+}: {
+  method: DeliveryMethod;
+  active: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
+  if (!active) return null;
+
+  return (
+    <div key={method} className={cn("checkout-delivery-enter", className)}>
+      {children}
+    </div>
+  );
+}
 
 type CheckoutFormProps = {
   shippingCost: number;
@@ -129,12 +149,12 @@ export function CheckoutForm({
               <span className="mt-1 text-sm text-neutral-600">Sin costo</span>
             </label>
           </div>
-          {deliveryMethod === "pickup" && (
+          <DeliverySection method="pickup" active={deliveryMethod === "pickup"}>
             <p className="text-sm text-neutral-600">
               Retirás tu pedido en {storeName}. Te avisaremos por email cuando
               esté listo.
             </p>
-          )}
+          </DeliverySection>
         </fieldset>
       )}
 
@@ -152,22 +172,24 @@ export function CheckoutForm({
           <Input id="phone" name="phone" required />
         </div>
 
-        {deliveryMethod === "shipping" && (
-          <>
-            <div className="sm:col-span-2">
-              <Label htmlFor="address">Dirección</Label>
-              <Input id="address" name="address" required />
-            </div>
-            <div>
-              <Label htmlFor="city">Ciudad</Label>
-              <Input id="city" name="city" required />
-            </div>
-            <div>
-              <Label htmlFor="zip">Código postal</Label>
-              <Input id="zip" name="zip" required />
-            </div>
-          </>
-        )}
+        <DeliverySection
+          method="shipping"
+          active={deliveryMethod === "shipping"}
+          className="grid gap-4 sm:col-span-2 sm:grid-cols-2"
+        >
+          <div className="sm:col-span-2">
+            <Label htmlFor="address">Dirección</Label>
+            <Input id="address" name="address" required />
+          </div>
+          <div>
+            <Label htmlFor="city">Ciudad</Label>
+            <Input id="city" name="city" required />
+          </div>
+          <div>
+            <Label htmlFor="zip">Código postal</Label>
+            <Input id="zip" name="zip" required />
+          </div>
+        </DeliverySection>
       </div>
 
       {showSummary ? (
@@ -176,7 +198,11 @@ export function CheckoutForm({
             <span>Subtotal</span>
             <span>{formatPrice(subtotal())}</span>
           </div>
-          <div className="mt-1 flex justify-between text-neutral-600">
+          <DeliverySection
+            method={deliveryMethod}
+            active
+            className="mt-1 flex justify-between text-neutral-600"
+          >
             <span>
               {deliveryMethod === "pickup" ? "Retiro en local" : "Envío"}
             </span>
@@ -185,19 +211,23 @@ export function CheckoutForm({
                 ? "Sin costo"
                 : formatPrice(effectiveShipping)}
             </span>
-          </div>
+          </DeliverySection>
           <div className="mt-2 flex justify-between border-t border-neutral-200 pt-2 text-base font-semibold text-neutral-900">
             <span>Total</span>
-            <span>{formatPrice(total)}</span>
+            <span className="tabular-nums">{formatPrice(total)}</span>
           </div>
         </div>
       ) : (
-        <div className="flex items-baseline justify-between border-t border-neutral-100 pt-4">
+        <DeliverySection
+          method={deliveryMethod}
+          active
+          className="flex items-baseline justify-between border-t border-neutral-100 pt-4"
+        >
           <span className="text-sm text-neutral-600">Total a pagar</span>
-          <span className="text-xl font-bold text-neutral-900">
+          <span className="text-xl font-bold tabular-nums text-neutral-900">
             {formatPrice(total)}
           </span>
-        </div>
+        </DeliverySection>
       )}
 
       {error && <p className="text-sm text-red-600">{error}</p>}

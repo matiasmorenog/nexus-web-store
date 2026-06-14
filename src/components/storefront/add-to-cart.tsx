@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
@@ -28,6 +29,7 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
 
   const [selectedColor, setSelectedColor] = useState(colors[0] ?? "");
   const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
+  const [added, setAdded] = useState(false);
 
   const selectedVariant = variants.find(
     (v) => v.color === selectedColor && v.size === selectedSize,
@@ -50,6 +52,8 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
       imageUrl: selectedVariant.imageUrl,
       stock: selectedVariant.stock,
     });
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 2000);
   };
 
   return (
@@ -110,13 +114,20 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
 
       <Button
         size="lg"
-        className="w-full"
+        className={cn("w-full", added && "cart-add-success")}
         onClick={handleAdd}
-        disabled={!selectedVariant || selectedVariant.stock <= 0}
+        disabled={!selectedVariant || selectedVariant.stock <= 0 || added}
       >
-        {selectedVariant && selectedVariant.stock > 0
-          ? "Agregar al carrito"
-          : "Sin stock"}
+        {added ? (
+          <span className="inline-flex items-center gap-2">
+            <Check className="h-5 w-5" aria-hidden />
+            ¡Agregado!
+          </span>
+        ) : selectedVariant && selectedVariant.stock > 0 ? (
+          "Agregar al carrito"
+        ) : (
+          "Sin stock"
+        )}
       </Button>
     </div>
   );

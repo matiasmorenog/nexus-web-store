@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
@@ -12,6 +13,8 @@ type CartLineItemProps = {
   onDecrease: () => void;
   onIncrease: () => void;
   variant?: "drawer" | "page";
+  className?: string;
+  style?: CSSProperties;
 };
 
 export function CartLineItem({
@@ -20,6 +23,8 @@ export function CartLineItem({
   onDecrease,
   onIncrease,
   variant = "drawer",
+  className,
+  style,
 }: CartLineItemProps) {
   const isPage = variant === "page";
 
@@ -29,7 +34,9 @@ export function CartLineItem({
         isPage
           ? "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
           : "rounded-lg border border-neutral-100 bg-neutral-50/40 p-3",
+        className,
       )}
+      style={style}
     >
       <div className="flex gap-3 sm:gap-4">
         <Link

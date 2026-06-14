@@ -18,6 +18,7 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[];
+  lastAddedAt: number;
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
@@ -30,6 +31,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      lastAddedAt: 0,
       addItem: (item) => {
         const quantity = item.quantity ?? 1;
         set((state) => {
@@ -37,12 +39,14 @@ export const useCartStore = create<CartState>()(
           if (existing) {
             const newQty = Math.min(existing.quantity + quantity, item.stock);
             return {
+              lastAddedAt: Date.now(),
               items: state.items.map((i) =>
                 i.variantId === item.variantId ? { ...i, quantity: newQty } : i,
               ),
             };
           }
           return {
+            lastAddedAt: Date.now(),
             items: [...state.items, { ...item, quantity: Math.min(quantity, item.stock) }],
           };
         });

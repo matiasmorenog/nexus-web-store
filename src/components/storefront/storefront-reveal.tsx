@@ -1,11 +1,11 @@
 import type { ComponentProps } from "react";
 import { PageReveal } from "@/components/ui/page-reveal";
 
-type AdminDashboardRevealProps = ComponentProps<typeof PageReveal>;
+type StorefrontRevealProps = ComponentProps<typeof PageReveal>;
 
-export function AdminDashboardReveal({
-  delayMs = 110,
+export function StorefrontReveal({
+  delayMs = 90,
   ...props
-}: AdminDashboardRevealProps) {
+}: StorefrontRevealProps) {
   return <PageReveal delayMs={delayMs} {...props} />;
 }

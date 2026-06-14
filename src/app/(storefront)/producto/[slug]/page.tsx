@@ -1,7 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/storefront/add-to-cart";
+import { ProductImage } from "@/components/storefront/product-image";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getCategoryLabel } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
@@ -27,26 +28,27 @@ export default async function ProductPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <nav className="mb-6 text-sm text-neutral-500">
-        <Link href="/productos" className="transition-colors hover:text-[var(--brand-primary)]">
-          Catálogo
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-neutral-900">{product.name}</span>
-      </nav>
+      <StorefrontReveal index={0}>
+        <nav className="mb-6 text-sm text-neutral-500">
+          <Link href="/productos" className="transition-colors hover:text-[var(--brand-primary)]">
+            Catálogo
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-neutral-900">{product.name}</span>
+        </nav>
+      </StorefrontReveal>
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-        <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60">
-          <Image
-            src={mainImage}
-            alt={product.name}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-        </div>
-        <div className="lg:py-2">
+        <StorefrontReveal index={1}>
+          <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60">
+            <ProductImage
+              src={mainImage}
+              alt={product.name}
+              priority
+            />
+          </div>
+        </StorefrontReveal>
+        <StorefrontReveal index={2} className="lg:py-2">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--brand-primary)]">
             {getCategoryLabel(product.category)}
           </p>
@@ -71,7 +73,7 @@ export default async function ProductPage({ params }: PageProps) {
               }))}
             />
           </div>
-        </div>
+        </StorefrontReveal>
       </div>
     </div>
   );

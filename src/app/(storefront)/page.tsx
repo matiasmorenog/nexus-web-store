@@ -1,10 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ProductCard } from "@/components/storefront/product-card";
+import { Suspense } from "react";
+import { HomeHeroContent } from "@/components/storefront/home-hero-content";
+import {
+  FeaturedProductsSection,
+  FeaturedProductsSectionShell,
+} from "@/components/storefront/featured-products-section";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
+import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
 import { Button } from "@/components/ui/button";
 import { STORE_CATEGORIES } from "@/lib/categories";
-import { db } from "@/lib/db";
-import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
+import { formatStoreName, getStore } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -19,17 +25,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const storeId = await getStoreId();
   const store = await getStore();
   const storeDisplayName = formatStoreName(store.name);
-
-  const featuredProducts = await db.product.findMany({
-    where: { storeId, featured: true },
-    include: {
-      variants: { take: 1, orderBy: { price: "asc" } },
-    },
-    take: 8,
-  });
 
   const heroCategories = STORE_CATEGORIES.filter(
     (c) => c.slug !== "accesorios",
@@ -45,7 +42,7 @@ export default async function HomePage() {
           className="object-cover opacity-50"
           priority
         />
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
+        <HomeHeroContent>
           <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-[var(--brand-primary)]">
             Ropa para el box
           </p>
@@ -59,62 +56,45 @@ export default async function HomePage() {
           <Link href="/productos" className="mt-8 inline-block">
             <Button size="lg">Ver catálogo</Button>
           </Link>
-        </div>
+        </HomeHeroContent>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">Categorías</span>
-        </h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {heroCategories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/productos?categoria=${cat.slug}`}
-              className="group relative aspect-square overflow-hidden rounded-xl ring-1 ring-neutral-200/60 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md hover:ring-[var(--brand-primary)]/30"
-            >
-              <Image
-                src={CATEGORY_IMAGES[cat.slug] ?? CATEGORY_IMAGES.tops}
-                alt={cat.label}
-                fill
-                className="object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-4">
-                <span className="text-lg font-semibold text-white">
-                  {cat.label}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-neutral-50 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 flex items-end justify-between">
-            <h2 className="text-2xl font-bold">
-              <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">Destacados del box</span>
-            </h2>
-            <Link
-              href="/productos"
-              className="text-sm font-medium text-[var(--brand-primary)] hover:underline">
-              Ver todos
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                slug={product.slug}
-                name={product.name}
-                category={product.category}
-                imageUrl={product.variants[0]?.imageUrl ?? ""}
-                price={Number(product.variants[0]?.price ?? 0)}
-              />
+      <StorefrontReveal index={1}>
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
+          <h2 className="mb-8 text-center text-2xl font-bold">
+            <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
+              Categorías
+            </span>
+          </h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {heroCategories.map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/productos?categoria=${cat.slug}`}
+                className="group relative aspect-square overflow-hidden rounded-xl ring-1 ring-neutral-200/60 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md hover:ring-[var(--brand-primary)]/30"
+              >
+                <Image
+                  src={CATEGORY_IMAGES[cat.slug] ?? CATEGORY_IMAGES.tops}
+                  alt={cat.label}
+                  fill
+                  className="object-cover transition-transform group-hover:scale-105"
+                />
+                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-4">
+                  <span className="text-lg font-semibold text-white">
+                    {cat.label}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </StorefrontReveal>
+
+      <FeaturedProductsSectionShell>
+        <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
+          <FeaturedProductsSection />
+        </Suspense>
+      </FeaturedProductsSectionShell>
     </>
   );
 }

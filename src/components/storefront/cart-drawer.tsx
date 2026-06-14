@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { ShoppingBag, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
 import { useCartStore } from "@/stores/cart-store";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 type CartDrawerProps = {
@@ -14,8 +14,11 @@ type CartDrawerProps = {
   onClose: () => void;
 };
 
+const DRAWER_CONTENT_DELAY_MS = 260;
+
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, subtotal, totalItems } = useCartStore();
+  const [contentReady, setContentReady] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -32,6 +35,33 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    let frame = 0;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (reducedMotion) {
+      frame = requestAnimationFrame(() => setContentReady(true));
+      return () => {
+        cancelAnimationFrame(frame);
+        setContentReady(false);
+      };
+    }
+
+    const timeout = window.setTimeout(() => {
+      frame = requestAnimationFrame(() => setContentReady(true));
+    }, DRAWER_CONTENT_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeout);
+      cancelAnimationFrame(frame);
+      setContentReady(false);
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -67,52 +97,60 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {items.length === 0 ? (
-            <CartEmptyState compact onContinue={onClose} />
-          ) : (
-            <ul className="space-y-3">
-              {items.map((item) => (
-                <CartLineItem
-                  key={item.variantId}
-                  item={item}
-                  variant="drawer"
-                  onRemove={() => removeItem(item.variantId)}
-                  onDecrease={() =>
-                    updateQuantity(item.variantId, item.quantity - 1)
-                  }
-                  onIncrease={() =>
-                    updateQuantity(item.variantId, item.quantity + 1)
-                  }
-                />
-              ))}
-            </ul>
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 flex-col",
+            !contentReady && "opacity-0",
+            contentReady && "cart-drawer-body-enter",
+          )}
+        >
+          <div className="flex-1 overflow-y-auto p-4">
+            {items.length === 0 ? (
+              <CartEmptyState compact onContinue={onClose} />
+            ) : (
+              <ul className="space-y-3">
+                {items.map((item) => (
+                  <CartLineItem
+                    key={item.variantId}
+                    item={item}
+                    variant="drawer"
+                    onRemove={() => removeItem(item.variantId)}
+                    onDecrease={() =>
+                      updateQuantity(item.variantId, item.quantity - 1)
+                    }
+                    onIncrease={() =>
+                      updateQuantity(item.variantId, item.quantity + 1)
+                    }
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {items.length > 0 && (
+            <div className="shrink-0 border-t border-neutral-100 bg-neutral-50/60 p-5">
+              <div className="mb-4 flex items-baseline justify-between">
+                <span className="text-sm text-neutral-600">Subtotal</span>
+                <span className="text-xl font-bold tracking-tight text-neutral-900">
+                  {formatPrice(subtotal())}
+                </span>
+              </div>
+              <p className="mb-4 text-xs text-neutral-500">
+                Envío calculado en el checkout.
+              </p>
+              <Link href="/checkout" onClick={onClose}>
+                <Button className="w-full" size="lg">
+                  Ir al checkout
+                </Button>
+              </Link>
+              <Link href="/carrito" onClick={onClose}>
+                <Button variant="outline" className="mt-2 w-full">
+                  Ver carrito completo
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
-
-        {items.length > 0 && (
-          <div className="shrink-0 border-t border-neutral-100 bg-neutral-50/60 p-5">
-            <div className="mb-4 flex items-baseline justify-between">
-              <span className="text-sm text-neutral-600">Subtotal</span>
-              <span className="text-xl font-bold tracking-tight text-neutral-900">
-                {formatPrice(subtotal())}
-              </span>
-            </div>
-            <p className="mb-4 text-xs text-neutral-500">
-              Envío calculado en el checkout.
-            </p>
-            <Link href="/checkout" onClick={onClose}>
-              <Button className="w-full" size="lg">
-                Ir al checkout
-              </Button>
-            </Link>
-            <Link href="/carrito" onClick={onClose}>
-              <Button variant="outline" className="mt-2 w-full">
-                Ver carrito completo
-              </Button>
-            </Link>
-          </div>
-        )}
       </aside>
     </div>
   );

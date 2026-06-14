@@ -2,6 +2,7 @@
 
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
@@ -14,35 +15,43 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <StorefrontPageHeader
-        title="Carrito"
-        description={
-          items.length > 0
-            ? `${totalItems()} artículo${totalItems() !== 1 ? "s" : ""} en tu pedido`
-            : "Revisá los productos antes de pagar."
-        }
-        backHref="/productos"
-        backLabel="Seguir comprando"
-      />
+      <StorefrontReveal index={0}>
+        <StorefrontPageHeader
+          title="Carrito"
+          description={
+            items.length > 0
+              ? `${totalItems()} artículo${totalItems() !== 1 ? "s" : ""} en tu pedido`
+              : "Revisá los productos antes de pagar."
+          }
+          backHref="/productos"
+          backLabel="Seguir comprando"
+        />
+      </StorefrontReveal>
 
       {items.length === 0 ? (
-        <CartEmptyState />
+        <StorefrontReveal index={1}>
+          <CartEmptyState />
+        </StorefrontReveal>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[1fr_280px] lg:items-start">
+        <StorefrontReveal
+          index={1}
+          className="grid gap-8 lg:grid-cols-[1fr_280px] lg:items-start"
+        >
           <ul className="space-y-4">
-            {items.map((item) => (
-              <CartLineItem
-                key={item.variantId}
-                item={item}
-                variant="page"
-                onRemove={() => removeItem(item.variantId)}
-                onDecrease={() =>
-                  updateQuantity(item.variantId, item.quantity - 1)
-                }
-                onIncrease={() =>
-                  updateQuantity(item.variantId, item.quantity + 1)
-                }
-              />
+            {items.map((item, index) => (
+              <StorefrontReveal key={item.variantId} index={Math.min(index, 4)}>
+                <CartLineItem
+                  item={item}
+                  variant="page"
+                  onRemove={() => removeItem(item.variantId)}
+                  onDecrease={() =>
+                    updateQuantity(item.variantId, item.quantity - 1)
+                  }
+                  onIncrease={() =>
+                    updateQuantity(item.variantId, item.quantity + 1)
+                  }
+                />
+              </StorefrontReveal>
             ))}
           </ul>
 
@@ -75,7 +84,7 @@ export default function CartPage() {
               Pagá de forma segura con Mercado Pago
             </p>
           </aside>
-        </div>
+        </StorefrontReveal>
       )}
     </div>
   );

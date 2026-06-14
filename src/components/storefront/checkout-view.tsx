@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
@@ -40,14 +41,19 @@ export function CheckoutView({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <StorefrontPageHeader
-        title="Checkout"
-        description="Completá tus datos para finalizar la compra."
-        backHref="/carrito"
-        backLabel="Volver al carrito"
-      />
+      <StorefrontReveal index={0}>
+        <StorefrontPageHeader
+          title="Checkout"
+          description="Completá tus datos para finalizar la compra."
+          backHref="/carrito"
+          backLabel="Volver al carrito"
+        />
+      </StorefrontReveal>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
+      <StorefrontReveal
+        index={1}
+        className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start"
+      >
         <div className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
           <CheckoutForm
             shippingCost={shippingCost}
@@ -95,7 +101,7 @@ export function CheckoutView({
             Envío o retiro según elijas en el formulario.
           </p>
         </aside>
-      </div>
+      </StorefrontReveal>
     </div>
   );
 }

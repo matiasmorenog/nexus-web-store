@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ACTIVITY_PERIOD_LABELS,
+  aggregateActivityIntoWeeks,
   type ActivityPeriod,
   type ActivityPoint,
 } from "@/lib/admin-analytics";
@@ -14,6 +15,8 @@ type AdminActivityChartProps = {
   totalOrders: number;
   totalRevenue: number;
 };
+
+const MOBILE_MEDIA_QUERY = "(max-width: 639px)";
 
 const PLOT = {
   top: 22,
@@ -134,6 +137,21 @@ function ActivityLineSvg({ plotPoints }: { plotPoints: PlotPoint[] }) {
   );
 }
 
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const update = () => setIsMobile(media.matches);
+
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return isMobile;
+}
+
 export function AdminActivityChart({
   period,
   data,
@@ -141,13 +159,21 @@ export function AdminActivityChart({
   totalRevenue,
 }: AdminActivityChartProps) {
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const isMobile = useIsMobile();
   const labels = ACTIVITY_PERIOD_LABELS[period];
-  const maxOrders = Math.max(...data.map((point) => point.orders), 1);
-  const hasData = data.some((point) => point.orders > 0);
+  const showMonthAsWeeks = period === "month" && isMobile;
+
+  const chartData = useMemo(() => {
+    if (showMonthAsWeeks) return aggregateActivityIntoWeeks(data);
+    return data;
+  }, [data, showMonthAsWeeks]);
+
+  const maxOrders = Math.max(...chartData.map((point) => point.orders), 1);
+  const hasData = chartData.some((point) => point.orders > 0);
 
   const plotPoints = useMemo(
-    () => buildPlotPoints(data, maxOrders),
-    [data, maxOrders],
+    () => buildPlotPoints(chartData, maxOrders),
+    [chartData, maxOrders],
   );
 
   const activePlot = plotPoints.find((plot) => plot.point.key === activeKey) ?? null;
@@ -173,18 +199,21 @@ export function AdminActivityChart({
       ) : (
         <div>
           <p className="mb-2 text-xs text-neutral-400">
-            Pasá el mouse o tocá un punto para ver pedidos e ingresos del período.
+            {showMonthAsWeeks
+              ? "Vista por semanas en mobile. Pasá el mouse o tocá un punto para ver pedidos e ingresos."
+              : "Pasá el mouse o tocá un punto para ver pedidos e ingresos del período."}
           </p>
 
           <div
             className={cn(
               period === "month" &&
+                !isMobile &&
                 "admin-table-scroll -mx-1 overflow-y-visible px-1 pb-1 sm:-mx-2 sm:px-2",
             )}
           >
             <div
               className={cn(
-                period === "month" ? "min-w-[35rem]" : "w-full",
+                period === "month" && !isMobile ? "min-w-[35rem]" : "w-full",
               )}
             >
               <div className="relative h-44 overflow-visible sm:h-48">
@@ -230,7 +259,7 @@ export function AdminActivityChart({
                     key={plot.point.key}
                     className={cn(
                       "absolute -translate-x-1/2 truncate text-center text-[11px] capitalize text-neutral-500",
-                      period === "month" ? "max-w-8" : "max-w-[3.5rem]",
+                      period === "month" && !isMobile ? "max-w-8" : "max-w-[3.5rem]",
                       activeKey === plot.point.key &&
                         "font-semibold text-[var(--brand-primary)]",
                     )}

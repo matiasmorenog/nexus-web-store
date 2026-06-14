@@ -47,6 +47,33 @@ export function parseActivityPeriod(value?: string): ActivityPeriod {
   return "week";
 }
 
+const MONTH_WEEK_CHUNK_SIZES = [7, 7, 8, 8] as const;
+
+/** Agrupa los 30 días del período mensual en 4 semanas (vista mobile). */
+export function aggregateActivityIntoWeeks(points: ActivityPoint[]): ActivityPoint[] {
+  if (points.length === 0) return [];
+
+  const weeks: ActivityPoint[] = [];
+  let start = 0;
+
+  for (let index = 0; index < MONTH_WEEK_CHUNK_SIZES.length; index++) {
+    const size = MONTH_WEEK_CHUNK_SIZES[index];
+    const slice = points.slice(start, start + size);
+    if (slice.length === 0) break;
+
+    weeks.push({
+      key: `week-${index + 1}`,
+      label: `Sem ${index + 1}`,
+      orders: slice.reduce((sum, point) => sum + point.orders, 0),
+      revenue: slice.reduce((sum, point) => sum + point.revenue, 0),
+    });
+
+    start += size;
+  }
+
+  return weeks;
+}
+
 function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);

@@ -34,6 +34,7 @@ export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps
         <Link
           key={value}
           href={buildPeriodHref(value, searchParams)}
+          scroll={false}
           aria-current={period === value ? "page" : undefined}
           className={cn(
             "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm",

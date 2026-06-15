@@ -3,6 +3,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
+import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
 import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
 import { BlockedEditHint, RowEditEnter } from "@/components/admin/admin-motion";
@@ -657,6 +658,7 @@ function VariantEditRow({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -674,12 +676,12 @@ function VariantEditRow({
   };
 
   const handleDelete = async () => {
-    if (!confirm("¿Eliminar esta variante?")) return;
     setLoading(true);
     setError(null);
     try {
       await deleteVariant(variant.id);
       await onVariantsReload?.();
+      setConfirmOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al eliminar");
     } finally {
@@ -705,71 +707,84 @@ function VariantEditRow({
   }
 
   return (
-    <AdminTableRow>
-      <AdminTableCell>
-        <ProductThumbnail
-          src={variant.imageUrl}
-          alt={`${variant.size} ${variant.color}`}
-        />
-      </AdminTableCell>
-      <AdminTableCell className="font-medium text-neutral-900">
-        {variant.size} / {variant.color}
-      </AdminTableCell>
-      <AdminTableCell className="font-mono text-xs text-neutral-500">
-        {variant.sku}
-      </AdminTableCell>
-      <AdminTableCell className="font-medium">
-        {formatPrice(variant.price)}
-      </AdminTableCell>
-      <AdminTableCell>
-        <span
-          className={
-            variant.stock === 0
-              ? "font-medium text-red-600"
-              : variant.stock <= 3
-                ? "font-medium text-amber-600"
-                : ""
-          }
-        >
-          {variant.stock}
-        </span>
-      </AdminTableCell>
-      <AdminTableCell>
-        <AdminTableActions>
-          <AdminTableIconAction
-            label={`Editar variante ${variant.size} / ${variant.color}`}
-            icon={Pencil}
-            onClick={() => {
-              if (editDisabled) {
-                onBlockedToggle?.();
-                return;
-              }
-              onStartEdit();
-            }}
-            blocked={editDisabled}
-            disabled={loading}
-            loading={loading}
+    <>
+      <AdminTableRow>
+        <AdminTableCell>
+          <ProductThumbnail
+            src={variant.imageUrl}
+            alt={`${variant.size} ${variant.color}`}
           />
-          {variant.orderItemCount === 0 ? (
+        </AdminTableCell>
+        <AdminTableCell className="font-medium text-neutral-900">
+          {variant.size} / {variant.color}
+        </AdminTableCell>
+        <AdminTableCell className="font-mono text-xs text-neutral-500">
+          {variant.sku}
+        </AdminTableCell>
+        <AdminTableCell className="font-medium">
+          {formatPrice(variant.price)}
+        </AdminTableCell>
+        <AdminTableCell>
+          <span
+            className={
+              variant.stock === 0
+                ? "font-medium text-red-600"
+                : variant.stock <= 3
+                  ? "font-medium text-amber-600"
+                  : ""
+            }
+          >
+            {variant.stock}
+          </span>
+        </AdminTableCell>
+        <AdminTableCell>
+          <AdminTableActions>
             <AdminTableIconAction
-              label={`Eliminar variante ${variant.size} / ${variant.color}`}
-              icon={Trash2}
+              label={`Editar variante ${variant.size} / ${variant.color}`}
+              icon={Pencil}
               onClick={() => {
                 if (editDisabled) {
                   onBlockedToggle?.();
                   return;
                 }
-                void handleDelete();
+                onStartEdit();
               }}
               blocked={editDisabled}
               disabled={loading}
               loading={loading}
             />
-          ) : null}
-        </AdminTableActions>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-      </AdminTableCell>
-    </AdminTableRow>
+            {variant.orderItemCount === 0 ? (
+              <AdminTableIconAction
+                label={`Eliminar variante ${variant.size} / ${variant.color}`}
+                icon={Trash2}
+                onClick={() => {
+                  if (editDisabled) {
+                    onBlockedToggle?.();
+                    return;
+                  }
+                  setConfirmOpen(true);
+                }}
+                blocked={editDisabled}
+                disabled={loading}
+                loading={loading}
+              />
+            ) : null}
+          </AdminTableActions>
+          {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        </AdminTableCell>
+      </AdminTableRow>
+      <AdminConfirmDialog
+        open={confirmOpen}
+        title="Eliminar variante"
+        description={`¿Eliminar la variante ${variant.size} / ${variant.color}? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        loading={loading}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => {
+          if (!loading) setConfirmOpen(false);
+        }}
+      />
+    </>
   );
 }
 

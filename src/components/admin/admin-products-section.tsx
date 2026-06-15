@@ -192,7 +192,10 @@ export function AdminProductsSection({
                       icon={Pencil}
                       href={`/admin/productos/${product.id}/edit`}
                     />
-                    <DeleteProductButton productId={product.id} />
+                    <DeleteProductButton
+                      productId={product.id}
+                      productName={product.name}
+                    />
                   </AdminTableActions>
                 </AdminTableCell>
               </AdminTableRow>

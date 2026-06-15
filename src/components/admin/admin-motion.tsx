@@ -16,6 +16,7 @@ export function BlockedEditHint({
 }: BlockedEditHintProps) {
   const [flash, setFlash] = useState(false);
   const seenHintRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (seenHintRef.current === null) {
@@ -27,12 +28,14 @@ export function BlockedEditHint({
 
     seenHintRef.current = blockedHint;
     setFlash(true);
+    containerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     const timeout = window.setTimeout(() => setFlash(false), 560);
     return () => window.clearTimeout(timeout);
   }, [blockedHint]);
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "rounded-lg p-2 sm:p-3",
         className,

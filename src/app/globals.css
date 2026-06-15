@@ -68,11 +68,9 @@ button:not(:disabled),
 
 @keyframes admin-table-row-expand-in {
   from {
-    opacity: 0;
     grid-template-rows: 0fr;
   }
   to {
-    opacity: 1;
     grid-template-rows: 1fr;
   }
 }
@@ -80,7 +78,6 @@ button:not(:disabled),
 .admin-table-row-expand-prep {
   display: grid;
   grid-template-rows: 0fr;
-  opacity: 0;
 }
 
 .admin-table-row-expand-enter {
@@ -92,6 +89,21 @@ button:not(:disabled),
 .admin-table-row-expand-inner {
   overflow: hidden;
   min-height: 0;
+}
+
+@keyframes admin-row-edit-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-row-edit-enter {
+  animation: admin-row-edit-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes page-reveal-in {
@@ -267,6 +279,39 @@ button:not(:disabled),
   transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes admin-blocked-edit-hint {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    transform: translateX(0);
+  }
+  20% {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-primary) 60%, transparent);
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 35%, transparent);
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.admin-blocked-edit-hint {
+  animation: admin-blocked-edit-hint 0.55s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-blocked-edit-hint {
+    animation: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-primary) 50%, transparent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .admin-panel-prep,
   .admin-inline-form-prep,
@@ -278,7 +323,8 @@ button:not(:disabled),
 
   .admin-panel-enter,
   .admin-inline-form-enter,
-  .admin-table-row-expand-enter {
+  .admin-table-row-expand-enter,
+  .admin-row-edit-enter {
     animation: none;
     opacity: 1;
     transform: none;

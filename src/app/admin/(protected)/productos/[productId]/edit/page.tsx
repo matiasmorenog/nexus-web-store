@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { ProductEditForm } from "@/components/admin/product-edit-form";
-import { VariantManager } from "@/components/admin/variant-manager";
+import { ProductEditSections } from "@/components/admin/product-edit-sections";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
@@ -21,26 +20,9 @@ export default async function AdminProductEditPage({
 
   const product = await db.product.findFirst({
     where: { id: productId, storeId },
-    include: {
-      variants: {
-        orderBy: [{ size: "asc" }, { color: "asc" }],
-        include: { _count: { select: { orderItems: true } } },
-      },
-    },
   });
 
   if (!product) notFound();
-
-  const variants = product.variants.map((v) => ({
-    id: v.id,
-    size: v.size,
-    color: v.color,
-    sku: v.sku,
-    stock: v.stock,
-    price: Number(v.price),
-    imageUrl: v.imageUrl,
-    orderItemCount: v._count.orderItems,
-  }));
 
   return (
     <div className="space-y-6 pb-8">
@@ -66,7 +48,7 @@ export default async function AdminProductEditPage({
         </Link>
       </div>
 
-      <ProductEditForm
+      <ProductEditSections
         product={{
           id: product.id,
           name: product.name,
@@ -75,8 +57,6 @@ export default async function AdminProductEditPage({
           featured: product.featured,
         }}
       />
-
-      <VariantManager productId={product.id} variants={variants} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { uploadProductImage } from "@/lib/images/blob-storage";
+import { isStoreProductBlobUrl, uploadProductImage } from "@/lib/images/blob-storage";
+import { cleanupProductImageIfOrphaned } from "@/lib/images/cleanup-product-image";
 import {
   optimizeProductImage,
   PRODUCT_IMAGE,
@@ -65,5 +66,37 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: raw }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await auth();
+  const storeSlug = session?.user?.storeSlug;
+
+  if (!session?.user?.storeId || !storeSlug) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  try {
+    const body = (await request.json()) as { url?: string };
+    const url = body.url?.trim();
+
+    if (!url) {
+      return NextResponse.json({ error: "URL requerida" }, { status: 400 });
+    }
+
+    if (!isStoreProductBlobUrl(url, storeSlug)) {
+      return NextResponse.json({ error: "URL no permitida" }, { status: 400 });
+    }
+
+    await cleanupProductImageIfOrphaned(url);
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Upload discard error:", error);
+    return NextResponse.json(
+      { error: "No se pudo descartar la imagen" },
+      { status: 500 },
+    );
   }
 }

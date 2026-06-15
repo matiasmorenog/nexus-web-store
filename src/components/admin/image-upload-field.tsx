@@ -1,8 +1,9 @@
 "use client";
 
 import { ImageIcon } from "lucide-react";
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
+import { discardStagedProductImage } from "@/lib/images/discard-staged-product-image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,30 @@ export function ImageUploadField({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(Boolean(defaultValue));
+  const committedUrlRef = useRef(defaultValue);
+  const sessionUploadsRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    committedUrlRef.current = defaultValue;
+  }, [defaultValue]);
+
+  useEffect(() => {
+    const sessionUploads = sessionUploadsRef.current;
+
+    return () => {
+      for (const url of sessionUploads) {
+        if (url !== committedUrlRef.current) {
+          void discardStagedProductImage(url);
+        }
+      }
+    };
+  }, []);
+
+  function discardSessionUpload(url: string | undefined) {
+    if (!url || !sessionUploadsRef.current.has(url)) return;
+    sessionUploadsRef.current.delete(url);
+    void discardStagedProductImage(url);
+  }
 
   async function handleFile(file: File) {
     setError(null);
@@ -56,6 +81,8 @@ export function ImageUploadField({
       }
 
       if (data.url) {
+        discardSessionUpload(imageUrl);
+        sessionUploadsRef.current.add(data.url);
         setImageUrl(data.url);
         setShowUrlInput(false);
       }
@@ -131,7 +158,11 @@ export function ImageUploadField({
       {showUrlInput ? (
         <Input
           value={imageUrl}
-          onChange={(event) => setImageUrl(event.target.value)}
+          onChange={(event) => {
+            const next = event.target.value;
+            discardSessionUpload(imageUrl);
+            setImageUrl(next);
+          }}
           placeholder="https://images.unsplash.com/..."
         />
       ) : null}

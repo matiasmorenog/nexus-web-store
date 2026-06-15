@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateProduct } from "@/lib/admin-actions";
-import { AdminCard } from "@/components/admin/admin-card";
+import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
 import {
   AdminCategorySelect,
   AdminForm,
@@ -11,6 +11,7 @@ import {
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
+import { getCategoryLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,12 +24,29 @@ type ProductEditFormProps = {
     category: string;
     featured: boolean;
   };
+  open: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+  onBlockedToggle?: () => void;
 };
 
-export function ProductEditForm({ product }: ProductEditFormProps) {
+export function ProductEditForm({
+  product,
+  open,
+  onToggle,
+  disabled = false,
+  onBlockedToggle,
+}: ProductEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const collapsedDescription = [
+    getCategoryLabel(product.category),
+    product.featured ? "Destacado" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +66,20 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
   };
 
   return (
-    <AdminCard title="Datos del producto">
+    <AdminCollapsibleCard
+      open={open}
+      onToggle={onToggle}
+      disabled={disabled}
+      onBlockedToggle={onBlockedToggle}
+      contentId="product-details"
+      title="Datos del producto"
+      description={
+        open
+          ? "Nombre, categoría, descripción y visibilidad en el home."
+          : `${product.name} · ${collapsedDescription}`
+      }
+      contentClassName="p-4 sm:p-6"
+    >
       <AdminForm onSubmit={handleSubmit}>
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (
@@ -96,6 +127,6 @@ export function ProductEditForm({ product }: ProductEditFormProps) {
           </Button>
         </AdminFormActions>
       </AdminForm>
-    </AdminCard>
+    </AdminCollapsibleCard>
   );
 }

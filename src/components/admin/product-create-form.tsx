@@ -79,7 +79,7 @@ export function ProductCreateForm({ onClose }: ProductCreateFormProps) {
             <ImageUploadField
               name="imageUrl"
               id="imageUrl"
-              label="Imagen del producto"
+              label="Imagen del color"
             />
             <div className="flex items-center gap-2 sm:col-span-2">
               <input type="checkbox" id="featured" name="featured" />

@@ -143,6 +143,81 @@ function AdminSkeletonTopProducts() {
   );
 }
 
+function skeletonCellForColumn(column: string, colIndex: number, colCount: number) {
+  if (column === "Imagen") {
+    return (
+      <AdminSkeleton className="h-16 w-12 shrink-0 rounded-md lg:h-12 lg:w-9" />
+    );
+  }
+
+  if (column === "Acciones" || colIndex === colCount - 1) {
+    return <AdminSkeleton className="size-8 rounded-lg" />;
+  }
+
+  const widthByColumn: Record<string, string> = {
+    Color: "w-24",
+    "Talle / Color": "w-28",
+    SKU: "w-20",
+    Precio: "w-16",
+    Stock: "w-10",
+  };
+
+  return (
+    <AdminSkeleton className={cn("h-4", widthByColumn[column] ?? "w-20")} />
+  );
+}
+
+export function AdminDataTableSkeleton({
+  columns,
+  rows = 4,
+  scrollClassName,
+  tableClassName,
+  ariaLabel = "Cargando",
+  skeletonHeaders = false,
+}: {
+  columns: string[];
+  rows?: number;
+  scrollClassName?: string;
+  tableClassName?: string;
+  ariaLabel?: string;
+  skeletonHeaders?: boolean;
+}) {
+  return (
+    <AdminTableScroll
+      className={scrollClassName}
+      aria-busy
+      aria-label={ariaLabel}
+    >
+      <table className={cn(adminTableClass, tableClassName)}>
+        <thead className={adminTableHeadClass}>
+          <tr>
+            {columns.map((column) => (
+              <th key={column} className={adminTableThClass}>
+                {skeletonHeaders ? (
+                  <AdminSkeleton className="h-3 w-16" />
+                ) : (
+                  column
+                )}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className={adminTableBodyClass}>
+          {Array.from({ length: rows }, (_, rowIndex) => (
+            <tr key={rowIndex} className={adminTableRowClass}>
+              {columns.map((column, colIndex) => (
+                <td key={column} className={adminTableTdClass}>
+                  {skeletonCellForColumn(column, colIndex, columns.length)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </AdminTableScroll>
+  );
+}
+
 function AdminSkeletonTable({
   columns,
   rows = 5,
@@ -151,34 +226,11 @@ function AdminSkeletonTable({
   rows?: number;
 }) {
   return (
-    <div className="overflow-hidden">
-      <div className="flex gap-4 border-b border-neutral-100 px-4 py-3 sm:px-6">
-        {Array.from({ length: columns }, (_, index) => (
-          <AdminSkeleton
-            key={index}
-            className={cn("h-3", index === 0 ? "w-20" : "w-14")}
-          />
-        ))}
-      </div>
-      <div className="divide-y divide-neutral-100">
-        {Array.from({ length: rows }, (_, rowIndex) => (
-          <div
-            key={rowIndex}
-            className="flex gap-4 px-4 py-4 sm:px-6"
-          >
-            {Array.from({ length: columns }, (_, colIndex) => (
-              <AdminSkeleton
-                key={colIndex}
-                className={cn(
-                  "h-4",
-                  colIndex === 0 ? "w-28" : colIndex === columns - 1 ? "w-16" : "w-20",
-                )}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+    <AdminDataTableSkeleton
+      columns={Array.from({ length: columns }, (_, index) => `Col ${index + 1}`)}
+      rows={rows}
+      skeletonHeaders
+    />
   );
 }
 
@@ -301,6 +353,108 @@ function AdminSkeletonProductsTable({ rows = 6 }: { rows?: number }) {
         </tbody>
       </table>
     </AdminTableScroll>
+  );
+}
+
+function AdminSkeletonCollapsibleCardHeader({
+  titleWidth = "w-36",
+  descriptionWidth = "w-56",
+  withAction = false,
+  actionWidth = "w-28",
+}: {
+  titleWidth?: string;
+  descriptionWidth?: string;
+  withAction?: boolean;
+  actionWidth?: string;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-stretch">
+      <div
+        className={cn(
+          "flex min-w-0 flex-1 items-center gap-4",
+          adminCardHeaderClass,
+        )}
+      >
+        <AdminSkeleton className="size-8 shrink-0 rounded-md" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <AdminSkeleton className={cn("h-5", titleWidth)} />
+          <AdminSkeleton className={cn("h-3 max-w-full", descriptionWidth)} />
+        </div>
+      </div>
+      {withAction ? (
+        <div
+          className={cn(
+            "flex items-center sm:border-l",
+            adminCardHeaderClass,
+            "py-3 sm:py-4",
+          )}
+        >
+          <AdminSkeleton className={cn("h-9 rounded-lg", actionWidth)} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AdminSkeletonProductEditForm() {
+  return (
+    <div className="space-y-4 p-4 sm:p-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminSkeletonFormField labelWidth="w-16" />
+        <AdminSkeletonFormField labelWidth="w-20" />
+        <div className="space-y-1 sm:col-span-2">
+          <AdminSkeleton className="h-4 w-24" />
+          <AdminSkeleton className="h-24 w-full rounded-lg" />
+        </div>
+        <div className="flex items-center gap-2 sm:col-span-2">
+          <AdminSkeleton className="size-4 rounded" />
+          <AdminSkeleton className="h-4 w-32" />
+        </div>
+      </div>
+      <div className="flex justify-end border-t border-neutral-100 pt-4">
+        <AdminSkeleton className="h-9 w-32 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+export function AdminSkeletonProductEditPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando producto" className="space-y-6 pb-8">
+      <div>
+        <AdminSkeleton className="mb-4 h-4 w-36" />
+        <AdminSkeleton className="h-8 w-56 max-w-full" />
+        <AdminSkeleton className="mt-2 h-4 w-28" />
+      </div>
+
+      <div className="space-y-6">
+        <div className={adminCardClass}>
+          <AdminSkeletonCollapsibleCardHeader
+            titleWidth="w-36"
+            descriptionWidth="w-72"
+          />
+          <AdminSkeletonProductEditForm />
+        </div>
+
+        <div className={adminCardClass}>
+          <AdminSkeletonCollapsibleCardHeader
+            titleWidth="w-16"
+            descriptionWidth="w-44"
+            withAction
+            actionWidth="w-28"
+          />
+        </div>
+
+        <div className={adminCardClass}>
+          <AdminSkeletonCollapsibleCardHeader
+            titleWidth="w-24"
+            descriptionWidth="w-36"
+            withAction
+            actionWidth="w-32"
+          />
+        </div>
+      </div>
+    </AdminSkeletonRegion>
   );
 }
 

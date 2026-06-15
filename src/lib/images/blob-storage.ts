@@ -1,9 +1,39 @@
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 
 const CACHE_ONE_YEAR = 60 * 60 * 24 * 365;
 
 export function isBlobStorageConfigured(): boolean {
   return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+export function isManagedBlobUrl(url: string): boolean {
+  try {
+    return new URL(url).hostname.endsWith(".public.blob.vercel-storage.com");
+  } catch {
+    return false;
+  }
+}
+
+export function isStoreProductBlobUrl(url: string, storeSlug: string): boolean {
+  if (!isManagedBlobUrl(url)) return false;
+
+  try {
+    const pathname = decodeURIComponent(new URL(url).pathname);
+    return pathname.includes(`/${storeSlug}/products/`);
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteProductImage(url: string): Promise<void> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token || !isManagedBlobUrl(url)) return;
+
+  try {
+    await del(url, { token });
+  } catch (error) {
+    console.error("Blob delete failed:", url, error);
+  }
 }
 
 export async function uploadProductImage(params: {

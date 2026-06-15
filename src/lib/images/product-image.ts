@@ -16,13 +16,19 @@ export const PRODUCT_IMAGE = {
   ]),
 } as const;
 
-export function normalizeProductImageUrl(raw: FormDataEntryValue | null): string {
+export function parseProductImageUrl(
+  raw: FormDataEntryValue | null,
+): string | null {
   const url = String(raw ?? "").trim();
-  if (!url) return DEFAULT_PRODUCT_IMAGE;
+  if (!url) return null;
   if (!url.startsWith("https://")) {
     throw new Error("La imagen debe ser una URL https válida");
   }
   return url;
+}
+
+export function normalizeProductImageUrl(raw: FormDataEntryValue | null): string {
+  return parseProductImageUrl(raw) ?? DEFAULT_PRODUCT_IMAGE;
 }
 
 export async function optimizeProductImage(buffer: Buffer): Promise<Buffer> {

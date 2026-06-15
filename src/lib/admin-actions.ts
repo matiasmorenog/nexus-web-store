@@ -4,7 +4,17 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { normalizeBrandPrefix } from "@/lib/brand";
-import { normalizeProductImageUrl } from "@/lib/images/product-image";
+import {
+  cleanupProductImages,
+  cleanupProductImageIfOrphaned,
+  cleanupReplacedProductImage,
+} from "@/lib/images/cleanup-product-image";
+import { normalizeProductImageUrl, parseProductImageUrl } from "@/lib/images/product-image";
+import {
+  findProductColorImage,
+  normalizeVariantColor,
+  syncProductColorImage,
+} from "@/lib/variant-images";
 import { slugify } from "@/lib/utils";
 
 async function getAdminStoreId() {
@@ -76,9 +86,18 @@ export async function createProduct(formData: FormData) {
 export async function deleteProduct(productId: string) {
   const storeId = await getAdminStoreId();
 
-  await db.product.deleteMany({
+  const variants = await db.productVariant.findMany({
+    where: { productId, product: { storeId } },
+    select: { imageUrl: true },
+  });
+
+  const deleted = await db.product.deleteMany({
     where: { id: productId, storeId },
   });
+
+  if (deleted.count === 0) return;
+
+  await cleanupProductImages(variants.map((variant) => variant.imageUrl));
 
   revalidatePath("/admin/productos");
   revalidatePath("/productos");
@@ -123,12 +142,119 @@ export async function updateProduct(productId: string, formData: FormData) {
   revalidatePath(`/producto/${slug}`);
 }
 
+export async function upsertProductColor(productId: string, formData: FormData) {
+  const storeId = await getAdminStoreId();
+  const product = await assertProductOwnership(productId, storeId);
+
+  const color = (formData.get("color") as string)?.trim();
+  if (!color) throw new Error("Ingresá el nombre del color");
+
+  const originalColor = (formData.get("originalColor") as string)?.trim() || null;
+  const imageUrl = parseProductImageUrl(formData.get("imageUrl"));
+  if (!imageUrl) throw new Error("Subí una imagen para el color");
+
+  const lookupColor = originalColor ?? color;
+
+  const existingVariants = await db.productVariant.findMany({
+    where: {
+      productId,
+      color: { equals: lookupColor, mode: "insensitive" },
+    },
+  });
+
+  if (existingVariants.length > 0) {
+    if (originalColor === null) {
+      throw new Error("Ya existe un color con ese nombre");
+    }
+
+    const oldImageUrl = existingVariants[0]?.imageUrl;
+    const isRenaming =
+      originalColor !== null &&
+      normalizeVariantColor(originalColor) !== normalizeVariantColor(color);
+
+    if (isRenaming) {
+      const nameConflict = await db.productVariant.findFirst({
+        where: {
+          productId,
+          color: { equals: color, mode: "insensitive" },
+        },
+      });
+      if (nameConflict) {
+        throw new Error("Ya existe un color con ese nombre");
+      }
+
+      for (const variant of existingVariants) {
+        await db.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            color,
+            imageUrl,
+            sku: `${product.slug}-${variant.size}-${color}`.toUpperCase(),
+          },
+        });
+      }
+    } else {
+      await syncProductColorImage(productId, lookupColor, imageUrl);
+    }
+
+    await cleanupReplacedProductImage(oldImageUrl, imageUrl);
+  } else {
+    const nameConflict = await db.productVariant.findFirst({
+      where: {
+        productId,
+        color: { equals: color, mode: "insensitive" },
+      },
+    });
+    if (nameConflict) {
+      throw new Error("Ya existe un color con ese nombre");
+    }
+
+    const template = await db.productVariant.findFirst({
+      where: { productId },
+      orderBy: { createdAt: "asc" },
+    });
+
+    await db.productVariant.create({
+      data: {
+        productId,
+        color,
+        size: "M",
+        stock: 0,
+        price: template?.price ?? 0,
+        imageUrl,
+        sku: `${product.slug}-M-${color}`.toUpperCase(),
+      },
+    });
+  }
+
+  revalidatePath("/admin/productos");
+  revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidatePath("/productos");
+  revalidatePath(`/producto/${product.slug}`);
+}
+
 export async function createVariant(productId: string, formData: FormData) {
   const storeId = await getAdminStoreId();
   const product = await assertProductOwnership(productId, storeId);
 
   const size = formData.get("size") as string;
   const color = formData.get("color") as string;
+
+  const duplicate = await db.productVariant.findFirst({
+    where: {
+      productId,
+      size: { equals: size.trim(), mode: "insensitive" },
+      color: { equals: color.trim(), mode: "insensitive" },
+    },
+  });
+  if (duplicate) {
+    throw new Error("Ya existe ese talle para este color. Editá la fila existente.");
+  }
+
+  const imageUrl = await findProductColorImage(productId, color);
+  if (!imageUrl) {
+    throw new Error("Ese color no tiene imagen. Agregalo en la sección Colores.");
+  }
 
   await db.productVariant.create({
     data: {
@@ -138,7 +264,7 @@ export async function createVariant(productId: string, formData: FormData) {
       sku: `${product.slug}-${size}-${color}`.toUpperCase(),
       stock: parseInt(formData.get("stock") as string) || 0,
       price: parseFloat(formData.get("price") as string) || 0,
-      imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
+      imageUrl,
     },
   });
 
@@ -160,6 +286,25 @@ export async function updateVariant(variantId: string, formData: FormData) {
   const size = formData.get("size") as string;
   const color = formData.get("color") as string;
 
+  const duplicate = await db.productVariant.findFirst({
+    where: {
+      productId: variant.productId,
+      size: { equals: size.trim(), mode: "insensitive" },
+      color: { equals: color.trim(), mode: "insensitive" },
+      NOT: { id: variantId },
+    },
+  });
+  if (duplicate) {
+    throw new Error("Ya existe ese talle para este color.");
+  }
+
+  const imageUrl = await findProductColorImage(variant.productId, color);
+  if (!imageUrl) {
+    throw new Error("Ese color no tiene imagen. Agregalo en la sección Colores.");
+  }
+
+  const previousImageUrl = variant.imageUrl;
+
   await db.productVariant.update({
     where: { id: variantId },
     data: {
@@ -168,9 +313,11 @@ export async function updateVariant(variantId: string, formData: FormData) {
       sku: `${variant.product.slug}-${size}-${color}`.toUpperCase(),
       stock: parseInt(formData.get("stock") as string) || 0,
       price: parseFloat(formData.get("price") as string) || 0,
-      imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
+      imageUrl,
     },
   });
+
+  await cleanupProductImageIfOrphaned(previousImageUrl);
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
@@ -201,7 +348,11 @@ export async function deleteVariant(variantId: string) {
     throw new Error("El producto debe tener al menos una variante");
   }
 
+  const orphanedImageUrl = variant.imageUrl;
+
   await db.productVariant.delete({ where: { id: variantId } });
+
+  await cleanupProductImageIfOrphaned(orphanedImageUrl);
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);

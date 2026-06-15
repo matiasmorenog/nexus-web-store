@@ -160,6 +160,8 @@ type AdminTableIconActionProps = {
   href?: string;
   onClick?: () => void;
   disabled?: boolean;
+  /** Estilo deshabilitado pero sigue recibiendo clics (ej. hint de edición bloqueada). */
+  blocked?: boolean;
   loading?: boolean;
   type?: "button" | "submit";
 };
@@ -170,6 +172,7 @@ export function AdminTableIconAction({
   href,
   onClick,
   disabled = false,
+  blocked = false,
   loading = false,
   type = "button",
 }: AdminTableIconActionProps) {
@@ -200,9 +203,13 @@ export function AdminTableIconAction({
       type={type}
       variant="secondary"
       size="sm"
-      className="size-8 shrink-0 p-0"
+      className={cn(
+        "size-8 shrink-0 p-0",
+        blocked && !loading && "cursor-not-allowed opacity-50",
+      )}
       onClick={onClick}
       disabled={disabled || loading}
+      aria-disabled={disabled || blocked || loading}
       aria-label={label}
     >
       {icon}

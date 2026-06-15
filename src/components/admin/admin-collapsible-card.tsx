@@ -15,8 +15,10 @@ type AdminCollapsibleCardProps = {
   children?: ReactNode;
   contentId?: string;
   disabled?: boolean;
+  onBlockedToggle?: () => void;
   className?: string;
   animate?: boolean;
+  contentClassName?: string;
 };
 
 export function AdminCollapsibleCard({
@@ -28,45 +30,85 @@ export function AdminCollapsibleCard({
   children,
   contentId,
   disabled = false,
+  onBlockedToggle,
   className,
   animate = true,
+  contentClassName,
 }: AdminCollapsibleCardProps) {
   const content = children ? (
-    animate ? <AdminMotion variant="inline">{children}</AdminMotion> : children
+    animate ? (
+      <AdminMotion key={contentId} variant="inline">
+        {children}
+      </AdminMotion>
+    ) : (
+      children
+    )
   ) : null;
 
   return (
     <div className={cn(adminCardClass, className)}>
-      <div className="flex flex-col sm:flex-row sm:items-stretch">
+      <div
+        className={cn(
+          "flex flex-col sm:flex-row sm:items-stretch",
+          disabled && "bg-neutral-100/50",
+        )}
+      >
         <button
           type="button"
-          onClick={onToggle}
-          disabled={disabled}
+          onClick={() => {
+            if (disabled) {
+              onBlockedToggle?.();
+              return;
+            }
+            onToggle();
+          }}
           aria-expanded={open}
           aria-controls={contentId}
+          aria-disabled={disabled}
           className={cn(
             "flex min-w-0 flex-1 items-center gap-4 text-left transition-colors sm:border-b-0",
             adminCardHeaderClass,
+            disabled && "border-b-transparent bg-transparent",
             !disabled && "cursor-pointer hover:bg-neutral-100/70",
-            disabled && "cursor-not-allowed opacity-80",
+            disabled && "cursor-not-allowed",
           )}
         >
           {open ? (
             <ChevronUp
-              className="h-8 w-8 shrink-0 text-neutral-400"
+              className={cn(
+                "h-8 w-8 shrink-0",
+                disabled ? "text-neutral-300" : "text-neutral-400",
+              )}
               strokeWidth={2}
               aria-hidden
             />
           ) : (
             <ChevronDown
-              className="h-8 w-8 shrink-0 text-neutral-400"
+              className={cn(
+                "h-8 w-8 shrink-0",
+                disabled ? "text-neutral-300" : "text-neutral-400",
+              )}
               strokeWidth={2}
               aria-hidden
             />
           )}
           <div className="min-w-0">
-            <h2 className="font-semibold text-neutral-900">{title}</h2>
-            <p className="mt-1 text-sm text-neutral-500">{description}</p>
+            <h2
+              className={cn(
+                "font-semibold",
+                disabled ? "text-neutral-400" : "text-neutral-900",
+              )}
+            >
+              {title}
+            </h2>
+            <p
+              className={cn(
+                "mt-1 text-sm",
+                disabled ? "text-neutral-400" : "text-neutral-500",
+              )}
+            >
+              {description}
+            </p>
           </div>
         </button>
 
@@ -76,14 +118,23 @@ export function AdminCollapsibleCard({
               "flex items-center sm:border-b-0 sm:border-l",
               adminCardHeaderClass,
               "py-3 sm:py-4",
+              disabled && "border-l-neutral-200/70 bg-transparent",
             )}
+            onClick={(e) => e.stopPropagation()}
+            onClickCapture={
+              disabled
+                ? () => {
+                    onBlockedToggle?.();
+                  }
+                : undefined
+            }
           >
             {action}
           </div>
         ) : null}
       </div>
 
-      {open ? content : null}
+      {open ? <div className={cn(contentClassName)}>{content}</div> : null}
     </div>
   );
 }

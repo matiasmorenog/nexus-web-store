@@ -70,10 +70,10 @@ export function AdminFormActions({
   return (
     <div
       className={cn(
-        "flex justify-end gap-2 border-t border-neutral-100 pt-4",
-        sticky &&
-          "ml-auto w-fit border-t-0 py-2 pl-3 pr-6 md:static md:border-t md:py-0 md:pl-0 md:pr-0",
-        sticky && "sticky right-0 z-10 -mr-6 md:mr-0",
+        "flex justify-end gap-2",
+        sticky
+          ? "sticky right-0 z-10 -mr-6 ml-auto w-fit py-2 pl-3 pr-6 md:static md:mr-0 md:py-0 md:pl-0 md:pr-0"
+          : "border-t border-neutral-100 pt-4",
         className,
       )}
     >

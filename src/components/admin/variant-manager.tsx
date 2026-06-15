@@ -157,14 +157,12 @@ function NewColorRow({
   onCancel,
   onSuccess,
   onVariantsReload,
-  disabled,
   blockedHint = 0,
 }: {
   productId: string;
   onCancel: () => void;
   onSuccess: () => void;
   onVariantsReload?: () => Promise<void>;
-  disabled?: boolean;
   blockedHint?: number;
 }) {
   const [loading, setLoading] = useState(false);
@@ -194,7 +192,6 @@ function NewColorRow({
           title="Nuevo color"
           loading={loading}
           error={error}
-          disabled={disabled}
           onSubmit={handleSubmit}
           onCancel={onCancel}
           blockedHint={blockedHint}
@@ -467,7 +464,6 @@ export function ProductColorsCard({
             {activeEdit?.type === "new" ? (
               <NewColorRow
                 productId={productId}
-                disabled={disabled}
                 onCancel={() => setActiveEdit(null)}
                 onSuccess={() => {
                   setActiveEdit(null);

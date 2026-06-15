@@ -233,6 +233,58 @@ export async function upsertProductColor(productId: string, formData: FormData) 
   revalidatePath(`/producto/${product.slug}`);
 }
 
+export async function deleteProductColor(productId: string, color: string) {
+  const storeId = await getAdminStoreId();
+  const product = await assertProductOwnership(productId, storeId);
+
+  const trimmedColor = color.trim();
+  if (!trimmedColor) throw new Error("Color no válido");
+
+  const variantsForColor = await db.productVariant.findMany({
+    where: {
+      productId,
+      color: { equals: trimmedColor, mode: "insensitive" },
+    },
+    include: {
+      _count: { select: { orderItems: true } },
+    },
+  });
+
+  if (variantsForColor.length === 0) {
+    throw new Error("Color no encontrado");
+  }
+
+  if (variantsForColor.length > 1) {
+    throw new Error(
+      "No se puede eliminar el color mientras tenga variantes. Eliminá primero los talles en la sección Variantes.",
+    );
+  }
+
+  const [variant] = variantsForColor;
+
+  if (variant._count.orderItems > 0) {
+    throw new Error("No se puede eliminar: el color tiene pedidos asociados");
+  }
+
+  const totalVariants = await db.productVariant.count({
+    where: { productId },
+  });
+  if (totalVariants <= 1) {
+    throw new Error("El producto debe tener al menos una variante");
+  }
+
+  const orphanedImageUrl = variant.imageUrl;
+
+  await db.productVariant.delete({ where: { id: variant.id } });
+
+  await cleanupProductImageIfOrphaned(orphanedImageUrl);
+
+  revalidatePath("/admin/productos");
+  revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidatePath("/productos");
+  revalidatePath(`/producto/${product.slug}`);
+}
+
 export async function createVariant(productId: string, formData: FormData) {
   const storeId = await getAdminStoreId();
   const product = await assertProductOwnership(productId, storeId);

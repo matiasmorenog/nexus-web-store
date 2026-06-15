@@ -23,6 +23,7 @@ import {
 } from "@/components/admin/admin-table";
 import {
   createVariant,
+  deleteProductColor,
   deleteVariant,
   updateVariant,
   upsertProductColor,
@@ -210,6 +211,8 @@ function ColorEditRow({
   productId,
   color,
   imageUrl,
+  variantCount,
+  hasOrders,
   isEditing,
   editDisabled,
   onStartEdit,
@@ -221,6 +224,8 @@ function ColorEditRow({
   productId: string;
   color: string;
   imageUrl: string;
+  variantCount: number;
+  hasOrders: boolean;
   isEditing: boolean;
   editDisabled: boolean;
   onStartEdit: () => void;
@@ -231,6 +236,8 @@ function ColorEditRow({
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const canDelete = variantCount <= 1 && !hasOrders;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -243,6 +250,20 @@ function ColorEditRow({
       onCancelEdit();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al guardar el color");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteProductColor(productId, color);
+      await onVariantsReload?.();
+      setConfirmOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al eliminar el color");
     } finally {
       setLoading(false);
     }
@@ -269,30 +290,60 @@ function ColorEditRow({
   }
 
   return (
-    <AdminTableRow>
-      <AdminTableCell>
-        <ProductThumbnail src={imageUrl} alt={color} />
-      </AdminTableCell>
-      <AdminTableCell className="font-medium text-neutral-900">{color}</AdminTableCell>
-      <AdminTableCell>
-        <AdminTableActions>
-          <AdminTableIconAction
-            label={`Editar color ${color}`}
-            icon={Pencil}
-            onClick={() => {
-              if (editDisabled) {
-                onBlockedToggle?.();
-                return;
-              }
-              onStartEdit();
-            }}
-            blocked={editDisabled}
-            disabled={loading}
-            loading={loading}
-          />
-        </AdminTableActions>
-      </AdminTableCell>
-    </AdminTableRow>
+    <>
+      <AdminTableRow>
+        <AdminTableCell>
+          <ProductThumbnail src={imageUrl} alt={color} />
+        </AdminTableCell>
+        <AdminTableCell className="font-medium text-neutral-900">{color}</AdminTableCell>
+        <AdminTableCell>
+          <AdminTableActions>
+            <AdminTableIconAction
+              label={`Editar color ${color}`}
+              icon={Pencil}
+              onClick={() => {
+                if (editDisabled) {
+                  onBlockedToggle?.();
+                  return;
+                }
+                onStartEdit();
+              }}
+              blocked={editDisabled}
+              disabled={loading}
+              loading={loading}
+            />
+            {canDelete ? (
+              <AdminTableIconAction
+                label={`Eliminar color ${color}`}
+                icon={Trash2}
+                onClick={() => {
+                  if (editDisabled) {
+                    onBlockedToggle?.();
+                    return;
+                  }
+                  setConfirmOpen(true);
+                }}
+                blocked={editDisabled}
+                disabled={loading}
+                loading={loading}
+              />
+            ) : null}
+          </AdminTableActions>
+          {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        </AdminTableCell>
+      </AdminTableRow>
+      <AdminConfirmDialog
+        open={confirmOpen}
+        title="Eliminar color"
+        description={`¿Eliminar el color "${color}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        loading={loading}
+        onConfirm={() => void handleDelete()}
+        onCancel={() => {
+          if (!loading) setConfirmOpen(false);
+        }}
+      />
+    </>
   );
 }
 
@@ -330,6 +381,21 @@ export function ProductColorsCard({
 
   const productColors = useMemo(() => getUniqueProductColors(variants), [variants]);
   const colorImageMap = useMemo(() => buildColorImageMap(variants), [variants]);
+  const colorStats = useMemo(() => {
+    const map = new Map<string, { count: number; hasOrders: boolean }>();
+
+    for (const variant of variants) {
+      const key = normalizeVariantColor(variant.color);
+      const current = map.get(key) ?? { count: 0, hasOrders: false };
+      current.count += 1;
+      if (variant.orderItemCount > 0) {
+        current.hasOrders = true;
+      }
+      map.set(key, current);
+    }
+
+    return map;
+  }, [variants]);
   const isBusy = activeEdit !== null;
   const colorSummary = !variantsFetched
     ? "Fotos por color del producto"
@@ -426,6 +492,7 @@ export function ProductColorsCard({
               productColors.map((color) => {
                 const isEditing =
                   activeEdit?.type === "edit" && activeEdit.color === color;
+                const stats = colorStats.get(normalizeVariantColor(color));
 
                 return (
                   <ColorEditRow
@@ -435,6 +502,8 @@ export function ProductColorsCard({
                     imageUrl={
                       colorImageMap.get(normalizeVariantColor(color)) ?? ""
                     }
+                    variantCount={stats?.count ?? 0}
+                    hasOrders={stats?.hasOrders ?? false}
                     isEditing={isEditing}
                     editDisabled={isBusy && !isEditing}
                     onStartEdit={() => {

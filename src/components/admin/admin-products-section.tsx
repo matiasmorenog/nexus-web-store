@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
@@ -20,7 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCategoryLabel } from "@/lib/categories";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 export type AdminProductRow = {
   id: string;
@@ -53,6 +53,7 @@ export function AdminProductsSection({
   hasMore: initialHasMore,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
+  const [blockedHint, setBlockedHint] = useState(0);
   const [products, setProducts] = useState(initialProducts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -63,6 +64,16 @@ export function AdminProductsSection({
     setPage(1);
     setHasMore(initialHasMore);
   }, [initialProducts, initialHasMore]);
+
+  const signalBlockedCreate = useCallback(() => {
+    setBlockedHint((count) => count + 1);
+  }, []);
+
+  useEffect(() => {
+    if (!createOpen) {
+      setBlockedHint(0);
+    }
+  }, [createOpen]);
 
   const loadMore = async () => {
     if (loading || !hasMore) return;
@@ -97,30 +108,49 @@ export function AdminProductsSection({
 
       <AdminDashboardReveal index={1} className="space-y-6">
         {createOpen ? (
-          <ProductCreateForm onClose={() => setCreateOpen(false)} />
+          <ProductCreateForm
+            onClose={() => setCreateOpen(false)}
+            blockedHint={blockedHint}
+          />
         ) : null}
 
-        <AdminCard
-          title="Catálogo"
-          description={
-            hasMore || products.length < total
-              ? `${products.length} de ${total} producto${total !== 1 ? "s" : ""}`
-              : `${total} producto${total !== 1 ? "s" : ""}`
-          }
-          padding={false}
-          action={
-            !createOpen ? (
-              <Button
-                size="sm"
-                className="w-full whitespace-nowrap sm:w-auto"
-                onClick={() => setCreateOpen(true)}
-              >
-                Nuevo producto
-              </Button>
-            ) : undefined
+        <div
+          className={cn(
+            createOpen &&
+              "[&_h2]:text-neutral-400 [&_p]:text-neutral-400 [&_a]:cursor-not-allowed [&_a]:opacity-50 [&_button]:cursor-not-allowed [&_button]:opacity-50",
+          )}
+          onClickCapture={
+            createOpen
+              ? (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  signalBlockedCreate();
+                }
+              : undefined
           }
         >
-          <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
+          <AdminCard
+            title="Catálogo"
+            className={cn(createOpen && "bg-neutral-100/50")}
+            description={
+              hasMore || products.length < total
+                ? `${products.length} de ${total} producto${total !== 1 ? "s" : ""}`
+                : `${total} producto${total !== 1 ? "s" : ""}`
+            }
+            padding={false}
+            action={
+              !createOpen ? (
+                <Button
+                  size="sm"
+                  className="w-full whitespace-nowrap sm:w-auto"
+                  onClick={() => setCreateOpen(true)}
+                >
+                  Nuevo producto
+                </Button>
+              ) : undefined
+            }
+          >
+            <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
             {products.map((product) => (
               <AdminTableRow key={product.id}>
                 <AdminTableCell>
@@ -177,7 +207,8 @@ export function AdminProductsSection({
             onLoadMore={loadMore}
             label="Cargar más productos"
           />
-        </AdminCard>
+          </AdminCard>
+        </div>
       </AdminDashboardReveal>
     </div>
   );

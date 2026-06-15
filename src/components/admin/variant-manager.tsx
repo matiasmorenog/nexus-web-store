@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
+import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
 import { BlockedEditHint, RowEditEnter } from "@/components/admin/admin-motion";
 import { AdminDataTableSkeleton } from "@/components/admin/admin-skeleton";
 import {
@@ -185,7 +186,7 @@ function NewColorRow({
 
   return (
     <AdminTableRow className="scroll-mb-24 hover:bg-transparent">
-      <AdminTableCell colSpan={3} className="bg-neutral-50/80 px-4 py-4 sm:px-6">
+      <AdminTableCell colSpan={3} className={adminBlockedEditShellClass}>
         <ColorFormPanel
           formId="new-color"
           title="Nuevo color"
@@ -249,7 +250,7 @@ function ColorEditRow({
   if (isEditing) {
     return (
       <AdminTableRow className="scroll-mb-24 hover:bg-transparent">
-        <AdminTableCell colSpan={3} className="bg-neutral-50/80 px-4 py-4 sm:px-6">
+        <AdminTableCell colSpan={3} className={adminBlockedEditShellClass}>
           <ColorFormPanel
             formId={`edit-color-${color}`}
             title={`Editar: ${color}`}
@@ -551,7 +552,7 @@ function VariantInlineForm({
 
   return (
     <AdminTableRow ref={rowRef} className="scroll-mb-24 hover:bg-transparent">
-      <AdminTableCell colSpan={6} className="bg-neutral-50/80 px-4 py-4 sm:px-6">
+      <AdminTableCell colSpan={6} className={adminBlockedEditShellClass}>
         <BlockedEditHint blockedHint={blockedHint}>
           <RowEditEnter>
             <AdminForm onSubmit={onSubmit} className="space-y-3">

@@ -9,6 +9,10 @@ export const adminCardClass = cn(adminSurfaceClass, "overflow-hidden");
 export const adminCardHeaderClass =
   "border-b border-neutral-100 bg-neutral-50/50 px-4 py-4 sm:px-6";
 
+/** Contenedor exterior del form en row edits y hints bloqueados (mismo padding que la celda). */
+export const adminBlockedEditShellClass =
+  "bg-neutral-50/80 px-4 py-4 sm:px-6";
+
 export const adminCardInsetClass = "px-4 sm:px-6";
 
 type AdminCardSectionProps = {

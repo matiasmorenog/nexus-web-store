@@ -141,8 +141,46 @@ export function HomeHeroCarousel({ storeDisplayName }: HomeHeroCarouselProps) {
 
       {slides.length > 1 && (
         <>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center pb-6">
-            <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/35 px-3 py-2 backdrop-blur-sm">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-6">
+            {/* Mobile: flechas junto a los dots, sin invadir el copy */}
+            <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/45 px-2 py-2 backdrop-blur-sm md:hidden">
+              <button
+                type="button"
+                onClick={goPrev}
+                className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-white transition-colors active:bg-white/15"
+                aria-label="Slide anterior"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <div className="flex items-center gap-2 px-1">
+                {slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => goTo(index)}
+                    className={cn(
+                      "h-2.5 rounded-full transition-all",
+                      index === activeIndex
+                        ? "w-7 bg-[var(--brand-primary)]"
+                        : "w-2.5 bg-white/50 hover:bg-white/80",
+                    )}
+                    aria-label={`Ir al slide: ${slide.label}`}
+                    aria-current={index === activeIndex}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={goNext}
+                className="flex min-h-10 min-w-10 items-center justify-center rounded-full text-white transition-colors active:bg-white/15"
+                aria-label="Slide siguiente"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+            </div>
+
+            {/* Desktop: solo indicadores */}
+            <div className="pointer-events-auto hidden items-center gap-2 rounded-full bg-black/35 px-3 py-2 backdrop-blur-sm md:flex">
               {slides.map((slide, index) => (
                 <button
                   key={slide.id}
@@ -164,7 +202,7 @@ export function HomeHeroCarousel({ storeDisplayName }: HomeHeroCarouselProps) {
           <button
             type="button"
             onClick={goPrev}
-            className="absolute left-3 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50 sm:left-4 md:flex"
+            className="absolute left-4 top-1/2 z-20 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/55 active:bg-black/65 md:flex"
             aria-label="Slide anterior"
           >
             <ChevronLeft className="size-5" />
@@ -172,7 +210,7 @@ export function HomeHeroCarousel({ storeDisplayName }: HomeHeroCarouselProps) {
           <button
             type="button"
             onClick={goNext}
-            className="absolute right-3 top-1/2 z-20 hidden -translate-y-1/2 rounded-full bg-black/35 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/50 sm:right-4 md:flex"
+            className="absolute right-4 top-1/2 z-20 hidden min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 p-2 text-white backdrop-blur-sm transition-colors hover:bg-black/55 active:bg-black/65 md:flex"
             aria-label="Slide siguiente"
           >
             <ChevronRight className="size-5" />

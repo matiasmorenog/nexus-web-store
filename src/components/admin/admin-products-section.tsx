@@ -19,7 +19,7 @@ import {
 } from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getCategoryLabel } from "@/lib/categories";
+import { getProductTaxonomyLabel } from "@/lib/categories";
 import { cn, formatPrice } from "@/lib/utils";
 
 export type AdminProductRow = {
@@ -27,6 +27,7 @@ export type AdminProductRow = {
   name: string;
   slug: string;
   category: string;
+  audience: string;
   featured: boolean;
   variants: { imageUrl: string; price: number }[];
   _count: { variants: number };
@@ -172,7 +173,7 @@ export function AdminProductsSection({
                   </div>
                 </AdminTableCell>
                 <AdminTableCell>
-                  {getCategoryLabel(product.category)}
+                  {getProductTaxonomyLabel(product.category, product.audience)}
                 </AdminTableCell>
                 <AdminTableCell className="font-medium">
                   {formatPrice(Number(product.variants[0]?.price ?? 0))}

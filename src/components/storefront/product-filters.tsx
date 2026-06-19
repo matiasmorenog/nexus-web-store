@@ -1,7 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { STORE_CATEGORIES } from "@/lib/categories";
+import {
+  FILTER_GROUPS,
+  getCategoryLabel,
+  STORE_AUDIENCES,
+} from "@/lib/categories";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { cn } from "@/lib/utils";
@@ -33,41 +37,102 @@ export function ProductFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const update = (key: string, value: string) => {
+  const update = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
+
+    for (const [key, value] of Object.entries(updates)) {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
     }
+
     router.push(`/productos?${params.toString()}`);
   };
 
+  const activeGenero = searchParams.get("genero") ?? "";
   const activeCategory = searchParams.get("categoria") ?? "";
+
+  const selectCategory = (genero: string, categoria: string) => {
+    update({
+      genero,
+      categoria,
+    });
+  };
+
+  const clearFilters = () => {
+    router.push("/productos");
+  };
 
   return (
     <aside className="space-y-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
       <ProductSearch />
 
       <div>
-        <Label className="mb-2 block text-neutral-700">Categoría</Label>
+        <Label className="mb-2 block text-neutral-700">Género</Label>
         <div className="space-y-1">
           <button
             type="button"
-            onClick={() => update("categoria", "")}
+            onClick={() => update({ genero: "", categoria: activeCategory })}
+            className={filterButtonClass(!activeGenero)}
+          >
+            Todos
+          </button>
+          {STORE_AUDIENCES.filter((audience) => audience.slug !== "unisex").map(
+            (audience) => (
+              <button
+                key={audience.slug}
+                type="button"
+                onClick={() =>
+                  update({ genero: audience.slug, categoria: activeCategory })
+                }
+                className={filterButtonClass(activeGenero === audience.slug)}
+              >
+                {audience.label}
+              </button>
+            ),
+          )}
+        </div>
+      </div>
+
+      <div>
+        <Label className="mb-2 block text-neutral-700">Categoría</Label>
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => update({ genero: activeGenero, categoria: "" })}
             className={filterButtonClass(!activeCategory)}
           >
             Todas
           </button>
-          {STORE_CATEGORIES.map((cat) => (
-            <button
-              key={cat.slug}
-              type="button"
-              onClick={() => update("categoria", cat.slug)}
-              className={filterButtonClass(activeCategory === cat.slug)}
-            >
-              {cat.label}
-            </button>
+
+          {FILTER_GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                {group.label}
+              </p>
+              <div className="space-y-1">
+                {group.categories.map((slug) => {
+                  const isActive =
+                    activeCategory === slug &&
+                    (group.genero === null || activeGenero === group.genero);
+
+                  return (
+                    <button
+                      key={`${group.genero ?? "all"}-${slug}`}
+                      type="button"
+                      onClick={() =>
+                        selectCategory(group.genero ?? activeGenero, slug)
+                      }
+                      className={filterButtonClass(isActive)}
+                    >
+                      {getCategoryLabel(slug)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -80,7 +145,11 @@ export function ProductFilters() {
               key={size}
               type="button"
               onClick={() =>
-                update("talle", searchParams.get("talle") === size ? "" : size)
+                update({
+                  genero: activeGenero,
+                  categoria: activeCategory,
+                  talle: searchParams.get("talle") === size ? "" : size,
+                })
               }
               className={sizeButtonClass(searchParams.get("talle") === size)}
             >
@@ -98,7 +167,13 @@ export function ProductFilters() {
           id="precio-max"
           className={fieldClass}
           value={searchParams.get("precioMax") ?? ""}
-          onChange={(e) => update("precioMax", e.target.value)}
+          onChange={(e) =>
+            update({
+              genero: activeGenero,
+              categoria: activeCategory,
+              precioMax: e.target.value,
+            })
+          }
         >
           <option value="">Sin límite</option>
           <option value="20000">Hasta $20.000</option>
@@ -106,6 +181,16 @@ export function ProductFilters() {
           <option value="50000">Hasta $50.000</option>
         </select>
       </div>
+
+      {(activeGenero || activeCategory || searchParams.get("talle") || searchParams.get("precioMax")) && (
+        <button
+          type="button"
+          onClick={clearFilters}
+          className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+        >
+          Limpiar filtros
+        </button>
+      )}
     </aside>
   );
 }

@@ -1,11 +1,13 @@
 import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
+import { audiencesForProductFilter } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 import { Prisma } from "@prisma/client";
 
 export type ProductGridParams = {
   categoria?: string;
+  genero?: string;
   talle?: string;
   precioMax?: string;
   q?: string;
@@ -14,6 +16,7 @@ export type ProductGridParams = {
 export function productGridQueryKey(params: ProductGridParams) {
   return [
     params.categoria ?? "",
+    params.genero ?? "",
     params.talle ?? "",
     params.precioMax ?? "",
     params.q?.trim() ?? "",
@@ -27,6 +30,11 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
 
   if (params.categoria) {
     where.category = params.categoria;
+  }
+
+  const audienceFilter = audiencesForProductFilter(params.genero);
+  if (audienceFilter) {
+    where.audience = { in: audienceFilter };
   }
 
   const searchQuery = params.q?.trim();
@@ -95,6 +103,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
                 slug={product.slug}
                 name={product.name}
                 category={product.category}
+                audience={product.audience}
                 imageUrl={product.variants[0]?.imageUrl ?? ""}
                 price={Number(product.variants[0]?.price ?? 0)}
               />

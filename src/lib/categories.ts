@@ -1,13 +1,112 @@
-export const STORE_CATEGORIES = [
-  { slug: "tops", label: "Tops y remeras" },
-  { slug: "leggings", label: "Leggings y calzas" },
-  { slug: "shorts", label: "Shorts" },
-  { slug: "hoodies", label: "Hoodies y buzos" },
-  { slug: "accesorios", label: "Accesorios" },
+export const STORE_AUDIENCES = [
+  { slug: "mujer", label: "Mujer" },
+  { slug: "hombre", label: "Hombre" },
+  { slug: "unisex", label: "Unisex" },
 ] as const;
 
-export type StoreCategory = (typeof STORE_CATEGORIES)[number]["slug"];
+export type StoreAudience = (typeof STORE_AUDIENCES)[number]["slug"];
+
+export const PRODUCT_CATEGORIES = [
+  {
+    slug: "remeras",
+    label: "Remeras",
+    audiences: ["mujer", "hombre", "unisex"] as const,
+  },
+  {
+    slug: "musculosas",
+    label: "Musculosas",
+    audiences: ["mujer", "hombre", "unisex"] as const,
+  },
+  {
+    slug: "tops",
+    label: "Tops",
+    audiences: ["mujer"] as const,
+  },
+  {
+    slug: "leggings",
+    label: "Leggings y calzas",
+    audiences: ["mujer", "unisex"] as const,
+  },
+  {
+    slug: "shorts",
+    label: "Shorts",
+    audiences: ["mujer", "hombre", "unisex"] as const,
+  },
+  {
+    slug: "hoodies",
+    label: "Hoodies y buzos",
+    audiences: ["mujer", "hombre", "unisex"] as const,
+  },
+  {
+    slug: "accesorios",
+    label: "Accesorios",
+    audiences: ["mujer", "hombre", "unisex"] as const,
+  },
+] as const;
+
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number]["slug"];
+
+/** @deprecated Usar PRODUCT_CATEGORIES; se mantiene por compatibilidad en admin. */
+export const STORE_CATEGORIES = PRODUCT_CATEGORIES;
+
+export type StoreCategory = ProductCategory;
+
+export const FILTER_GROUPS = [
+  {
+    genero: "mujer" as const,
+    label: "Mujer",
+    categories: ["remeras", "musculosas", "tops"] as const,
+  },
+  {
+    genero: "hombre" as const,
+    label: "Hombre",
+    categories: ["remeras", "musculosas"] as const,
+  },
+  {
+    genero: null,
+    label: "Más categorías",
+    categories: ["leggings", "shorts", "hoodies", "accesorios"] as const,
+  },
+] as const;
+
+export const HOME_CATEGORY_TILES = [
+  { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
+  { slug: "hombre", label: "Hombre", href: "/productos?genero=hombre" },
+  {
+    slug: "leggings",
+    label: "Leggings y calzas",
+    href: "/productos?categoria=leggings",
+  },
+  { slug: "shorts", label: "Shorts", href: "/productos?categoria=shorts" },
+  {
+    slug: "hoodies",
+    label: "Hoodies y buzos",
+    href: "/productos?categoria=hoodies",
+  },
+] as const;
+
+export function categoriesForAudience(audience: StoreAudience) {
+  return PRODUCT_CATEGORIES.filter((category) =>
+    (category.audiences as readonly string[]).includes(audience),
+  );
+}
+
+export function getAudienceLabel(slug: string) {
+  return STORE_AUDIENCES.find((audience) => audience.slug === slug)?.label ?? slug;
+}
 
 export function getCategoryLabel(slug: string) {
-  return STORE_CATEGORIES.find((c) => c.slug === slug)?.label ?? slug;
+  return PRODUCT_CATEGORIES.find((category) => category.slug === slug)?.label ?? slug;
+}
+
+export function getProductTaxonomyLabel(category: string, audience: string) {
+  const categoryLabel = getCategoryLabel(category);
+  if (audience === "unisex") return categoryLabel;
+  return `${categoryLabel} · ${getAudienceLabel(audience)}`;
+}
+
+export function audiencesForProductFilter(genero: string | undefined) {
+  if (genero === "mujer") return ["mujer", "unisex"];
+  if (genero === "hombre") return ["hombre", "unisex"];
+  return undefined;
 }

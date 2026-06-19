@@ -23,6 +23,7 @@ export async function FeaturedProductsSection() {
           slug={product.slug}
           name={product.name}
           category={product.category}
+          audience={product.audience}
           imageUrl={product.variants[0]?.imageUrl ?? ""}
           price={Number(product.variants[0]?.price ?? 0)}
         />

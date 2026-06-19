@@ -45,8 +45,13 @@ export function Footer({ storeName }: FooterProps) {
               </Link>
             </li>
             <li>
-              <Link href="/productos?categoria=tops" className={linkClass}>
-                Tops y remeras
+              <Link href="/productos?genero=mujer" className={linkClass}>
+                Mujer
+              </Link>
+            </li>
+            <li>
+              <Link href="/productos?genero=hombre" className={linkClass}>
+                Hombre
               </Link>
             </li>
             <li>

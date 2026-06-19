@@ -4,14 +4,14 @@ import { useState } from "react";
 import { updateProduct } from "@/lib/admin-actions";
 import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
 import {
-  AdminCategorySelect,
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
-import { getCategoryLabel } from "@/lib/categories";
+import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
+import { getProductTaxonomyLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ type ProductEditFormProps = {
     name: string;
     description: string;
     category: string;
+    audience: string;
     featured: boolean;
   };
   open: boolean;
@@ -42,7 +43,7 @@ export function ProductEditForm({
   const [saved, setSaved] = useState(false);
 
   const collapsedDescription = [
-    getCategoryLabel(product.category),
+    getProductTaxonomyLabel(product.category, product.audience),
     product.featured ? "Destacado" : null,
   ]
     .filter(Boolean)
@@ -75,7 +76,7 @@ export function ProductEditForm({
       title="Datos del producto"
       description={
         open
-          ? "Nombre, categoría, descripción y visibilidad en el home."
+          ? "Nombre, género, categoría, descripción y visibilidad en el home."
           : `${product.name} · ${collapsedDescription}`
       }
       contentClassName="p-4 sm:p-6"
@@ -91,15 +92,10 @@ export function ProductEditForm({
             <Label htmlFor="name">Nombre</Label>
             <Input id="name" name="name" defaultValue={product.name} required />
           </div>
-          <div>
-            <Label htmlFor="category">Categoría</Label>
-            <AdminCategorySelect
-              id="category"
-              name="category"
-              defaultValue={product.category}
-              required
-            />
-          </div>
+          <ProductTaxonomyFields
+            defaultAudience={product.audience}
+            defaultCategory={product.category}
+          />
           <div className="sm:col-span-2">
             <Label htmlFor="description">Descripción</Label>
             <AdminTextarea

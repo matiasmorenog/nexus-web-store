@@ -20,7 +20,8 @@ type HeaderProps = {
 
 const navLinks = [
   { href: "/productos", label: "Catálogo", match: "catalog" as const },
-  { href: "/productos?categoria=tops", label: "Tops", match: "tops" as const },
+  { href: "/productos?genero=mujer", label: "Mujer", match: "mujer" as const },
+  { href: "/productos?genero=hombre", label: "Hombre", match: "hombre" as const },
   { href: "/productos?categoria=leggings", label: "Leggings", match: "leggings" as const },
   { href: "/productos?categoria=shorts", label: "Shorts", match: "shorts" as const },
   { href: "/productos?categoria=accesorios", label: "Accesorios", match: "accesorios" as const },
@@ -39,6 +40,7 @@ export function Header({ storeName }: HeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("categoria");
+  const activeGenero = searchParams.get("genero");
 
   useEffect(() => {
     setCartReady(true);
@@ -94,7 +96,10 @@ export function Header({ storeName }: HeaderProps) {
 
   const isActive = (match: (typeof navLinks)[number]["match"]) => {
     if (pathname !== "/productos") return false;
-    if (match === "catalog") return !activeCategory;
+    if (match === "catalog") return !activeCategory && !activeGenero;
+    if (match === "mujer" || match === "hombre") {
+      return activeGenero === match && !activeCategory;
+    }
     return activeCategory === match;
   };
 

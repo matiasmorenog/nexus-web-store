@@ -16,6 +16,7 @@ type ProductEditSectionsProps = {
     name: string;
     description: string;
     category: string;
+    audience: string;
     featured: boolean;
   };
 };

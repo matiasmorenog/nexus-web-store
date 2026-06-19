@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 type SearchParams = Promise<{
   categoria?: string;
+  genero?: string;
   talle?: string;
   precioMax?: string;
   q?: string;

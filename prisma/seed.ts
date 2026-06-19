@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 const PRODUCTS = [
   {
     name: "Remera Dry-Fit WOD",
-    category: "tops",
+    category: "remeras",
+    audience: "hombre",
     description:
       "Remera de secado rápido con tecnología anti-olor. Ideal para entrenamientos de alta intensidad y CrossFit.",
     featured: true,
@@ -18,6 +19,7 @@ const PRODUCTS = [
   {
     name: "Top Deportivo Sin Mangas",
     category: "tops",
+    audience: "mujer",
     description:
       "Top con soporte medio y tela breathable. Libertad total de movimiento para levantamientos y gimnasia.",
     featured: true,
@@ -29,6 +31,7 @@ const PRODUCTS = [
   {
     name: "Legging Alta Compresión",
     category: "leggings",
+    audience: "mujer",
     description:
       "Calza de compresión con cintura alta que no se mueve. Perfecta para sentadillas, burpees y cardio.",
     featured: true,
@@ -40,6 +43,7 @@ const PRODUCTS = [
   {
     name: 'Short Training 5"',
     category: "shorts",
+    audience: "mujer",
     description:
       "Short liviano con liner interno y bolsillo para llaves. Diseñado para box jumps y sprints.",
     featured: true,
@@ -51,6 +55,7 @@ const PRODUCTS = [
   {
     name: "Hoodie Oversize Post-WOD",
     category: "hoodies",
+    audience: "unisex",
     description:
       "Buzo oversize de algodón premium para el cooldown. Corte relajado después del entrenamiento.",
     featured: false,
@@ -61,7 +66,8 @@ const PRODUCTS = [
   },
   {
     name: 'Remera "Embrace the Suck"',
-    category: "tops",
+    category: "remeras",
+    audience: "unisex",
     description:
       "Remera con estampa motivacional para la comunidad funcional. Algodón mezclado con elastano.",
     featured: false,
@@ -73,6 +79,7 @@ const PRODUCTS = [
   {
     name: "Legging Seamless Cintura Alta",
     category: "leggings",
+    audience: "mujer",
     description:
       "Legging sin costuras con efecto segunda piel. Máxima comodidad en WODs largos y AMRAPs.",
     featured: true,
@@ -84,6 +91,7 @@ const PRODUCTS = [
   {
     name: "Short Hombre Training Pro",
     category: "shorts",
+    audience: "hombre",
     description:
       "Short de entrenamiento con stretch en 4 direcciones. Resistente al roce en barras y cuerdas.",
     featured: false,
@@ -95,6 +103,7 @@ const PRODUCTS = [
   {
     name: "Buzo Half-Zip Performance",
     category: "hoodies",
+    audience: "hombre",
     description:
       "Buzo técnico con cierre medio y capucha. Ideal para calentamiento y salida del box.",
     featured: false,
@@ -106,6 +115,7 @@ const PRODUCTS = [
   {
     name: "Cinturón de Levantamiento",
     category: "accesorios",
+    audience: "unisex",
     description:
       "Cinturón de nylon reforzado para squats y peso muerto. Ajuste rápido con cierre de velcro.",
     featured: true,
@@ -117,6 +127,7 @@ const PRODUCTS = [
   {
     name: "Muñequeras WOD",
     category: "accesorios",
+    audience: "unisex",
     description:
       "Par de muñequeras acolchadas para protección en handstand push-ups y levantamientos.",
     featured: false,
@@ -127,7 +138,8 @@ const PRODUCTS = [
   },
   {
     name: "Remera Manga Larga Tech",
-    category: "tops",
+    category: "remeras",
+    audience: "unisex",
     description:
       "Remera manga larga con protección UV y secado rápido. Para entrenar al aire libre o en invierno.",
     featured: false,
@@ -135,6 +147,30 @@ const PRODUCTS = [
       "https://images.unsplash.com/photo-1732624931650-347ec49b06e2?w=800&q=80",
     price: 27900,
     colors: ["Negro", "Blanco", "Azul"],
+  },
+  {
+    name: "Musculosa Training Fit",
+    category: "musculosas",
+    audience: "mujer",
+    description:
+      "Musculosa liviana con espalda nadadora. Máxima ventilación en WODs de alta intensidad.",
+    featured: false,
+    image:
+      "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=800&q=80",
+    price: 17900,
+    colors: ["Negro", "Gris", "Rosa"],
+  },
+  {
+    name: "Musculosa Essential Hombre",
+    category: "musculosas",
+    audience: "hombre",
+    description:
+      "Musculosa de algodón mezclado con elastano. Corte recto para entrenar o salir del box.",
+    featured: false,
+    image:
+      "https://images.unsplash.com/photo-1647438174616-7bc61ca38455?w=800&q=80",
+    price: 16900,
+    colors: ["Negro", "Blanco", "Gris"],
   },
 ];
 
@@ -192,6 +228,7 @@ async function main() {
         slug,
         description: product.description,
         category: product.category,
+        audience: product.audience,
         featured: product.featured,
         variants: {
           create: product.colors.flatMap((color, colorIndex) =>

@@ -66,6 +66,7 @@ model Product {
   slug        String
   description String
   category    String
+  audience    String   @default("unisex")
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

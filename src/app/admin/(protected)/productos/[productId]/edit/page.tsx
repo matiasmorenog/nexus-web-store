@@ -54,6 +54,7 @@ export default async function AdminProductEditPage({
           name: product.name,
           description: product.description,
           category: product.category,
+          audience: product.audience,
           featured: product.featured,
         }}
       />

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/storefront/add-to-cart";
 import { ProductImage } from "@/components/storefront/product-image";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
-import { getCategoryLabel } from "@/lib/categories";
+import { getProductTaxonomyLabel } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 
@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: PageProps) {
         </StorefrontReveal>
         <StorefrontReveal index={2} className="lg:py-2">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--brand-primary)]">
-            {getCategoryLabel(product.category)}
+            {getProductTaxonomyLabel(product.category, product.audience)}
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
             {product.name}

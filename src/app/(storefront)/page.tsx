@@ -9,13 +9,14 @@ import {
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
 import { Button } from "@/components/ui/button";
-import { STORE_CATEGORIES } from "@/lib/categories";
+import { HOME_CATEGORY_TILES } from "@/lib/categories";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  tops: "https://images.unsplash.com/photo-1611858447638-1113f15f7177?w=600&q=80",
+  mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
+  hombre: "https://images.unsplash.com/photo-1647438174616-7bc61ca38455?w=600&q=80",
   leggings:
     "https://images.unsplash.com/photo-1762331660576-cbf66a7db84d?w=600&q=80",
   shorts:
@@ -28,9 +29,7 @@ export default async function HomePage() {
   const store = await getStore();
   const storeDisplayName = formatStoreName(store.name);
 
-  const heroCategories = STORE_CATEGORIES.filter(
-    (c) => c.slug !== "accesorios",
-  );
+  const heroCategories = HOME_CATEGORY_TILES;
 
   return (
     <>
@@ -70,11 +69,11 @@ export default async function HomePage() {
             {heroCategories.map((cat) => (
               <Link
                 key={cat.slug}
-                href={`/productos?categoria=${cat.slug}`}
+                href={cat.href}
                 className="group relative aspect-square overflow-hidden rounded-xl ring-1 ring-neutral-200/60 transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md hover:ring-[var(--brand-primary)]/30"
               >
                 <Image
-                  src={CATEGORY_IMAGES[cat.slug] ?? CATEGORY_IMAGES.tops}
+                  src={CATEGORY_IMAGES[cat.slug] ?? CATEGORY_IMAGES.mujer}
                   alt={cat.label}
                   fill
                   className="object-cover transition-transform group-hover:scale-105"

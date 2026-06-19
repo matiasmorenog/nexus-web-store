@@ -5,12 +5,12 @@ import { createProduct } from "@/lib/admin-actions";
 import { AdminCard } from "@/components/admin/admin-card";
 import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
 import {
-  AdminCategorySelect,
   AdminForm,
   AdminFormActions,
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
+import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -53,10 +53,7 @@ export function ProductCreateForm({
                   <Label htmlFor="name">Nombre</Label>
                   <Input id="name" name="name" required />
                 </div>
-                <div>
-                  <Label htmlFor="category">Categoría</Label>
-                  <AdminCategorySelect id="category" name="category" required />
-                </div>
+                <ProductTaxonomyFields />
                 <div className="sm:col-span-2">
                   <Label htmlFor="description">Descripción</Label>
                   <AdminTextarea id="description" name="description" rows={3} required />

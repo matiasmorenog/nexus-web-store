@@ -64,6 +64,7 @@ export async function createProduct(formData: FormData) {
       slug,
       description: formData.get("description") as string,
       category: formData.get("category") as string,
+      audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
       variants: {
         create: {
@@ -132,6 +133,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       slug,
       description: formData.get("description") as string,
       category: formData.get("category") as string,
+      audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
     },
   });

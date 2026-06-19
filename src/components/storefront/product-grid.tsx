@@ -1,7 +1,9 @@
 import { ProductCard } from "@/components/storefront/product-card";
+import { ProductSortSelect } from "@/components/storefront/product-sort-select";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { audiencesForProductFilter } from "@/lib/categories";
 import { db } from "@/lib/db";
+import { parseProductSort, sortProducts } from "@/lib/product-sort";
 import { getStoreId } from "@/lib/store-context";
 import { Prisma } from "@prisma/client";
 
@@ -11,6 +13,7 @@ export type ProductGridParams = {
   talle?: string;
   precioMax?: string;
   q?: string;
+  orden?: string;
 };
 
 export function productGridQueryKey(params: ProductGridParams) {
@@ -20,6 +23,7 @@ export function productGridQueryKey(params: ProductGridParams) {
     params.talle ?? "",
     params.precioMax ?? "",
     params.q?.trim() ?? "",
+    params.orden ?? "",
   ].join("|");
 }
 
@@ -71,6 +75,8 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
     };
   }
 
+  const sort = parseProductSort(params.orden);
+
   const products = await db.product.findMany({
     where,
     include: {
@@ -83,14 +89,17 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
     orderBy: { createdAt: "desc" },
   });
 
+  const sortedProducts = sortProducts(products, sort);
+
   return (
     <div>
-      <div className="mb-4 border-b border-neutral-200/80 pb-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">
         <p className="text-sm font-medium text-neutral-700">
-          {products.length} producto{products.length !== 1 ? "s" : ""}
+          {sortedProducts.length} producto{sortedProducts.length !== 1 ? "s" : ""}
         </p>
+        <ProductSortSelect />
       </div>
-      {products.length === 0 ? (
+      {sortedProducts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
           <p className="font-medium text-neutral-900">No se encontraron productos</p>
           <p className="mt-2 text-sm text-neutral-500">
@@ -99,7 +108,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
-          {products.map((product, index) => (
+          {sortedProducts.map((product, index) => (
             <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
               <ProductCard
                 slug={product.slug}

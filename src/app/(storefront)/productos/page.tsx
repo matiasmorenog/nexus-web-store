@@ -16,6 +16,7 @@ type SearchParams = Promise<{
   talle?: string;
   precioMax?: string;
   q?: string;
+  orden?: string;
 }>;
 
 export default async function ProductsPage({

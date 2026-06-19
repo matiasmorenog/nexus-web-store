@@ -87,7 +87,10 @@ export function StorefrontSkeletonFiltersPanel() {
 export function StorefrontSkeletonProductGrid() {
   return (
     <StorefrontSkeletonRegion label="Cargando productos">
-      <StorefrontSkeleton className="mb-4 h-4 w-28 border-b border-neutral-200/80 pb-3" />
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">
+        <StorefrontSkeleton className="h-4 w-28" />
+        <StorefrontSkeleton className="h-8 w-36 rounded-lg" />
+      </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
         {Array.from({ length: 6 }, (_, index) => (
           <StorefrontSkeletonProductCard key={index} />

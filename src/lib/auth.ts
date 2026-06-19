@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { resolveAdminStoreId } from "@/lib/admin-store";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -61,11 +62,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!;
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
         session.user.role = token.role as string;
-        session.user.storeId = token.storeId as string | null;
-        session.user.storeSlug = token.storeSlug as string | null;
+
+        const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
+        session.user.storeId = storeId;
+        session.user.storeSlug = storeSlug;
       }
       return session;
     },

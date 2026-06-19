@@ -14,6 +14,7 @@ import {
   AdminDataTable,
   AdminTableActions,
   AdminTableCell,
+  AdminTableEmpty,
   AdminTableIconAction,
   AdminTableRow,
 } from "@/components/admin/admin-table";
@@ -152,7 +153,13 @@ export function AdminProductsSection({
             }
           >
             <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
-            {products.map((product) => (
+            {products.length === 0 ? (
+              <AdminTableEmpty colSpan={PRODUCT_COLUMNS.length}>
+                No hay productos en el catálogo. Creá el primero con «Nuevo
+                producto».
+              </AdminTableEmpty>
+            ) : (
+              products.map((product) => (
               <AdminTableRow key={product.id}>
                 <AdminTableCell>
                   <div className="flex items-center gap-3">
@@ -200,7 +207,8 @@ export function AdminProductsSection({
                   </AdminTableActions>
                 </AdminTableCell>
               </AdminTableRow>
-            ))}
+            ))
+            )}
           </AdminDataTable>
 
           <AdminLoadMore

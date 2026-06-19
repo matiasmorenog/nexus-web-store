@@ -102,6 +102,7 @@ export function audiencesForProductFilter(genero: string | undefined) {
 }
 
 export type HeaderNavMatch =
+  | { type: "home" }
   | { type: "catalog" }
   | { type: "genero"; slug: Exclude<StoreAudience, "unisex"> }
   | { type: "categoria"; slug: ProductCategory };
@@ -130,6 +131,7 @@ function navCategoria(slug: ProductCategory): HeaderNavLink {
 
 /** Género + categorías más buscadas; entra en desktop sin saturar. */
 export const HEADER_NAV_DESKTOP: HeaderNavLink[] = [
+  { href: "/", label: "Inicio", match: { type: "home" } },
   navGenero("mujer"),
   navGenero("hombre"),
   navCategoria("remeras"),
@@ -140,7 +142,8 @@ export const HEADER_NAV_DESKTOP: HeaderNavLink[] = [
 
 /** Catálogo completo en menú móvil. */
 export const HEADER_NAV_MOBILE: HeaderNavLink[] = [
-  { href: "/productos", label: "Ver todo", match: { type: "catalog" } },
+  { href: "/", label: "Inicio", match: { type: "home" } },
+  { href: "/productos", label: "Catálogo", match: { type: "catalog" } },
   navGenero("mujer"),
   navGenero("hombre"),
   ...PRODUCT_CATEGORIES.map((category) => navCategoria(category.slug)),
@@ -151,6 +154,10 @@ export function isStorefrontNavActive(
   pathname: string,
   params: { genero: string | null; categoria: string | null },
 ) {
+  if (match.type === "home") {
+    return pathname === "/";
+  }
+
   if (pathname !== "/productos") return false;
 
   if (match.type === "catalog") {

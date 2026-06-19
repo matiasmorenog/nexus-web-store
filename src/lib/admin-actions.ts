@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import { resolveAdminStoreId } from "@/lib/admin-store";
 import { db } from "@/lib/db";
 import { normalizeBrandPrefix } from "@/lib/brand";
 import {
@@ -19,10 +20,16 @@ import { slugify } from "@/lib/utils";
 
 async function getAdminStoreId() {
   const session = await auth();
-  if (!session?.user?.storeId) {
+  if (!session?.user?.id) {
     throw new Error("No autorizado");
   }
-  return session.user.storeId;
+
+  const { storeId } = await resolveAdminStoreId(session.user.id);
+  if (!storeId) {
+    throw new Error("No autorizado");
+  }
+
+  return storeId;
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {

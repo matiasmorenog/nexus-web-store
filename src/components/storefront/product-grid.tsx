@@ -1,3 +1,4 @@
+import { ActiveFilterChips } from "@/components/storefront/active-filter-chips";
 import { ProductCard } from "@/components/storefront/product-card";
 import { ProductSortSelect } from "@/components/storefront/product-sort-select";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
@@ -99,6 +100,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
         </p>
         <ProductSortSelect />
       </div>
+      <ActiveFilterChips className="mb-4" />
       {sortedProducts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
           <p className="font-medium text-neutral-900">No se encontraron productos</p>

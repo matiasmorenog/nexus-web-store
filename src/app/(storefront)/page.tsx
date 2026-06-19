@@ -1,14 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { HomeHeroContent } from "@/components/storefront/home-hero-content";
+import { HomeHeroCarousel } from "@/components/storefront/home-hero-carousel";
 import {
   FeaturedProductsSection,
   FeaturedProductsSectionShell,
 } from "@/components/storefront/featured-products-section";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
-import { Button } from "@/components/ui/button";
 import { HOME_CATEGORY_TILES } from "@/lib/categories";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
@@ -40,30 +39,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="relative flex h-[70vh] min-h-[400px] items-center justify-center bg-neutral-900 text-white">
-        <Image
-          src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80"
-          alt={`Entrenamiento funcional ${storeDisplayName}`}
-          fill
-          className="object-cover opacity-50"
-          priority
-        />
-        <HomeHeroContent>
-          <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-[var(--brand-primary)]">
-            Ropa para el box
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Entrená sin límites
-          </h1>
-          <p className="mx-auto mt-4 max-w-lg text-neutral-200">
-            Indumentaria deportiva diseñada para CrossFit y entrenamiento
-            funcional. Comodidad, resistencia y estilo en cada WOD.
-          </p>
-          <Link href="/productos" className="mt-8 inline-block">
-            <Button size="lg">Ver catálogo</Button>
-          </Link>
-        </HomeHeroContent>
-      </section>
+      <HomeHeroCarousel storeDisplayName={storeDisplayName} />
 
       <StorefrontReveal index={1}>
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">

@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { sumPromo2x1Cart } from "@/lib/promo-2x1";
+
 export type CartItem = {
   variantId: string;
   productId: string;
@@ -14,6 +16,7 @@ export type CartItem = {
   imageUrl: string;
   quantity: number;
   stock: number;
+  promo2x1?: boolean;
 };
 
 type CartState = {
@@ -24,6 +27,8 @@ type CartState = {
   updateQuantity: (variantId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: () => number;
+  rawSubtotal: () => number;
+  promoDiscount: () => number;
   subtotal: () => number;
 };
 
@@ -41,7 +46,13 @@ export const useCartStore = create<CartState>()(
             return {
               lastAddedAt: Date.now(),
               items: state.items.map((i) =>
-                i.variantId === item.variantId ? { ...i, quantity: newQty } : i,
+                i.variantId === item.variantId
+                  ? {
+                      ...i,
+                      quantity: newQty,
+                      promo2x1: item.promo2x1 ?? i.promo2x1,
+                    }
+                  : i,
               ),
             };
           }
@@ -65,9 +76,19 @@ export const useCartStore = create<CartState>()(
         })),
       clearCart: () => set({ items: [] }),
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
-      subtotal: () =>
+      rawSubtotal: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+      promoDiscount: () => sumPromo2x1Cart(getPromoCartLines(get().items)).promoDiscount,
+      subtotal: () => sumPromo2x1Cart(getPromoCartLines(get().items)).subtotal,
     }),
     { name: "nexus-cart" },
   ),
 );
+
+function getPromoCartLines(items: CartItem[]) {
+  return items.map((item) => ({
+    unitPrice: item.price,
+    quantity: item.quantity,
+    productPromo2x1: item.promo2x1 ?? false,
+  }));
+}

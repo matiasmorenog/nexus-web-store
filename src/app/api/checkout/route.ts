@@ -4,6 +4,10 @@ import { formatStoreName } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
+import {
+  getMercadoPagoUnitPrice,
+  sumPromo2x1Cart,
+} from "@/lib/promo-2x1";
 import { getStoreId } from "@/lib/store-context";
 
 const checkoutSchema = z
@@ -83,11 +87,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const subtotal = items.reduce((sum, item) => {
+    const promoLines = items.map((item) => {
       const variant = variants.find((v) => v.id === item.variantId)!;
-      return sum + Number(variant.price) * item.quantity;
-    }, 0);
+      return {
+        unitPrice: Number(variant.price),
+        quantity: item.quantity,
+        productPromo2x1: variant.product.promo2x1,
+      };
+    });
 
+    const { rawSubtotal, promoDiscount, subtotal } = sumPromo2x1Cart(promoLines);
     const shippingCost = isPickup ? 0 : Number(store.shippingFlatRate);
     const total = subtotal + shippingCost;
 
@@ -95,6 +104,7 @@ export async function POST(request: NextRequest) {
       data: {
         storeId,
         total,
+        promoDiscount,
         shippingCost,
         isPickup,
         customerName: customer.name,
@@ -124,9 +134,26 @@ export async function POST(request: NextRequest) {
         id: item.variantId,
         title: `${variant.product.name} (${variant.size} / ${variant.color})`,
         quantity: item.quantity,
-        unit_price: Number(variant.price),
+        unit_price: getMercadoPagoUnitPrice({
+          unitPrice: Number(variant.price),
+          quantity: item.quantity,
+          productPromo2x1: variant.product.promo2x1,
+        }),
       };
     });
+
+    const mpItemsTotal = mpItems.reduce(
+      (sum, item) => sum + item.unit_price * item.quantity,
+      0,
+    );
+    const mpAdjustment = Math.round((subtotal - mpItemsTotal) * 100) / 100;
+    if (mpAdjustment !== 0 && mpItems[0]) {
+      mpItems[0].unit_price =
+        Math.round((mpItems[0].unit_price + mpAdjustment / mpItems[0].quantity) * 100) /
+        100;
+    }
+
+    void rawSubtotal; // subtotal neto ya incluido en total del pedido
 
     if (shippingCost > 0) {
       mpItems.push({

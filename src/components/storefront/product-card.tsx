@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getProductTaxonomyLabel } from "@/lib/categories";
+import { isProductPromo2x1Eligible } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 
 type ProductCardProps = {
   slug: string;
@@ -13,6 +15,7 @@ type ProductCardProps = {
   hoverImageUrl?: string;
   price: number;
   inStock?: boolean;
+  promo2x1?: boolean;
   className?: string;
 };
 
@@ -25,8 +28,10 @@ export function ProductCard({
   hoverImageUrl,
   price,
   inStock = true,
+  promo2x1 = false,
   className,
 }: ProductCardProps) {
+  const showPromoBadge = isProductPromo2x1Eligible(promo2x1);
   const hasHoverImage = Boolean(
     inStock && hoverImageUrl && hoverImageUrl !== imageUrl,
   );
@@ -46,6 +51,11 @@ export function ProductCard({
         )}
       >
         <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
+          {showPromoBadge && (
+            <span className="absolute bottom-3 left-3 z-10">
+              <Promo2x1Badge onImage />
+            </span>
+          )}
           {!inStock && (
             <span className="absolute left-3 top-3 z-10 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
               Sin stock
@@ -88,16 +98,21 @@ export function ProductCard({
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
             {getProductTaxonomyLabel(category, audience)}
           </p>
-          <h3
-            className={cn(
-              "line-clamp-2 text-sm font-medium leading-snug transition-colors",
-              inStock
-                ? "text-neutral-900 group-hover:text-[var(--brand-primary)]"
-                : "text-neutral-600",
+          <div className="flex items-start justify-between gap-2">
+            <h3
+              className={cn(
+                "line-clamp-2 text-sm font-medium leading-snug transition-colors",
+                inStock
+                  ? "text-neutral-900 group-hover:text-[var(--brand-primary)]"
+                  : "text-neutral-600",
+              )}
+            >
+              {name}
+            </h3>
+            {showPromoBadge && (
+              <Promo2x1Badge className="mt-0.5 shrink-0" />
             )}
-          >
-            {name}
-          </h3>
+          </div>
           <p
             className={cn(
               "mt-auto pt-1.5 text-sm font-semibold",

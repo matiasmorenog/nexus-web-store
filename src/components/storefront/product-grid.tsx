@@ -14,6 +14,7 @@ export type ProductGridParams = {
   precioMax?: string;
   q?: string;
   orden?: string;
+  promo?: string;
 };
 
 export function productGridQueryKey(params: ProductGridParams) {
@@ -24,6 +25,7 @@ export function productGridQueryKey(params: ProductGridParams) {
     params.precioMax ?? "",
     params.q?.trim() ?? "",
     params.orden ?? "",
+    params.promo ?? "",
   ].join("|");
 }
 
@@ -37,6 +39,7 @@ export async function ProductGridCount({ params }: { params: ProductGridParams }
     talle: params.talle,
     precioMax: params.precioMax,
     q: params.q,
+    promo: params.promo,
   });
 
   const count = await db.product.count({ where });
@@ -58,6 +61,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
     talle: params.talle,
     precioMax: params.precioMax,
     q: params.q,
+    promo: params.promo,
   });
 
   const sort = parseProductSort(params.orden);
@@ -105,6 +109,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
                 hoverImageUrl={cardImages.hoverImageUrl}
                 price={cardImages.price}
                 inStock={inStock}
+                promo2x1={product.promo2x1}
               />
             </StorefrontReveal>
             );

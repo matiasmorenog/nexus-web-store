@@ -73,6 +73,7 @@ export async function createProduct(formData: FormData) {
       category: formData.get("category") as string,
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
+      promo2x1: formData.get("promo2x1") === "on",
       variants: {
         create: {
           size: formData.get("size") as string,
@@ -142,6 +143,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       category: formData.get("category") as string,
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
+      promo2x1: formData.get("promo2x1") === "on",
     },
   });
 

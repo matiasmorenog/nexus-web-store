@@ -90,6 +90,10 @@ export function ProductCreateForm({
                   <input type="checkbox" id="featured" name="featured" />
                   <Label htmlFor="featured">Destacado</Label>
                 </div>
+                <div className="flex items-center gap-2 sm:col-span-2">
+                  <input type="checkbox" id="promo2x1" name="promo2x1" />
+                  <Label htmlFor="promo2x1">Promoción 2x1</Label>
+                </div>
               </AdminFormGrid>
 
               <AdminFormActions>

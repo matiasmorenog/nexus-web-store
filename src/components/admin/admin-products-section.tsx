@@ -30,6 +30,7 @@ export type AdminProductRow = {
   category: string;
   audience: string;
   featured: boolean;
+  promo2x1: boolean;
   variants: { imageUrl: string; price: number }[];
   _count: { variants: number };
 };
@@ -187,11 +188,14 @@ export function AdminProductsSection({
                 </AdminTableCell>
                 <AdminTableCell>{product._count.variants}</AdminTableCell>
                 <AdminTableCell>
-                  {product.featured ? (
-                    <Badge variant="success">Destacado</Badge>
-                  ) : (
-                    <Badge>Normal</Badge>
-                  )}
+                  <div className="flex flex-wrap gap-1">
+                    {product.promo2x1 && <Badge variant="success">2x1</Badge>}
+                    {product.featured ? (
+                      <Badge variant="success">Destacado</Badge>
+                    ) : (
+                      !product.promo2x1 && <Badge>Normal</Badge>
+                    )}
+                  </div>
                 </AdminTableCell>
                 <AdminTableCell>
                   <AdminTableActions>

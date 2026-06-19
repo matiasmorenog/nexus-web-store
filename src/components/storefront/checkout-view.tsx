@@ -6,6 +6,8 @@ import { CheckoutForm } from "@/components/storefront/checkout-form";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
+import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
+import { getPromo2x1LinePricing } from "@/lib/promo-2x1";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
 
@@ -21,6 +23,8 @@ export function CheckoutView({
   storeName,
 }: CheckoutViewProps) {
   const items = useCartStore((s) => s.items);
+  const rawSubtotal = useCartStore((s) => s.rawSubtotal());
+  const promoDiscount = useCartStore((s) => s.promoDiscount());
   const subtotal = useCartStore((s) => s.subtotal());
 
   if (items.length === 0) {
@@ -68,7 +72,14 @@ export function CheckoutView({
             Tu pedido
           </h2>
           <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto border-b border-neutral-100 pb-4">
-            {items.map((item) => (
+            {items.map((item) => {
+              const pricing = getPromo2x1LinePricing({
+                unitPrice: item.price,
+                quantity: item.quantity,
+                productPromo2x1: item.promo2x1 ?? false,
+              });
+
+              return (
               <li key={item.variantId} className="flex gap-3">
                 <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-100 ring-1 ring-neutral-200/60">
                   <Image
@@ -88,14 +99,18 @@ export function CheckoutView({
                   </p>
                 </div>
                 <p className="shrink-0 text-sm font-medium">
-                  {formatPrice(item.price * item.quantity)}
+                  {formatPrice(pricing.lineTotal)}
                 </p>
               </li>
-            ))}
+            );
+            })}
           </ul>
-          <div className="mt-4 flex justify-between text-sm text-neutral-600">
-            <span>Subtotal</span>
-            <span>{formatPrice(subtotal)}</span>
+          <div className="mt-4">
+            <CartPromoSummary
+              rawSubtotal={rawSubtotal}
+              promoDiscount={promoDiscount}
+              subtotal={subtotal}
+            />
           </div>
           <p className="mt-2 text-xs text-neutral-400">
             Envío o retiro según elijas en el formulario.

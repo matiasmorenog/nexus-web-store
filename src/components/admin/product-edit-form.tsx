@@ -24,6 +24,7 @@ type ProductEditFormProps = {
     category: string;
     audience: string;
     featured: boolean;
+    promo2x1: boolean;
   };
   open: boolean;
   onToggle: () => void;
@@ -45,6 +46,7 @@ export function ProductEditForm({
   const collapsedDescription = [
     getProductTaxonomyLabel(product.category, product.audience),
     product.featured ? "Destacado" : null,
+    product.promo2x1 ? "2x1" : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -114,6 +116,15 @@ export function ProductEditForm({
               defaultChecked={product.featured}
             />
             <Label htmlFor="featured">Destacado en home</Label>
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <input
+              type="checkbox"
+              id="promo2x1"
+              name="promo2x1"
+              defaultChecked={product.promo2x1}
+            />
+            <Label htmlFor="promo2x1">Promoción 2x1</Label>
           </div>
         </AdminFormGrid>
 

@@ -26,6 +26,7 @@ type SearchParams = Promise<{
   precioMax?: string;
   q?: string;
   orden?: string;
+  promo?: string;
 }>;
 
 export default async function ProductsPage({
@@ -53,6 +54,7 @@ export default async function ProductsPage({
     talle: params.talle,
     precioMax: params.precioMax,
     q: params.q,
+    promo: params.promo,
   });
 
   return (
@@ -60,9 +62,11 @@ export default async function ProductsPage({
       <StorefrontPageHeader
         title="Productos"
         description={
-          searchQuery
-            ? `Resultados para “${searchQuery}”`
-            : `Explorá el catálogo completo de ${storeDisplayName}.`
+          params.promo === "2x1"
+            ? "Productos seleccionados con promoción 2x1: llevá dos y pagá uno."
+            : searchQuery
+              ? `Resultados para “${searchQuery}”`
+              : `Explorá el catálogo completo de ${storeDisplayName}.`
         }
       />
 

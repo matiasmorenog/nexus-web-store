@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { CartQuantityStepper } from "@/components/storefront/cart-quantity-stepper";
+import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
+import { getPromo2x1LinePricing } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,11 @@ export function CartLineItem({
   style,
 }: CartLineItemProps) {
   const isPage = variant === "page";
+  const pricing = getPromo2x1LinePricing({
+    unitPrice: item.price,
+    quantity: item.quantity,
+    productPromo2x1: item.promo2x1 ?? false,
+  });
 
   return (
     <li
@@ -67,6 +74,11 @@ export function CartLineItem({
               <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
                 {item.size} · {item.color}
               </p>
+              {pricing.eligible && (
+                <div className="mt-1.5">
+                  <Promo2x1Badge />
+                </div>
+              )}
               <p className="mt-1 text-xs text-neutral-400">
                 {formatPrice(item.price)} c/u
               </p>
@@ -89,9 +101,16 @@ export function CartLineItem({
               onIncrease={onIncrease}
               compact={!isPage}
             />
-            <p className="text-sm font-semibold text-neutral-900 sm:text-base">
-              {formatPrice(item.price * item.quantity)}
-            </p>
+            <div className="text-right">
+              {pricing.discount > 0 && (
+                <p className="text-xs text-neutral-400 line-through">
+                  {formatPrice(pricing.rawTotal)}
+                </p>
+              )}
+              <p className="text-sm font-semibold text-neutral-900 sm:text-base">
+                {formatPrice(pricing.lineTotal)}
+              </p>
+            </div>
           </div>
         </div>
       </div>

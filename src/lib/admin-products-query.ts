@@ -27,6 +27,7 @@ export function mapAdminProductRow(product: ProductWithRelations): AdminProductR
     category: product.category,
     audience: product.audience,
     featured: product.featured,
+    promo2x1: product.promo2x1,
     variants: product.variants.map((variant) => ({
       imageUrl: variant.imageUrl,
       price: Number(variant.price),

@@ -4,7 +4,7 @@ import {
 } from "@/lib/categories";
 
 export type CatalogFilterChip = {
-  param: "genero" | "categoria" | "talle" | "precioMax" | "q";
+  param: "genero" | "categoria" | "talle" | "precioMax" | "q" | "promo";
   label: string;
 };
 
@@ -20,6 +20,7 @@ export function getActiveCatalogFilterChips(params: {
   talle?: string | null;
   precioMax?: string | null;
   q?: string | null;
+  promo?: string | null;
 }): CatalogFilterChip[] {
   const chips: CatalogFilterChip[] = [];
 
@@ -51,6 +52,13 @@ export function getActiveCatalogFilterChips(params: {
     });
   }
 
+  if (params.promo === "2x1") {
+    chips.push({
+      param: "promo",
+      label: "2x1",
+    });
+  }
+
   const searchQuery = params.q?.trim();
   if (searchQuery) {
     chips.push({
@@ -68,4 +76,5 @@ export const CATALOG_FILTER_PARAMS = [
   "talle",
   "precioMax",
   "q",
+  "promo",
 ] as const;

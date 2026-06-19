@@ -2,6 +2,7 @@
 
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
+import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { useCartStore } from "@/stores/cart-store";
@@ -10,7 +11,7 @@ import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, subtotal, totalItems } =
+  const { items, removeItem, updateQuantity, rawSubtotal, promoDiscount, subtotal, totalItems } =
     useCartStore();
 
   return (
@@ -60,10 +61,11 @@ export default function CartPage() {
               Resumen
             </h2>
             <div className="mt-4 space-y-2 border-b border-neutral-100 pb-4 text-sm">
-              <div className="flex justify-between text-neutral-600">
-                <span>Subtotal</span>
-                <span>{formatPrice(subtotal())}</span>
-              </div>
+              <CartPromoSummary
+                rawSubtotal={rawSubtotal()}
+                promoDiscount={promoDiscount()}
+                subtotal={subtotal()}
+              />
               <div className="flex justify-between text-neutral-600">
                 <span>Envío</span>
                 <span className="text-neutral-400">En checkout</span>

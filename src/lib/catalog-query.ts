@@ -9,6 +9,7 @@ export type CatalogQueryParams = {
   talle?: string;
   precioMax?: string;
   q?: string;
+  promo?: string;
 };
 
 type CatalogFacet = {
@@ -41,6 +42,10 @@ export function buildCatalogProductWhere(
     : (facet.talle ?? params.talle);
 
   const where: Prisma.ProductWhereInput = { storeId: params.storeId };
+
+  if (params.promo === "2x1") {
+    where.promo2x1 = true;
+  }
 
   if (categoria) {
     where.category = categoria;

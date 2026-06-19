@@ -5,6 +5,7 @@ import { ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
+import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { useCartStore } from "@/stores/cart-store";
 import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ type CartDrawerProps = {
 const DRAWER_CONTENT_DELAY_MS = 260;
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { items, removeItem, updateQuantity, subtotal, totalItems } = useCartStore();
+  const { items, removeItem, updateQuantity, rawSubtotal, promoDiscount, subtotal, totalItems } = useCartStore();
   const [contentReady, setContentReady] = useState(false);
 
   useEffect(() => {
@@ -129,13 +130,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
           {items.length > 0 && (
             <div className="shrink-0 border-t border-neutral-100 bg-neutral-50/60 p-5">
-              <div className="mb-4 flex items-baseline justify-between">
-                <span className="text-sm text-neutral-600">Subtotal</span>
-                <span className="text-xl font-bold tracking-tight text-neutral-900">
-                  {formatPrice(subtotal())}
-                </span>
-              </div>
-              <p className="mb-4 text-xs text-neutral-500">
+              <CartPromoSummary
+                rawSubtotal={rawSubtotal()}
+                promoDiscount={promoDiscount()}
+                subtotal={subtotal()}
+                compact
+              />
+              <p className="mb-4 mt-3 text-xs text-neutral-500">
                 Envío calculado en el checkout.
               </p>
               <Link href="/checkout" onClick={onClose}>

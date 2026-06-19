@@ -21,6 +21,7 @@ export type OrderEmailData = {
   shippingZip: string;
   items: OrderEmailItem[];
   subtotal: number;
+  promoDiscount: number;
   shippingCost: number;
   total: number;
   adminOrdersUrl: string;
@@ -36,6 +37,7 @@ export function buildOrderEmailData(order: {
   shippingCity: string;
   shippingZip: string;
   shippingCost: { toString(): string } | number;
+  promoDiscount?: { toString(): string } | number;
   total: { toString(): string } | number;
   store: { name: string };
   items: Array<{
@@ -75,6 +77,7 @@ export function buildOrderEmailData(order: {
     shippingZip: order.shippingZip,
     items,
     subtotal,
+    promoDiscount: Number(order.promoDiscount ?? 0),
     shippingCost: Number(order.shippingCost),
     total: Number(order.total),
     adminOrdersUrl: `${appUrl}/admin/pedidos`,
@@ -112,8 +115,14 @@ function renderItemsTable(data: OrderEmailData) {
 }
 
 function renderTotals(data: OrderEmailData) {
+  const promoLine =
+    data.promoDiscount > 0
+      ? `<p style="margin:4px 0;color:#db2777;"><strong>Promo 2x1:</strong> -${formatPrice(data.promoDiscount)}</p>`
+      : "";
+
   return `
     <p style="margin:4px 0;"><strong>Subtotal:</strong> ${formatPrice(data.subtotal)}</p>
+    ${promoLine}
     <p style="margin:4px 0;"><strong>${data.isPickup ? "Entrega" : "Envío"}:</strong> ${data.isPickup ? "Sin costo (retiro en local)" : formatPrice(data.shippingCost)}</p>
     <p style="margin:8px 0 0;font-size:18px;"><strong>Total:</strong> ${formatPrice(data.total)}</p>
   `;
@@ -170,6 +179,9 @@ export function buildCustomerConfirmationEmail(data: OrderEmailData) {
     ),
     "",
     `Subtotal: ${formatPrice(data.subtotal)}`,
+    ...(data.promoDiscount > 0
+      ? [`Promo 2x1: -${formatPrice(data.promoDiscount)}`]
+      : []),
     data.isPickup
       ? "Retiro en local: sin costo"
       : `Envío: ${formatPrice(data.shippingCost)}`,

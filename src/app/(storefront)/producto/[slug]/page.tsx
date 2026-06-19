@@ -63,6 +63,7 @@ export default async function ProductPage({ params }: PageProps) {
               productId={product.id}
               productName={product.name}
               productSlug={product.slug}
+              promo2x1={product.promo2x1}
               variants={product.variants.map((v) => ({
                 id: v.id,
                 size: v.size,

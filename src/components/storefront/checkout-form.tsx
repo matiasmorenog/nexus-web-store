@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,7 @@ export function CheckoutForm({
   showSummary = true,
 }: CheckoutFormProps) {
   const router = useRouter();
-  const { items, subtotal, clearCart } = useCartStore();
+  const { items, rawSubtotal, promoDiscount, subtotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("shipping");
@@ -194,10 +195,11 @@ export function CheckoutForm({
 
       {showSummary ? (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm">
-          <div className="flex justify-between text-neutral-600">
-            <span>Subtotal</span>
-            <span>{formatPrice(subtotal())}</span>
-          </div>
+          <CartPromoSummary
+            rawSubtotal={rawSubtotal()}
+            promoDiscount={promoDiscount()}
+            subtotal={subtotal()}
+          />
           <DeliverySection
             method={deliveryMethod}
             active

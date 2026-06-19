@@ -5,6 +5,8 @@ import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
+import { isProductPromo2x1Eligible } from "@/lib/promo-2x1";
+import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 
 type Variant = {
   id: string;
@@ -19,10 +21,17 @@ type AddToCartProps = {
   productId: string;
   productName: string;
   productSlug: string;
+  promo2x1?: boolean;
   variants: Variant[];
 };
 
-export function AddToCart({ productId, productName, productSlug, variants }: AddToCartProps) {
+export function AddToCart({
+  productId,
+  productName,
+  productSlug,
+  promo2x1 = false,
+  variants,
+}: AddToCartProps) {
   const addItem = useCartStore((s) => s.addItem);
   const colors = [...new Set(variants.map((v) => v.color))];
   const sizes = [...new Set(variants.map((v) => v.size))];
@@ -51,6 +60,7 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
       price: Number(selectedVariant.price),
       imageUrl: selectedVariant.imageUrl,
       stock: selectedVariant.stock,
+      promo2x1,
     });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2000);
@@ -58,6 +68,16 @@ export function AddToCart({ productId, productName, productSlug, variants }: Add
 
   return (
     <div className="space-y-6">
+      {isProductPromo2x1Eligible(promo2x1) && (
+        <div className="flex items-start gap-3 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
+          <Promo2x1Badge size="md" className="shrink-0" />
+          <p className="text-sm text-neutral-700">
+            Promoción <strong>2x1</strong>: agregá dos unidades al carrito y
+            pagá solo una.
+          </p>
+        </div>
+      )}
+
       <div>
         <p className="mb-2 text-sm font-medium">Color</p>
         <div className="flex flex-wrap gap-2">

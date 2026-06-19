@@ -38,6 +38,7 @@ export async function FeaturedProductsSection() {
           hoverImageUrl={cardImages.hoverImageUrl}
           price={cardImages.price}
           inStock={inStock}
+          promo2x1={product.promo2x1}
         />
         );
       })}

@@ -4,7 +4,10 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
-import { useEffect, useState } from "react";
+import { PromoBanner } from "@/components/storefront/promo-banner";
+import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
+import { promoBanner } from "@/lib/promo-banner";
+import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { StoreLogo } from "@/components/storefront/store-logo";
@@ -24,6 +27,9 @@ const navLinks = [
 ];
 
 export function Header({ storeName }: HeaderProps) {
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const bannerWrapRef = useRef<HTMLDivElement>(null);
+  const [promoActive, setPromoActive] = useState<boolean>(promoBanner.enabled);
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
@@ -37,6 +43,46 @@ export function Header({ storeName }: HeaderProps) {
   useEffect(() => {
     setCartReady(true);
   }, []);
+
+  useEffect(() => {
+    const chromeNode = stickyRef.current;
+    const bannerNode = bannerWrapRef.current;
+    if (!chromeNode) return;
+
+    const syncChromeHeight = () => {
+      document.documentElement.style.setProperty(
+        "--storefront-chrome-height",
+        `${chromeNode.getBoundingClientRect().height}px`,
+      );
+    };
+
+    const syncBannerHeight = () => {
+      const height = bannerNode?.getBoundingClientRect().height ?? 0;
+      document.documentElement.style.setProperty(
+        "--storefront-banner-height",
+        `${height}px`,
+      );
+    };
+
+    const sync = () => {
+      syncChromeHeight();
+      syncBannerHeight();
+    };
+
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(chromeNode);
+    if (bannerNode) observer.observe(bannerNode);
+
+    window.addEventListener("resize", sync);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", sync);
+      document.documentElement.style.removeProperty("--storefront-chrome-height");
+      document.documentElement.style.removeProperty("--storefront-banner-height");
+    };
+  }, [promoActive]);
 
   useEffect(() => {
     if (!cartReady || !lastAddedAt) return;
@@ -69,9 +115,15 @@ export function Header({ storeName }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-neutral-100 bg-white/90 shadow-sm backdrop-blur-md relative">
-        <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
-
+      <div ref={stickyRef} className="sticky top-0 z-40">
+        <div
+          ref={bannerWrapRef}
+          className={cn(promoActive && "bg-[var(--brand-primary)]")}
+        >
+          <PromoBanner onActiveChange={setPromoActive} />
+          <HeaderProgressLine />
+        </div>
+        <header className="relative border-b border-neutral-100 bg-white/90 shadow-sm backdrop-blur-md">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <button
@@ -137,7 +189,8 @@ export function Header({ storeName }: HeaderProps) {
             ))}
           </nav>
         </div>
-      </header>
+        </header>
+      </div>
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useRouteLoading } from "@/lib/route-loading-context";
 import { cn } from "@/lib/utils";
 
 const SHOW_DELAY_MS = 120;
@@ -55,8 +56,7 @@ export function RouteLoadingOverlay() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.toString();
-
-  const [visible, setVisible] = useState(false);
+  const { overlayVisible, startLoading, finishLoading } = useRouteLoading();
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearShowTimer = () => {
@@ -68,13 +68,13 @@ export function RouteLoadingOverlay() {
 
   const scheduleShow = () => {
     clearShowTimer();
-    showTimerRef.current = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
+    showTimerRef.current = setTimeout(() => startLoading(), SHOW_DELAY_MS);
   };
 
   useEffect(() => {
     clearShowTimer();
-    setVisible(false);
-  }, [pathname, search]);
+    finishLoading();
+  }, [pathname, search, finishLoading]);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
@@ -96,24 +96,19 @@ export function RouteLoadingOverlay() {
     };
   }, [pathname, search]);
 
-  if (!visible) return null;
+  if (!overlayVisible) return null;
 
   return (
     <>
       <div
         className={cn(
-          "pointer-events-none fixed inset-0 z-[200]",
+          "pointer-events-none fixed inset-x-0 bottom-0 z-[200]",
           "bg-white/25 backdrop-blur-[3px]",
           "route-loading-enter",
         )}
+        style={{ top: "var(--storefront-banner-height, 0px)" }}
         aria-hidden
       />
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 z-[201] h-0.5 bg-neutral-200/70"
-        aria-hidden
-      >
-        <div className="route-loading-bar h-full bg-[var(--brand-primary)]" />
-      </div>
       <p className="sr-only" role="status" aria-live="polite">
         Cargando página…
       </p>

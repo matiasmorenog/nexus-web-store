@@ -403,6 +403,12 @@ button:not(:disabled),
   animation: route-loading-bar 1.1s ease-in-out infinite;
 }
 
+.route-loading-bar-complete {
+  animation: none;
+  transform: none;
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @keyframes admin-skeleton-shimmer {
   0% {
     background-position: 100% 0;
@@ -527,6 +533,84 @@ button:not(:disabled),
   transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes promo-banner-shell-expand {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes promo-banner-shell-collapse {
+  from {
+    grid-template-rows: 1fr;
+  }
+  to {
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes promo-banner-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.promo-banner-shell {
+  display: grid;
+  overflow: hidden;
+}
+
+.promo-banner-shell-prep {
+  grid-template-rows: 0fr;
+}
+
+.promo-banner-shell-enter {
+  grid-template-rows: 1fr;
+  animation: promo-banner-shell-expand 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.promo-banner-shell-exit {
+  grid-template-rows: 0fr;
+  animation: promo-banner-shell-collapse 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.promo-banner-shell-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.promo-banner-item-prep {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.promo-banner-item-enter {
+  animation: promo-banner-item-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.promo-banner-item-delay-1 {
+  animation-delay: 0.08s;
+}
+
+.promo-banner-item-delay-2 {
+  animation-delay: 0.13s;
+}
+
+.promo-banner-item-delay-3 {
+  animation-delay: 0.18s;
+}
+
+.promo-banner-item-delay-4 {
+  animation-delay: 0.22s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cart-badge-pop,
   .cart-add-success,
@@ -548,6 +632,27 @@ button:not(:disabled),
   .cart-drawer-body-enter,
   .checkout-delivery-enter {
     animation: none;
+  }
+
+  .promo-banner-shell-prep,
+  .promo-banner-shell-enter,
+  .promo-banner-shell-exit,
+  .promo-banner-item-prep,
+  .promo-banner-item-enter {
+    animation: none !important;
+  }
+
+  .promo-banner-shell-prep {
+    grid-template-rows: 0fr;
+  }
+
+  .promo-banner-shell-enter {
+    grid-template-rows: 1fr;
+  }
+
+  .promo-banner-item-prep {
+    opacity: 1;
+    transform: none;
   }
 }
 

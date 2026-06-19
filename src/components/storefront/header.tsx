@@ -7,6 +7,12 @@ import { ProductSearch } from "@/components/storefront/product-search";
 import { PromoBanner } from "@/components/storefront/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
 import { promoBanner } from "@/lib/promo-banner";
+import {
+  HEADER_NAV_DESKTOP,
+  HEADER_NAV_MOBILE,
+  isStorefrontNavActive,
+  type HeaderNavMatch,
+} from "@/lib/categories";
 import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
@@ -17,15 +23,6 @@ import { cn } from "@/lib/utils";
 type HeaderProps = {
   storeName: string;
 };
-
-const navLinks = [
-  { href: "/productos", label: "Catálogo", match: "catalog" as const },
-  { href: "/productos?genero=mujer", label: "Mujer", match: "mujer" as const },
-  { href: "/productos?genero=hombre", label: "Hombre", match: "hombre" as const },
-  { href: "/productos?categoria=leggings", label: "Leggings", match: "leggings" as const },
-  { href: "/productos?categoria=shorts", label: "Shorts", match: "shorts" as const },
-  { href: "/productos?categoria=accesorios", label: "Accesorios", match: "accesorios" as const },
-];
 
 export function Header({ storeName }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -41,6 +38,11 @@ export function Header({ storeName }: HeaderProps) {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("categoria");
   const activeGenero = searchParams.get("genero");
+
+  const navParams = {
+    genero: activeGenero,
+    categoria: activeCategory,
+  };
 
   useEffect(() => {
     setCartReady(true);
@@ -94,22 +96,13 @@ export function Header({ storeName }: HeaderProps) {
     return () => window.clearTimeout(timeout);
   }, [lastAddedAt, cartReady]);
 
-  const isActive = (match: (typeof navLinks)[number]["match"]) => {
-    if (pathname !== "/productos") return false;
-    if (match === "catalog") return !activeCategory && !activeGenero;
-    if (match === "mujer" || match === "hombre") {
-      return activeGenero === match && !activeCategory;
-    }
-    return activeCategory === match;
-  };
-
-  const navLinkClass = (match: (typeof navLinks)[number]["match"], mobile = false) =>
+  const navLinkClass = (match: HeaderNavMatch, mobile = false) =>
     cn(
       "transition-colors",
       mobile
         ? "block rounded-lg px-3 py-3 text-base"
         : "border-b-2 pb-0.5 text-sm font-medium",
-      isActive(match)
+      isStorefrontNavActive(match, pathname, navParams)
         ? mobile
           ? "bg-neutral-100 text-[var(--brand-primary)]"
           : "border-[var(--brand-primary)] text-[var(--brand-primary)]"
@@ -142,8 +135,8 @@ export function Header({ storeName }: HeaderProps) {
             <StoreLogo storeName={storeName} />
           </div>
 
-          <nav className="hidden items-center gap-7 lg:flex">
-            {navLinks.map((link) => (
+          <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
+            {HEADER_NAV_DESKTOP.map((link) => (
               <Link key={link.href} href={link.href} className={navLinkClass(link.match)}>
                 {link.label}
               </Link>
@@ -178,11 +171,11 @@ export function Header({ storeName }: HeaderProps) {
         <div
           className={cn(
             "overflow-hidden border-t border-neutral-100 transition-all duration-200 lg:hidden",
-            mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
+            mobileOpen ? "max-h-[min(70vh,28rem)] opacity-100" : "max-h-0 opacity-0",
           )}
         >
-          <nav className="space-y-1 px-4 py-3">
-            {navLinks.map((link) => (
+          <nav className="max-h-[min(70vh,28rem)] space-y-1 overflow-y-auto px-4 py-3">
+            {HEADER_NAV_MOBILE.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

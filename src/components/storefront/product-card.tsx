@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type ProductCardProps = {
   slug: string;
@@ -10,6 +11,7 @@ type ProductCardProps = {
   audience: string;
   imageUrl: string;
   price: number;
+  className?: string;
 };
 
 export function ProductCard({
@@ -19,27 +21,41 @@ export function ProductCard({
   audience,
   imageUrl,
   price,
+  className,
 }: ProductCardProps) {
   return (
-    <Link href={`/producto/${slug}`} className="group block">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60 transition-[transform,box-shadow,ring-color] group-hover:ring-[var(--brand-primary)]/40">
-        <Image
-          src={imageUrl}
-          alt={name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, 25vw"
-        />
-      </div>
-      <div className="mt-3 space-y-1">
-        <p className="text-xs uppercase tracking-wide text-neutral-500">
-          {getProductTaxonomyLabel(category, audience)}
-        </p>
-        <h3 className="text-sm font-medium text-neutral-900 transition-colors group-hover:text-[var(--brand-primary)]">
-          {name}
-        </h3>
-        <p className="text-sm font-semibold text-neutral-900">{formatPrice(price)}</p>
-      </div>
+    <Link
+      href={`/producto/${slug}`}
+      className={cn("group block h-full", className)}
+    >
+      <article
+        className={cn(
+          "flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/90 bg-white p-3 shadow-sm ring-1 ring-neutral-900/[0.04]",
+          "transition-[box-shadow,transform] duration-200",
+          "group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:ring-[var(--brand-primary)]/15",
+        )}
+      >
+        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100 shadow-sm ring-1 ring-neutral-200/50 transition-[ring-color] group-hover:ring-[var(--brand-primary)]/30">
+          <Image
+            src={imageUrl}
+            alt={name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+          />
+        </div>
+        <div className="mt-3 flex flex-1 flex-col gap-1">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+            {getProductTaxonomyLabel(category, audience)}
+          </p>
+          <h3 className="line-clamp-2 text-sm font-medium leading-snug text-neutral-900 transition-colors group-hover:text-[var(--brand-primary)]">
+            {name}
+          </h3>
+          <p className="mt-auto pt-1.5 text-sm font-semibold text-neutral-900">
+            {formatPrice(price)}
+          </p>
+        </div>
+      </article>
     </Link>
   );
 }

@@ -38,16 +38,18 @@ export default async function ProductsPage({
         }
       />
 
-      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
-        <Suspense fallback={null}>
-          <ProductFilters />
-        </Suspense>
-        <Suspense
-          key={productGridQueryKey(params)}
-          fallback={<StorefrontSkeletonProductGrid />}
-        >
-          <ProductGrid params={params} />
-        </Suspense>
+      <div className="rounded-2xl bg-neutral-50 p-4 sm:p-6">
+        <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+          <Suspense fallback={null}>
+            <ProductFilters />
+          </Suspense>
+          <Suspense
+            key={productGridQueryKey(params)}
+            fallback={<StorefrontSkeletonProductGrid />}
+          >
+            <ProductGrid params={params} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

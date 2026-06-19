@@ -51,10 +51,10 @@ function StorefrontSkeletonPageHeader({
 
 export function StorefrontSkeletonProductCard() {
   return (
-    <div>
-      <StorefrontSkeleton className="aspect-[3/4] w-full rounded-xl" />
+    <div className="overflow-hidden rounded-xl border border-neutral-200/90 bg-white p-3 shadow-sm ring-1 ring-neutral-900/[0.04]">
+      <StorefrontSkeleton className="aspect-[3/4] w-full rounded-lg" />
       <StorefrontSkeleton className="mt-3 h-3 w-16" />
-      <StorefrontSkeleton className="mt-2 h-4 w-3/4 max-w-40" />
+      <StorefrontSkeleton className="mt-2 h-4 w-full max-w-40" />
       <StorefrontSkeleton className="mt-2 h-4 w-20" />
     </div>
   );
@@ -87,8 +87,8 @@ export function StorefrontSkeletonFiltersPanel() {
 export function StorefrontSkeletonProductGrid() {
   return (
     <StorefrontSkeletonRegion label="Cargando productos">
-      <StorefrontSkeleton className="mb-4 h-4 w-28" />
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+      <StorefrontSkeleton className="mb-4 h-4 w-28 border-b border-neutral-200/80 pb-3" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
         {Array.from({ length: 6 }, (_, index) => (
           <StorefrontSkeletonProductCard key={index} />
         ))}

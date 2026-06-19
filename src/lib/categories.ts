@@ -24,7 +24,7 @@ export const PRODUCT_CATEGORIES = [
   },
   {
     slug: "leggings",
-    label: "Leggings y calzas",
+    label: "Calzas",
     audiences: ["mujer", "unisex"] as const,
   },
   {
@@ -34,7 +34,7 @@ export const PRODUCT_CATEGORIES = [
   },
   {
     slug: "hoodies",
-    label: "Hoodies y buzos",
+    label: "Buzos",
     audiences: ["mujer", "hombre", "unisex"] as const,
   },
   {
@@ -51,36 +51,26 @@ export const STORE_CATEGORIES = PRODUCT_CATEGORIES;
 
 export type StoreCategory = ProductCategory;
 
-export const FILTER_GROUPS = [
-  {
-    genero: "mujer" as const,
-    label: "Mujer",
-    categories: ["remeras", "musculosas", "tops"] as const,
-  },
-  {
-    genero: "hombre" as const,
-    label: "Hombre",
-    categories: ["remeras", "musculosas"] as const,
-  },
-  {
-    genero: null,
-    label: "Más categorías",
-    categories: ["leggings", "shorts", "hoodies", "accesorios"] as const,
-  },
-] as const;
+export function categoriesForStoreFilter(genero?: string) {
+  if (!genero) return PRODUCT_CATEGORIES;
+
+  return PRODUCT_CATEGORIES.filter((category) =>
+    (category.audiences as readonly string[]).includes(genero),
+  );
+}
 
 export const HOME_CATEGORY_TILES = [
   { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
   { slug: "hombre", label: "Hombre", href: "/productos?genero=hombre" },
   {
     slug: "leggings",
-    label: "Leggings y calzas",
+    label: "Calzas",
     href: "/productos?categoria=leggings",
   },
   { slug: "shorts", label: "Shorts", href: "/productos?categoria=shorts" },
   {
     slug: "hoodies",
-    label: "Hoodies y buzos",
+    label: "Buzos",
     href: "/productos?categoria=hoodies",
   },
 ] as const;
@@ -109,4 +99,67 @@ export function audiencesForProductFilter(genero: string | undefined) {
   if (genero === "mujer") return ["mujer", "unisex"];
   if (genero === "hombre") return ["hombre", "unisex"];
   return undefined;
+}
+
+export type HeaderNavMatch =
+  | { type: "catalog" }
+  | { type: "genero"; slug: Exclude<StoreAudience, "unisex"> }
+  | { type: "categoria"; slug: ProductCategory };
+
+export type HeaderNavLink = {
+  href: string;
+  label: string;
+  match: HeaderNavMatch;
+};
+
+function navGenero(slug: Exclude<StoreAudience, "unisex">): HeaderNavLink {
+  return {
+    href: `/productos?genero=${slug}`,
+    label: getAudienceLabel(slug),
+    match: { type: "genero", slug },
+  };
+}
+
+function navCategoria(slug: ProductCategory): HeaderNavLink {
+  return {
+    href: `/productos?categoria=${slug}`,
+    label: getCategoryLabel(slug),
+    match: { type: "categoria", slug },
+  };
+}
+
+/** Género + categorías más buscadas; entra en desktop sin saturar. */
+export const HEADER_NAV_DESKTOP: HeaderNavLink[] = [
+  navGenero("mujer"),
+  navGenero("hombre"),
+  navCategoria("remeras"),
+  navCategoria("leggings"),
+  navCategoria("shorts"),
+  navCategoria("accesorios"),
+];
+
+/** Catálogo completo en menú móvil. */
+export const HEADER_NAV_MOBILE: HeaderNavLink[] = [
+  { href: "/productos", label: "Ver todo", match: { type: "catalog" } },
+  navGenero("mujer"),
+  navGenero("hombre"),
+  ...PRODUCT_CATEGORIES.map((category) => navCategoria(category.slug)),
+];
+
+export function isStorefrontNavActive(
+  match: HeaderNavMatch,
+  pathname: string,
+  params: { genero: string | null; categoria: string | null },
+) {
+  if (pathname !== "/productos") return false;
+
+  if (match.type === "catalog") {
+    return !params.genero && !params.categoria;
+  }
+
+  if (match.type === "genero") {
+    return params.genero === match.slug && !params.categoria;
+  }
+
+  return params.categoria === match.slug && !params.genero;
 }

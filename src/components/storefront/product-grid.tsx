@@ -85,9 +85,11 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
-        {products.length} producto{products.length !== 1 ? "s" : ""}
-      </p>
+      <div className="mb-4 border-b border-neutral-200/80 pb-3">
+        <p className="text-sm font-medium text-neutral-700">
+          {products.length} producto{products.length !== 1 ? "s" : ""}
+        </p>
+      </div>
       {products.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
           <p className="font-medium text-neutral-900">No se encontraron productos</p>
@@ -96,7 +98,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
           {products.map((product, index) => (
             <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
               <ProductCard

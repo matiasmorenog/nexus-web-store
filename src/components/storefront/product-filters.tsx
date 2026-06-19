@@ -1,11 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  FILTER_GROUPS,
-  getCategoryLabel,
-  STORE_AUDIENCES,
-} from "@/lib/categories";
+import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { cn } from "@/lib/utils";
@@ -54,10 +50,21 @@ export function ProductFilters() {
   const activeGenero = searchParams.get("genero") ?? "";
   const activeCategory = searchParams.get("categoria") ?? "";
 
-  const selectCategory = (genero: string, categoria: string) => {
+  const genderOptions = STORE_AUDIENCES.filter(
+    (audience) => audience.slug !== "unisex",
+  );
+
+  const categoryOptions = categoriesForStoreFilter(activeGenero || undefined);
+
+  const selectGenero = (genero: string) => {
+    const nextCategories = categoriesForStoreFilter(genero || undefined);
+    const keepCategory = nextCategories.some(
+      (category) => category.slug === activeCategory,
+    );
+
     update({
       genero,
-      categoria,
+      categoria: keepCategory ? activeCategory : "",
     });
   };
 
@@ -66,7 +73,7 @@ export function ProductFilters() {
   };
 
   return (
-    <aside className="space-y-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+    <aside className="space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-24">
       <ProductSearch />
 
       <div>
@@ -74,65 +81,42 @@ export function ProductFilters() {
         <div className="space-y-1">
           <button
             type="button"
-            onClick={() => update({ genero: "", categoria: activeCategory })}
-            className={filterButtonClass(!activeGenero)}
-          >
-            Todos
+            onClick={() => selectGenero("")}
+            className={filterButtonClass(!activeGenero)}>
+            Todo
           </button>
-          {STORE_AUDIENCES.filter((audience) => audience.slug !== "unisex").map(
-            (audience) => (
-              <button
-                key={audience.slug}
-                type="button"
-                onClick={() =>
-                  update({ genero: audience.slug, categoria: activeCategory })
-                }
-                className={filterButtonClass(activeGenero === audience.slug)}
-              >
-                {audience.label}
-              </button>
-            ),
-          )}
+          {genderOptions.map((audience) => (
+            <button
+              key={audience.slug}
+              type="button"
+              onClick={() => selectGenero(audience.slug)}
+              className={filterButtonClass(activeGenero === audience.slug)}>
+              {audience.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div>
         <Label className="mb-2 block text-neutral-700">Categoría</Label>
-        <div className="space-y-4">
+        <div className="space-y-1">
           <button
             type="button"
             onClick={() => update({ genero: activeGenero, categoria: "" })}
-            className={filterButtonClass(!activeCategory)}
-          >
+            className={filterButtonClass(!activeCategory)}>
             Todas
           </button>
 
-          {FILTER_GROUPS.map((group) => (
-            <div key={group.label}>
-              <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400">
-                {group.label}
-              </p>
-              <div className="space-y-1">
-                {group.categories.map((slug) => {
-                  const isActive =
-                    activeCategory === slug &&
-                    (group.genero === null || activeGenero === group.genero);
-
-                  return (
-                    <button
-                      key={`${group.genero ?? "all"}-${slug}`}
-                      type="button"
-                      onClick={() =>
-                        selectCategory(group.genero ?? activeGenero, slug)
-                      }
-                      className={filterButtonClass(isActive)}
-                    >
-                      {getCategoryLabel(slug)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {categoryOptions.map((category) => (
+            <button
+              key={category.slug}
+              type="button"
+              onClick={() =>
+                update({ genero: activeGenero, categoria: category.slug })
+              }
+              className={filterButtonClass(activeCategory === category.slug)}>
+              {category.label}
+            </button>
           ))}
         </div>
       </div>
@@ -151,8 +135,7 @@ export function ProductFilters() {
                   talle: searchParams.get("talle") === size ? "" : size,
                 })
               }
-              className={sizeButtonClass(searchParams.get("talle") === size)}
-            >
+              className={sizeButtonClass(searchParams.get("talle") === size)}>
               {size}
             </button>
           ))}
@@ -173,8 +156,7 @@ export function ProductFilters() {
               categoria: activeCategory,
               precioMax: e.target.value,
             })
-          }
-        >
+          }>
           <option value="">Sin límite</option>
           <option value="20000">Hasta $20.000</option>
           <option value="35000">Hasta $35.000</option>
@@ -182,12 +164,14 @@ export function ProductFilters() {
         </select>
       </div>
 
-      {(activeGenero || activeCategory || searchParams.get("talle") || searchParams.get("precioMax")) && (
+      {(activeGenero ||
+        activeCategory ||
+        searchParams.get("talle") ||
+        searchParams.get("precioMax")) && (
         <button
           type="button"
           onClick={clearFilters}
-          className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
-        >
+          className="text-sm font-medium text-[var(--brand-primary)] hover:underline">
           Limpiar filtros
         </button>
       )}

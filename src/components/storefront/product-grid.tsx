@@ -1,6 +1,4 @@
-import { ActiveFilterChips } from "@/components/storefront/active-filter-chips";
 import { ProductCard } from "@/components/storefront/product-card";
-import { ProductSortSelect } from "@/components/storefront/product-sort-select";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { buildCatalogProductWhere } from "@/lib/catalog-query";
 import { db } from "@/lib/db";
@@ -27,6 +25,27 @@ export function productGridQueryKey(params: ProductGridParams) {
     params.q?.trim() ?? "",
     params.orden ?? "",
   ].join("|");
+}
+
+export async function ProductGridCount({ params }: { params: ProductGridParams }) {
+  const storeId = await getStoreId();
+
+  const where = buildCatalogProductWhere({
+    storeId,
+    categoria: params.categoria,
+    genero: params.genero,
+    talle: params.talle,
+    precioMax: params.precioMax,
+    q: params.q,
+  });
+
+  const count = await db.product.count({ where });
+
+  return (
+    <p className="text-sm font-medium text-neutral-700">
+      {count} producto{count !== 1 ? "s" : ""}
+    </p>
+  );
 }
 
 export async function ProductGrid({ params }: { params: ProductGridParams }) {
@@ -59,14 +78,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
   const sortedProducts = sortProducts(products, sort, salesTotals);
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">
-        <p className="text-sm font-medium text-neutral-700">
-          {sortedProducts.length} producto{sortedProducts.length !== 1 ? "s" : ""}
-        </p>
-        <ProductSortSelect />
-      </div>
-      <ActiveFilterChips className="mb-4" />
+    <>
       {sortedProducts.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
           <p className="font-medium text-neutral-900">No se encontraron productos</p>
@@ -99,6 +111,6 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
           })}
         </div>
       )}
-    </div>
+    </>
   );
 }

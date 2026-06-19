@@ -4,25 +4,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import {
   CATALOG_FILTER_PARAMS,
-  getActiveCatalogFilterChips,
+  type CatalogFilterChip,
 } from "@/lib/catalog-filters";
 import { cn } from "@/lib/utils";
 
 type ActiveFilterChipsProps = {
+  chips: CatalogFilterChip[];
   className?: string;
 };
 
-export function ActiveFilterChips({ className }: ActiveFilterChipsProps) {
+export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const chips = getActiveCatalogFilterChips({
-    genero: searchParams.get("genero"),
-    categoria: searchParams.get("categoria"),
-    talle: searchParams.get("talle"),
-    precioMax: searchParams.get("precioMax"),
-    q: searchParams.get("q"),
-  });
 
   if (chips.length === 0) return null;
 

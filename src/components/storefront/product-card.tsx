@@ -38,21 +38,16 @@ export function ProductCard({
     >
       <article
         className={cn(
-          "flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/90 bg-white p-3 shadow-sm ring-1 ring-neutral-900/[0.04]",
+          "flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/90 bg-white shadow-sm ring-1 ring-neutral-900/[0.04]",
           "transition-[box-shadow,transform] duration-200",
           inStock &&
             "group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:ring-[var(--brand-primary)]/15",
           !inStock && "opacity-95",
         )}
       >
-        <div
-          className={cn(
-            "relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100 shadow-sm ring-1 ring-neutral-200/50 transition-[ring-color]",
-            inStock && "group-hover:ring-[var(--brand-primary)]/30",
-          )}
-        >
+        <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
           {!inStock && (
-            <span className="absolute left-2 top-2 z-10 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
               Sin stock
             </span>
           )}
@@ -89,7 +84,7 @@ export function ProductCard({
             </div>
           )}
         </div>
-        <div className="mt-3 flex flex-1 flex-col gap-1">
+        <div className="flex flex-1 flex-col gap-1 p-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
             {getProductTaxonomyLabel(category, audience)}
           </p>

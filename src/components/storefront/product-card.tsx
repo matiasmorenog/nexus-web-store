@@ -10,6 +10,7 @@ type ProductCardProps = {
   category: string;
   audience: string;
   imageUrl: string;
+  hoverImageUrl?: string;
   price: number;
   className?: string;
 };
@@ -20,9 +21,14 @@ export function ProductCard({
   category,
   audience,
   imageUrl,
+  hoverImageUrl,
   price,
   className,
 }: ProductCardProps) {
+  const hasHoverImage = Boolean(
+    hoverImageUrl && hoverImageUrl !== imageUrl,
+  );
+
   return (
     <Link
       href={`/producto/${slug}`}
@@ -40,9 +46,24 @@ export function ProductCard({
             src={imageUrl}
             alt={name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className={cn(
+              "object-cover",
+              hasHoverImage
+                ? "motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-0"
+                : "motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105",
+            )}
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
           />
+          {hasHoverImage && hoverImageUrl && (
+            <Image
+              src={hoverImageUrl}
+              alt=""
+              fill
+              aria-hidden
+              className="object-cover opacity-0 motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-100"
+              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            />
+          )}
         </div>
         <div className="mt-3 flex flex-1 flex-col gap-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">

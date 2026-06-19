@@ -36,6 +36,33 @@ export function getUniqueProductColors(
   return colors.sort((a, b) => a.localeCompare(b, "es"));
 }
 
+type ProductCardVariant = {
+  color: string;
+  imageUrl: string;
+  price: unknown;
+};
+
+export function getProductCardImages(variants: ProductCardVariant[]) {
+  if (variants.length === 0) {
+    return { imageUrl: "", hoverImageUrl: undefined, price: 0 };
+  }
+
+  const sorted = [...variants].sort(
+    (a, b) => Number(a.price) - Number(b.price),
+  );
+  const primary = sorted[0];
+  const colorImages = [...buildColorImageMap(variants).values()];
+  const hoverImageUrl = colorImages.find(
+    (url) => url && url !== primary.imageUrl,
+  );
+
+  return {
+    imageUrl: primary.imageUrl,
+    hoverImageUrl,
+    price: Number(primary.price),
+  };
+}
+
 export async function findProductColorImage(
   productId: string,
   color: string,

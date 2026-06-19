@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ProductCard } from "@/components/storefront/product-card";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
+import { getProductCardImages } from "@/lib/variant-images";
 
 export async function FeaturedProductsSection() {
   const storeId = await getStoreId();
@@ -10,24 +11,33 @@ export async function FeaturedProductsSection() {
   const featuredProducts = await db.product.findMany({
     where: { storeId, featured: true },
     include: {
-      variants: { take: 1, orderBy: { price: "asc" } },
+      variants: {
+        where: { stock: { gt: 0 } },
+        orderBy: { price: "asc" },
+        select: { color: true, imageUrl: true, price: true },
+      },
     },
     take: 8,
   });
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-5">
-      {featuredProducts.map((product) => (
+      {featuredProducts.map((product) => {
+        const cardImages = getProductCardImages(product.variants);
+
+        return (
         <ProductCard
           key={product.id}
           slug={product.slug}
           name={product.name}
           category={product.category}
           audience={product.audience}
-          imageUrl={product.variants[0]?.imageUrl ?? ""}
-          price={Number(product.variants[0]?.price ?? 0)}
+          imageUrl={cardImages.imageUrl}
+          hoverImageUrl={cardImages.hoverImageUrl}
+          price={cardImages.price}
         />
-      ))}
+        );
+      })}
     </div>
   );
 }

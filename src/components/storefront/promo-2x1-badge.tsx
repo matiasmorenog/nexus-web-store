@@ -15,10 +15,10 @@ export function Promo2x1Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center font-bold uppercase tracking-wide text-white",
+        "promo-2x1-badge inline-flex items-center font-semibold uppercase tracking-wide text-white",
         onImage
-          ? "rounded-full bg-[var(--brand-primary)] px-2.5 py-1 text-[11px] shadow-md ring-2 ring-white/90"
-          : "rounded-md bg-[var(--brand-primary)] font-semibold",
+          ? "rounded-md px-2 py-0.5 text-[10px] shadow-sm ring-1 ring-white/80"
+          : "rounded-md font-semibold",
         !onImage && size === "sm" && "px-2 py-0.5 text-[10px]",
         !onImage && size === "md" && "px-2.5 py-1 text-xs",
         className,

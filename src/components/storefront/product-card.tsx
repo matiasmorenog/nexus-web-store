@@ -50,14 +50,14 @@ export function ProductCard({
           !inStock && "opacity-95",
         )}
       >
-        <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100">
+        <div className="relative isolate aspect-[3/4] overflow-hidden bg-neutral-100">
           {showPromoBadge && (
-            <span className="absolute bottom-3 left-3 z-10">
+            <span className="absolute right-3 top-3 z-20">
               <Promo2x1Badge onImage />
             </span>
           )}
           {!inStock && (
-            <span className="absolute left-3 top-3 z-10 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="absolute left-3 top-3 z-20 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
               Sin stock
             </span>
           )}
@@ -98,21 +98,16 @@ export function ProductCard({
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
             {getProductTaxonomyLabel(category, audience)}
           </p>
-          <div className="flex items-start justify-between gap-2">
-            <h3
-              className={cn(
-                "line-clamp-2 text-sm font-medium leading-snug transition-colors",
-                inStock
-                  ? "text-neutral-900 group-hover:text-[var(--brand-primary)]"
-                  : "text-neutral-600",
-              )}
-            >
-              {name}
-            </h3>
-            {showPromoBadge && (
-              <Promo2x1Badge className="mt-0.5 shrink-0" />
+          <h3
+            className={cn(
+              "line-clamp-2 text-sm font-medium leading-snug transition-colors",
+              inStock
+                ? "text-neutral-900 group-hover:text-[var(--brand-primary)]"
+                : "text-neutral-600",
             )}
-          </div>
+          >
+            {name}
+          </h3>
           <p
             className={cn(
               "mt-auto pt-1.5 text-sm font-semibold",

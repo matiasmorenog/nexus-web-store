@@ -7,6 +7,11 @@
   --brand-primary-soft: color-mix(in srgb, var(--brand-primary) 10%, white);
 }
 
+.promo-2x1-badge {
+  background-color: var(--brand-primary);
+  color: #fff;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

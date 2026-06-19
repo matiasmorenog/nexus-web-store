@@ -40,7 +40,18 @@ type ProductCardVariant = {
   color: string;
   imageUrl: string;
   price: unknown;
+  stock?: number;
 };
+
+export function partitionVariantsForCard(variants: ProductCardVariant[]) {
+  const inStockVariants = variants.filter((variant) => (variant.stock ?? 0) > 0);
+
+  return {
+    inStock: inStockVariants.length > 0,
+    displayVariants:
+      inStockVariants.length > 0 ? inStockVariants : variants,
+  };
+}
 
 export function getProductCardImages(variants: ProductCardVariant[]) {
   if (variants.length === 0) {

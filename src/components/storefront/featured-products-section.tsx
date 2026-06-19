@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ProductCard } from "@/components/storefront/product-card";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
-import { getProductCardImages } from "@/lib/variant-images";
+import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
 
 export async function FeaturedProductsSection() {
   const storeId = await getStoreId();
@@ -12,9 +12,8 @@ export async function FeaturedProductsSection() {
     where: { storeId, featured: true },
     include: {
       variants: {
-        where: { stock: { gt: 0 } },
         orderBy: { price: "asc" },
-        select: { color: true, imageUrl: true, price: true },
+        select: { color: true, imageUrl: true, price: true, stock: true },
       },
     },
     take: 8,
@@ -23,7 +22,10 @@ export async function FeaturedProductsSection() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-5">
       {featuredProducts.map((product) => {
-        const cardImages = getProductCardImages(product.variants);
+        const { inStock, displayVariants } = partitionVariantsForCard(
+          product.variants,
+        );
+        const cardImages = getProductCardImages(displayVariants);
 
         return (
         <ProductCard
@@ -35,6 +37,7 @@ export async function FeaturedProductsSection() {
           imageUrl={cardImages.imageUrl}
           hoverImageUrl={cardImages.hoverImageUrl}
           price={cardImages.price}
+          inStock={inStock}
         />
         );
       })}

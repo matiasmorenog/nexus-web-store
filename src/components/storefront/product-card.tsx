@@ -12,6 +12,7 @@ type ProductCardProps = {
   imageUrl: string;
   hoverImageUrl?: string;
   price: number;
+  inStock?: boolean;
   className?: string;
 };
 
@@ -23,10 +24,11 @@ export function ProductCard({
   imageUrl,
   hoverImageUrl,
   price,
+  inStock = true,
   className,
 }: ProductCardProps) {
   const hasHoverImage = Boolean(
-    hoverImageUrl && hoverImageUrl !== imageUrl,
+    inStock && hoverImageUrl && hoverImageUrl !== imageUrl,
   );
 
   return (
@@ -38,42 +40,76 @@ export function ProductCard({
         className={cn(
           "flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/90 bg-white p-3 shadow-sm ring-1 ring-neutral-900/[0.04]",
           "transition-[box-shadow,transform] duration-200",
-          "group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:ring-[var(--brand-primary)]/15",
+          inStock &&
+            "group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:ring-[var(--brand-primary)]/15",
+          !inStock && "opacity-95",
         )}
       >
-        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100 shadow-sm ring-1 ring-neutral-200/50 transition-[ring-color] group-hover:ring-[var(--brand-primary)]/30">
-          <Image
-            src={imageUrl}
-            alt={name}
-            fill
-            className={cn(
-              "object-cover",
-              hasHoverImage
-                ? "motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-0"
-                : "motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105",
-            )}
-            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-          />
-          {hasHoverImage && hoverImageUrl && (
-            <Image
-              src={hoverImageUrl}
-              alt=""
-              fill
-              aria-hidden
-              className="object-cover opacity-0 motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-100"
-              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            />
+        <div
+          className={cn(
+            "relative aspect-[3/4] overflow-hidden rounded-lg bg-neutral-100 shadow-sm ring-1 ring-neutral-200/50 transition-[ring-color]",
+            inStock && "group-hover:ring-[var(--brand-primary)]/30",
+          )}
+        >
+          {!inStock && (
+            <span className="absolute left-2 top-2 z-10 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+              Sin stock
+            </span>
+          )}
+          {imageUrl ? (
+            <>
+              <Image
+                src={imageUrl}
+                alt={name}
+                fill
+                className={cn(
+                  "object-cover",
+                  !inStock && "opacity-80 saturate-[0.85]",
+                  hasHoverImage
+                    ? "motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-0"
+                    : inStock &&
+                        "motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105",
+                )}
+                sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              />
+              {hasHoverImage && hoverImageUrl && (
+                <Image
+                  src={hoverImageUrl}
+                  alt=""
+                  fill
+                  aria-hidden
+                  className="object-cover opacity-0 motion-safe:transition-opacity motion-safe:duration-300 group-hover:opacity-100"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                />
+              )}
+            </>
+          ) : (
+            <div className="flex h-full items-center justify-center px-4 text-center text-xs text-neutral-400">
+              Sin imagen
+            </div>
           )}
         </div>
         <div className="mt-3 flex flex-1 flex-col gap-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
             {getProductTaxonomyLabel(category, audience)}
           </p>
-          <h3 className="line-clamp-2 text-sm font-medium leading-snug text-neutral-900 transition-colors group-hover:text-[var(--brand-primary)]">
+          <h3
+            className={cn(
+              "line-clamp-2 text-sm font-medium leading-snug transition-colors",
+              inStock
+                ? "text-neutral-900 group-hover:text-[var(--brand-primary)]"
+                : "text-neutral-600",
+            )}
+          >
             {name}
           </h3>
-          <p className="mt-auto pt-1.5 text-sm font-semibold text-neutral-900">
-            {formatPrice(price)}
+          <p
+            className={cn(
+              "mt-auto pt-1.5 text-sm font-semibold",
+              inStock ? "text-neutral-900" : "text-neutral-500",
+            )}
+          >
+            {price > 0 ? formatPrice(price) : "—"}
           </p>
         </div>
       </article>

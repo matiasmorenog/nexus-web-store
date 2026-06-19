@@ -6,7 +6,7 @@ import { audiencesForProductFilter } from "@/lib/categories";
 import { db } from "@/lib/db";
 import { parseProductSort, sortProducts } from "@/lib/product-sort";
 import { getStoreId } from "@/lib/store-context";
-import { getProductCardImages } from "@/lib/variant-images";
+import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
 import { Prisma } from "@prisma/client";
 
 export type ProductGridParams = {
@@ -83,9 +83,8 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
     where,
     include: {
       variants: {
-        where: { stock: { gt: 0 } },
         orderBy: { price: "asc" },
-        select: { color: true, imageUrl: true, price: true },
+        select: { color: true, imageUrl: true, price: true, stock: true },
       },
     },
     orderBy: { createdAt: "desc" },
@@ -112,7 +111,10 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
           {sortedProducts.map((product, index) => {
-            const cardImages = getProductCardImages(product.variants);
+            const { inStock, displayVariants } = partitionVariantsForCard(
+              product.variants,
+            );
+            const cardImages = getProductCardImages(displayVariants);
 
             return (
             <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
@@ -124,6 +126,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
                 imageUrl={cardImages.imageUrl}
                 hoverImageUrl={cardImages.hoverImageUrl}
                 price={cardImages.price}
+                inStock={inStock}
               />
             </StorefrontReveal>
             );

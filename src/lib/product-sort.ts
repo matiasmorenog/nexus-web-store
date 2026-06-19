@@ -19,11 +19,19 @@ export function parseProductSort(value: string | undefined): ProductSort {
 type ProductWithDisplayVariant = {
   name: string;
   createdAt: Date;
-  variants: { price: unknown }[];
+  variants: { price: unknown; stock?: number }[];
 };
 
 function displayPrice(product: ProductWithDisplayVariant) {
-  const price = product.variants[0]?.price;
+  const inStockVariants = product.variants.filter(
+    (variant) => (variant.stock ?? 1) > 0,
+  );
+  const pool =
+    inStockVariants.length > 0 ? inStockVariants : product.variants;
+  const sorted = [...pool].sort(
+    (a, b) => Number(a.price) - Number(b.price),
+  );
+  const price = sorted[0]?.price;
   return price != null ? Number(price) : Number.POSITIVE_INFINITY;
 }
 

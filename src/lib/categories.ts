@@ -59,20 +59,20 @@ export function categoriesForStoreFilter(genero?: string) {
   );
 }
 
-export const HOME_CATEGORY_TILES = [
+export const HOME_GENDER_TILES = [
   { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
   { slug: "hombre", label: "Hombre", href: "/productos?genero=hombre" },
-  {
-    slug: "leggings",
-    label: "Calzas",
-    href: "/productos?categoria=leggings",
-  },
-  { slug: "shorts", label: "Shorts", href: "/productos?categoria=shorts" },
-  {
-    slug: "hoodies",
-    label: "Buzos",
-    href: "/productos?categoria=hoodies",
-  },
+] as const;
+
+export const HOME_PRODUCT_CATEGORY_TILES = PRODUCT_CATEGORIES.map((category) => ({
+  slug: category.slug,
+  label: category.label,
+  href: `/productos?categoria=${category.slug}`,
+}));
+
+export const HOME_CATEGORY_TILES = [
+  ...HOME_GENDER_TILES,
+  ...HOME_PRODUCT_CATEGORY_TILES,
 ] as const;
 
 export function categoriesForAudience(audience: StoreAudience) {

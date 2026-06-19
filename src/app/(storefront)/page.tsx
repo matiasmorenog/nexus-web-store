@@ -17,12 +17,19 @@ export const dynamic = "force-dynamic";
 const CATEGORY_IMAGES: Record<string, string> = {
   mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
   hombre: "https://images.unsplash.com/photo-1647438174616-7bc61ca38455?w=600&q=80",
+  remeras:
+    "https://images.unsplash.com/photo-1611858447638-1113f15f7177?w=600&q=80",
+  musculosas:
+    "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
+  tops: "https://images.unsplash.com/photo-1531520563951-4c0e3d3fcacc?w=600&q=80",
   leggings:
     "https://images.unsplash.com/photo-1762331660576-cbf66a7db84d?w=600&q=80",
   shorts:
     "https://images.unsplash.com/photo-1600404909295-aa6fb386f450?w=600&q=80",
   hoodies:
     "https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?w=600&q=80",
+  accesorios:
+    "https://images.unsplash.com/photo-1532382708467-d720b918f0da?w=600&q=80",
 };
 
 export default async function HomePage() {
@@ -65,7 +72,7 @@ export default async function HomePage() {
               Categorías
             </span>
           </h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {heroCategories.map((cat) => (
               <Link
                 key={cat.slug}

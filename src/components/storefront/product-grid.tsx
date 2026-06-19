@@ -5,6 +5,7 @@ import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { buildCatalogProductWhere } from "@/lib/catalog-query";
 import { db } from "@/lib/db";
 import { parseProductSort, sortProducts } from "@/lib/product-sort";
+import { getProductSalesTotals } from "@/lib/product-sales";
 import { getStoreId } from "@/lib/store-context";
 import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
 
@@ -41,6 +42,8 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
   });
 
   const sort = parseProductSort(params.orden);
+  const salesTotals =
+    sort === "mas-vendidos" ? await getProductSalesTotals(storeId) : undefined;
 
   const products = await db.product.findMany({
     where,
@@ -53,7 +56,7 @@ export async function ProductGrid({ params }: { params: ProductGridParams }) {
     orderBy: { createdAt: "desc" },
   });
 
-  const sortedProducts = sortProducts(products, sort);
+  const sortedProducts = sortProducts(products, sort, salesTotals);
 
   return (
     <div>

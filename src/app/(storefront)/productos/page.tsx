@@ -6,7 +6,9 @@ import {
 } from "@/components/storefront/product-grid";
 import { StorefrontSkeletonProductGrid } from "@/components/storefront/storefront-skeleton";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
-import { getStoreDisplayName } from "@/lib/store-context";
+import { categoriesForStoreFilter } from "@/lib/categories";
+import { getCatalogFilterCounts } from "@/lib/catalog-query";
+import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,16 @@ export default async function ProductsPage({
   const params = await searchParams;
   const storeDisplayName = await getStoreDisplayName();
   const searchQuery = params.q?.trim();
+  const storeId = await getStoreId();
+
+  const categorySlugs = categoriesForStoreFilter(
+    params.genero || undefined,
+  ).map((category) => category.slug);
+
+  const filterCounts = await getCatalogFilterCounts(
+    { storeId, ...params },
+    categorySlugs,
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -41,9 +53,7 @@ export default async function ProductsPage({
 
       <div className="rounded-2xl bg-neutral-50 p-4 sm:p-6">
         <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
-          <Suspense fallback={null}>
-            <ProductFilters />
-          </Suspense>
+          <ProductFilters counts={filterCounts} />
           <Suspense
             key={productGridQueryKey(params)}
             fallback={<StorefrontSkeletonProductGrid />}

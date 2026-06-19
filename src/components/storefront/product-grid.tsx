@@ -2,12 +2,11 @@ import { ActiveFilterChips } from "@/components/storefront/active-filter-chips";
 import { ProductCard } from "@/components/storefront/product-card";
 import { ProductSortSelect } from "@/components/storefront/product-sort-select";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
-import { audiencesForProductFilter } from "@/lib/categories";
+import { buildCatalogProductWhere } from "@/lib/catalog-query";
 import { db } from "@/lib/db";
 import { parseProductSort, sortProducts } from "@/lib/product-sort";
 import { getStoreId } from "@/lib/store-context";
 import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
-import { Prisma } from "@prisma/client";
 
 export type ProductGridParams = {
   categoria?: string;
@@ -32,50 +31,14 @@ export function productGridQueryKey(params: ProductGridParams) {
 export async function ProductGrid({ params }: { params: ProductGridParams }) {
   const storeId = await getStoreId();
 
-  const where: Prisma.ProductWhereInput = { storeId };
-
-  if (params.categoria) {
-    where.category = params.categoria;
-  }
-
-  const audienceFilter = audiencesForProductFilter(params.genero);
-  if (audienceFilter) {
-    where.audience = { in: audienceFilter };
-  }
-
-  const searchQuery = params.q?.trim();
-  if (searchQuery) {
-    where.OR = [
-      { name: { contains: searchQuery, mode: "insensitive" } },
-      { description: { contains: searchQuery, mode: "insensitive" } },
-      { category: { contains: searchQuery, mode: "insensitive" } },
-      {
-        variants: {
-          some: {
-            OR: [
-              { sku: { contains: searchQuery, mode: "insensitive" } },
-              { color: { contains: searchQuery, mode: "insensitive" } },
-            ],
-          },
-        },
-      },
-    ];
-  }
-
-  if (params.talle) {
-    where.variants = { some: { size: params.talle, stock: { gt: 0 } } };
-  }
-
-  if (params.precioMax) {
-    where.variants = {
-      ...(where.variants as Prisma.ProductVariantListRelationFilter),
-      some: {
-        ...(where.variants as Prisma.ProductVariantListRelationFilter)?.some,
-        price: { lte: parseInt(params.precioMax) },
-        stock: { gt: 0 },
-      },
-    };
-  }
+  const where = buildCatalogProductWhere({
+    storeId,
+    categoria: params.categoria,
+    genero: params.genero,
+    talle: params.talle,
+    precioMax: params.precioMax,
+    q: params.q,
+  });
 
   const sort = parseProductSort(params.orden);
 

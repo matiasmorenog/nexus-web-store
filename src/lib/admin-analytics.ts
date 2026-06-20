@@ -7,6 +7,9 @@ export type ActivityPoint = {
   label: string;
   orders: number;
   revenue: number;
+  /** Rango inclusive para filtrar pedidos (YYYY-MM-DD). */
+  desde?: string;
+  hasta?: string;
 };
 
 export type TopProduct = {
@@ -66,6 +69,8 @@ export function aggregateActivityIntoWeeks(points: ActivityPoint[]): ActivityPoi
       label: `Sem ${index + 1}`,
       orders: slice.reduce((sum, point) => sum + point.orders, 0),
       revenue: slice.reduce((sum, point) => sum + point.revenue, 0),
+      desde: slice[0]?.desde,
+      hasta: slice[slice.length - 1]?.hasta ?? slice[slice.length - 1]?.desde,
     });
 
     start += size;
@@ -78,6 +83,20 @@ function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+function isoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function monthRangeFromKey(key: string): { desde: string; hasta: string } {
+  const [year, month] = key.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+
+  return {
+    desde: `${key}-01`,
+    hasta: `${key}-${String(lastDay).padStart(2, "0")}`,
+  };
 }
 
 function buildBuckets(period: ActivityPeriod): {
@@ -95,12 +114,14 @@ function buildBuckets(period: ActivityPeriod): {
       date.setDate(rangeStart.getDate() + index);
 
       return {
-        key: date.toISOString().slice(0, 10),
+        key: isoDate(date),
         label: date
           .toLocaleDateString("es-AR", { weekday: "short" })
           .replace(".", ""),
         orders: 0,
         revenue: 0,
+        desde: isoDate(date),
+        hasta: isoDate(date),
       };
     });
 
@@ -115,11 +136,15 @@ function buildBuckets(period: ActivityPeriod): {
       const date = new Date(rangeStart);
       date.setDate(rangeStart.getDate() + index);
 
+      const dayKey = isoDate(date);
+
       return {
-        key: date.toISOString().slice(0, 10),
+        key: dayKey,
         label: String(date.getDate()),
         orders: 0,
         revenue: 0,
+        desde: dayKey,
+        hasta: dayKey,
       };
     });
 
@@ -131,12 +156,15 @@ function buildBuckets(period: ActivityPeriod): {
   const buckets = Array.from({ length: 12 }, (_, index) => {
     const date = new Date(rangeStart.getFullYear(), rangeStart.getMonth() + index, 1);
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const range = monthRangeFromKey(key);
 
     return {
       key,
       label: date.toLocaleDateString("es-AR", { month: "short" }).replace(".", ""),
       orders: 0,
       revenue: 0,
+      desde: range.desde,
+      hasta: range.hasta,
     };
   });
 
@@ -251,4 +279,17 @@ export async function getDashboardAnalytics(
     salesActivity,
     topProducts,
   };
+}
+
+export function buildAdminOrdersHrefFromActivityPoint(point: ActivityPoint) {
+  if (!point.desde || point.orders <= 0) return null;
+
+  const params = new URLSearchParams();
+  params.set("desde", point.desde);
+
+  if (point.hasta) {
+    params.set("hasta", point.hasta);
+  }
+
+  return `/admin/pedidos?${params.toString()}`;
 }

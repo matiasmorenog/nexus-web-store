@@ -35,6 +35,8 @@ export function AdminOrdersList({
 
       if (filters.estado) params.set("estado", filters.estado);
       if (filters.q?.trim()) params.set("q", filters.q.trim());
+      if (filters.desde) params.set("desde", filters.desde);
+      if (filters.hasta) params.set("hasta", filters.hasta);
 
       const res = await fetch(`/api/admin/orders?${params.toString()}`);
       const data = await res.json();

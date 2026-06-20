@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,85 @@ export function AdminSearchField({
             aria-label="Limpiar búsqueda"
           >
             <X className="h-4 w-4" aria-hidden />
+          </button>
+        ) : null}
+      </div>
+    </form>
+  );
+}
+
+type AdminDateRangeFieldProps = {
+  desde: string;
+  hasta: string;
+  onChange: (values: { desde: string; hasta: string }) => void;
+  onSubmit: () => void;
+  onClear: () => void;
+};
+
+export function AdminDateRangeField({
+  desde,
+  hasta,
+  onChange,
+  onSubmit,
+  onClear,
+}: AdminDateRangeFieldProps) {
+  const hasValue = Boolean(desde || hasta);
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+      className="space-y-3"
+    >
+      <div className="grid gap-3">
+        <div>
+          <Label
+            htmlFor="admin-orders-desde"
+            className="mb-1.5 block text-sm text-neutral-600"
+          >
+            Desde
+          </Label>
+          <Input
+            id="admin-orders-desde"
+            type="date"
+            value={desde}
+            onChange={(event) =>
+              onChange({ desde: event.target.value, hasta })
+            }
+          />
+        </div>
+        <div>
+          <Label
+            htmlFor="admin-orders-hasta"
+            className="mb-1.5 block text-sm text-neutral-600"
+          >
+            Hasta
+          </Label>
+          <Input
+            id="admin-orders-hasta"
+            type="date"
+            value={hasta}
+            min={desde || undefined}
+            onChange={(event) =>
+              onChange({ desde, hasta: event.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button type="submit" size="sm" variant="secondary" className="flex-1">
+          Aplicar
+        </Button>
+        {hasValue ? (
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+          >
+            Limpiar
           </button>
         ) : null}
       </div>

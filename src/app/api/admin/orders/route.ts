@@ -14,9 +14,16 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const estado = searchParams.get("estado") ?? undefined;
   const q = searchParams.get("q") ?? undefined;
+  const desde = searchParams.get("desde") ?? undefined;
+  const hasta = searchParams.get("hasta") ?? undefined;
 
   try {
-    const result = await getAdminOrdersPage(storeId, page, { estado, q });
+    const result = await getAdminOrdersPage(storeId, page, {
+      estado,
+      q,
+      desde,
+      hasta,
+    });
     return NextResponse.json(result);
   } catch (error) {
     console.error("Admin orders page error:", error);

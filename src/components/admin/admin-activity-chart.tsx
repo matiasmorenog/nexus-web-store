@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ACTIVITY_PERIOD_LABELS,
   aggregateActivityIntoWeeks,
+  buildAdminOrdersHrefFromActivityPoint,
   type ActivityPeriod,
   type ActivityPoint,
 } from "@/lib/admin-analytics";
@@ -295,6 +297,7 @@ export function AdminActivityChart({
   totalOrders,
   totalRevenue,
 }: AdminActivityChartProps) {
+  const router = useRouter();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [chartPhase, setChartPhase] = useState<ChartPhase>("waiting");
   const isMobile = useIsMobile();
@@ -380,8 +383,8 @@ export function AdminActivityChart({
         <div>
           <p className="mb-2 text-xs text-neutral-400">
             {showMonthAsWeeks
-              ? "Vista por semanas en mobile. Pasá el mouse o tocá un punto para ver ingresos y pedidos."
-              : "Pasá el mouse o tocá un punto para ver ingresos y pedidos del período."}
+              ? "Vista por semanas en mobile. Pasá el mouse para detalles o hacé clic en un punto con ventas para ver esos pedidos."
+              : "Pasá el mouse para detalles o hacé clic en un punto con ventas para ver esos pedidos."}
           </p>
 
           <div
@@ -405,6 +408,8 @@ export function AdminActivityChart({
                 {plotPoints.map((plot, index) => {
                   const isActive = activeKey === plot.point.key;
                   const showDot = chartPhase === "complete";
+                  const ordersHref = buildAdminOrdersHrefFromActivityPoint(plot.point);
+                  const isClickable = Boolean(ordersHref);
 
                   return (
                     <button
@@ -413,6 +418,7 @@ export function AdminActivityChart({
                       className={cn(
                         "absolute z-10 -translate-x-1/2 -translate-y-1/2 touch-manipulation",
                         !showDot && "pointer-events-none",
+                        isClickable && "cursor-pointer",
                       )}
                       style={{
                         left: `${plot.x}%`,
@@ -420,12 +426,12 @@ export function AdminActivityChart({
                       }}
                       onMouseEnter={() => setActiveKey(plot.point.key)}
                       onMouseLeave={() => setActiveKey(null)}
-                      onClick={() =>
-                        setActiveKey(isActive ? null : plot.point.key)
-                      }
-                      aria-label={`${plot.point.label}: ${formatPrice(plot.point.revenue)}, ${plot.point.orders} pedidos`}
+                      onClick={() => {
+                        if (ordersHref) router.push(ordersHref);
+                      }}
+                      aria-label={`${plot.point.label}: ${formatPrice(plot.point.revenue)}, ${plot.point.orders} pedidos${isClickable ? ". Ver pedidos" : ""}`}
                       aria-hidden={!showDot}
-                      tabIndex={showDot ? 0 : -1}
+                      tabIndex={showDot && isClickable ? 0 : -1}
                     >
                       <span
                         className={cn(

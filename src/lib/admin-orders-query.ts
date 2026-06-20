@@ -10,6 +10,8 @@ import { Prisma } from "@prisma/client";
 export type AdminOrdersFilterParams = {
   estado?: string;
   q?: string;
+  desde?: string;
+  hasta?: string;
 };
 
 const orderInclude = {
@@ -23,6 +25,23 @@ const orderInclude = {
 type OrderWithRelations = Prisma.OrderGetPayload<{
   include: typeof orderInclude;
 }>;
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseOrderDateFilter(value?: string): Date | undefined {
+  if (!value?.trim() || !ISO_DATE_RE.test(value)) return undefined;
+
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return undefined;
+
+  return date;
+}
+
+function endOfOrderDay(date: Date): Date {
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
 
 export function buildAdminOrdersWhere(
   storeId: string,
@@ -42,6 +61,16 @@ export function buildAdminOrdersWhere(
       { customerPhone: { contains: query, mode: "insensitive" } },
       { id: { contains: query, mode: "insensitive" } },
     ];
+  }
+
+  const desde = parseOrderDateFilter(params.desde);
+  const hasta = parseOrderDateFilter(params.hasta ?? params.desde);
+
+  if (desde || hasta) {
+    where.createdAt = {
+      ...(desde ? { gte: desde } : {}),
+      ...(hasta ? { lte: endOfOrderDay(hasta) } : {}),
+    };
   }
 
   return where;
@@ -136,5 +165,30 @@ export async function getAdminOrdersSummary(storeId: string) {
 }
 
 export function adminOrdersFilterKey(params: AdminOrdersFilterParams) {
-  return `${params.estado ?? ""}|${params.q?.trim() ?? ""}`;
+  return [
+    params.estado ?? "",
+    params.q?.trim() ?? "",
+    params.desde ?? "",
+    params.hasta ?? "",
+  ].join("|");
+}
+
+export function formatAdminOrdersDateFilterLabel(
+  desde?: string,
+  hasta?: string,
+): string | null {
+  if (!desde) return null;
+
+  const format = (value: string) =>
+    new Date(`${value}T12:00:00`).toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "short",
+      year: hasta && hasta !== desde ? "numeric" : undefined,
+    });
+
+  if (!hasta || hasta === desde) {
+    return format(desde);
+  }
+
+  return `${format(desde)} – ${format(hasta)}`;
 }

@@ -7,7 +7,6 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminLoadMore } from "@/components/admin/admin-load-more";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
 import { ProductCreateForm } from "@/components/admin/product-create-form";
 import {
@@ -21,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProductTaxonomyLabel } from "@/lib/categories";
+import type { AdminProductsFilterParams } from "@/lib/admin-products-query";
 import { cn, formatPrice } from "@/lib/utils";
 
 export type AdminProductRow = {
@@ -48,12 +48,14 @@ type AdminProductsSectionProps = {
   initialProducts: AdminProductRow[];
   total: number;
   hasMore: boolean;
+  filters: AdminProductsFilterParams;
 };
 
 export function AdminProductsSection({
   initialProducts,
   total,
   hasMore: initialHasMore,
+  filters,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
@@ -83,7 +85,19 @@ export function AdminProductsSection({
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/products?page=${page + 1}`);
+      const params = new URLSearchParams({
+        page: String(page + 1),
+      });
+
+      if (filters.q?.trim()) params.set("q", filters.q.trim());
+      if (filters.categoria) params.set("categoria", filters.categoria);
+      if (filters.genero) params.set("genero", filters.genero);
+      if (filters.estado) params.set("estado", filters.estado);
+      if (filters.orden && filters.orden !== "recientes") {
+        params.set("orden", filters.orden);
+      }
+
+      const res = await fetch(`/api/admin/products?${params.toString()}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -102,14 +116,7 @@ export function AdminProductsSection({
 
   return (
     <div className="space-y-6 pb-2">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Productos"
-          description="Alta, edición y variantes de tu catálogo."
-        />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={1} className="space-y-6">
+      <AdminDashboardReveal index={0} className="space-y-6">
         {createOpen ? (
           <ProductCreateForm
             onClose={() => setCreateOpen(false)}

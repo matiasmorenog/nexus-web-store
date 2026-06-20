@@ -143,6 +143,129 @@ const ORDER_TEMPLATES: Array<{
     status: "PAID",
     items: [{ productSlug: "short-hombre-training-pro", size: "L", color: "Negro", quantity: 1 }],
   },
+  {
+    status: "PAID",
+    items: [{ productSlug: "remera-embrace-the-suck", size: "M", color: "Negro", quantity: 2 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "musculosa-training-fit", size: "S", color: "Negro", quantity: 2 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "remera-crop-training", size: "S", color: "Rosa", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "remera-box-fit-hombre", size: "L", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "musculosa-ribbed-fit", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "musculosa-unisex-wod", size: "M", color: "Gris", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "musculosa-crossfit-pro", size: "L", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "musculosa-essential-hombre", size: "L", color: "Blanco", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "top-longline-support", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "top-cruzado-yoga-fit", size: "S", color: "Rosa", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "top-halter-performance", size: "M", color: "Coral", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "top-basico-algodon", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "calza-capri-training", size: "S", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "calza-pocket-7-8", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "calza-unisex-compression", size: "L", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "short-bike-4", size: "S", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "short-woven-unisex", size: "M", color: "Gris", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "short-liner-running", size: "L", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "buzo-half-zip-performance", size: "M", color: "Gris oscuro", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "buzo-crop-mujer", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "buzo-full-zip-tech", size: "L", color: "Azul", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    pickup: true,
+    items: [{ productSlug: "buzo-french-terry", size: "S", color: "Crema", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "rodilleras-neoprene", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [{ productSlug: "coderas-proteccion", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "SHIPPED",
+    items: [{ productSlug: "bolso-gym-duffle", size: "L", color: "Gris", quantity: 1 }],
+  },
+  {
+    status: "PAID",
+    items: [
+      { productSlug: "legging-alta-compresion", size: "M", color: "Borgoña", quantity: 1 },
+      { productSlug: "top-deportivo-sin-mangas", size: "S", color: "Verde", quantity: 1 },
+    ],
+  },
+  {
+    status: "SHIPPED",
+    items: [
+      { productSlug: "calza-pocket-7-8", size: "S", color: "Azul marino", quantity: 1 },
+      { productSlug: "short-bike-4", size: "M", color: "Rosa", quantity: 1 },
+    ],
+  },
+  {
+    status: "PAID",
+    pickup: true,
+    items: [
+      { productSlug: "bolso-gym-duffle", size: "M", color: "Negro", quantity: 1 },
+      { productSlug: "coderas-proteccion", size: "S", color: "Rojo", quantity: 1 },
+    ],
+  },
 ];
 
 function startOfDay(date: Date): Date {
@@ -151,22 +274,28 @@ function startOfDay(date: Date): Date {
   return d;
 }
 
-function withBusinessHour(day: Date, sequence: number): Date {
+function withBusinessHour(day: Date, slotInDay: number): Date {
   const result = new Date(day);
-  result.setHours(10 + (sequence % 8), 10 + ((sequence * 7) % 50), 0, 0);
+  const hour = 9 + Math.min(slotInDay % 12, 11);
+  const minute = 8 + ((slotInDay * 13) % 52);
+  result.setHours(hour, minute, 0, 0);
   return result;
 }
 
-/** Pedidos por día: pocas al inicio del mes, más hacia el final. */
+/** Pedidos por día: pocas al inicio del mes, pico de 10 el último día. */
 function ordersForDay(day: number, lastDay: number): number {
+  if (day === lastDay) return 10;
+
   const progress = day / lastDay;
 
   if (progress <= 0.12) return 0;
   if (progress <= 0.28) return 1;
-  if (progress <= 0.45) return 1;
-  if (progress <= 0.62) return 2;
-  if (progress <= 0.8) return 2;
-  return progress < 0.92 ? 2 : 3;
+  if (progress <= 0.42) return 2;
+  if (progress <= 0.55) return 3;
+  if (progress <= 0.67) return 4;
+  if (progress <= 0.78) return 5;
+  if (progress <= 0.88) return 7;
+  return 8;
 }
 
 function buildAscendingCurrentMonth(today: Date, sequenceStart: number): DemoOrderPlan[] {
@@ -182,7 +311,7 @@ function buildAscendingCurrentMonth(today: Date, sequenceStart: number): DemoOrd
     for (let slot = 0; slot < ordersToday; slot++) {
       const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length];
       plans.push({
-        createdAt: withBusinessHour(new Date(year, month, day), sequence),
+        createdAt: withBusinessHour(new Date(year, month, day), slot),
         customerIndex: (day + slot + sequence) % DEMO_CUSTOMERS.length,
         status: template.status,
         pickup: template.pickup,

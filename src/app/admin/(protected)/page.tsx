@@ -68,6 +68,7 @@ export default async function AdminDashboardPage({
     format: "number" | "currency";
     icon: AdminStatCardIcon;
     accent: "brand" | "blue" | "green" | "amber";
+    href?: string;
   }[] = [
     {
       label: "Productos",
@@ -75,6 +76,7 @@ export default async function AdminDashboardPage({
       format: "number" as const,
       icon: "package",
       accent: "brand" as const,
+      href: "/admin/productos",
     },
     {
       label: "Pedidos",
@@ -82,6 +84,7 @@ export default async function AdminDashboardPage({
       format: "number" as const,
       icon: "shopping-cart",
       accent: "blue" as const,
+      href: "/admin/pedidos",
     },
     {
       label: "Ingresos",

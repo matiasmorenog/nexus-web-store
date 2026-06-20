@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   DollarSign,
   Package,
@@ -31,6 +32,7 @@ type AdminStatCardProps = {
   icon: AdminStatCardIcon;
   accent?: "brand" | "blue" | "green" | "amber";
   delay?: number;
+  href?: string;
 };
 
 const accentStyles = {
@@ -60,20 +62,22 @@ export function AdminStatCard({
   icon,
   accent = "brand",
   delay = 0,
+  href,
 }: AdminStatCardProps) {
   const { displayValue, isComplete } = useCountUp(value, { delay });
   const formattedValue = formatStatValue(displayValue, format);
   const Icon = statIcons[icon];
 
-  return (
-    <div
-      className={cn(
-        adminSurfaceClass,
-        "group relative overflow-hidden p-5 transition-all duration-500",
-        "hover:-translate-y-0.5 hover:shadow-md",
-        isComplete && accentGlowStyles[accent],
-      )}
-    >
+  const cardClassName = cn(
+    adminSurfaceClass,
+    "group relative block overflow-hidden p-5 transition-all duration-500",
+    "hover:-translate-y-0.5 hover:shadow-md",
+    href && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2",
+    isComplete && accentGlowStyles[accent],
+  );
+
+  const content = (
+    <>
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"
         aria-hidden
@@ -102,6 +106,16 @@ export function AdminStatCard({
           <Icon className="h-5 w-5" aria-hidden />
         </div>
       </div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={cardClassName} aria-label={`Ver ${label.toLowerCase()}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={cardClassName}>{content}</div>;
 }

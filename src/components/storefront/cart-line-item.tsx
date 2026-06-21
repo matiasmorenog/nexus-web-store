@@ -1,12 +1,14 @@
+import { useMemo } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { CartQuantityStepper } from "@/components/storefront/cart-quantity-stepper";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
-import { getPromo2x1LinePricing } from "@/lib/promo-2x1";
+import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/stores/cart-store";
+import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
 
 type CartLineItemProps = {
@@ -29,11 +31,19 @@ export function CartLineItem({
   style,
 }: CartLineItemProps) {
   const isPage = variant === "page";
-  const pricing = getPromo2x1LinePricing({
-    unitPrice: item.price,
-    quantity: item.quantity,
-    productPromo2x1: item.promo2x1 ?? false,
-  });
+  const cartItems = useCartStore((state) => state.items);
+  const pricing = useMemo(() => {
+    const priced = getCartPromoPricing(cartItems);
+    return (
+      priced.byVariantId.get(item.variantId) ?? {
+        rawTotal: item.price * item.quantity,
+        lineTotal: item.price * item.quantity,
+        discount: 0,
+        freeUnits: 0,
+        eligible: item.promo2x1 ?? false,
+      }
+    );
+  }, [cartItems, item.variantId, item.price, item.quantity, item.promo2x1]);
 
   return (
     <li

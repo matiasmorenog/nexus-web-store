@@ -6,8 +6,8 @@ import { createPaymentPreference } from "@/lib/mercadopago";
 import { quoteMercadoEnvios } from "@/lib/mercado-envios";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
-  getMercadoPagoUnitPrice,
-  sumPromo2x1Cart,
+  getMercadoPagoUnitPriceFromPricing,
+  pricePromo2x1Lines,
 } from "@/lib/promo-2x1";
 import { getStoreId } from "@/lib/store-context";
 
@@ -102,10 +102,18 @@ export async function POST(request: NextRequest) {
         unitPrice: Number(variant.price),
         quantity: item.quantity,
         productPromo2x1: variant.product.promo2x1,
+        productId: variant.product.id,
+        lineKey: item.variantId,
       };
     });
 
-    const { rawSubtotal, promoDiscount, subtotal } = sumPromo2x1Cart(promoLines);
+    const promoPricing = pricePromo2x1Lines(promoLines);
+    const { rawSubtotal, promoDiscount, subtotal } = promoPricing;
+    const promoByVariant = new Map(
+      promoPricing.lines
+        .filter((line) => line.lineKey)
+        .map((line) => [line.lineKey!, line]),
+    );
     const shippingCost = isPickup
       ? 0
       : quoteMercadoEnvios({
@@ -144,15 +152,16 @@ export async function POST(request: NextRequest) {
 
     const mpItems = items.map((item) => {
       const variant = variants.find((v) => v.id === item.variantId)!;
+      const linePricing = promoByVariant.get(item.variantId);
+      const unitPrice = linePricing
+        ? getMercadoPagoUnitPriceFromPricing(linePricing.lineTotal, item.quantity)
+        : Number(variant.price);
+
       return {
         id: item.variantId,
         title: `${variant.product.name} (${variant.size} / ${variant.color})`,
         quantity: item.quantity,
-        unit_price: getMercadoPagoUnitPrice({
-          unitPrice: Number(variant.price),
-          quantity: item.quantity,
-          productPromo2x1: variant.product.promo2x1,
-        }),
+        unit_price: unitPrice,
       };
     });
 

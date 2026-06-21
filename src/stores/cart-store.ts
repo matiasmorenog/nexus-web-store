@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { sumPromo2x1Cart } from "@/lib/promo-2x1";
+import { getCartPromoPricing } from "@/lib/promo-2x1";
 
 export type CartItem = {
   variantId: string;
@@ -78,17 +78,9 @@ export const useCartStore = create<CartState>()(
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
       rawSubtotal: () =>
         get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
-      promoDiscount: () => sumPromo2x1Cart(getPromoCartLines(get().items)).promoDiscount,
-      subtotal: () => sumPromo2x1Cart(getPromoCartLines(get().items)).subtotal,
+      promoDiscount: () => getCartPromoPricing(get().items).promoDiscount,
+      subtotal: () => getCartPromoPricing(get().items).subtotal,
     }),
     { name: "nexus-cart" },
   ),
 );
-
-function getPromoCartLines(items: CartItem[]) {
-  return items.map((item) => ({
-    unitPrice: item.price,
-    quantity: item.quantity,
-    productPromo2x1: item.promo2x1 ?? false,
-  }));
-}

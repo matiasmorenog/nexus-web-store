@@ -7,7 +7,7 @@ import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
-import { getPromo2x1LinePricing } from "@/lib/promo-2x1";
+import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
 
@@ -26,6 +26,7 @@ export function CheckoutView({
   const rawSubtotal = useCartStore((s) => s.rawSubtotal());
   const promoDiscount = useCartStore((s) => s.promoDiscount());
   const subtotal = useCartStore((s) => s.subtotal());
+  const promoByVariant = getCartPromoPricing(items).byVariantId;
 
   if (items.length === 0) {
     return (
@@ -73,11 +74,9 @@ export function CheckoutView({
           </h2>
           <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto border-b border-neutral-100 pb-4">
             {items.map((item) => {
-              const pricing = getPromo2x1LinePricing({
-                unitPrice: item.price,
-                quantity: item.quantity,
-                productPromo2x1: item.promo2x1 ?? false,
-              });
+              const pricing = promoByVariant.get(item.variantId) ?? {
+                lineTotal: item.price * item.quantity,
+              };
 
               return (
               <li key={item.variantId} className="flex gap-3">

@@ -5,7 +5,7 @@ export const promoBanner = {
   id: "2x1-productos",
   badge: "2x1",
   headline: "en productos seleccionados",
-  detail: "Llevá dos al carrito y pagá uno.",
+  detail: "Llevá dos del mismo producto y pagá uno.",
   href: "/productos?promo=2x1",
   cta: "Ver catálogo",
   /** Espera tras `window.load` antes de animar la entrada (ms). */

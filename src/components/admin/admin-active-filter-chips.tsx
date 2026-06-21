@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
+import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import type { AdminFilterChip } from "@/lib/admin-product-filters";
 import { cn } from "@/lib/utils";
 
@@ -18,28 +18,33 @@ export function AdminActiveFilterChips({
   clearParams,
   className,
 }: AdminActiveFilterChipsProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigateCatalog = useAdminListNavigation();
 
   if (chips.length === 0) return null;
 
   const pushParams = (params: URLSearchParams) => {
     const query = params.toString();
-    router.push(query ? `${basePath}?${query}` : basePath, { scroll: false });
+    navigateCatalog(query ? `${basePath}?${query}` : basePath);
   };
 
   const removeChip = (chip: AdminFilterChip) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
 
     for (const param of chip.removeParams) {
       params.delete(param);
+    }
+
+    if (chip.setOnRemove) {
+      for (const [key, value] of Object.entries(chip.setOnRemove)) {
+        params.set(key, value);
+      }
     }
 
     pushParams(params);
   };
 
   const clearAll = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
 
     for (const param of clearParams) {
       params.delete(param);

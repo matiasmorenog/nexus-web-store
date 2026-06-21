@@ -10,7 +10,7 @@ import {
   sortAdminProducts,
 } from "@/lib/admin-product-sort";
 import { db } from "@/lib/db";
-import { ADMIN_LIST_PAGE_SIZE, adminListSkip } from "@/lib/admin-pagination";
+import { ADMIN_PRODUCTS_PAGE_SIZE, adminListSkip } from "@/lib/admin-pagination";
 import { Prisma } from "@prisma/client";
 
 export type AdminProductsFilterParams = {
@@ -101,7 +101,7 @@ async function fetchAdminProductsBatch(
 
     const sorted = sortAdminProducts(all, orden);
     const skip = adminListSkip(page);
-    return sorted.slice(skip, skip + ADMIN_LIST_PAGE_SIZE);
+    return sorted.slice(skip, skip + ADMIN_PRODUCTS_PAGE_SIZE);
   }
 
   return db.product.findMany({
@@ -109,7 +109,7 @@ async function fetchAdminProductsBatch(
     include: productInclude,
     orderBy: getAdminProductPrismaOrderBy(orden),
     skip: adminListSkip(page),
-    take: ADMIN_LIST_PAGE_SIZE,
+    take: ADMIN_PRODUCTS_PAGE_SIZE,
   });
 }
 

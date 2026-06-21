@@ -1,36 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { AdminSearchField } from "@/components/admin/admin-filters";
+import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export function AdminOrdersToolbar({ className }: { className?: string }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
-  const [draftDesde, setDraftDesde] = useState(
-    () => searchParams.get("desde") ?? "",
+type AdminOrdersToolbarProps = {
+  className?: string;
+  query?: string;
+  desde?: string;
+  hasta?: string;
+};
+
+function readSearchParams() {
+  return new URLSearchParams(
+    typeof window !== "undefined" ? window.location.search : "",
   );
-  const [draftHasta, setDraftHasta] = useState(
-    () => searchParams.get("hasta") ?? "",
-  );
+}
+
+export function AdminOrdersToolbar({
+  className,
+  query: queryProp = "",
+  desde: desdeProp = "",
+  hasta: hastaProp = "",
+}: AdminOrdersToolbarProps) {
+  const navigateCatalog = useAdminListNavigation();
+  const [query, setQuery] = useState(queryProp);
+  const [draftDesde, setDraftDesde] = useState(desdeProp);
+  const [draftHasta, setDraftHasta] = useState(hastaProp);
 
   useEffect(() => {
-    setQuery(searchParams.get("q") ?? "");
-    setDraftDesde(searchParams.get("desde") ?? "");
-    setDraftHasta(searchParams.get("hasta") ?? "");
-  }, [searchParams]);
+    setQuery(queryProp);
+    setDraftDesde(desdeProp);
+    setDraftHasta(hastaProp);
+  }, [queryProp, desdeProp, hastaProp]);
 
   const navigate = (updates: {
     q?: string;
     desde?: string;
     hasta?: string;
   }) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = readSearchParams();
 
     if (updates.q !== undefined) {
       const trimmed = updates.q.trim();
@@ -39,19 +52,25 @@ export function AdminOrdersToolbar({ className }: { className?: string }) {
     }
 
     if (updates.desde !== undefined) {
-      if (updates.desde) params.set("desde", updates.desde);
-      else params.delete("desde");
+      if (updates.desde) {
+        params.set("desde", updates.desde);
+        params.delete("todos");
+      } else {
+        params.delete("desde");
+      }
     }
 
     if (updates.hasta !== undefined) {
-      if (updates.hasta) params.set("hasta", updates.hasta);
-      else params.delete("hasta");
+      if (updates.hasta) {
+        params.set("hasta", updates.hasta);
+        params.delete("todos");
+      } else {
+        params.delete("hasta");
+      }
     }
 
     const qs = params.toString();
-    router.push(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos", {
-      scroll: false,
-    });
+    navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos");
   };
 
   const applyDateFilter = () => {
@@ -59,7 +78,12 @@ export function AdminOrdersToolbar({ className }: { className?: string }) {
     let hasta = draftHasta.trim();
 
     if (!desde && !hasta) {
-      navigate({ desde: "", hasta: "" });
+      const params = readSearchParams();
+      params.delete("desde");
+      params.delete("hasta");
+      params.set("todos", "1");
+      const qs = params.toString();
+      navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos?todos=1");
       return;
     }
 

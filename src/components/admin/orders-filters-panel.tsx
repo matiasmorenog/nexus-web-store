@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   ORDER_STATUSES,
   getOrderStatusLabel,
@@ -11,26 +10,28 @@ import {
   AdminFilterButton,
   AdminFilterSection,
 } from "@/components/admin/admin-filters";
+import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
+import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
 import { hasAdminOrderFacetFilters } from "@/lib/admin-order-filters";
 import { cn } from "@/lib/utils";
 
 type OrdersFiltersPanelProps = {
   counts: Record<(typeof ORDER_STATUSES)[number], number>;
   totalOrders: number;
+  activeStatus?: string;
   className?: string;
 };
 
 export function OrdersFiltersPanel({
   counts,
   totalOrders,
+  activeStatus = "",
   className,
 }: OrdersFiltersPanelProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const activeStatus = searchParams.get("estado") ?? "";
+  const navigateCatalog = useAdminListNavigation();
 
   const navigate = (updates: { estado?: string }) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(window.location.search);
 
     if (updates.estado !== undefined) {
       if (updates.estado) params.set("estado", updates.estado);
@@ -38,9 +39,7 @@ export function OrdersFiltersPanel({
     }
 
     const qs = params.toString();
-    router.push(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos", {
-      scroll: false,
-    });
+    navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos");
   };
 
   const hasFacetFilters = hasAdminOrderFacetFilters({
@@ -48,7 +47,7 @@ export function OrdersFiltersPanel({
   });
 
   return (
-    <div className={cn(className)}>
+    <div className={cn(adminFiltersPanelScrollClass, className)}>
       <AdminCard title="Filtros" description="Estado del pedido." padding={false}>
         <AdminFilterSection title="Por estado">
           <AdminFilterButton

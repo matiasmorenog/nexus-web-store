@@ -45,13 +45,13 @@ export function Footer({ storeName }: FooterProps) {
               </Link>
             </li>
             <li>
-              <Link href="/productos?genero=mujer" className={linkClass}>
-                Mujer
+              <Link href="/productos?genero=hombre" className={linkClass}>
+                Hombre
               </Link>
             </li>
             <li>
-              <Link href="/productos?genero=hombre" className={linkClass}>
-                Hombre
+              <Link href="/productos?genero=mujer" className={linkClass}>
+                Mujer
               </Link>
             </li>
             <li>

@@ -11,8 +11,9 @@ import {
   HEADER_NAV_DESKTOP,
   HEADER_NAV_MOBILE,
   isStorefrontNavActive,
-  type HeaderNavMatch,
+  type HeaderNavLink,
 } from "@/lib/categories";
+import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
@@ -42,6 +43,8 @@ export function Header({ storeName }: HeaderProps) {
   const navParams = {
     genero: activeGenero,
     categoria: activeCategory,
+    promo: searchParams.get("promo"),
+    destacados: searchParams.get("destacados"),
   };
 
   useEffect(() => {
@@ -96,13 +99,23 @@ export function Header({ storeName }: HeaderProps) {
     return () => window.clearTimeout(timeout);
   }, [lastAddedAt, cartReady]);
 
-  const navLinkClass = (match: HeaderNavMatch, mobile = false) =>
-    cn(
+  const navLinkClass = (link: HeaderNavLink, mobile = false) => {
+    const active = isStorefrontNavActive(link.match, pathname, navParams);
+    const isPromo2x1 = link.accent === "promo2x1";
+
+    if (isPromo2x1 && !mobile) {
+      return cn(
+        "inline-flex items-center border-b-0 pb-0 transition-transform hover:scale-105",
+        active && "scale-105",
+      );
+    }
+
+    return cn(
       "transition-colors",
       mobile
         ? "block rounded-lg px-3 py-3 text-base"
         : "border-b-2 pb-0.5 text-sm font-medium",
-      isStorefrontNavActive(match, pathname, navParams)
+      active
         ? mobile
           ? "bg-neutral-100 text-[var(--brand-primary)]"
           : "border-[var(--brand-primary)] text-[var(--brand-primary)]"
@@ -110,6 +123,26 @@ export function Header({ storeName }: HeaderProps) {
           ? "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
           : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-900",
     );
+  };
+
+  const navLinkLabel = (link: HeaderNavLink, mobile = false) => {
+    if (link.accent === "promo2x1") {
+      return (
+        <Promo2x1Badge
+          label={link.label}
+          size={mobile ? "md" : "sm"}
+          className={cn(
+            mobile && "pointer-events-none",
+            !mobile &&
+              isStorefrontNavActive(link.match, pathname, navParams) &&
+              "ring-2 ring-[var(--brand-primary)] ring-offset-2",
+          )}
+        />
+      );
+    }
+
+    return link.label;
+  };
 
   return (
     <>
@@ -137,8 +170,8 @@ export function Header({ storeName }: HeaderProps) {
 
           <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
             {HEADER_NAV_DESKTOP.map((link) => (
-              <Link key={link.href} href={link.href} className={navLinkClass(link.match)}>
-                {link.label}
+              <Link key={link.href} href={link.href} className={navLinkClass(link)}>
+                {navLinkLabel(link)}
               </Link>
             ))}
           </nav>
@@ -179,10 +212,10 @@ export function Header({ storeName }: HeaderProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={navLinkClass(link.match, true)}
+                className={navLinkClass(link, true)}
                 onClick={() => setMobileOpen(false)}
               >
-                {link.label}
+                {navLinkLabel(link, true)}
               </Link>
             ))}
           </nav>

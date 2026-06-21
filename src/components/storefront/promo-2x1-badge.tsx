@@ -5,12 +5,14 @@ type Promo2x1BadgeProps = {
   size?: "sm" | "md";
   /** Más contraste sobre fotos de producto en la grilla. */
   onImage?: boolean;
+  label?: string;
 };
 
 export function Promo2x1Badge({
   className,
   size = "sm",
   onImage = false,
+  label = "2x1",
 }: Promo2x1BadgeProps) {
   return (
     <span
@@ -24,7 +26,7 @@ export function Promo2x1Badge({
         className,
       )}
     >
-      2x1
+      {label}
     </span>
   );
 }

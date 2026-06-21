@@ -41,7 +41,13 @@ export default async function HomePage() {
     <>
       <HomeHeroCarousel storeDisplayName={storeDisplayName} />
 
-      <StorefrontReveal index={1}>
+      <FeaturedProductsSectionShell storeDisplayName={storeDisplayName}>
+        <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
+          <FeaturedProductsSection />
+        </Suspense>
+      </FeaturedProductsSectionShell>
+
+      <StorefrontReveal index={2}>
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
           <h2 className="mb-8 text-center text-2xl font-bold">
             <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
@@ -71,12 +77,6 @@ export default async function HomePage() {
           </div>
         </section>
       </StorefrontReveal>
-
-      <FeaturedProductsSectionShell>
-        <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
-          <FeaturedProductsSection />
-        </Suspense>
-      </FeaturedProductsSectionShell>
     </>
   );
 }

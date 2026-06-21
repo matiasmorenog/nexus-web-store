@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ProductCard } from "@/components/storefront/product-card";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
@@ -20,7 +21,7 @@ export async function FeaturedProductsSection() {
   });
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
       {featuredProducts.map((product) => {
         const { inStock, displayVariants } = partitionVariantsForCard(
           product.variants,
@@ -47,28 +48,35 @@ export async function FeaturedProductsSection() {
 }
 
 export function FeaturedProductsSectionShell({
+  storeDisplayName,
   children,
 }: {
+  storeDisplayName: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-neutral-50 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="text-2xl font-bold">
-            <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
-              Destacados del box
-            </span>
-          </h2>
-          <Link
-            href="/productos"
-            className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
-          >
-            Ver todos
-          </Link>
+    <StorefrontReveal index={1}>
+      <section className="bg-neutral-50 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-8 flex items-end justify-between">
+            <h2 className="text-2xl font-bold">
+              <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
+                Destacados
+              </span>{" "}
+              <span className="text-[var(--brand-primary)]">
+                {storeDisplayName}
+              </span>
+            </h2>
+            <Link
+              href="/productos?destacados=1"
+              className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+            >
+              Ver todos
+            </Link>
+          </div>
+          {children}
         </div>
-        {children}
-      </div>
-    </section>
+      </section>
+    </StorefrontReveal>
   );
 }

@@ -1,6 +1,6 @@
 export const STORE_AUDIENCES = [
-  { slug: "mujer", label: "Mujer" },
   { slug: "hombre", label: "Hombre" },
+  { slug: "mujer", label: "Mujer" },
   { slug: "unisex", label: "Unisex" },
 ] as const;
 
@@ -60,8 +60,8 @@ export function categoriesForStoreFilter(genero?: string) {
 }
 
 export const HOME_GENDER_TILES = [
-  { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
   { slug: "hombre", label: "Hombre", href: "/productos?genero=hombre" },
+  { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
 ] as const;
 
 export const HOME_PRODUCT_CATEGORY_TILES = PRODUCT_CATEGORIES.map((category) => ({
@@ -105,12 +105,15 @@ export type HeaderNavMatch =
   | { type: "home" }
   | { type: "catalog" }
   | { type: "genero"; slug: Exclude<StoreAudience, "unisex"> }
-  | { type: "categoria"; slug: ProductCategory };
+  | { type: "categoria"; slug: ProductCategory }
+  | { type: "destacados" }
+  | { type: "promo2x1" };
 
 export type HeaderNavLink = {
   href: string;
   label: string;
   match: HeaderNavMatch;
+  accent?: "promo2x1";
 };
 
 function navGenero(slug: Exclude<StoreAudience, "unisex">): HeaderNavLink {
@@ -129,30 +132,53 @@ function navCategoria(slug: ProductCategory): HeaderNavLink {
   };
 }
 
-/** Género + categorías más buscadas; entra en desktop sin saturar. */
+function navDestacados(): HeaderNavLink {
+  return {
+    href: "/productos?destacados=1",
+    label: "Destacados",
+    match: { type: "destacados" },
+  };
+}
+
+function navPromo2x1(): HeaderNavLink {
+  return {
+    href: "/productos?promo=2x1",
+    label: "Sale",
+    match: { type: "promo2x1" },
+    accent: "promo2x1",
+  };
+}
+
+/** Género + promos + categorías clave; entra en desktop sin saturar. */
 export const HEADER_NAV_DESKTOP: HeaderNavLink[] = [
   { href: "/", label: "Inicio", match: { type: "home" } },
-  navGenero("mujer"),
   navGenero("hombre"),
-  navCategoria("remeras"),
-  navCategoria("leggings"),
-  navCategoria("shorts"),
+  navGenero("mujer"),
+  navDestacados(),
   navCategoria("accesorios"),
+  navPromo2x1(),
 ];
 
 /** Catálogo completo en menú móvil. */
 export const HEADER_NAV_MOBILE: HeaderNavLink[] = [
   { href: "/", label: "Inicio", match: { type: "home" } },
   { href: "/productos", label: "Catálogo", match: { type: "catalog" } },
-  navGenero("mujer"),
   navGenero("hombre"),
+  navGenero("mujer"),
+  navDestacados(),
   ...PRODUCT_CATEGORIES.map((category) => navCategoria(category.slug)),
+  navPromo2x1(),
 ];
 
 export function isStorefrontNavActive(
   match: HeaderNavMatch,
   pathname: string,
-  params: { genero: string | null; categoria: string | null },
+  params: {
+    genero: string | null;
+    categoria: string | null;
+    promo?: string | null;
+    destacados?: string | null;
+  },
 ) {
   if (match.type === "home") {
     return pathname === "/";
@@ -161,12 +187,35 @@ export function isStorefrontNavActive(
   if (pathname !== "/productos") return false;
 
   if (match.type === "catalog") {
-    return !params.genero && !params.categoria;
+    return (
+      !params.genero &&
+      !params.categoria &&
+      !params.promo &&
+      params.destacados !== "1"
+    );
+  }
+
+  if (match.type === "destacados") {
+    return params.destacados === "1" && !params.genero && !params.categoria;
+  }
+
+  if (match.type === "promo2x1") {
+    return params.promo === "2x1" && !params.genero && !params.categoria;
   }
 
   if (match.type === "genero") {
-    return params.genero === match.slug && !params.categoria;
+    return (
+      params.genero === match.slug &&
+      !params.categoria &&
+      !params.promo &&
+      params.destacados !== "1"
+    );
   }
 
-  return params.categoria === match.slug && !params.genero;
+  return (
+    params.categoria === match.slug &&
+    !params.genero &&
+    !params.promo &&
+    params.destacados !== "1"
+  );
 }

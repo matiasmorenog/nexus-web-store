@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { PRODUCT_SORT_OPTIONS, parseProductSort } from "@/lib/product-sort";
+import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
 const fieldClass =
@@ -12,8 +13,8 @@ type ProductSortSelectProps = {
 };
 
 export function ProductSortSelect({ className }: ProductSortSelectProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useCatalogNavigation();
   const activeSort = parseProductSort(searchParams.get("orden") ?? undefined);
 
   const handleChange = (value: string) => {
@@ -25,7 +26,7 @@ export function ProductSortSelect({ className }: ProductSortSelectProps) {
       params.set("orden", value);
     }
 
-    router.push(`/productos?${params.toString()}`);
+    navigateCatalog(`/productos?${params.toString()}`);
   };
 
   return (

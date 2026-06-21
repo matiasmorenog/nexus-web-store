@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
 type ProductSearchProps = {
@@ -14,8 +15,8 @@ type ProductSearchProps = {
 };
 
 export function ProductSearch({ className, compact = false }: ProductSearchProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useCatalogNavigation();
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +38,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
       params.delete("q");
     }
     const qs = params.toString();
-    router.push(qs ? `/productos?${qs}` : "/productos");
+    navigateCatalog(qs ? `/productos?${qs}` : "/productos");
     setMobileOpen(false);
   };
 

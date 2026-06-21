@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import type { CatalogFilterCounts } from "@/lib/catalog-query";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
+import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
 const SIZES = ["XS", "S", "M", "L", "XL"];
@@ -57,8 +58,8 @@ type ProductFiltersProps = {
 };
 
 export function ProductFilters({ counts }: ProductFiltersProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useCatalogNavigation();
 
   const update = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -71,11 +72,23 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
       }
     }
 
-    router.push(`/productos?${params.toString()}`);
+    navigateCatalog(`/productos?${params.toString()}`);
   };
 
   const activeGenero = searchParams.get("genero") ?? "";
   const activeCategory = searchParams.get("categoria") ?? "";
+  const activeDestacados = searchParams.get("destacados") === "1";
+  const activePromo2x1 = searchParams.get("promo") === "2x1";
+
+  const hasActiveFilters = Boolean(
+    activeGenero ||
+      activeCategory ||
+      activeDestacados ||
+      activePromo2x1 ||
+      searchParams.get("talle") ||
+      searchParams.get("precioMax") ||
+      searchParams.get("q")?.trim(),
+  );
 
   const genderOptions = STORE_AUDIENCES.filter(
     (audience) => audience.slug !== "unisex",
@@ -96,12 +109,34 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
   };
 
   const clearFilters = () => {
-    router.push("/productos");
+    navigateCatalog("/productos");
   };
 
   return (
-    <aside className="space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-24">
+    <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain">
       <ProductSearch />
+
+      <div>
+        <Label className="mb-2 block text-neutral-700">Promoción</Label>
+        <div className="space-y-1">
+          <button
+            type="button"
+            onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
+            className={filterButtonClass(activeDestacados)}
+          >
+            <span>Destacados</span>
+            <FilterCount count={counts.destacados} active={activeDestacados} />
+          </button>
+          <button
+            type="button"
+            onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
+            className={filterButtonClass(activePromo2x1)}
+          >
+            <span>2x1</span>
+            <FilterCount count={counts.promo2x1} active={activePromo2x1} />
+          </button>
+        </div>
+      </div>
 
       <div>
         <Label className="mb-2 block text-neutral-700">Género</Label>
@@ -223,10 +258,7 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
         </select>
       </div>
 
-      {(activeGenero ||
-        activeCategory ||
-        searchParams.get("talle") ||
-        searchParams.get("precioMax")) && (
+      {hasActiveFilters && (
         <button
           type="button"
           onClick={clearFilters}

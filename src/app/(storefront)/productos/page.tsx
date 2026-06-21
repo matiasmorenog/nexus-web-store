@@ -27,6 +27,7 @@ type SearchParams = Promise<{
   q?: string;
   orden?: string;
   promo?: string;
+  destacados?: string;
 }>;
 
 export default async function ProductsPage({
@@ -55,6 +56,7 @@ export default async function ProductsPage({
     precioMax: params.precioMax,
     q: params.q,
     promo: params.promo,
+    destacados: params.destacados,
   });
 
   return (
@@ -62,15 +64,17 @@ export default async function ProductsPage({
       <StorefrontPageHeader
         title="Productos"
         description={
-          params.promo === "2x1"
-            ? "Productos seleccionados con promoción 2x1: llevá dos y pagá uno."
-            : searchQuery
-              ? `Resultados para “${searchQuery}”`
-              : `Explorá el catálogo completo de ${storeDisplayName}.`
+          params.destacados === "1"
+            ? "Selección destacada de la tienda."
+            : params.promo === "2x1"
+              ? "Productos seleccionados con promoción 2x1: llevá dos y pagá uno."
+              : searchQuery
+                ? `Resultados para “${searchQuery}”`
+                : `Explorá el catálogo completo de ${storeDisplayName}.`
         }
       />
 
-      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+      <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
         <ProductFilters counts={filterCounts} />
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">

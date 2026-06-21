@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import {
   CATALOG_FILTER_PARAMS,
   type CatalogFilterChip,
 } from "@/lib/catalog-filters";
+import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
 type ActiveFilterChipsProps = {
@@ -14,8 +15,8 @@ type ActiveFilterChipsProps = {
 };
 
 export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useCatalogNavigation();
 
   if (chips.length === 0) return null;
 
@@ -23,7 +24,7 @@ export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) 
     const params = new URLSearchParams(searchParams.toString());
     params.delete(param);
     const query = params.toString();
-    router.push(query ? `/productos?${query}` : "/productos");
+    navigateCatalog(query ? `/productos?${query}` : "/productos");
   };
 
   const clearAll = () => {
@@ -32,7 +33,7 @@ export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) 
       params.delete(param);
     }
     const query = params.toString();
-    router.push(query ? `/productos?${query}` : "/productos");
+    navigateCatalog(query ? `/productos?${query}` : "/productos");
   };
 
   return (

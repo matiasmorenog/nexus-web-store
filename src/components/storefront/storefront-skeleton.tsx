@@ -64,7 +64,7 @@ export function StorefrontSkeletonProductCard() {
 
 export function StorefrontSkeletonFiltersPanel() {
   return (
-    <aside className="space-y-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+    <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
       <StorefrontSkeleton className="h-10 w-full rounded-lg" />
       <div>
         <StorefrontSkeleton className="mb-2 h-4 w-20" />
@@ -89,7 +89,7 @@ export function StorefrontSkeletonFiltersPanel() {
 export function StorefrontSkeletonProductGrid() {
   return (
     <StorefrontSkeletonRegion label="Cargando productos">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4 xl:gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {Array.from({ length: 6 }, (_, index) => (
           <StorefrontSkeletonProductCard key={index} />
         ))}
@@ -109,7 +109,7 @@ export function StorefrontSkeletonProductsPage() {
         descriptionWidth="w-72"
       />
 
-      <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
+      <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
         <StorefrontSkeletonFiltersPanel />
         <StorefrontSkeletonProductGrid />
       </div>
@@ -151,7 +151,7 @@ export function StorefrontSkeletonProductDetailPage() {
 export function StorefrontSkeletonFeaturedProducts() {
   return (
     <StorefrontSkeletonRegion label="Cargando destacados">
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {Array.from({ length: 4 }, (_, index) => (
           <StorefrontSkeletonProductCard key={index} />
         ))}

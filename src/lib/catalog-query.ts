@@ -10,17 +10,23 @@ export type CatalogQueryParams = {
   precioMax?: string;
   q?: string;
   promo?: string;
+  destacados?: string;
+  orden?: string;
 };
 
 type CatalogFacet = {
   genero?: string;
   categoria?: string;
   talle?: string;
+  featured?: boolean;
+  promo2x1?: boolean;
 };
+
+type CatalogPromoFacet = "promo" | "destacados";
 
 type BuildCatalogWhereOptions = {
   facet?: CatalogFacet;
-  omit?: Array<keyof CatalogFacet>;
+  omit?: Array<keyof CatalogFacet | CatalogPromoFacet>;
 };
 
 export function buildCatalogProductWhere(
@@ -43,8 +49,20 @@ export function buildCatalogProductWhere(
 
   const where: Prisma.ProductWhereInput = { storeId: params.storeId };
 
-  if (params.promo === "2x1") {
+  if (!omit.includes("promo") && params.promo === "2x1") {
     where.promo2x1 = true;
+  }
+
+  if (!omit.includes("destacados") && params.destacados === "1") {
+    where.featured = true;
+  }
+
+  if (facet.promo2x1) {
+    where.promo2x1 = true;
+  }
+
+  if (facet.featured) {
+    where.featured = true;
   }
 
   if (categoria) {
@@ -102,6 +120,8 @@ export type CatalogFilterCounts = {
   categoria: Record<string, number>;
   categoriaAll: number;
   talle: Record<string, number>;
+  destacados: number;
+  promo2x1: number;
 };
 
 const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL"] as const;
@@ -110,7 +130,10 @@ export async function getCatalogFilterCounts(
   params: CatalogQueryParams,
   categorySlugs: string[],
 ): Promise<CatalogFilterCounts> {
-  const count = (facet: CatalogFacet, omit: Array<keyof CatalogFacet>) =>
+  const count = (
+    facet: CatalogFacet,
+    omit: Array<keyof CatalogFacet | CatalogPromoFacet>,
+  ) =>
     db.product.count({
       where: buildCatalogProductWhere(params, { facet, omit }),
     });
@@ -128,16 +151,20 @@ export async function getCatalogFilterCounts(
     count({}, ["categoria"]),
     ...categorySlugs.map((slug) => count({ categoria: slug }, ["categoria"])),
     ...SIZE_OPTIONS.map((size) => count({ talle: size }, ["talle"])),
+    count({ featured: true }, ["destacados", "promo"]),
+    count({ promo2x1: true }, ["promo", "destacados"]),
   ]);
 
   const categoryCounts = Object.fromEntries(
     categorySlugs.map((slug, index) => [slug, rest[index]]),
   ) as Record<string, number>;
 
+  const talleOffset = categorySlugs.length;
+
   const talleCounts = Object.fromEntries(
     SIZE_OPTIONS.map((size, index) => [
       size,
-      rest[categorySlugs.length + index],
+      rest[talleOffset + index],
     ]),
   ) as Record<string, number>;
 
@@ -150,5 +177,7 @@ export async function getCatalogFilterCounts(
     categoria: categoryCounts,
     categoriaAll,
     talle: talleCounts,
+    destacados: rest[talleOffset + SIZE_OPTIONS.length],
+    promo2x1: rest[talleOffset + SIZE_OPTIONS.length + 1],
   };
 }

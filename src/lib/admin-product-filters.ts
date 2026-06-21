@@ -9,6 +9,7 @@ export type AdminFilterChip = {
   key: string;
   label: string;
   removeParams: string[];
+  setOnRemove?: Record<string, string>;
 };
 
 export const ADMIN_PRODUCT_FILTER_PARAMS = [

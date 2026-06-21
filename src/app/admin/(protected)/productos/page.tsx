@@ -18,6 +18,11 @@ import { AdminEmptyState } from "@/components/admin/admin-surface";
 import { AdminSkeletonFiltersPanel } from "@/components/admin/admin-skeleton";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProductsFiltersPanel } from "@/components/admin/products-filters-panel";
+import {
+  adminFiltersAsideClass,
+  adminListLayoutRowClass,
+  adminListMainColumnClass,
+} from "@/lib/admin-list-layout";
 
 export const dynamic = "force-dynamic";
 
@@ -84,11 +89,11 @@ export default async function AdminProductsPage({
 
       <AdminDashboardReveal
         index={1}
-        className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8"
+        className={adminListLayoutRowClass}
       >
-        <div className="min-h-0 min-w-0 flex-1 space-y-4 pb-6 lg:overflow-y-auto lg:pr-1 lg:pb-0">
+        <div className={adminListMainColumnClass}>
           <div className="lg:hidden">
-            <Suspense fallback={<AdminSkeletonFiltersPanel className="mb-4" />}>
+            <Suspense fallback={<AdminSkeletonFiltersPanel variant="products" className="mb-4" />}>
               {filtersPanel}
             </Suspense>
           </div>
@@ -129,8 +134,8 @@ export default async function AdminProductsPage({
           )}
         </div>
 
-        <aside className="hidden w-72 shrink-0 lg:block">
-          <Suspense fallback={<AdminSkeletonFiltersPanel />}>
+        <aside className={adminFiltersAsideClass}>
+          <Suspense fallback={<AdminSkeletonFiltersPanel variant="products" />}>
             {filtersPanel}
           </Suspense>
         </aside>

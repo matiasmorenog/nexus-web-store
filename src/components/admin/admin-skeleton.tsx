@@ -12,6 +12,13 @@ import {
   adminTableTdClass,
   adminTableThClass,
 } from "@/components/admin/admin-table";
+import {
+  adminFiltersAsideClass,
+  adminFiltersPanelScrollClass,
+  adminListLayoutRowClass,
+  adminListMainColumnClass,
+  adminOrdersMainColumnClass,
+} from "@/lib/admin-list-layout";
 import { cn } from "@/lib/utils";
 
 type AdminSkeletonProps = {
@@ -67,15 +74,6 @@ function AdminSkeletonCardShell({
       {children ? (
         <div className={cn(padding && "p-4 sm:p-6")}>{children}</div>
       ) : null}
-    </div>
-  );
-}
-
-function AdminSkeletonSummaryRow() {
-  return (
-    <div className="flex justify-between gap-4">
-      <AdminSkeleton className="h-4 w-28" />
-      <AdminSkeleton className="h-4 w-12" />
     </div>
   );
 }
@@ -234,7 +232,7 @@ function AdminSkeletonTable({
   );
 }
 
-function AdminSkeletonOrderCard() {
+export function AdminSkeletonOrderCard() {
   return (
     <AdminSkeletonCardShell
       titleWidth="w-32"
@@ -460,21 +458,36 @@ export function AdminSkeletonProductEditPage() {
 
 export function AdminSkeletonProductsPage() {
   return (
-    <AdminSkeletonRegion label="Cargando productos" className="space-y-6 pb-2">
+    <AdminSkeletonRegion label="Cargando productos" className="flex min-h-0 flex-1 flex-col">
       <AdminSkeletonPageHeader
         titleWidth="w-28"
         descriptionWidth="w-64"
       />
 
-      <div className={adminCardClass}>
-        <div className={adminCardHeaderClass}>
-          <div className="flex items-center justify-between gap-4">
-            <AdminSkeleton className="h-4 w-20" />
-            <AdminSkeleton className="h-9 w-32 shrink-0 rounded-lg" />
+      <div className={adminListLayoutRowClass}>
+        <div className={adminListMainColumnClass}>
+          <div className="lg:hidden">
+            <AdminSkeletonFiltersPanel variant="products" className="mb-4" />
           </div>
-          <AdminSkeleton className="mt-1 h-3 w-24" />
+
+          <AdminSkeletonListToolbar variant="products" />
+          <AdminSkeletonFilterChips />
+
+          <div className={adminCardClass}>
+            <div className={adminCardHeaderClass}>
+              <div className="flex items-center justify-between gap-4">
+                <AdminSkeleton className="h-4 w-20" />
+                <AdminSkeleton className="h-9 w-32 shrink-0 rounded-lg" />
+              </div>
+              <AdminSkeleton className="mt-1 h-3 w-24" />
+            </div>
+            <AdminSkeletonProductsTable />
+          </div>
         </div>
-        <AdminSkeletonProductsTable />
+
+        <aside className={adminFiltersAsideClass}>
+          <AdminSkeletonFiltersPanel variant="products" />
+        </aside>
       </div>
     </AdminSkeletonRegion>
   );
@@ -541,22 +554,25 @@ export function AdminSkeletonOrdersPage() {
     >
       <AdminSkeletonPageHeader
         titleWidth="w-28"
-        descriptionWidth="w-40"
+        descriptionWidth="w-72"
       />
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:flex-row lg:gap-8">
-        <div className="min-h-0 min-w-0 flex-1 space-y-4 pb-6 lg:max-w-3xl lg:pr-1 lg:pb-0">
+      <div className={adminListLayoutRowClass}>
+        <div className={adminOrdersMainColumnClass}>
           <div className="lg:hidden">
-            <AdminSkeletonFiltersPanel className="mb-4" />
+            <AdminSkeletonFiltersPanel variant="orders" className="mb-4" />
           </div>
+
+          <AdminSkeletonListToolbar variant="orders" />
+          <AdminSkeletonFilterChips />
 
           {Array.from({ length: 3 }, (_, index) => (
             <AdminSkeletonOrderCard key={index} />
           ))}
         </div>
 
-        <aside className="hidden w-72 shrink-0 lg:block">
-          <AdminSkeletonFiltersPanel />
+        <aside className={adminFiltersAsideClass}>
+          <AdminSkeletonFiltersPanel variant="orders" />
         </aside>
       </div>
     </AdminSkeletonRegion>
@@ -578,44 +594,130 @@ export function AdminSkeletonTabs({ className }: { className?: string }) {
   );
 }
 
-const FILTER_STATUS_ROWS = 5;
+const FILTER_STATUS_ROWS = 6;
 
-export function AdminSkeletonFiltersPanel({
+function AdminSkeletonFilterButtons({ rows }: { rows: number }) {
+  return (
+    <div className="space-y-1">
+      {Array.from({ length: rows }, (_, index) => (
+        <AdminSkeleton key={index} className="h-9 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+}
+
+function AdminSkeletonFilterSection({
+  titleWidth = "w-20",
+  rows,
+}: {
+  titleWidth?: string;
+  rows: number;
+}) {
+  return (
+    <div className="border-t border-neutral-100 px-4 py-3">
+      <AdminSkeleton className={cn("mb-2 h-3", titleWidth)} />
+      <AdminSkeletonFilterButtons rows={rows} />
+    </div>
+  );
+}
+
+function AdminSkeletonFacetFiltersCard({
+  sections,
+}: {
+  sections: Array<{ titleWidth?: string; rows: number }>;
+}) {
+  return (
+    <div className={adminCardClass}>
+      <div className={adminCardHeaderClass}>
+        <AdminSkeleton className="h-4 w-16" />
+        <AdminSkeleton className="mt-2 h-3 w-44" />
+      </div>
+      {sections.map((section, index) => (
+        <AdminSkeletonFilterSection
+          key={index}
+          titleWidth={section.titleWidth}
+          rows={section.rows}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function AdminSkeletonListToolbar({
+  variant = "products",
   className,
 }: {
+  variant?: "products" | "orders";
   className?: string;
 }) {
   return (
-    <AdminSkeletonRegion
-      label="Cargando filtros de pedidos"
-      className={cn("space-y-4", className)}
+    <div
+      className={cn(
+        "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm",
+        className,
+      )}
     >
-      <AdminSkeletonCardShell titleWidth="w-16" descriptionWidth="w-56">
+      <div
+        className={cn(
+          "flex flex-col gap-3",
+          variant === "products" ? "lg:flex-row lg:items-end" : "xl:flex-row xl:items-end",
+        )}
+      >
         <AdminSkeleton className="h-10 w-full rounded-lg" />
-      </AdminSkeletonCardShell>
-
-      <div className={adminCardClass}>
-        <div className={adminCardHeaderClass}>
-          <AdminSkeleton className="h-4 w-20" />
-        </div>
-
-        <div className="space-y-3 p-4">
-          <AdminSkeletonSummaryRow />
-          <AdminSkeletonSummaryRow />
-        </div>
-
-        <div className="border-t border-neutral-100 px-4 py-3">
-          <AdminSkeleton className="mb-2 h-3 w-20" />
-          <div className="space-y-1">
-            {Array.from({ length: FILTER_STATUS_ROWS }, (_, index) => (
-              <AdminSkeleton
-                key={index}
-                className="h-9 w-full rounded-lg"
-              />
-            ))}
+        {variant === "products" ? (
+          <AdminSkeleton className="h-10 w-full rounded-lg lg:w-52" />
+        ) : (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="grid flex-1 gap-3 sm:grid-cols-2">
+              <AdminSkeleton className="h-10 w-full rounded-lg" />
+              <AdminSkeleton className="h-10 w-full rounded-lg" />
+            </div>
+            <AdminSkeleton className="h-9 w-28 shrink-0 rounded-lg" />
           </div>
-        </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+export function AdminSkeletonFilterChips({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex flex-wrap gap-2", className)}>
+      <AdminSkeleton className="h-7 w-24 rounded-full" />
+      <AdminSkeleton className="h-7 w-20 rounded-full" />
+    </div>
+  );
+}
+
+export function AdminSkeletonFiltersPanel({
+  className,
+  variant = "orders",
+}: {
+  className?: string;
+  variant?: "products" | "orders";
+}) {
+  return (
+    <AdminSkeletonRegion
+      label={
+        variant === "products"
+          ? "Cargando filtros de productos"
+          : "Cargando filtros de pedidos"
+      }
+      className={cn(adminFiltersPanelScrollClass, className)}
+    >
+      {variant === "products" ? (
+        <AdminSkeletonFacetFiltersCard
+          sections={[
+            { titleWidth: "w-20", rows: 8 },
+            { titleWidth: "w-14", rows: 4 },
+            { titleWidth: "w-12", rows: 4 },
+          ]}
+        />
+      ) : (
+        <AdminSkeletonFacetFiltersCard
+          sections={[{ titleWidth: "w-20", rows: FILTER_STATUS_ROWS }]}
+        />
+      )}
     </AdminSkeletonRegion>
   );
 }

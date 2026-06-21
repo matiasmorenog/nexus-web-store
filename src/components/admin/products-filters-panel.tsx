@@ -1,12 +1,14 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import {
   AdminClearFiltersButton,
   AdminFilterButton,
   AdminFilterSection,
 } from "@/components/admin/admin-filters";
+import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
+import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
 import { hasAdminProductFacetFilters } from "@/lib/admin-product-filters";
 import { PRODUCT_CATEGORIES, STORE_AUDIENCES } from "@/lib/categories";
 import { cn } from "@/lib/utils";
@@ -30,8 +32,8 @@ export function ProductsFiltersPanel({
   estadoCounts,
   className,
 }: ProductsFiltersPanelProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useAdminListNavigation();
 
   const activeCategory = searchParams.get("categoria") ?? "";
   const activeAudience = searchParams.get("genero") ?? "";
@@ -60,9 +62,7 @@ export function ProductsFiltersPanel({
     }
 
     const qs = params.toString();
-    router.push(qs ? `/admin/productos?${qs}` : "/admin/productos", {
-      scroll: false,
-    });
+    navigateCatalog(qs ? `/admin/productos?${qs}` : "/admin/productos");
   };
 
   const hasFacetFilters = hasAdminProductFacetFilters({
@@ -72,7 +72,7 @@ export function ProductsFiltersPanel({
   });
 
   return (
-    <div className={cn(className)}>
+    <div className={cn(adminFiltersPanelScrollClass, className)}>
       <AdminCard title="Filtros" description="Categoría, público y estado." padding={false}>
         <AdminFilterSection title="Categoría">
           <AdminFilterButton

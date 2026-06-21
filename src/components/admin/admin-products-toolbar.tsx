@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AdminSearchField } from "@/components/admin/admin-filters";
+import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Label } from "@/components/ui/label";
 import { ADMIN_PRODUCT_SORT_OPTIONS } from "@/lib/admin-product-sort";
 import { cn } from "@/lib/utils";
@@ -11,8 +12,8 @@ const fieldClass =
   "h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 export function AdminProductsToolbar({ className }: { className?: string }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const navigateCatalog = useAdminListNavigation();
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
 
   const activeSort = searchParams.get("orden") ?? "recientes";
@@ -39,9 +40,7 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
     }
 
     const qs = params.toString();
-    router.push(qs ? `/admin/productos?${qs}` : "/admin/productos", {
-      scroll: false,
-    });
+    navigateCatalog(qs ? `/admin/productos?${qs}` : "/admin/productos");
   };
 
   return (

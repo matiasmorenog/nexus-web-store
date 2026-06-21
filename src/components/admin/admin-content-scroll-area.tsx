@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useLayoutEffect, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 type AdminContentScrollAreaProps = {
@@ -9,16 +9,19 @@ type AdminContentScrollAreaProps = {
   className?: string;
 };
 
+function readRouteKey(pathname: string) {
+  if (typeof window === "undefined") return pathname;
+  return `${pathname}${window.location.search}`;
+}
+
 export function AdminContentScrollArea({
   children,
   className,
 }: AdminContentScrollAreaProps) {
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
   const scrollSnapshot = useRef<number | null>(null);
-  const routeKey = useRef(`${pathname}?${query}`);
+  const routeKey = useRef(readRouteKey(pathname));
 
   useEffect(() => {
     const container = ref.current;
@@ -47,7 +50,7 @@ export function AdminContentScrollArea({
 
   useLayoutEffect(() => {
     const container = ref.current;
-    const nextRouteKey = `${pathname}?${query}`;
+    const nextRouteKey = readRouteKey(pathname);
 
     if (
       routeKey.current !== nextRouteKey &&
@@ -59,10 +62,10 @@ export function AdminContentScrollArea({
     }
 
     routeKey.current = nextRouteKey;
-  }, [pathname, query]);
+  }, [pathname, children]);
 
   return (
-    <div ref={ref} className={cn(className)}>
+    <div ref={ref} data-admin-scroll-area className={cn(className)}>
       {children}
     </div>
   );

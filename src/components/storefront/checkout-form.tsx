@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { Truck } from "lucide-react";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,12 @@ import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 type DeliveryMethod = "shipping" | "pickup";
+
+type ShippingQuote = {
+  cost: number;
+  deliveryWindow: string;
+  demoMode: boolean;
+};
 
 function DeliverySection({
   method,
@@ -32,6 +39,12 @@ function DeliverySection({
   );
 }
 
+function readFormField(form: HTMLFormElement, name: string) {
+  const field = form.elements.namedItem(name);
+  if (!field || !("value" in field)) return "";
+  return String(field.value).trim();
+}
+
 type CheckoutFormProps = {
   shippingCost: number;
   allowPickup: boolean;
@@ -46,14 +59,87 @@ export function CheckoutForm({
   showSummary = true,
 }: CheckoutFormProps) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
   const { items, rawSubtotal, promoDiscount, subtotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("shipping");
+  const [zip, setZip] = useState("");
+  const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
 
+  const syncZipFromInput = useCallback(() => {
+    const value = zipInputRef.current?.value ?? "";
+    setZip(value);
+  }, []);
+
+  useEffect(() => {
+    const input = zipInputRef.current;
+    if (!input) return;
+
+    const onAutoFill = () => syncZipFromInput();
+    input.addEventListener("input", onAutoFill);
+    input.addEventListener("change", onAutoFill);
+    input.addEventListener("animationstart", onAutoFill);
+
+    return () => {
+      input.removeEventListener("input", onAutoFill);
+      input.removeEventListener("change", onAutoFill);
+      input.removeEventListener("animationstart", onAutoFill);
+    };
+  }, [syncZipFromInput, deliveryMethod]);
+
+  const quotedShipping = shippingQuote?.cost ?? shippingCost;
   const effectiveShipping =
-    deliveryMethod === "pickup" ? 0 : shippingCost;
+    deliveryMethod === "pickup" ? 0 : quotedShipping;
   const total = subtotal() + effectiveShipping;
+
+  useEffect(() => {
+    if (deliveryMethod !== "shipping") {
+      setShippingQuote(null);
+      return;
+    }
+
+    const normalizedZip = zip.replace(/\D/g, "");
+    if (normalizedZip.length < 4) {
+      setShippingQuote(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setQuoteLoading(true);
+      try {
+        const res = await fetch("/api/shipping/quote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ zip: normalizedZip }),
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Error al cotizar");
+
+        setShippingQuote({
+          cost: data.cost,
+          deliveryWindow: data.deliveryWindow,
+          demoMode: Boolean(data.demoMode),
+        });
+      } catch (quoteError) {
+        if (quoteError instanceof DOMException && quoteError.name === "AbortError") {
+          return;
+        }
+        setShippingQuote(null);
+      } finally {
+        setQuoteLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [deliveryMethod, zip]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,8 +148,35 @@ export function CheckoutForm({
     setLoading(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const form = e.currentTarget;
+    syncZipFromInput();
+
+    const customer = {
+      name: readFormField(form, "name"),
+      email: readFormField(form, "email"),
+      phone: readFormField(form, "phone"),
+      address: readFormField(form, "address"),
+      city: readFormField(form, "city"),
+      zip: readFormField(form, "zip"),
+    };
+
+    if (deliveryMethod === "shipping") {
+      if (!customer.address) {
+        setError("Completá la dirección de envío.");
+        setLoading(false);
+        return;
+      }
+      if (!customer.city) {
+        setError("Completá la ciudad.");
+        setLoading(false);
+        return;
+      }
+      if (!customer.zip) {
+        setError("Completá el código postal.");
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       const res = await fetch("/api/checkout", {
@@ -71,7 +184,7 @@ export function CheckoutForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryMethod,
-          customer: data,
+          customer,
           items: items.map((i) => ({
             variantId: i.variantId,
             quantity: i.quantity,
@@ -100,7 +213,13 @@ export function CheckoutForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      ref={formRef}
+      id="checkout-form"
+      autoComplete="on"
+      onSubmit={handleSubmit}
+      className="space-y-6"
+    >
       {allowPickup && (
         <fieldset className="space-y-3">
           <legend className="text-sm font-medium text-neutral-900">
@@ -123,12 +242,23 @@ export function CheckoutForm({
                 onChange={() => setDeliveryMethod("shipping")}
                 className="sr-only"
               />
-              <span className="font-medium">Envío a domicilio</span>
-              <span className="mt-1 text-sm text-neutral-600">
-                {shippingCost > 0
-                  ? formatPrice(shippingCost)
-                  : "Sin costo de envío"}
+              <span className="flex items-center gap-2 font-medium">
+                <Truck className="size-4 text-[#3483fa]" aria-hidden />
+                Mercado Envíos
               </span>
+              <span className="mt-1 text-sm text-neutral-600">
+                {quoteLoading
+                  ? "Calculando envío..."
+                  : effectiveShipping > 0
+                    ? formatPrice(effectiveShipping)
+                    : "Ingresá tu CP para cotizar"}
+              </span>
+              {shippingQuote && deliveryMethod === "shipping" ? (
+                <span className="mt-1 text-xs text-neutral-500">
+                  Llega en {shippingQuote.deliveryWindow}
+                  {shippingQuote.demoMode ? " · demo" : ""}
+                </span>
+              ) : null}
             </label>
             <label
               className={cn(
@@ -159,39 +289,96 @@ export function CheckoutForm({
         </fieldset>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <Label htmlFor="name">Nombre completo</Label>
-          <Input id="name" name="name" required />
+      {!allowPickup && deliveryMethod === "shipping" ? (
+        <div className="rounded-lg border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-3 text-sm text-neutral-700">
+          <p className="flex items-center gap-2 font-medium text-neutral-900">
+            <Truck className="size-4 text-[#3483fa]" aria-hidden />
+            Envío con Mercado Envíos
+          </p>
+          <p className="mt-1 text-neutral-600">
+            {quoteLoading
+              ? "Calculando costo y plazo..."
+              : shippingQuote
+                ? `${formatPrice(effectiveShipping)} · llega en ${shippingQuote.deliveryWindow}`
+                : "Ingresá tu código postal para cotizar el envío."}
+          </p>
         </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" required />
-        </div>
-        <div>
-          <Label htmlFor="phone">Teléfono</Label>
-          <Input id="phone" name="phone" required />
-        </div>
+      ) : null}
 
-        <DeliverySection
-          method="shipping"
-          active={deliveryMethod === "shipping"}
-          className="grid gap-4 sm:col-span-2 sm:grid-cols-2"
-        >
-          <div className="sm:col-span-2">
-            <Label htmlFor="address">Dirección</Label>
-            <Input id="address" name="address" required />
-          </div>
-          <div>
-            <Label htmlFor="city">Ciudad</Label>
-            <Input id="city" name="city" required />
-          </div>
-          <div>
-            <Label htmlFor="zip">Código postal</Label>
-            <Input id="zip" name="zip" required />
-          </div>
-        </DeliverySection>
-      </div>
+      <fieldset className="grid gap-4 sm:grid-cols-2">
+        <legend className="sr-only">Datos de contacto</legend>
+        <div className="sm:col-span-2">
+          <Label htmlFor="checkout-name">Nombre completo</Label>
+          <Input
+            id="checkout-name"
+            name="name"
+            autoComplete="name"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="checkout-email">Email</Label>
+          <Input
+            id="checkout-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="checkout-phone">Teléfono</Label>
+          <Input
+            id="checkout-phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            required
+          />
+        </div>
+      </fieldset>
+
+      <fieldset
+        disabled={deliveryMethod === "pickup"}
+        hidden={deliveryMethod === "pickup"}
+        className="grid gap-4 sm:grid-cols-2"
+      >
+        <legend className="mb-1 text-sm font-medium text-neutral-900 sm:col-span-2">
+          Dirección de envío
+        </legend>
+        <div className="sm:col-span-2">
+          <Label htmlFor="checkout-address">Dirección</Label>
+          <Input
+            id="checkout-address"
+            name="address"
+            autoComplete="shipping street-address"
+            required={deliveryMethod === "shipping"}
+          />
+        </div>
+        <div>
+          <Label htmlFor="checkout-city">Ciudad</Label>
+          <Input
+            id="checkout-city"
+            name="city"
+            autoComplete="shipping address-level2"
+            required={deliveryMethod === "shipping"}
+          />
+        </div>
+        <div>
+          <Label htmlFor="checkout-zip">Código postal</Label>
+          <Input
+            ref={zipInputRef}
+            id="checkout-zip"
+            name="zip"
+            autoComplete="shipping postal-code"
+            inputMode="numeric"
+            required={deliveryMethod === "shipping"}
+            onInput={syncZipFromInput}
+            onChange={syncZipFromInput}
+          />
+        </div>
+      </fieldset>
 
       {showSummary ? (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm">
@@ -206,7 +393,9 @@ export function CheckoutForm({
             className="mt-1 flex justify-between text-neutral-600"
           >
             <span>
-              {deliveryMethod === "pickup" ? "Retiro en local" : "Envío"}
+              {deliveryMethod === "pickup"
+                ? "Retiro en local"
+                : "Mercado Envíos"}
             </span>
             <span>
               {deliveryMethod === "pickup"

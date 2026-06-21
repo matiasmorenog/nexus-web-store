@@ -19,6 +19,12 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum MercadoEnviosStatus {
+  READY_TO_SHIP
+  IN_TRANSIT
+  DELIVERED
+}
+
 model Store {
   id               String   @id @default(cuid())
   name             String
@@ -113,6 +119,12 @@ model Order {
   shippingZip     String
   mpPreferenceId            String?
   mpPaymentId               String?
+  meShipmentId              String?
+  meTrackingNumber          String?
+  meTrackingUrl             String?
+  meCarrier                 String?
+  meStatus                  MercadoEnviosStatus?
+  meEstimatedDelivery       DateTime?
   confirmationEmailSentAt   DateTime?
   createdAt                 DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { buildOrderEmailData } from "@/lib/emails/order-email-data";
 import { sendOrderEmails } from "@/lib/emails/send-order-emails";
 import { getMerchantEmail } from "@/lib/merchant-email";
+import { createOrderShipment } from "@/lib/orders/create-order-shipment";
 
 const orderInclude = {
   store: true,
@@ -66,8 +67,26 @@ export async function fulfillPaidOrder(orderId: string) {
     });
   }
 
-  const merchantEmail = await getMerchantEmail(order.storeId);
-  const emailData = buildOrderEmailData(order);
+  await createOrderShipment({
+    id: order.id,
+    isPickup: order.isPickup,
+    shippingZip: order.shippingZip,
+    meShipmentId: order.meShipmentId,
+  }).catch((error) => {
+    console.error("Mercado Envíos shipment error:", error);
+  });
+
+  const orderForEmail = (await db.order.findUnique({
+    where: { id: orderId },
+    include: orderInclude,
+  })) as OrderForFulfillment | null;
+
+  if (!orderForEmail) {
+    throw new Error("Pedido no encontrado");
+  }
+
+  const merchantEmail = await getMerchantEmail(orderForEmail.storeId);
+  const emailData = buildOrderEmailData(orderForEmail);
   const emailResult = await sendOrderEmails(emailData, merchantEmail);
 
   await markConfirmationEmailSent(orderId);

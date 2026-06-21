@@ -1,4 +1,9 @@
 import { formatStoreName } from "@/lib/brand";
+import {
+  getMercadoEnviosCarrier,
+  resolveMercadoEnviosTrackingUrl,
+  formatMercadoEnviosDate,
+} from "@/lib/mercado-envios";
 import { formatPrice } from "@/lib/utils";
 
 export type OrderEmailItem = {
@@ -25,6 +30,12 @@ export type OrderEmailData = {
   shippingCost: number;
   total: number;
   adminOrdersUrl: string;
+  shippingProvider?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  trackingPortalLabel?: string;
+  trackingHint?: string;
+  estimatedDelivery?: string;
 };
 
 export function buildOrderEmailData(order: {
@@ -40,6 +51,9 @@ export function buildOrderEmailData(order: {
   promoDiscount?: { toString(): string } | number;
   total: { toString(): string } | number;
   store: { name: string };
+  meTrackingNumber: string | null;
+  meTrackingUrl?: string | null;
+  meEstimatedDelivery?: Date | null;
   items: Array<{
     quantity: number;
     unitPrice: { toString(): string } | number;
@@ -65,6 +79,9 @@ export function buildOrderEmailData(order: {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+  const trackingNumber = order.meTrackingNumber ?? undefined;
+  const carrierMeta = getMercadoEnviosCarrier();
+
   return {
     orderId: order.id,
     storeName: formatStoreName(order.store.name),
@@ -81,6 +98,18 @@ export function buildOrderEmailData(order: {
     shippingCost: Number(order.shippingCost),
     total: Number(order.total),
     adminOrdersUrl: `${appUrl}/admin/pedidos`,
+    shippingProvider: order.isPickup ? undefined : "Mercado Envíos",
+    trackingNumber,
+    trackingUrl: trackingNumber
+      ? resolveMercadoEnviosTrackingUrl({
+          trackingUrl: order.meTrackingUrl,
+        })
+      : undefined,
+    trackingPortalLabel: carrierMeta.trackingPortalLabel,
+    trackingHint: carrierMeta.trackingHint,
+    estimatedDelivery: order.meEstimatedDelivery
+      ? formatMercadoEnviosDate(order.meEstimatedDelivery)
+      : undefined,
   };
 }
 
@@ -149,9 +178,34 @@ function renderDeliverySection(data: OrderEmailData) {
       ${data.shippingCity}, CP ${data.shippingZip}<br>
       Tel: ${data.customerPhone}
     </p>
-    <p style="margin-top:24px;color:#666;font-size:13px;">
+    ${
+      data.trackingNumber
+        ? `
+    <div style="margin-top:16px;padding:12px 14px;background:#f5f5f5;border-radius:8px;">
+      <p style="margin:0 0 4px;font-size:13px;color:#666;">${data.shippingProvider ?? "Mercado Envíos"}</p>
+      <p style="margin:0;font-size:15px;"><strong>Seguimiento:</strong> ${data.trackingNumber}</p>
+      ${
+        data.estimatedDelivery
+          ? `<p style="margin:6px 0 0;font-size:13px;color:#666;">Entrega estimada: ${data.estimatedDelivery}</p>`
+          : ""
+      }
+      ${
+        data.trackingUrl
+          ? `<p style="margin:10px 0 0;"><a href="${data.trackingUrl}" style="color:#3483fa;">${data.trackingPortalLabel ?? "Rastrear envío"} →</a></p>${
+              data.trackingHint
+                ? `<p style="margin:6px 0 0;font-size:12px;color:#666;">${data.trackingHint}</p>`
+                : ""
+            }`
+          : ""
+      }
+    </div>
+    `
+        : `
+    <p style="margin-top:12px;color:#666;font-size:13px;">
       Te avisaremos cuando tu pedido sea despachado.
     </p>
+    `
+    }
   `;
 }
 
@@ -189,7 +243,18 @@ export function buildCustomerConfirmationEmail(data: OrderEmailData) {
     "",
     data.isPickup
       ? `Retiro en local: ${data.shippingCity}`
-      : `Envío a: ${data.shippingAddress}, ${data.shippingCity} CP ${data.shippingZip}`,
+      : [
+          `Envío a: ${data.shippingAddress}, ${data.shippingCity} CP ${data.shippingZip}`,
+          ...(data.trackingNumber
+            ? [
+                `Seguimiento ${data.shippingProvider ?? "Mercado Envíos"}: ${data.trackingNumber}`,
+                ...(data.estimatedDelivery
+                  ? [`Entrega estimada: ${data.estimatedDelivery}`]
+                  : []),
+                ...(data.trackingUrl ? [`Rastreo: ${data.trackingUrl}`] : []),
+              ]
+            : []),
+        ].join("\n"),
   ].join("\n");
 
   return { subject, html, text };

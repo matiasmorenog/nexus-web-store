@@ -9,6 +9,7 @@ import {
   type OrderStatus,
 } from "@/lib/order-status";
 import { getOrderPaymentInfo } from "@/lib/order-payment";
+import { getOrderShippingInfo } from "@/lib/order-shipping";
 import { Prisma } from "@prisma/client";
 
 export type AdminOrdersFilterParams = {
@@ -174,6 +175,17 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     mpPreferenceId: order.mpPreferenceId,
   });
 
+  const shipping = getOrderShippingInfo({
+    isPickup: order.isPickup,
+    meShipmentId: order.meShipmentId,
+    meTrackingNumber: order.meTrackingNumber,
+    meTrackingUrl: order.meTrackingUrl,
+    meCarrier: order.meCarrier,
+    meStatus: order.meStatus,
+    meEstimatedDelivery: order.meEstimatedDelivery,
+    status: order.status,
+  });
+
   return {
     id: order.id,
     status: order.status,
@@ -187,6 +199,7 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     shippingZip: order.shippingZip,
     createdAt: order.createdAt,
     payment,
+    shipping,
     items: order.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,

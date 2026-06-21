@@ -4,6 +4,7 @@ import {
   getOrderStatusVariant,
 } from "@/lib/order-status";
 import type { OrderPaymentInfo } from "@/lib/order-payment";
+import type { OrderShippingInfo } from "@/lib/order-shipping";
 import { formatPrice } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/admin-card";
 import {
@@ -44,6 +45,7 @@ export type AdminOrderCardData = {
   shippingZip: string;
   createdAt: Date;
   payment: OrderPaymentInfo;
+  shipping: OrderShippingInfo;
   items: OrderItem[];
 };
 
@@ -91,6 +93,37 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
             <p className="text-neutral-700">{order.payment.statusLabel}</p>
             {order.payment.detail ? (
               <p className="text-neutral-500">{order.payment.detail}</p>
+            ) : null}
+          </AdminDetailField>
+          <AdminDetailField label="Envío">
+            <p>{order.shipping.provider}</p>
+            <p className="text-neutral-700">{order.shipping.statusLabel}</p>
+            {order.shipping.trackingNumber ? (
+              <>
+                <p className="font-mono text-sm text-neutral-600">
+                  {order.shipping.trackingNumber}
+                </p>
+                {order.shipping.carrier ? (
+                  <p className="text-neutral-500">{order.shipping.carrier}</p>
+                ) : null}
+                {order.shipping.trackingUrl ? (
+                  <a
+                    href={order.shipping.trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-[#3483fa] hover:underline"
+                  >
+                    {order.shipping.trackingPortalLabel ?? "Rastrear envío"} →
+                  </a>
+                ) : null}
+              </>
+            ) : order.shipping.detail ? (
+              <p className="text-neutral-500">{order.shipping.detail}</p>
+            ) : null}
+            {order.shipping.estimatedDelivery ? (
+              <p className="text-neutral-500">
+                Entrega estimada: {order.shipping.estimatedDelivery}
+              </p>
             ) : null}
           </AdminDetailField>
         </AdminDetailGrid>

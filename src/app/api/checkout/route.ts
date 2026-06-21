@@ -3,6 +3,7 @@ import { z } from "zod";
 import { formatStoreName } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
+import { quoteMercadoEnvios } from "@/lib/mercado-envios";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
   getMercadoPagoUnitPrice,
@@ -31,11 +32,17 @@ const checkoutSchema = z
   .superRefine((data, ctx) => {
     if (data.deliveryMethod !== "shipping") return;
 
+    const labels: Record<"address" | "city" | "zip", string> = {
+      address: "dirección",
+      city: "ciudad",
+      zip: "código postal",
+    };
+
     for (const field of ["address", "city", "zip"] as const) {
       if (!data.customer[field]?.trim()) {
         ctx.addIssue({
           code: "custom",
-          message: `El campo ${field} es obligatorio para envío a domicilio`,
+          message: `Completá ${labels[field]} para envío a domicilio`,
           path: ["customer", field],
         });
       }
@@ -48,7 +55,9 @@ export async function POST(request: NextRequest) {
     const parsed = checkoutSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+      const message =
+        parsed.error.issues[0]?.message ?? "Datos inválidos";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
     const { customer, items, deliveryMethod } = parsed.data;
@@ -97,7 +106,12 @@ export async function POST(request: NextRequest) {
     });
 
     const { rawSubtotal, promoDiscount, subtotal } = sumPromo2x1Cart(promoLines);
-    const shippingCost = isPickup ? 0 : Number(store.shippingFlatRate);
+    const shippingCost = isPickup
+      ? 0
+      : quoteMercadoEnvios({
+          zip: customer.zip!.trim(),
+          baseRate: Number(store.shippingFlatRate),
+        }).cost;
     const total = subtotal + shippingCost;
 
     const order = await db.order.create({
@@ -158,7 +172,7 @@ export async function POST(request: NextRequest) {
     if (shippingCost > 0) {
       mpItems.push({
         id: "shipping",
-        title: "Envío",
+        title: "Envío (Mercado Envíos)",
         quantity: 1,
         unit_price: shippingCost,
       });
@@ -169,7 +183,19 @@ export async function POST(request: NextRequest) {
       !process.env.MERCADOPAGO_ACCESS_TOKEN.includes("your-access-token");
 
     if (!hasMpToken) {
-      const fulfillment = await fulfillPaidOrder(order.id);
+      let fulfillment;
+      try {
+        fulfillment = await fulfillPaidOrder(order.id);
+      } catch (fulfillError) {
+        console.error("Fulfillment error:", fulfillError);
+        return NextResponse.json(
+          {
+            error:
+              "El pedido se creó pero no se pudo completar. Si acabás de actualizar el proyecto, ejecutá `npx prisma db push` e intentá de nuevo.",
+          },
+          { status: 500 },
+        );
+      }
 
       return NextResponse.json({
         demoMode: true,

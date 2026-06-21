@@ -6,6 +6,7 @@ Tienda de **ropa deportiva y CrossFit** construida con Next.js — primer produc
 
 - **Storefront:** catálogo con filtros, detalle de producto con variantes (talle/color), carrito persistente y checkout
 - **Pagos:** integración con Mercado Pago Checkout Pro (modo demo sin credenciales)
+- **Envíos:** cotización y seguimiento con Mercado Envíos (modo demo sin credenciales)
 - **Admin:** panel protegido para gestionar productos, pedidos y configuración de tienda
 - **Multi-tenant ready:** modelo de datos preparado para múltiples tiendas (`storeId` en todas las entidades)
 
@@ -57,6 +58,16 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 Sin credenciales válidas, el checkout funciona en **modo demo** (simula pago exitoso).
+
+## Mercado Envíos
+
+Sin `MERCADOENVIOS_ACCESS_TOKEN`, el checkout cotiza envío según CP, genera un código de seguimiento simulado (18 caracteres, formato Mercado Libre + Correo Argentino) y enlaza al [formulario oficial de Correo Argentino para envíos MercadoLibre](https://www.correoargentino.com.ar/formularios/mercadolibre). Mercado Libre no expone una URL pública de rastreo; en producción se guarda la URL del transportista que devuelve la API.
+
+Para integración real (futuro):
+
+```env
+MERCADOENVIOS_ACCESS_TOKEN="TEST-..."
+```
 
 ## Deploy en Vercel
 

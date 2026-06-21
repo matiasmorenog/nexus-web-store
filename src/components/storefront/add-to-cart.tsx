@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function AddToCart({
   promo2x1 = false,
   variants,
 }: AddToCartProps) {
+  const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const colors = [...new Set(variants.map((v) => v.color))];
   const sizes = [...new Set(variants.map((v) => v.size))];
@@ -39,6 +41,7 @@ export function AddToCart({
   const [selectedColor, setSelectedColor] = useState(colors[0] ?? "");
   const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
   const [added, setAdded] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   const selectedVariant = variants.find(
     (v) => v.color === selectedColor && v.size === selectedSize,
@@ -48,9 +51,10 @@ export function AddToCart({
     variants.some((v) => v.color === selectedColor && v.size === size && v.stock > 0),
   );
 
-  const handleAdd = () => {
-    if (!selectedVariant || selectedVariant.stock <= 0) return;
-    addItem({
+  const buildCartItem = () => {
+    if (!selectedVariant || selectedVariant.stock <= 0) return null;
+
+    return {
       variantId: selectedVariant.id,
       productId,
       productName,
@@ -61,10 +65,29 @@ export function AddToCart({
       imageUrl: selectedVariant.imageUrl,
       stock: selectedVariant.stock,
       promo2x1,
-    });
+    };
+  };
+
+  const handleAdd = () => {
+    const item = buildCartItem();
+    if (!item) return;
+
+    addItem(item);
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2000);
   };
+
+  const handleBuyNow = () => {
+    const item = buildCartItem();
+    if (!item) return;
+
+    setBuyingNow(true);
+    addItem(item);
+    router.push("/checkout");
+  };
+
+  const outOfStock = !selectedVariant || selectedVariant.stock <= 0;
+  const disabled = outOfStock || added || buyingNow;
 
   return (
     <div className="space-y-6">
@@ -132,23 +155,39 @@ export function AddToCart({
         <p className="text-2xl font-bold">{formatPrice(Number(selectedVariant.price))}</p>
       )}
 
-      <Button
-        size="lg"
-        className={cn("w-full", added && "cart-add-success")}
-        onClick={handleAdd}
-        disabled={!selectedVariant || selectedVariant.stock <= 0 || added}
-      >
-        {added ? (
-          <span className="inline-flex items-center gap-2">
-            <Check className="h-5 w-5" aria-hidden />
-            ¡Agregado!
-          </span>
-        ) : selectedVariant && selectedVariant.stock > 0 ? (
-          "Agregar al carrito"
-        ) : (
-          "Sin stock"
-        )}
-      </Button>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button
+          size="lg"
+          variant="primary"
+          className="w-full sm:flex-1"
+          onClick={handleBuyNow}
+          disabled={disabled}
+        >
+          {buyingNow
+            ? "Redirigiendo..."
+            : outOfStock
+              ? "Sin stock"
+              : "Comprar ahora"}
+        </Button>
+        <Button
+          size="lg"
+          variant="outline"
+          className={cn("w-full sm:flex-1", added && "cart-add-success")}
+          onClick={handleAdd}
+          disabled={disabled}
+        >
+          {added ? (
+            <span className="inline-flex items-center gap-2">
+              <Check className="h-5 w-5" aria-hidden />
+              ¡Agregado!
+            </span>
+          ) : outOfStock ? (
+            "Sin stock"
+          ) : (
+            "Agregar al carrito"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

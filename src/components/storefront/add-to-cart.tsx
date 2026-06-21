@@ -23,14 +23,20 @@ type AddToCartProps = {
   productName: string;
   productSlug: string;
   promo2x1?: boolean;
+  showSizeGuideLink?: boolean;
   variants: Variant[];
 };
+
+function scrollToSizeGuide() {
+  document.getElementById("size-guide")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 export function AddToCart({
   productId,
   productName,
   productSlug,
   promo2x1 = false,
+  showSizeGuideLink = false,
   variants,
 }: AddToCartProps) {
   const router = useRouter();
@@ -95,8 +101,8 @@ export function AddToCart({
         <div className="flex items-start gap-3 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
           <Promo2x1Badge size="md" className="shrink-0" />
           <p className="text-sm text-neutral-700">
-            Promoción <strong>2x1</strong>: agregá dos unidades al carrito y
-            pagá solo una.
+            Promoción <strong>2x1</strong>: agregá dos unidades del mismo
+            producto (cualquier talle o color) y pagá una.
           </p>
         </div>
       )}
@@ -126,7 +132,18 @@ export function AddToCart({
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-medium">Talle</p>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-sm font-medium">Talle</p>
+          {showSizeGuideLink && (
+            <button
+              type="button"
+              onClick={scrollToSizeGuide}
+              className="text-xs font-medium text-[var(--brand-primary)] underline-offset-2 transition-colors hover:underline"
+            >
+              Guía de talles
+            </button>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2">
           {sizes.map((size) => {
             const available = availableSizes.includes(size);
@@ -155,11 +172,11 @@ export function AddToCart({
         <p className="text-2xl font-bold">{formatPrice(Number(selectedVariant.price))}</p>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3">
         <Button
           size="lg"
           variant="primary"
-          className="w-full sm:flex-1"
+          className="w-full"
           onClick={handleBuyNow}
           disabled={disabled}
         >
@@ -172,7 +189,7 @@ export function AddToCart({
         <Button
           size="lg"
           variant="outline"
-          className={cn("w-full sm:flex-1", added && "cart-add-success")}
+          className={cn("w-full", added && "cart-add-success")}
           onClick={handleAdd}
           disabled={disabled}
         >

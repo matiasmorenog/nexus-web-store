@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/storefront/add-to-cart";
+import { InfoSections } from "@/components/storefront/info-sections";
 import { ProductImage } from "@/components/storefront/product-image";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { db } from "@/lib/db";
-import { getStoreId } from "@/lib/store-context";
+import { INFO_PAGES, resolvePageContent } from "@/lib/info-pages";
+import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,9 @@ type PageProps = {
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const storeId = await getStoreId();
+  const [storeId, store] = await Promise.all([getStoreId(), getStore()]);
+  const displayName = formatStoreName(store.name);
+  const sizeGuide = resolvePageContent(INFO_PAGES["guia-de-talles"], displayName);
 
   const product = await db.product.findFirst({
     where: { storeId, slug },
@@ -64,6 +68,7 @@ export default async function ProductPage({ params }: PageProps) {
               productName={product.name}
               productSlug={product.slug}
               promo2x1={product.promo2x1}
+              showSizeGuideLink={product.category !== "accesorios"}
               variants={product.variants.map((v) => ({
                 id: v.id,
                 size: v.size,
@@ -76,6 +81,23 @@ export default async function ProductPage({ params }: PageProps) {
           </div>
         </StorefrontReveal>
       </div>
+
+      {product.category !== "accesorios" && sizeGuide.kind === "info" && (
+        <StorefrontReveal index={3} className="mt-12 lg:mt-16">
+          <section id="size-guide" aria-labelledby="size-guide-heading" className="scroll-mt-28">
+            <h2
+              id="size-guide-heading"
+              className="text-2xl font-bold tracking-tight text-neutral-900"
+            >
+              {sizeGuide.title}
+            </h2>
+            <p className="mt-2 max-w-2xl text-neutral-600">{sizeGuide.description}</p>
+            <div className="mt-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+              <InfoSections sections={sizeGuide.sections} />
+            </div>
+          </section>
+        </StorefrontReveal>
+      )}
     </div>
   );
 }

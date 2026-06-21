@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getAdminOrdersPage } from "@/lib/admin-orders-query";
+import {
+  getAdminOrdersPage,
+  parseAdminOrdersUrlParams,
+  resolveAdminOrdersFilters,
+} from "@/lib/admin-orders-query";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -12,18 +16,10 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-  const estado = searchParams.get("estado") ?? undefined;
-  const q = searchParams.get("q") ?? undefined;
-  const desde = searchParams.get("desde") ?? undefined;
-  const hasta = searchParams.get("hasta") ?? undefined;
+  const filters = resolveAdminOrdersFilters(parseAdminOrdersUrlParams(searchParams));
 
   try {
-    const result = await getAdminOrdersPage(storeId, page, {
-      estado,
-      q,
-      desde,
-      hasta,
-    });
+    const result = await getAdminOrdersPage(storeId, page, filters);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Admin orders page error:", error);

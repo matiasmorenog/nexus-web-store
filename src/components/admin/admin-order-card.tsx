@@ -3,6 +3,7 @@ import {
   getOrderStatusLabel,
   getOrderStatusVariant,
 } from "@/lib/order-status";
+import type { OrderPaymentInfo } from "@/lib/order-payment";
 import { formatPrice } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/admin-card";
 import {
@@ -42,6 +43,7 @@ export type AdminOrderCardData = {
   shippingCity: string;
   shippingZip: string;
   createdAt: Date;
+  payment: OrderPaymentInfo;
   items: OrderItem[];
 };
 
@@ -83,6 +85,13 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
                 {order.shippingCity} ({order.shippingZip})
               </>
             )}
+          </AdminDetailField>
+          <AdminDetailField label="Pago">
+            <p>{order.payment.provider}</p>
+            <p className="text-neutral-700">{order.payment.statusLabel}</p>
+            {order.payment.detail ? (
+              <p className="text-neutral-500">{order.payment.detail}</p>
+            ) : null}
           </AdminDetailField>
         </AdminDetailGrid>
       </AdminCardSection>

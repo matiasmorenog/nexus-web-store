@@ -1,10 +1,14 @@
 import type { AdminOrderCardData } from "@/components/admin/admin-order-card";
 import { db } from "@/lib/db";
-import { ADMIN_LIST_PAGE_SIZE, adminListSkip } from "@/lib/admin-pagination";
+import {
+  ADMIN_ORDERS_PAGE_SIZE,
+  adminOrdersListSkip,
+} from "@/lib/admin-pagination";
 import {
   ORDER_STATUSES,
   type OrderStatus,
 } from "@/lib/order-status";
+import { getOrderPaymentInfo } from "@/lib/order-payment";
 import { Prisma } from "@prisma/client";
 
 export type AdminOrdersFilterParams = {
@@ -12,7 +16,94 @@ export type AdminOrdersFilterParams = {
   q?: string;
   desde?: string;
   hasta?: string;
+  /** Sin filtro de fecha (todos los pedidos). */
+  showAll?: boolean;
 };
+
+export type AdminOrdersUrlParams = AdminOrdersFilterParams & {
+  todos?: string;
+};
+
+export const ADMIN_ORDERS_DEFAULT_RANGE_DAYS = 2;
+
+function isoDateLocal(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function getDefaultAdminOrdersDateRange() {
+  const hasta = new Date();
+  const desde = new Date();
+  desde.setDate(desde.getDate() - (ADMIN_ORDERS_DEFAULT_RANGE_DAYS - 1));
+
+  return {
+    desde: isoDateLocal(desde),
+    hasta: isoDateLocal(hasta),
+  };
+}
+
+export function needsAdminOrdersDefaultRangeRedirect(
+  params: AdminOrdersUrlParams,
+) {
+  return params.todos !== "1" && !params.desde && !params.hasta;
+}
+
+export function buildAdminOrdersRedirectSearchParams(
+  params: AdminOrdersUrlParams,
+) {
+  const searchParams = new URLSearchParams();
+  const range = getDefaultAdminOrdersDateRange();
+
+  if (params.estado) searchParams.set("estado", params.estado);
+  if (params.q?.trim()) searchParams.set("q", params.q.trim());
+  searchParams.set("desde", range.desde);
+  searchParams.set("hasta", range.hasta);
+
+  return searchParams;
+}
+
+export function resolveAdminOrdersFilters(
+  params: AdminOrdersUrlParams,
+): AdminOrdersFilterParams {
+  if (params.todos === "1" || params.showAll) {
+    return {
+      estado: params.estado,
+      q: params.q,
+      showAll: true,
+    };
+  }
+
+  if (params.desde || params.hasta) {
+    return {
+      estado: params.estado,
+      q: params.q,
+      desde: params.desde,
+      hasta: params.hasta,
+    };
+  }
+
+  const range = getDefaultAdminOrdersDateRange();
+  return {
+    estado: params.estado,
+    q: params.q,
+    desde: range.desde,
+    hasta: range.hasta,
+  };
+}
+
+export function parseAdminOrdersUrlParams(
+  searchParams: URLSearchParams,
+): AdminOrdersUrlParams {
+  return {
+    estado: searchParams.get("estado") ?? undefined,
+    q: searchParams.get("q") ?? undefined,
+    desde: searchParams.get("desde") ?? undefined,
+    hasta: searchParams.get("hasta") ?? undefined,
+    todos: searchParams.get("todos") ?? undefined,
+  };
+}
 
 const orderInclude = {
   items: {
@@ -77,6 +168,12 @@ export function buildAdminOrdersWhere(
 }
 
 export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData {
+  const payment = getOrderPaymentInfo({
+    status: order.status,
+    mpPaymentId: order.mpPaymentId,
+    mpPreferenceId: order.mpPreferenceId,
+  });
+
   return {
     id: order.id,
     status: order.status,
@@ -89,6 +186,7 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     shippingCity: order.shippingCity,
     shippingZip: order.shippingZip,
     createdAt: order.createdAt,
+    payment,
     items: order.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
@@ -114,8 +212,8 @@ export async function getAdminOrdersPage(
       where,
       include: orderInclude,
       orderBy: { createdAt: "desc" },
-      skip: adminListSkip(page),
-      take: ADMIN_LIST_PAGE_SIZE,
+      skip: adminOrdersListSkip(page),
+      take: ADMIN_ORDERS_PAGE_SIZE,
     }),
     db.order.count({ where }),
   ]);
@@ -126,26 +224,36 @@ export async function getAdminOrdersPage(
     orders: rows,
     total,
     page,
-    hasMore: adminListSkip(page) + rows.length < total,
+    hasMore: adminOrdersListSkip(page) + rows.length < total,
   };
 }
 
-export async function getAdminOrdersSummary(storeId: string) {
-  const [totalOrders, statusGroups, revenue] = await Promise.all([
-    db.order.count({ where: { storeId } }),
-    db.order.groupBy({
-      by: ["status"],
-      where: { storeId },
-      _count: { _all: true },
-    }),
-    db.order.aggregate({
-      where: {
-        storeId,
-        status: { in: ["PAID", "SHIPPED"] },
-      },
-      _sum: { total: true },
-    }),
-  ]);
+export async function getAdminOrdersSummary(
+  storeId: string,
+  params: AdminOrdersFilterParams = {},
+) {
+  const facetWhere = buildAdminOrdersWhere(storeId, {
+    ...params,
+    estado: undefined,
+  });
+
+  const [storeTotalOrders, totalOrders, statusGroups, revenue] =
+    await Promise.all([
+      db.order.count({ where: { storeId } }),
+      db.order.count({ where: facetWhere }),
+      db.order.groupBy({
+        by: ["status"],
+        where: facetWhere,
+        _count: { _all: true },
+      }),
+      db.order.aggregate({
+        where: {
+          ...facetWhere,
+          status: { in: ["PAID", "SHIPPED"] },
+        },
+        _sum: { total: true },
+      }),
+    ]);
 
   const counts = Object.fromEntries(
     ORDER_STATUSES.map((status) => [status, 0]),
@@ -158,6 +266,7 @@ export async function getAdminOrdersSummary(storeId: string) {
   }
 
   return {
+    storeTotalOrders,
     totalOrders,
     counts,
     paidRevenue: Number(revenue._sum.total ?? 0),
@@ -168,6 +277,7 @@ export function adminOrdersFilterKey(params: AdminOrdersFilterParams) {
   return [
     params.estado ?? "",
     params.q?.trim() ?? "",
+    params.showAll ? "all" : "",
     params.desde ?? "",
     params.hasta ?? "",
   ].join("|");

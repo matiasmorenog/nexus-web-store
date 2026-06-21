@@ -44,6 +44,7 @@ export function getActiveAdminOrderFilterChips(
       key: "fecha",
       label: dateLabel,
       removeParams: ["desde", "hasta"],
+      setOnRemove: { todos: "1" },
     });
   }
 

@@ -16,11 +16,10 @@ import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import { Badge } from "@/components/ui/badge";
 import {
   ACTIVITY_PERIOD_LABELS,
-  getDashboardAnalytics,
+  getAdminDashboardPageData,
   parseActivityPeriod,
 } from "@/lib/admin-analytics";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
 import { getStoreDisplayName } from "@/lib/store-context";
 import { formatPrice } from "@/lib/utils";
 import { getOrderStatusLabel, getOrderStatusVariant } from "@/lib/order-status";
@@ -44,23 +43,14 @@ export default async function AdminDashboardPage({
   const periodLabels = ACTIVITY_PERIOD_LABELS[period];
   const storeDisplayName = await getStoreDisplayName();
 
-  const [productCount, orderCount, paidOrders, recentOrders, analytics] =
-    await Promise.all([
-      db.product.count({ where: { storeId } }),
-      db.order.count({ where: { storeId } }),
-      db.order.findMany({
-        where: { storeId, status: "PAID" },
-        select: { total: true },
-      }),
-      db.order.findMany({
-        where: { storeId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-      getDashboardAnalytics(storeId, period),
-    ]);
-
-  const revenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
+  const {
+    productCount,
+    orderCount,
+    revenue,
+    paidOrderCount,
+    recentOrders,
+    analytics,
+  } = await getAdminDashboardPageData(storeId, period);
 
   const stats: {
     label: string;
@@ -95,7 +85,7 @@ export default async function AdminDashboardPage({
     },
     {
       label: "Ventas pagadas",
-      value: paidOrders.length,
+      value: paidOrderCount,
       format: "number" as const,
       icon: "trending-up",
       accent: "amber" as const,

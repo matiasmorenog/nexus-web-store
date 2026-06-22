@@ -66,9 +66,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub;
         session.user.role = token.role as string;
 
-        const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
-        session.user.storeId = storeId;
-        session.user.storeSlug = storeSlug;
+        if (token.storeId !== undefined) {
+          session.user.storeId =
+            typeof token.storeId === "string" ? token.storeId : null;
+          session.user.storeSlug =
+            typeof token.storeSlug === "string" ? token.storeSlug : null;
+        } else {
+          const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
+          session.user.storeId = storeId;
+          session.user.storeSlug = storeSlug;
+        }
       }
       return session;
     },

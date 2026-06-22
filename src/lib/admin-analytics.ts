@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db } from "@/lib/db";
 
 export type ActivityPeriod = "week" | "month" | "year";
@@ -180,21 +181,11 @@ function bucketKeyForOrder(date: Date, period: ActivityPeriod): string {
   return startOfDay(date).toISOString().slice(0, 10);
 }
 
-export async function getSalesActivity(storeId: string, period: ActivityPeriod) {
-  const { buckets, rangeStart } = buildBuckets(period);
-
-  const ordersInRange = await db.order.findMany({
-    where: {
-      storeId,
-      status: { in: [...SALE_STATUSES] },
-      createdAt: { gte: rangeStart },
-    },
-    select: {
-      createdAt: true,
-      total: true,
-    },
-  });
-
+function aggregateSalesActivity(
+  ordersInRange: { createdAt: Date; total: { toString(): string } | number }[],
+  buckets: ActivityPoint[],
+  period: ActivityPeriod,
+) {
   const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
 
   for (const order of ordersInRange) {
@@ -216,27 +207,13 @@ export async function getSalesActivity(storeId: string, period: ActivityPeriod) 
   };
 }
 
-async function getTopProducts(storeId: string) {
-  const soldItems = await db.orderItem.findMany({
-    where: {
-      order: {
-        storeId,
-        status: { in: [...SALE_STATUSES] },
-      },
-    },
-    select: {
-      quantity: true,
-      unitPrice: true,
-      variant: {
-        select: {
-          product: {
-            select: { id: true, name: true },
-          },
-        },
-      },
-    },
-  });
-
+function aggregateTopProducts(
+  soldItems: {
+    quantity: number;
+    unitPrice: { toString(): string } | number;
+    variant: { product: { id: string; name: string } };
+  }[],
+): TopProduct[] {
   const productTotals = new Map<
     string,
     { productId: string; name: string; quantity: number; revenue: number }
@@ -266,19 +243,95 @@ async function getTopProducts(storeId: string) {
     .slice(0, 5);
 }
 
+export const getAdminDashboardPageData = cache(
+  async (storeId: string, period: ActivityPeriod = "week") => {
+    const { buckets, rangeStart } = buildBuckets(period);
+
+    const [
+      productCount,
+      orderCount,
+      paidOrders,
+      recentOrders,
+      ordersInRange,
+      soldItems,
+    ] = await db.$transaction([
+      db.product.count({ where: { storeId } }),
+      db.order.count({ where: { storeId } }),
+      db.order.findMany({
+        where: { storeId, status: "PAID" },
+        select: { total: true },
+      }),
+      db.order.findMany({
+        where: { storeId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      }),
+      db.order.findMany({
+        where: {
+          storeId,
+          status: { in: [...SALE_STATUSES] },
+          createdAt: { gte: rangeStart },
+        },
+        select: {
+          createdAt: true,
+          total: true,
+        },
+      }),
+      db.orderItem.findMany({
+        where: {
+          order: {
+            storeId,
+            status: { in: [...SALE_STATUSES] },
+          },
+        },
+        select: {
+          quantity: true,
+          unitPrice: true,
+          variant: {
+            select: {
+              product: {
+                select: { id: true, name: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const revenue = paidOrders.reduce((sum, order) => sum + Number(order.total), 0);
+    const salesActivity = aggregateSalesActivity(ordersInRange, buckets, period);
+    const topProducts = aggregateTopProducts(soldItems);
+
+    return {
+      productCount,
+      orderCount,
+      revenue,
+      paidOrderCount: paidOrders.length,
+      recentOrders,
+      analytics: {
+        salesActivity,
+        topProducts,
+      },
+    };
+  },
+);
+
+export async function getSalesActivity(storeId: string, period: ActivityPeriod) {
+  const { analytics } = await getAdminDashboardPageData(storeId, period);
+  return analytics.salesActivity;
+}
+
+async function getTopProducts(storeId: string) {
+  const { analytics } = await getAdminDashboardPageData(storeId, "week");
+  return analytics.topProducts;
+}
+
 export async function getDashboardAnalytics(
   storeId: string,
   period: ActivityPeriod = "week",
 ) {
-  const [salesActivity, topProducts] = await Promise.all([
-    getSalesActivity(storeId, period),
-    getTopProducts(storeId),
-  ]);
-
-  return {
-    salesActivity,
-    topProducts,
-  };
+  const { analytics } = await getAdminDashboardPageData(storeId, period);
+  return analytics;
 }
 
 export function buildAdminOrdersHrefFromActivityPoint(point: ActivityPoint) {

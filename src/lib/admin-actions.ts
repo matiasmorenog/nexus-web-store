@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resolveAdminStoreId } from "@/lib/admin-store";
+import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
-import { normalizeBrandPrefix } from "@/lib/brand";
 import {
   cleanupProductImages,
   cleanupProductImageIfOrphaned,
@@ -22,6 +22,10 @@ async function getAdminStoreId() {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("No autorizado");
+  }
+
+  if (session.user.storeId) {
+    return session.user.storeId;
   }
 
   const { storeId } = await resolveAdminStoreId(session.user.id);
@@ -45,18 +49,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
 export async function updateStoreSettings(formData: FormData) {
   const storeId = await getAdminStoreId();
-
-  await db.store.update({
-    where: { id: storeId },
-    data: {
-      name: normalizeBrandPrefix(formData.get("name") as string),
-      shippingFlatRate: parseFloat(formData.get("shippingFlatRate") as string) || 0,
-      allowPickup: formData.get("allowPickup") === "on",
-    },
-  });
-
-  revalidatePath("/admin/configuracion");
-  revalidatePath("/");
+  await saveStoreSettingsFromForm(storeId, formData);
 }
 
 export async function createProduct(formData: FormData) {

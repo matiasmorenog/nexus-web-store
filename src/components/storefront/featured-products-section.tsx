@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
+import { getBrandPrefix } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
@@ -64,7 +65,7 @@ export function FeaturedProductsSectionShell({
                 Destacados
               </span>{" "}
               <span className="text-[var(--brand-primary)]">
-                {storeDisplayName}
+                {getBrandPrefix(storeDisplayName)}
               </span>
             </h2>
             <Link

@@ -93,6 +93,7 @@ export function AdminProductsSection({
       if (filters.categoria) params.set("categoria", filters.categoria);
       if (filters.genero) params.set("genero", filters.genero);
       if (filters.estado) params.set("estado", filters.estado);
+      if (filters.stock) params.set("stock", filters.stock);
       if (filters.orden && filters.orden !== "recientes") {
         params.set("orden", filters.orden);
       }

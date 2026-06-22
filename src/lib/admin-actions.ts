@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
+import {
+  revalidateAdminDashboardCache,
+  revalidateAdminProductDataCaches,
+} from "@/lib/revalidate-admin-cache";
 import { resolveAdminStoreId } from "@/lib/admin-store";
 import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
 import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
@@ -45,6 +49,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
     data: { status: status as "PENDING" | "PAID" | "SHIPPED" | "CANCELLED" },
   });
 
+  revalidateAdminDashboardCache(storeId);
   revalidatePath("/admin/pedidos");
 }
 
@@ -81,6 +86,7 @@ export async function createProduct(formData: FormData) {
     },
   });
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidateStorefrontProductSurfaces(product.slug);
   return product;
@@ -108,6 +114,7 @@ export async function deleteProduct(productId: string) {
 
   await cleanupProductImages(variants.map((variant) => variant.imageUrl));
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidateStorefrontProductSurfaces(existing.slug);
 }
@@ -147,6 +154,7 @@ export async function updateProduct(productId: string, formData: FormData) {
     },
   });
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
   revalidateStorefrontProductSurfaces(slug);
@@ -237,6 +245,7 @@ export async function upsertProductColor(productId: string, formData: FormData) 
     });
   }
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
   revalidateStorefrontProductSurfaces(product.slug);
@@ -288,6 +297,7 @@ export async function deleteProductColor(productId: string, color: string) {
 
   await cleanupProductImageIfOrphaned(orphanedImageUrl);
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
   revalidateStorefrontProductSurfaces(product.slug);
@@ -328,6 +338,7 @@ export async function createVariant(productId: string, formData: FormData) {
     },
   });
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
   revalidateStorefrontProductSurfaces(product.slug);
@@ -378,6 +389,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
 
   await cleanupProductImageIfOrphaned(previousImageUrl);
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
   revalidateStorefrontProductSurfaces(variant.product.slug);
@@ -412,6 +424,7 @@ export async function deleteVariant(variantId: string) {
 
   await cleanupProductImageIfOrphaned(orphanedImageUrl);
 
+  revalidateAdminProductDataCaches(storeId);
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
   revalidateStorefrontProductSurfaces(variant.product.slug);

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { AdminOrderCardData } from "@/components/admin/admin-order-card";
 import { db } from "@/lib/db";
 import {
@@ -25,8 +26,6 @@ export type AdminOrdersUrlParams = AdminOrdersFilterParams & {
   todos?: string;
 };
 
-export const ADMIN_ORDERS_DEFAULT_RANGE_DAYS = 2;
-
 function isoDateLocal(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -34,14 +33,22 @@ function isoDateLocal(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+export function getTodayIsoDateLocal() {
+  return isoDateLocal(new Date());
+}
+
+export function isAdminOrdersTodayRange(desde?: string, hasta?: string) {
+  const today = getTodayIsoDateLocal();
+  const end = hasta ?? desde;
+  return desde === today && end === today;
+}
+
 export function getDefaultAdminOrdersDateRange() {
-  const hasta = new Date();
-  const desde = new Date();
-  desde.setDate(desde.getDate() - (ADMIN_ORDERS_DEFAULT_RANGE_DAYS - 1));
+  const today = getTodayIsoDateLocal();
 
   return {
-    desde: isoDateLocal(desde),
-    hasta: isoDateLocal(hasta),
+    desde: today,
+    hasta: today,
   };
 }
 
@@ -213,50 +220,101 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
   };
 }
 
-export async function getAdminOrdersPage(
-  storeId: string,
-  page = 1,
-  params: AdminOrdersFilterParams = {},
-) {
-  const where = buildAdminOrdersWhere(storeId, params);
+export const getAdminOrdersPage = cache(
+  async (storeId: string, page = 1, params: AdminOrdersFilterParams = {}) => {
+    const where = buildAdminOrdersWhere(storeId, params);
 
-  const [orders, total] = await Promise.all([
-    db.order.findMany({
-      where,
-      include: orderInclude,
-      orderBy: { createdAt: "desc" },
-      skip: adminOrdersListSkip(page),
-      take: ADMIN_ORDERS_PAGE_SIZE,
-    }),
-    db.order.count({ where }),
-  ]);
+    const [orders, total] = await db.$transaction([
+      db.order.findMany({
+        where,
+        include: orderInclude,
+        orderBy: { createdAt: "desc" },
+        skip: adminOrdersListSkip(page),
+        take: ADMIN_ORDERS_PAGE_SIZE,
+      }),
+      db.order.count({ where }),
+    ]);
 
-  const rows = orders.map(mapAdminOrderRow);
+    const rows = orders.map(mapAdminOrderRow);
 
-  return {
-    orders: rows,
-    total,
-    page,
-    hasMore: adminOrdersListSkip(page) + rows.length < total,
-  };
-}
+    return {
+      orders: rows,
+      total,
+      page,
+      hasMore: adminOrdersListSkip(page) + rows.length < total,
+    };
+  },
+);
 
-export async function getAdminOrdersSummary(
-  storeId: string,
-  params: AdminOrdersFilterParams = {},
-) {
-  const facetWhere = buildAdminOrdersWhere(storeId, {
-    ...params,
-    estado: undefined,
-  });
+export const getAdminOrdersSummary = cache(
+  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
+    const facetWhere = buildAdminOrdersWhere(storeId, {
+      ...params,
+      estado: undefined,
+    });
 
-  const [storeTotalOrders, totalOrders, statusGroups, revenue] =
-    await Promise.all([
+    const [storeTotalOrders, totalOrders, statusGroups, revenue] =
+      await db.$transaction([
+        db.order.count({ where: { storeId } }),
+        db.order.count({ where: facetWhere }),
+        db.order.groupBy({
+          by: ["status"],
+          where: facetWhere,
+          orderBy: { status: "asc" },
+          _count: { _all: true },
+        }),
+        db.order.aggregate({
+          where: {
+            ...facetWhere,
+            status: { in: ["PAID", "SHIPPED"] },
+          },
+          _sum: { total: true },
+        }),
+      ]);
+
+    const counts = Object.fromEntries(
+      ORDER_STATUSES.map((status) => [status, 0]),
+    ) as Record<OrderStatus, number>;
+
+    for (const group of statusGroups) {
+      if (group.status in counts) {
+        counts[group.status as OrderStatus] =
+          typeof group._count === "object" ? (group._count._all ?? 0) : 0;
+      }
+    }
+
+    return {
+      storeTotalOrders,
+      totalOrders,
+      counts,
+      paidRevenue: Number(revenue._sum.total ?? 0),
+    };
+  },
+);
+
+/** Una sola transacción para la página (Neon pooler suele tener connection_limit=1). */
+export const getAdminOrdersPageData = cache(
+  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
+    const facetWhere = buildAdminOrdersWhere(storeId, {
+      ...params,
+      estado: undefined,
+    });
+    const where = buildAdminOrdersWhere(storeId, params);
+
+    const [
+      storeTotalOrders,
+      totalOrders,
+      statusGroups,
+      revenue,
+      orders,
+      pageTotal,
+    ] = await db.$transaction([
       db.order.count({ where: { storeId } }),
       db.order.count({ where: facetWhere }),
       db.order.groupBy({
         by: ["status"],
         where: facetWhere,
+        orderBy: { status: "asc" },
         _count: { _all: true },
       }),
       db.order.aggregate({
@@ -266,25 +324,45 @@ export async function getAdminOrdersSummary(
         },
         _sum: { total: true },
       }),
+      db.order.findMany({
+        where,
+        include: orderInclude,
+        orderBy: { createdAt: "desc" },
+        skip: adminOrdersListSkip(1),
+        take: ADMIN_ORDERS_PAGE_SIZE,
+      }),
+      db.order.count({ where }),
     ]);
 
-  const counts = Object.fromEntries(
-    ORDER_STATUSES.map((status) => [status, 0]),
-  ) as Record<OrderStatus, number>;
+    const counts = Object.fromEntries(
+      ORDER_STATUSES.map((status) => [status, 0]),
+    ) as Record<OrderStatus, number>;
 
-  for (const group of statusGroups) {
-    if (group.status in counts) {
-      counts[group.status as OrderStatus] = group._count._all;
+    for (const group of statusGroups) {
+      if (group.status in counts) {
+        counts[group.status as OrderStatus] =
+          typeof group._count === "object" ? (group._count._all ?? 0) : 0;
+      }
     }
-  }
 
-  return {
-    storeTotalOrders,
-    totalOrders,
-    counts,
-    paidRevenue: Number(revenue._sum.total ?? 0),
-  };
-}
+    const rows = orders.map(mapAdminOrderRow);
+
+    return {
+      summary: {
+        storeTotalOrders,
+        totalOrders,
+        counts,
+        paidRevenue: Number(revenue._sum.total ?? 0),
+      },
+      page: {
+        orders: rows,
+        total: pageTotal,
+        page: 1,
+        hasMore: adminOrdersListSkip(1) + rows.length < pageTotal,
+      },
+    };
+  },
+);
 
 export function adminOrdersFilterKey(params: AdminOrdersFilterParams) {
   return [
@@ -301,6 +379,10 @@ export function formatAdminOrdersDateFilterLabel(
   hasta?: string,
 ): string | null {
   if (!desde) return null;
+
+  if (isAdminOrdersTodayRange(desde, hasta)) {
+    return "Hoy";
+  }
 
   const format = (value: string) =>
     new Date(`${value}T12:00:00`).toLocaleDateString("es-AR", {

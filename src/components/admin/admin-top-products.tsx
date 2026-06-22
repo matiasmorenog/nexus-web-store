@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn, formatPrice } from "@/lib/utils";
-import type { TopProduct } from "@/lib/admin-analytics";
+import type { TopProduct } from "@/lib/admin-analytics-shared";
 
 type AdminTopProductsProps = {
   products: TopProduct[];

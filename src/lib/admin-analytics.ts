@@ -1,84 +1,36 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import type {
+  ActivityPeriod,
+  ActivityPoint,
+  DashboardRecentOrder,
+  TopProduct,
+} from "@/lib/admin-analytics-shared";
+import {
+  ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+  adminDashboardCacheTag,
+} from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
 
-export type ActivityPeriod = "week" | "month" | "year";
+export type {
+  ActivityPeriod,
+  ActivityPoint,
+  DashboardAttention,
+  DashboardRecentOrder,
+  TopProduct,
+} from "@/lib/admin-analytics-shared";
 
-export type ActivityPoint = {
-  key: string;
-  label: string;
-  orders: number;
-  revenue: number;
-  /** Rango inclusive para filtrar pedidos (YYYY-MM-DD). */
-  desde?: string;
-  hasta?: string;
-};
-
-export type TopProduct = {
-  productId: string;
-  name: string;
-  quantity: number;
-  revenue: number;
-};
+export {
+  ACTIVITY_PERIOD_LABELS,
+  aggregateActivityIntoWeeks,
+  buildAdminOrderHref,
+  buildAdminOrdersHrefFromActivityPoint,
+  buildAdminOutOfStockVariantsHref,
+  buildAdminPaidOrdersHref,
+  parseActivityPeriod,
+} from "@/lib/admin-analytics-shared";
 
 const SALE_STATUSES = ["PAID", "SHIPPED"] as const;
-
-export const ACTIVITY_PERIOD_LABELS: Record<
-  ActivityPeriod,
-  { short: string; summary: string; description: string; empty: string }
-> = {
-  week: {
-    short: "Semana",
-    summary: "7 días",
-    description: "Ingresos de pedidos pagados y enviados por día (últimos 7 días)",
-    empty: "Sin ventas en los últimos 7 días.",
-  },
-  month: {
-    short: "Mes",
-    summary: "30 días",
-    description: "Ingresos de pedidos pagados y enviados por día (últimos 30 días)",
-    empty: "Sin ventas en los últimos 30 días.",
-  },
-  year: {
-    short: "Año",
-    summary: "12 meses",
-    description: "Ingresos de pedidos pagados y enviados por mes (últimos 12 meses)",
-    empty: "Sin ventas en los últimos 12 meses.",
-  },
-};
-
-export function parseActivityPeriod(value?: string): ActivityPeriod {
-  if (value === "month" || value === "year") return value;
-  return "week";
-}
-
-const MONTH_WEEK_CHUNK_SIZES = [7, 7, 8, 8] as const;
-
-/** Agrupa los 30 días del período mensual en 4 semanas (vista mobile). */
-export function aggregateActivityIntoWeeks(points: ActivityPoint[]): ActivityPoint[] {
-  if (points.length === 0) return [];
-
-  const weeks: ActivityPoint[] = [];
-  let start = 0;
-
-  for (let index = 0; index < MONTH_WEEK_CHUNK_SIZES.length; index++) {
-    const size = MONTH_WEEK_CHUNK_SIZES[index];
-    const slice = points.slice(start, start + size);
-    if (slice.length === 0) break;
-
-    weeks.push({
-      key: `week-${index + 1}`,
-      label: `Sem ${index + 1}`,
-      orders: slice.reduce((sum, point) => sum + point.orders, 0),
-      revenue: slice.reduce((sum, point) => sum + point.revenue, 0),
-      desde: slice[0]?.desde,
-      hasta: slice[slice.length - 1]?.hasta ?? slice[slice.length - 1]?.desde,
-    });
-
-    start += size;
-  }
-
-  return weeks;
-}
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -243,106 +195,170 @@ function aggregateTopProducts(
     .slice(0, 5);
 }
 
-export const getAdminDashboardPageData = cache(
-  async (storeId: string, period: ActivityPeriod = "week") => {
-    const { buckets, rangeStart } = buildBuckets(period);
+async function fetchAdminDashboardAttention(storeId: string) {
+  const [paidAwaitingShipment, outOfStockVariants] = await db.$transaction([
+    db.order.count({
+      where: { storeId, status: "PAID" },
+    }),
+    db.productVariant.count({
+      where: {
+        product: { storeId },
+        stock: { lte: 0 },
+      },
+    }),
+  ]);
 
-    const [
-      productCount,
-      orderCount,
-      paidOrders,
-      recentOrders,
-      ordersInRange,
-      soldItems,
-    ] = await db.$transaction([
-      db.product.count({ where: { storeId } }),
-      db.order.count({ where: { storeId } }),
-      db.order.findMany({
-        where: { storeId, status: "PAID" },
-        select: { total: true },
-      }),
-      db.order.findMany({
-        where: { storeId },
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      }),
-      db.order.findMany({
-        where: {
+  return {
+    paidAwaitingShipment,
+    outOfStockVariants,
+  };
+}
+
+async function fetchAdminDashboardAnalytics(
+  storeId: string,
+  period: ActivityPeriod,
+) {
+  const { buckets, rangeStart } = buildBuckets(period);
+
+  const [ordersInRange, soldItems] = await db.$transaction([
+    db.order.findMany({
+      where: {
+        storeId,
+        status: { in: [...SALE_STATUSES] },
+        createdAt: { gte: rangeStart },
+      },
+      select: {
+        createdAt: true,
+        total: true,
+      },
+    }),
+    db.orderItem.findMany({
+      where: {
+        order: {
           storeId,
           status: { in: [...SALE_STATUSES] },
           createdAt: { gte: rangeStart },
         },
-        select: {
-          createdAt: true,
-          total: true,
-        },
-      }),
-      db.orderItem.findMany({
-        where: {
-          order: {
-            storeId,
-            status: { in: [...SALE_STATUSES] },
-          },
-        },
-        select: {
-          quantity: true,
-          unitPrice: true,
-          variant: {
-            select: {
-              product: {
-                select: { id: true, name: true },
-              },
+      },
+      select: {
+        quantity: true,
+        unitPrice: true,
+        variant: {
+          select: {
+            product: {
+              select: { id: true, name: true },
             },
           },
         },
-      }),
+      },
+    }),
+  ]);
+
+  return {
+    salesActivity: aggregateSalesActivity(ordersInRange, buckets, period),
+    topProducts: aggregateTopProducts(soldItems),
+  };
+}
+
+async function fetchAdminDashboardRecentOrders(
+  storeId: string,
+): Promise<DashboardRecentOrder[]> {
+  const orders = await db.order.findMany({
+    where: { storeId },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: {
+      id: true,
+      customerName: true,
+      status: true,
+      total: true,
+      createdAt: true,
+    },
+  });
+
+  return orders.map((order) => ({
+    id: order.id,
+    customerName: order.customerName,
+    status: order.status,
+    total: Number(order.total),
+    createdAt: order.createdAt.toISOString(),
+  }));
+}
+
+function getCachedAdminDashboardAttention(storeId: string) {
+  return unstable_cache(
+    () => fetchAdminDashboardAttention(storeId),
+    ["admin-dashboard-attention", storeId],
+    {
+      revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+      tags: [adminDashboardCacheTag(storeId)],
+    },
+  )();
+}
+
+function getCachedAdminDashboardAnalytics(
+  storeId: string,
+  period: ActivityPeriod,
+) {
+  return unstable_cache(
+    () => fetchAdminDashboardAnalytics(storeId, period),
+    ["admin-dashboard-analytics", storeId, period],
+    {
+      revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+      tags: [adminDashboardCacheTag(storeId)],
+    },
+  )();
+}
+
+function getCachedAdminDashboardRecentOrders(storeId: string) {
+  return unstable_cache(
+    () => fetchAdminDashboardRecentOrders(storeId),
+    ["admin-dashboard-recent-orders", storeId],
+    {
+      revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+      tags: [adminDashboardCacheTag(storeId)],
+    },
+  )();
+}
+
+export const getAdminDashboardAttention = cache(async (storeId: string) => {
+  return getCachedAdminDashboardAttention(storeId);
+});
+
+export const getAdminDashboardAnalytics = cache(
+  async (storeId: string, period: ActivityPeriod = "week") => {
+    return getCachedAdminDashboardAnalytics(storeId, period);
+  },
+);
+
+export const getAdminDashboardRecentOrders = cache(async (storeId: string) => {
+  return getCachedAdminDashboardRecentOrders(storeId);
+});
+
+export const getAdminDashboardPageData = cache(
+  async (storeId: string, period: ActivityPeriod = "week") => {
+    const [attention, analytics, recentOrders] = await Promise.all([
+      getAdminDashboardAttention(storeId),
+      getAdminDashboardAnalytics(storeId, period),
+      getAdminDashboardRecentOrders(storeId),
     ]);
 
-    const revenue = paidOrders.reduce((sum, order) => sum + Number(order.total), 0);
-    const salesActivity = aggregateSalesActivity(ordersInRange, buckets, period);
-    const topProducts = aggregateTopProducts(soldItems);
-
     return {
-      productCount,
-      orderCount,
-      revenue,
-      paidOrderCount: paidOrders.length,
       recentOrders,
-      analytics: {
-        salesActivity,
-        topProducts,
-      },
+      attention,
+      analytics,
     };
   },
 );
 
 export async function getSalesActivity(storeId: string, period: ActivityPeriod) {
-  const { analytics } = await getAdminDashboardPageData(storeId, period);
+  const analytics = await getAdminDashboardAnalytics(storeId, period);
   return analytics.salesActivity;
-}
-
-async function getTopProducts(storeId: string) {
-  const { analytics } = await getAdminDashboardPageData(storeId, "week");
-  return analytics.topProducts;
 }
 
 export async function getDashboardAnalytics(
   storeId: string,
   period: ActivityPeriod = "week",
 ) {
-  const { analytics } = await getAdminDashboardPageData(storeId, period);
-  return analytics;
-}
-
-export function buildAdminOrdersHrefFromActivityPoint(point: ActivityPoint) {
-  if (!point.desde || point.orders <= 0) return null;
-
-  const params = new URLSearchParams();
-  params.set("desde", point.desde);
-
-  if (point.hasta) {
-    params.set("hasta", point.hasta);
-  }
-
-  return `/admin/pedidos?${params.toString()}`;
+  return getAdminDashboardAnalytics(storeId, period);
 }

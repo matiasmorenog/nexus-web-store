@@ -19,6 +19,16 @@ Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente (ver abajo
 | 6a | Debounce cotización envío en checkout | ✅ Hecho (350ms + AbortController) |
 | 5 | Helper `revalidateStorefrontProductSurfaces()` en admin | ✅ Hecho |
 | — | Seed demo → `prisma/seed-env.ts`; runtime tienda/owner desde DB | ✅ Hecho |
+| A1 | Dashboard admin: aggregate ingresos + top productos acotado al período | ✅ Hecho |
+| A2 | Dashboard admin: streaming por sección (`Suspense`) | ✅ Hecho |
+| A3 | Admin: `unstable_cache` dashboard + products summary + tags | ✅ Hecho |
+| A4 | Pedidos admin: streaming por sección (`Suspense`) | ✅ Hecho |
+
+## Admin (siguiente, opcional)
+
+- Cache `getAdminOrdersSummary` con `unstable_cache` + tag (TTL 60s)
+- Streaming en **Productos** (mismo patrón que pedidos)
+- Índice cliente en listado productos (solo si catálogo grande)
 
 ## Obsoletos (no reimplementar)
 
@@ -43,5 +53,7 @@ Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente (ver abajo
 | Home | `src/app/(storefront)/page.tsx`, `featured-products-query.ts` |
 | PDP | `src/app/(storefront)/producto/[slug]/page.tsx`, `product-page-query.ts` |
 | Revalidación admin | `src/lib/revalidate-storefront-products.ts` |
+| Dashboard admin | `src/lib/admin-analytics.ts` |
+| Cache admin | `src/lib/admin-cache-tags.ts`, `revalidate-admin-cache.ts` |
 
 Al cerrar un ítem, actualizar esta tabla.

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import {
   ACTIVITY_PERIOD_LABELS,
   type ActivityPeriod,
-} from "@/lib/admin-analytics";
+} from "@/lib/admin-analytics-shared";
 import { cn } from "@/lib/utils";
 
 const PERIODS: ActivityPeriod[] = ["week", "month", "year"];

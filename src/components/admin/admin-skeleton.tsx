@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {
   adminCardClass,
   adminCardHeaderClass,
+  adminCardInsetClass,
 } from "@/components/admin/admin-surface";
 import {
   AdminTableScroll,
@@ -148,6 +149,23 @@ function skeletonCellForColumn(column: string, colIndex: number, colCount: numbe
     );
   }
 
+  if (column === "Producto") {
+    return (
+      <div className="space-y-1.5">
+        <AdminSkeleton className="h-4 w-36 max-w-full" />
+        <AdminSkeleton className="h-3 w-24 max-w-full" />
+      </div>
+    );
+  }
+
+  if (column === "Cant.") {
+    return <AdminSkeleton className="h-4 w-8" />;
+  }
+
+  if (column === "Subtotal") {
+    return <AdminSkeleton className="ml-auto h-4 w-16" />;
+  }
+
   if (column === "Acciones" || colIndex === colCount - 1) {
     return <AdminSkeleton className="size-8 rounded-lg" />;
   }
@@ -234,25 +252,95 @@ function AdminSkeletonTable({
 
 export function AdminSkeletonOrderCard() {
   return (
-    <AdminSkeletonCardShell
-      titleWidth="w-32"
-      descriptionWidth="w-48"
-      padding={false}
-    >
-      <div className="space-y-4 p-4 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <AdminSkeleton className="h-6 w-24 rounded-full" />
-          <AdminSkeleton className="h-9 w-36 rounded-lg" />
+    <div className={adminCardClass}>
+      <div className={adminCardHeaderClass}>
+        <div className="flex items-center justify-between gap-4">
+          <AdminSkeleton className="h-5 w-36 max-w-[50%]" />
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            <AdminSkeleton className="h-7 w-24" />
+            <AdminSkeleton className="h-6 w-16 rounded-full" />
+          </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <AdminSkeleton className="h-4 w-full max-w-48" />
-          <AdminSkeleton className="h-4 w-full max-w-40" />
-          <AdminSkeleton className="h-4 w-full max-w-44" />
-          <AdminSkeleton className="h-4 w-full max-w-36" />
-        </div>
-        <AdminSkeleton className="h-24 w-full rounded-lg" />
+        <AdminSkeleton className="mt-1 h-4 w-48 max-w-full" />
       </div>
-    </AdminSkeletonCardShell>
+
+      <div
+        className={cn(
+          adminCardInsetClass,
+          "border-b border-neutral-100 py-4",
+        )}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index}>
+              <AdminSkeleton className="h-3 w-14" />
+              <AdminSkeleton className="mt-2 h-4 w-full max-w-44" />
+              <AdminSkeleton className="mt-1.5 h-4 w-28 max-w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <AdminDataTableSkeleton
+        columns={["Producto", "Cant.", "Subtotal"]}
+        rows={1}
+        skeletonHeaders
+        ariaLabel="Cargando ítems del pedido"
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 sm:px-6">
+        <AdminSkeleton className="h-4 w-44" />
+        <AdminSkeleton className="h-9 w-36 rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+export function AdminSkeletonDashboardAttention() {
+  return (
+    <AdminSkeletonRegion label="Cargando alertas" className="mb-8">
+      <AdminSkeleton className="mb-3 h-4 w-40" />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <AdminSkeleton className="h-[4.5rem] w-full rounded-xl" />
+        <AdminSkeleton className="h-[4.5rem] w-full rounded-xl" />
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+export function AdminSkeletonDashboardAnalytics() {
+  return (
+    <AdminSkeletonRegion
+      label="Cargando actividad de ventas"
+      className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+    >
+      <AdminSkeletonCardShell
+        titleWidth="w-36"
+        descriptionWidth="w-56"
+      >
+        <div className="mb-4 flex justify-end">
+          <AdminSkeletonTabs />
+        </div>
+        <AdminSkeletonChartArea />
+      </AdminSkeletonCardShell>
+
+      <AdminSkeletonCardShell
+        titleWidth="w-44"
+        descriptionWidth="w-52"
+      >
+        <AdminSkeletonTopProducts />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
+export function AdminSkeletonDashboardRecentOrders() {
+  return (
+    <AdminSkeletonRegion label="Cargando pedidos recientes">
+      <AdminSkeletonCardShell titleWidth="w-36" padding={false}>
+        <AdminSkeletonTable columns={5} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
   );
 }
 
@@ -264,34 +352,11 @@ export function AdminSkeletonDashboardPage() {
         descriptionWidth="w-72"
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
-          <AdminSkeletonStatCard key={index} />
-        ))}
-      </div>
+      <AdminSkeletonDashboardAttention />
 
-      <div className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <AdminSkeletonCardShell
-          titleWidth="w-36"
-          descriptionWidth="w-56"
-        >
-          <div className="mb-4 flex justify-end">
-            <AdminSkeletonTabs />
-          </div>
-          <AdminSkeletonChartArea />
-        </AdminSkeletonCardShell>
+      <AdminSkeletonDashboardAnalytics />
 
-        <AdminSkeletonCardShell
-          titleWidth="w-44"
-          descriptionWidth="w-52"
-        >
-          <AdminSkeletonTopProducts />
-        </AdminSkeletonCardShell>
-      </div>
-
-      <AdminSkeletonCardShell titleWidth="w-36" padding={false}>
-        <AdminSkeletonTable columns={4} />
-      </AdminSkeletonCardShell>
+      <AdminSkeletonDashboardRecentOrders />
     </AdminSkeletonRegion>
   );
 }
@@ -546,6 +611,36 @@ export function AdminSkeletonSettingsPage() {
   );
 }
 
+export function AdminSkeletonOrdersDescription() {
+  return <AdminSkeleton className="mt-2 h-4 w-72 max-w-full" />;
+}
+
+export function AdminSkeletonOrdersMobileFilters() {
+  return (
+    <div className="lg:hidden">
+      <AdminSkeletonFiltersPanel variant="orders" className="mb-4" />
+    </div>
+  );
+}
+
+export function AdminSkeletonOrdersDesktopFilters() {
+  return (
+    <aside className={adminFiltersAsideClass}>
+      <AdminSkeletonFiltersPanel variant="orders" />
+    </aside>
+  );
+}
+
+export function AdminSkeletonOrdersList() {
+  return (
+    <AdminSkeletonRegion label="Cargando listado de pedidos" className="space-y-4">
+      {Array.from({ length: 3 }, (_, index) => (
+        <AdminSkeletonOrderCard key={index} />
+      ))}
+    </AdminSkeletonRegion>
+  );
+}
+
 export function AdminSkeletonOrdersPage() {
   return (
     <AdminSkeletonRegion label="Cargando pedidos">
@@ -657,7 +752,7 @@ export function AdminSkeletonListToolbar({
       <div
         className={cn(
           "flex flex-col gap-3",
-          variant === "products" ? "lg:flex-row lg:items-end" : "xl:flex-row xl:items-end",
+          variant === "products" && "lg:flex-row lg:items-end",
         )}
       >
         <AdminSkeleton className="h-10 w-full rounded-lg" />

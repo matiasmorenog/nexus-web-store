@@ -13,6 +13,7 @@ function parseProductFilters(
     categoria: searchParams.get("categoria") ?? undefined,
     genero: searchParams.get("genero") ?? undefined,
     estado: searchParams.get("estado") ?? undefined,
+    stock: searchParams.get("stock") ?? undefined,
     orden: searchParams.get("orden") ?? undefined,
   };
 }

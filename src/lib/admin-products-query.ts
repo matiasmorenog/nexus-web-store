@@ -1,5 +1,9 @@
 import type { AdminProductRow } from "@/components/admin/admin-products-section";
 import {
+  ADMIN_PRODUCTS_SUMMARY_CACHE_REVALIDATE_SECONDS,
+  adminProductsSummaryCacheTag,
+} from "@/lib/admin-cache-tags";
+import {
   PRODUCT_CATEGORIES,
   STORE_AUDIENCES,
 } from "@/lib/categories";
@@ -9,6 +13,8 @@ import {
   parseAdminProductSort,
   sortAdminProducts,
 } from "@/lib/admin-product-sort";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import { ADMIN_PRODUCTS_PAGE_SIZE, adminListSkip } from "@/lib/admin-pagination";
 import { Prisma } from "@prisma/client";
@@ -18,6 +24,7 @@ export type AdminProductsFilterParams = {
   categoria?: string;
   genero?: string;
   estado?: string;
+  stock?: string;
   orden?: string;
 };
 
@@ -57,6 +64,12 @@ export function buildAdminProductsWhere(
   } else if (params.estado === "normal") {
     where.featured = false;
     where.promo2x1 = false;
+  }
+
+  if (params.stock === "sin-stock") {
+    where.variants = { some: { stock: { lte: 0 } } };
+  } else if (params.stock === "agotado") {
+    where.variants = { none: { stock: { gt: 0 } } };
   }
 
   const query = params.q?.trim();
@@ -152,7 +165,7 @@ export async function getAdminProductsPage(
   };
 }
 
-export async function getAdminProductsSummary(storeId: string) {
+async function fetchAdminProductsSummary(storeId: string) {
   const [
     totalProducts,
     categoryGroups,
@@ -207,12 +220,28 @@ export async function getAdminProductsSummary(storeId: string) {
   };
 }
 
+function getCachedAdminProductsSummary(storeId: string) {
+  return unstable_cache(
+    () => fetchAdminProductsSummary(storeId),
+    ["admin-products-summary", storeId],
+    {
+      revalidate: ADMIN_PRODUCTS_SUMMARY_CACHE_REVALIDATE_SECONDS,
+      tags: [adminProductsSummaryCacheTag(storeId)],
+    },
+  )();
+}
+
+export const getAdminProductsSummary = cache(async (storeId: string) => {
+  return getCachedAdminProductsSummary(storeId);
+});
+
 export function adminProductsFilterKey(params: AdminProductsFilterParams) {
   return [
     params.q?.trim() ?? "",
     params.categoria ?? "",
     params.genero ?? "",
     params.estado ?? "",
+    params.stock ?? "",
     params.orden ?? "",
   ].join("|");
 }

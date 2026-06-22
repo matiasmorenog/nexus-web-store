@@ -31,6 +31,7 @@ type SearchParams = Promise<{
   categoria?: string;
   genero?: string;
   estado?: string;
+  stock?: string;
   orden?: string;
 }>;
 
@@ -48,6 +49,7 @@ export default async function AdminProductsPage({
     categoria: params.categoria,
     genero: params.genero,
     estado: params.estado,
+    stock: params.stock,
     orden: params.orden,
   };
 
@@ -60,6 +62,7 @@ export default async function AdminProductsPage({
     params.categoria ||
       params.genero ||
       params.estado ||
+      params.stock ||
       params.q?.trim() ||
       (params.orden && params.orden !== "recientes"),
   );

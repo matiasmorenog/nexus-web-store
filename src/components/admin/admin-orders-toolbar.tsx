@@ -104,8 +104,8 @@ export function AdminOrdersToolbar({
         className,
       )}
     >
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-end">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-4">
+        <div className="w-full">
           <AdminSearchField
             value={query}
             onChange={setQuery}

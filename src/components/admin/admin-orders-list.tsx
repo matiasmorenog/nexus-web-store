@@ -48,6 +48,20 @@ export function AdminOrdersList({
     setLoading(false);
   }, [initialOrders, initialHasMore]);
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.startsWith("#pedido-")) return;
+
+    const target = document.querySelector(hash);
+    if (!(target instanceof HTMLElement)) return;
+
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [initialOrders]);
+
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
 
@@ -113,7 +127,9 @@ export function AdminOrdersList({
   return (
     <div className="space-y-4">
       {orders.map((order) => (
-        <AdminOrderCard key={order.id} order={order} />
+        <div key={order.id} id={`pedido-${order.id}`} className="scroll-mt-6">
+          <AdminOrderCard order={order} />
+        </div>
       ))}
 
       {loading

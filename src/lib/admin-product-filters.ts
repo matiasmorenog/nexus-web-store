@@ -17,6 +17,7 @@ export const ADMIN_PRODUCT_FILTER_PARAMS = [
   "categoria",
   "genero",
   "estado",
+  "stock",
   "orden",
 ] as const;
 
@@ -64,6 +65,20 @@ export function getActiveAdminProductFilterChips(
     });
   }
 
+  if (params.stock === "sin-stock") {
+    chips.push({
+      key: "stock",
+      label: "Con variantes sin stock",
+      removeParams: ["stock"],
+    });
+  } else if (params.stock === "agotado") {
+    chips.push({
+      key: "stock",
+      label: "Agotados",
+      removeParams: ["stock"],
+    });
+  }
+
   if (params.orden && params.orden !== "recientes") {
     const sortLabel = ADMIN_PRODUCT_SORT_OPTIONS.find(
       (option) => option.value === params.orden,
@@ -82,5 +97,5 @@ export function getActiveAdminProductFilterChips(
 export function hasAdminProductFacetFilters(
   params: AdminProductsFilterParams,
 ) {
-  return Boolean(params.categoria || params.genero || params.estado);
+  return Boolean(params.categoria || params.genero || params.estado || params.stock);
 }

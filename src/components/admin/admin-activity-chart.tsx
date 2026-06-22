@@ -8,7 +8,7 @@ import {
   buildAdminOrdersHrefFromActivityPoint,
   type ActivityPeriod,
   type ActivityPoint,
-} from "@/lib/admin-analytics";
+} from "@/lib/admin-analytics-shared";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCountUp, easeOutExpo } from "@/components/admin/use-count-up";
 

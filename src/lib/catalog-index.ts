@@ -41,7 +41,6 @@ export type CatalogIndexProduct = {
 
 export type CatalogIndexData = {
   products: CatalogIndexProduct[];
-  salesTotals: Record<string, number>;
 };
 
 export type CatalogProductRow = {
@@ -258,14 +257,12 @@ export function filterCatalogProducts(
     matchesCatalogIndexProduct(product, params),
   );
   const sort = parseProductSort(params.orden);
-  const salesTotals = new Map(Object.entries(index.salesTotals));
   const sorted = sortProducts(
     filtered.map((product) => ({
       ...product,
       createdAt: new Date(product.createdAt),
     })),
     sort,
-    salesTotals,
   );
 
   return sorted.map((product) =>

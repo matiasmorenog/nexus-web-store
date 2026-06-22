@@ -1,6 +1,5 @@
 export const PRODUCT_SORT_OPTIONS = [
   { value: "recientes", label: "Más recientes" },
-  { value: "mas-vendidos", label: "Más vendidos" },
   { value: "precio-asc", label: "Precio: menor a mayor" },
   { value: "precio-desc", label: "Precio: mayor a menor" },
   { value: "nombre-asc", label: "Nombre A–Z" },
@@ -18,7 +17,6 @@ export function parseProductSort(value: string | undefined): ProductSort {
 }
 
 type ProductWithDisplayVariant = {
-  id: string;
   name: string;
   createdAt: Date;
   variants: { price: unknown; stock?: number }[];
@@ -37,26 +35,13 @@ function displayPrice(product: ProductWithDisplayVariant) {
   return price != null ? Number(price) : Number.POSITIVE_INFINITY;
 }
 
-function salesCount(productId: string, salesTotals?: Map<string, number>) {
-  return salesTotals?.get(productId) ?? 0;
-}
-
 export function sortProducts<T extends ProductWithDisplayVariant>(
   products: T[],
   sort: ProductSort,
-  salesTotals?: Map<string, number>,
 ): T[] {
   if (sort === "recientes") return products;
 
   const sorted = [...products];
-
-  if (sort === "mas-vendidos") {
-    return sorted.sort((a, b) => {
-      const bySales = salesCount(b.id, salesTotals) - salesCount(a.id, salesTotals);
-      if (bySales !== 0) return bySales;
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-  }
 
   if (sort === "nombre-asc") {
     return sorted.sort((a, b) => a.name.localeCompare(b.name, "es"));

@@ -1,7 +1,6 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import type { CatalogIndexData, CatalogIndexProduct } from "@/lib/catalog-index";
-import { getProductSalesTotals } from "@/lib/product-sales";
 
 export const CATALOG_INDEX_CACHE_TAG = "catalog-index";
 
@@ -63,18 +62,14 @@ function mapProductToIndex(product: {
 
 const getCachedCatalogIndex = unstable_cache(
   async (storeId: string): Promise<CatalogIndexData> => {
-    const [products, salesTotals] = await Promise.all([
-      db.product.findMany({
-        where: { storeId },
-        include: productInclude,
-        orderBy: { createdAt: "desc" },
-      }),
-      getProductSalesTotals(storeId),
-    ]);
+    const products = await db.product.findMany({
+      where: { storeId },
+      include: productInclude,
+      orderBy: { createdAt: "desc" },
+    });
 
     return {
       products: products.map(mapProductToIndex),
-      salesTotals: Object.fromEntries(salesTotals),
     };
   },
   ["catalog-index"],

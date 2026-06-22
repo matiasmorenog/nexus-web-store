@@ -1,0 +1,47 @@
+---
+description: Backlog de performance/costo (Vercel + Neon) — prioridad y estado
+alwaysApply: true
+---
+
+# Performance todo (costo servidor)
+
+Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente (ver abajo).
+
+## Estado
+
+| # | Ítem | Estado |
+|---|------|--------|
+| 1 | Cache `getStore()` + `revalidateTag` | ✅ Hecho |
+| — | Catálogo: índice cliente + `unstable_cache` 60s | ✅ Hecho |
+| — | Quitar orden «más vendidos» (sin `salesTotals` en índice) | ✅ Hecho |
+| 2 | ISR home + PDP + quitar `force-dynamic` del layout storefront | ✅ Hecho |
+| 7 | Neon pooler + `connection_limit` en `DATABASE_URL` | ⏳ **Siguiente** |
+| 6a | Debounce cotización envío en checkout | ⏳ Pendiente |
+| 5 | Helper `revalidateStorefrontProductSurfaces()` en admin | ✅ Hecho |
+| — | Slugs/env `alaska` → configurables | ⏳ Pendiente (deuda, no perf) |
+
+## Obsoletos (no reimplementar)
+
+- Cache de filter counts en servidor (~18 `count()`)
+- `GET /api/catalog/products` + Cache-Control
+- ISR del catálogo por URL / combo de filtros
+
+## Catálogo (arquitectura actual)
+
+- **Server:** `getCatalogIndex()` → 1 `findMany` (productos + variantes), `unstable_cache` 60s, tag `catalog-index`
+- **Cliente:** filtros, counts facetados, sort y paginación en memoria (`catalog-index.ts`, `CatalogPageClient`)
+- **Invalidación:** `revalidateCatalogIndexCache()` en `admin-actions` al editar productos
+- **Sort:** recientes, precio asc/desc, nombre A–Z. Promos vía filtros Destacados / 2x1 (no «más vendidos»)
+- **Páginas:** `/productos` tiene `revalidate = 60` y **no** lee `searchParams` en server (filtros = 0 queries)
+
+## Archivos clave performance
+
+| Área | Ruta |
+|------|------|
+| Índice catálogo | `src/lib/catalog-index.ts`, `catalog-index-query.ts` |
+| Store cache | `src/lib/store-context.ts` |
+| Home | `src/app/(storefront)/page.tsx`, `featured-products-query.ts` |
+| PDP | `src/app/(storefront)/producto/[slug]/page.tsx`, `product-page-query.ts` |
+| Revalidación admin | `src/lib/revalidate-storefront-products.ts` |
+
+Al cerrar un ítem, actualizar esta tabla.

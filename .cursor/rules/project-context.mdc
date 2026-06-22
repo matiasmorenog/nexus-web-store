@@ -21,12 +21,21 @@ alwaysApply: true
 | Área | Ruta |
 |------|------|
 | Storefront pages | `src/app/(storefront)/` |
+| Catálogo (índice + filtros cliente) | `src/lib/catalog-index.ts`, `catalog-index-query.ts`, `catalog-page-client.tsx` |
 | Admin | `src/app/admin/(protected)/` |
 | Checkout API | `src/app/api/checkout/route.ts` |
 | Auth | `src/lib/auth.ts` |
 | Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts` |
 | Deploy | `DEPLOY.md` |
 | Features / roadmap | `README.md` → sección **Roadmap de features** |
+| Performance / costo | `.cursor/rules/performance-todo.mdc` |
+
+## Performance storefront
+
+- Catálogo: snapshot único cacheado; filtros y counts en el browser (sin counts en DB ni API de paginación)
+- `getStore()` cacheado 5 min (`STORE_CACHE_TAG`)
+- Checkout y admin siguen dinámicos (`force-dynamic` donde aplica)
+- Home, PDP y catálogo: `revalidate = 60` + queries cacheadas (`unstable_cache`)
 
 ## Ahorro de tokens
 

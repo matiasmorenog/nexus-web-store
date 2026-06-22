@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resolveAdminStoreId } from "@/lib/admin-store";
+import { revalidateCatalogIndexCache } from "@/lib/catalog-index-query";
 import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
 import {
@@ -81,6 +82,7 @@ export async function createProduct(formData: FormData) {
   });
 
   revalidatePath("/admin/productos");
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   return product;
 }
@@ -102,6 +104,7 @@ export async function deleteProduct(productId: string) {
   await cleanupProductImages(variants.map((variant) => variant.imageUrl));
 
   revalidatePath("/admin/productos");
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
 }
 
@@ -142,6 +145,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${slug}`);
 }
@@ -233,6 +237,7 @@ export async function upsertProductColor(productId: string, formData: FormData) 
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${product.slug}`);
 }
@@ -285,6 +290,7 @@ export async function deleteProductColor(productId: string, color: string) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${product.slug}`);
 }
@@ -326,6 +332,7 @@ export async function createVariant(productId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${product.slug}`);
 }
@@ -377,6 +384,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${variant.product.slug}`);
 }
@@ -412,6 +420,7 @@ export async function deleteVariant(variantId: string) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
+  revalidateCatalogIndexCache();
   revalidatePath("/productos");
   revalidatePath(`/producto/${variant.product.slug}`);
 }

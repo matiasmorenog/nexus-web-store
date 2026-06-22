@@ -9,7 +9,7 @@ export function pushCatalogRoute(
   const stayingOnCatalog = pathname === "/productos" && targetIsCatalog;
 
   if (stayingOnCatalog) {
-    router.push(href, { scroll: false });
+    router.replace(href, { scroll: false });
     const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
       .matches
       ? "auto"

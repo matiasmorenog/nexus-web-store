@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
-import type { CatalogFilterCounts } from "@/lib/catalog-query";
+import type { CatalogFilterCounts } from "@/lib/catalog-index";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";

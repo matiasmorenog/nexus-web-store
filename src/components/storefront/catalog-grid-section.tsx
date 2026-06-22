@@ -4,79 +4,46 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonProductCard } from "@/components/storefront/storefront-skeleton";
-import type { CatalogProductRow } from "@/lib/catalog-products-query";
-import type { ProductGridParams } from "@/components/storefront/product-grid";
+import type { CatalogProductRow } from "@/lib/catalog-index";
+import { CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cn } from "@/lib/utils";
 
-type ProductGridSectionProps = {
-  initialProducts: CatalogProductRow[];
-  total: number;
-  hasMore: boolean;
-  params: ProductGridParams;
+type CatalogGridSectionProps = {
+  products: CatalogProductRow[];
+  initialPage: {
+    products: CatalogProductRow[];
+    total: number;
+    hasMore: boolean;
+  };
 };
 
-function buildCatalogProductsUrl(page: number, params: ProductGridParams) {
-  const searchParams = new URLSearchParams({ page: String(page) });
-
-  if (params.categoria) searchParams.set("categoria", params.categoria);
-  if (params.genero) searchParams.set("genero", params.genero);
-  if (params.talle) searchParams.set("talle", params.talle);
-  if (params.precioMax) searchParams.set("precioMax", params.precioMax);
-  if (params.q?.trim()) searchParams.set("q", params.q.trim());
-  if (params.orden) searchParams.set("orden", params.orden);
-  if (params.promo) searchParams.set("promo", params.promo);
-  if (params.destacados) searchParams.set("destacados", params.destacados);
-
-  return `/api/catalog/products?${searchParams.toString()}`;
-}
-
-export function ProductGridSection({
-  initialProducts,
-  total,
-  hasMore: initialHasMore,
-  params,
-}: ProductGridSectionProps) {
-  const [products, setProducts] = useState(initialProducts);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(initialHasMore);
+export function CatalogGridSection({
+  products,
+  initialPage,
+}: CatalogGridSectionProps) {
+  const [visibleCount, setVisibleCount] = useState(
+    initialPage.products.length,
+  );
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setProducts(initialProducts);
-    setPage(1);
-    setHasMore(initialHasMore);
+    setVisibleCount(initialPage.products.length);
     setLoading(false);
-  }, [initialProducts, initialHasMore]);
+  }, [initialPage.products, products]);
 
-  const loadMore = useCallback(async () => {
+  const hasMore = visibleCount < products.length;
+  const visibleProducts = products.slice(0, visibleCount);
+
+  const loadMore = useCallback(() => {
     if (loading || !hasMore) return;
 
     setLoading(true);
-    try {
-      const nextPage = page + 1;
-      const res = await fetch(buildCatalogProductsUrl(nextPage, params));
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error ?? "Error al cargar productos");
-      }
-
-      setProducts((current) => {
-        const seen = new Set(current.map((product) => product.id));
-        const next = data.products.filter(
-          (product: CatalogProductRow) => !seen.has(product.id),
-        );
-        return [...current, ...next];
-      });
-      setPage(nextPage);
-      setHasMore(Boolean(data.hasMore));
-    } catch (error) {
-      console.error("Catalog load more error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [hasMore, loading, page, params]);
+    setVisibleCount((current) =>
+      Math.min(current + CATALOG_PAGE_SIZE, products.length),
+    );
+    setLoading(false);
+  }, [hasMore, loading, products.length]);
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -85,7 +52,7 @@ export function ProductGridSection({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          void loadMore();
+          loadMore();
         }
       },
       { rootMargin: "240px 0px" },
@@ -109,7 +76,7 @@ export function ProductGridSection({
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
-        {products.map((product, index) => (
+        {visibleProducts.map((product, index) => (
           <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
             <ProductCard
               slug={product.slug}
@@ -136,7 +103,7 @@ export function ProductGridSection({
 
       {hasMore && !loading ? (
         <p className="mt-6 text-center text-sm text-neutral-500">
-          Mostrando {products.length} de {total}
+          Mostrando {visibleProducts.length} de {products.length}
         </p>
       ) : null}
 
@@ -144,7 +111,7 @@ export function ProductGridSection({
         <p
           className={cn(
             "mt-6 text-center text-sm text-neutral-500",
-            products.length <= 12 && "sr-only",
+            products.length <= CATALOG_PAGE_SIZE && "sr-only",
           )}
         >
           {products.length} producto{products.length !== 1 ? "s" : ""} en total

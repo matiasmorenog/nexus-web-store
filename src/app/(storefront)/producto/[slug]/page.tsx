@@ -5,15 +5,28 @@ import { InfoSections } from "@/components/storefront/info-sections";
 import { ProductImage } from "@/components/storefront/product-image";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getProductTaxonomyLabel } from "@/lib/categories";
-import { db } from "@/lib/db";
 import { INFO_PAGES, resolvePageContent } from "@/lib/info-pages";
+import {
+  getStorefrontProduct,
+  getStorefrontProductSlugs,
+} from "@/lib/product-page-query";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateStaticParams() {
+  try {
+    const storeId = await getStoreId();
+    const products = await getStorefrontProductSlugs(storeId);
+    return products.map((product) => ({ slug: product.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
@@ -21,10 +34,7 @@ export default async function ProductPage({ params }: PageProps) {
   const displayName = formatStoreName(store.name);
   const sizeGuide = resolvePageContent(INFO_PAGES["guia-de-talles"], displayName);
 
-  const product = await db.product.findFirst({
-    where: { storeId, slug },
-    include: { variants: { orderBy: [{ color: "asc" }, { size: "asc" }] } },
-  });
+  const product = await getStorefrontProduct(storeId, slug);
 
   if (!product) notFound();
 

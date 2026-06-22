@@ -4,8 +4,6 @@ import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
   const displayName = formatStoreName(store.name);

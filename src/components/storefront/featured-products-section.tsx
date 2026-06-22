@@ -3,47 +3,29 @@ import Link from "next/link";
 import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getBrandPrefix } from "@/lib/brand";
-import { db } from "@/lib/db";
+import { getFeaturedProducts } from "@/lib/featured-products-query";
 import { getStoreId } from "@/lib/store-context";
-import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
 
 export async function FeaturedProductsSection() {
   const storeId = await getStoreId();
-
-  const featuredProducts = await db.product.findMany({
-    where: { storeId, featured: true },
-    include: {
-      variants: {
-        orderBy: { price: "asc" },
-        select: { color: true, imageUrl: true, price: true, stock: true },
-      },
-    },
-    take: 8,
-  });
+  const featuredProducts = await getFeaturedProducts(storeId);
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
-      {featuredProducts.map((product) => {
-        const { inStock, displayVariants } = partitionVariantsForCard(
-          product.variants,
-        );
-        const cardImages = getProductCardImages(displayVariants);
-
-        return (
+      {featuredProducts.map((product) => (
         <ProductCard
           key={product.id}
           slug={product.slug}
           name={product.name}
           category={product.category}
           audience={product.audience}
-          imageUrl={cardImages.imageUrl}
-          hoverImageUrl={cardImages.hoverImageUrl}
-          price={cardImages.price}
-          inStock={inStock}
+          imageUrl={product.imageUrl}
+          hoverImageUrl={product.hoverImageUrl}
+          price={product.price}
+          inStock={product.inStock}
           promo2x1={product.promo2x1}
         />
-        );
-      })}
+      ))}
     </div>
   );
 }
@@ -53,7 +35,7 @@ export function FeaturedProductsSectionShell({
   children,
 }: {
   storeDisplayName: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <StorefrontReveal index={1}>

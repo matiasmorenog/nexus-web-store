@@ -11,7 +11,7 @@ import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/stor
 import { HOME_CATEGORY_TILES } from "@/lib/categories";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const CATEGORY_IMAGES: Record<string, string> = {
   mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",

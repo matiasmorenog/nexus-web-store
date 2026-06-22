@@ -26,7 +26,7 @@ alwaysApply: true
 | Checkout API | `src/app/api/checkout/route.ts` |
 | Auth | `src/lib/auth.ts` |
 | Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts` |
-| Deploy | `DEPLOY.md` |
+| Deploy | `DEPLOY.md` (Neon pooled + `DIRECT_URL`) |
 | Features / roadmap | `README.md` → sección **Roadmap de features** |
 | Performance / costo | `.cursor/rules/performance-todo.mdc` |
 

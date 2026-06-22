@@ -15,8 +15,8 @@ Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente (ver abajo
 | — | Catálogo: índice cliente + `unstable_cache` 60s | ✅ Hecho |
 | — | Quitar orden «más vendidos» (sin `salesTotals` en índice) | ✅ Hecho |
 | 2 | ISR home + PDP + quitar `force-dynamic` del layout storefront | ✅ Hecho |
-| 7 | Neon pooler + `connection_limit` en `DATABASE_URL` | ⏳ **Siguiente** |
-| 6a | Debounce cotización envío en checkout | ⏳ Pendiente |
+| 7 | Neon pooler + `connection_limit` en `DATABASE_URL` | ✅ Doc + `directUrl` en schema |
+| 6a | Debounce cotización envío en checkout | ⏳ **Siguiente** |
 | 5 | Helper `revalidateStorefrontProductSurfaces()` en admin | ✅ Hecho |
 | — | Slugs/env `alaska` → configurables | ⏳ Pendiente (deuda, no perf) |
 

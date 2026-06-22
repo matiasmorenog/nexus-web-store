@@ -4,7 +4,29 @@
 
 1. Creá cuenta en [neon.tech](https://neon.tech)
 2. **New Project** → nombre `alaska-indumentaria`
-3. Copiá la **Connection string** (modo `Pooled`, con `?sslmode=require`)
+3. En el dashboard → **Connect** → copiá **dos** connection strings:
+   - **Pooled** → `DATABASE_URL` (runtime en Vercel y `next dev`)
+   - **Direct** → `DIRECT_URL` (solo migraciones y `db:setup` desde tu máquina)
+
+### Formato obligatorio para Vercel (serverless)
+
+La URL pooled **debe** incluir:
+
+- Host con `-pooler` (ej. `ep-xxx-pooler.us-east-1.aws.neon.tech`)
+- `sslmode=require`
+- `connection_limit=1` — una conexión por instancia serverless
+- `pgbouncer=true` — Prisma + PgBouncer de Neon
+
+Ejemplo (reemplazá user, password y host):
+
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require&connection_limit=1&pgbouncer=true"
+DIRECT_URL="postgresql://USER:PASSWORD@ep-xxx.region.aws.neon.tech/neondb?sslmode=require"
+```
+
+> **No** uses la URL direct (sin pooler) como `DATABASE_URL` en Vercel: con muchas funciones en paralelo podés agotar el límite de conexiones de Neon.
+
+Ver plantilla completa en `.env.example`.
 
 ## 2. Subir el código a GitHub
 
@@ -31,7 +53,8 @@ git push -u origin main
 
 | Variable | Valor |
 |----------|--------|
-| `DATABASE_URL` | Connection string de Neon |
+| `DATABASE_URL` | Neon **Pooled** + `connection_limit=1&pgbouncer=true` (ver §1) |
+| `DIRECT_URL` | Neon **Direct** (requerida para `prisma generate` en build; migraciones locales) |
 | `AUTH_SECRET` | `openssl rand -base64 32` |
 | `AUTH_URL` | `https://TU-DOMINIO.vercel.app` (actualizar después del 1er deploy) |
 | `NEXT_PUBLIC_APP_URL` | Igual que `AUTH_URL` |
@@ -62,13 +85,25 @@ Las fotos se comprimen a **WebP** (máx. 1200×1600 px) al subir. Plan Hobby: 1 
 
 ## 4. Inicializar la base de datos (una sola vez)
 
-Desde tu máquina, con la `DATABASE_URL` de Neon:
+Desde tu máquina, con las URLs de Neon (direct para schema, pooled opcional):
 
 ```bash
-DATABASE_URL="postgresql://..." npm run db:setup
+DATABASE_URL="postgresql://...@ep-xxx-pooler...?sslmode=require&connection_limit=1&pgbouncer=true" \
+DIRECT_URL="postgresql://...@ep-xxx...?sslmode=require" \
+npm run db:setup
 ```
 
 Esto crea las tablas y carga los productos demo.
+
+### Checklist post-deploy (conexiones)
+
+En Vercel → Settings → Environment Variables, confirmá:
+
+- [ ] `DATABASE_URL` usa host `-pooler`
+- [ ] `DATABASE_URL` incluye `connection_limit=1`
+- [ ] `DATABASE_URL` incluye `pgbouncer=true`
+- [ ] `DIRECT_URL` configurada (Neon direct, sin `-pooler`) — requerida para el build
+- [ ] Tras cambiar URLs → **Redeploy**
 
 ## 5. Actualizar URLs post-deploy
 
@@ -91,10 +126,11 @@ Redeploy: Deployments → ⋮ → Redeploy.
 docker compose up -d
 ```
 
-En `.env`:
+En `.env` (ver `.env.example`):
 
 ```env
 DATABASE_URL="postgresql://nexus:nexus@localhost:5432/nexus_web_store"
+DIRECT_URL="postgresql://nexus:nexus@localhost:5432/nexus_web_store"
 ```
 
 ```bash

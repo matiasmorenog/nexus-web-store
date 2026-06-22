@@ -96,6 +96,28 @@ npm run db:setup
 
 Esto crea las tablas y carga los productos demo.
 
+### Renombrar slug de tienda (migración one-off)
+
+Si la DB tiene un slug legacy (ej. `alaska-indumentaria`) y querés uno genérico:
+
+```bash
+# Usa DIRECT_URL; por defecto migra alaska-indumentaria → demo-store
+MIGRATE_FROM_SLUG="alaska-indumentaria" \
+MIGRATE_TO_SLUG="demo-store" \
+DEFAULT_STORE_SLUG="demo-store" \
+npm run db:rename-store
+```
+
+Opcional: renombrar prefijo visible y admin:
+
+```bash
+MIGRATE_STORE_NAME="Demo" \
+MIGRATE_TO_ADMIN_EMAIL="admin@tutienda.com" \
+npm run db:rename-store
+```
+
+Después actualizá `DEFAULT_STORE_SLUG` en Vercel y redeploy.
+
 ### Checklist post-deploy (conexiones)
 
 En Vercel → Settings → Environment Variables, confirmá:

@@ -8,9 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 type LoginFormProps = {
   defaultEmail?: string;
+  defaultPassword?: string;
 };
 
-export function LoginForm({ defaultEmail = "" }: LoginFormProps) {
+export function LoginForm({
+  defaultEmail = "",
+  defaultPassword = "",
+}: LoginFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,7 +56,13 @@ export function LoginForm({ defaultEmail = "" }: LoginFormProps) {
       </div>
       <div>
         <Label htmlFor="password">Contraseña</Label>
-        <Input id="password" name="password" type="password" required />
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          required
+          defaultValue={defaultPassword}
+        />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" className="w-full" disabled={loading}>

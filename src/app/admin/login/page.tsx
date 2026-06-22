@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { getBrandPrefix } from "@/lib/brand";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
+import { SEED_ADMIN_PASSWORD } from "@/lib/demo-admin-credentials";
 
 export default async function AdminLoginPage() {
   const session = await auth();
@@ -50,7 +51,10 @@ export default async function AdminLoginPage() {
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 Iniciar sesión
               </h2>
-              <LoginForm defaultEmail={ownerEmail} />
+              <LoginForm
+                defaultEmail={ownerEmail}
+                defaultPassword={SEED_ADMIN_PASSWORD}
+              />
             </div>
 
             <p className="mt-6 text-center text-sm text-neutral-500">

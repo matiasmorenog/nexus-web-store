@@ -45,7 +45,7 @@ Abrí [http://localhost:3000](http://localhost:3000)
 ### Credenciales demo (admin)
 
 - **URL:** `/admin/login`
-- **Email:** el configurado en el seed (`SEED_ADMIN_EMAIL`, default `admin@example.com`)
+- **Email:** el del owner en DB (contacto, notificaciones, admin); al seed: `STORE_OWNER_EMAIL` en `.env`
 - **Password:** `admin123`
 
 ## Mercado Pago

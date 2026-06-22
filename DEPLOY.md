@@ -49,24 +49,50 @@ git push -u origin main
 1. [vercel.com/new](https://vercel.com/new) → Import Git Repository
 2. Seleccioná `nexus-web-store`
 3. Framework: **Next.js** (detectado automáticamente)
-4. Agregá estas **Environment Variables**:
+4. Agregá estas **Environment Variables** (solo **Production**; no hace falta duplicar en Development si desarrollás local con `.env`):
+
+### Obligatorias en Vercel (Production)
 
 | Variable | Valor |
 |----------|--------|
-| `DATABASE_URL` | Neon **Pooled** + `connection_limit=1&pgbouncer=true` (ver §1) |
-| `DIRECT_URL` | Neon **Direct** (requerida para `prisma generate` en build; migraciones locales) |
+| `DATABASE_URL` | Neon **Pooled** (`-pooler`) + `sslmode=require&connection_limit=1&pgbouncer=true` |
+| `DIRECT_URL` | Neon **Direct** (sin `-pooler`) + `sslmode=require` — **no** uses `DATABASE_URL_UNPOOLED`; copiá el valor directo acá |
 | `AUTH_SECRET` | `openssl rand -base64 32` |
-| `AUTH_URL` | `https://TU-DOMINIO.vercel.app` (actualizar después del 1er deploy) |
+| `AUTH_URL` | `https://nexus-web-store.vercel.app` |
 | `NEXT_PUBLIC_APP_URL` | Igual que `AUTH_URL` |
-| `DEFAULT_STORE_SLUG` | Slug de la tienda en DB (**obligatorio**) |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Email público en `/contacto` (recomendado) |
-| `STORE_NOTIFICATION_EMAIL` | Avisos de venta; fallback de contacto si no hay `NEXT_PUBLIC_CONTACT_EMAIL` |
-| `MERCADOPAGO_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
-| `MERCADOENVIOS_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
-| `RESEND_API_KEY` | Opcional (sin esto los emails se loguean en consola) |
-| `EMAIL_FROM` | Remitente transaccional (ej. `Mi Tienda <onboarding@resend.dev>`) |
-| `BLOB_READ_WRITE_TOKEN` | Opcional (sin esto no se pueden subir fotos en admin; URLs externas siguen funcionando) |
-| `NEXT_PUBLIC_ADMIN_DEMO_EMAIL` | Opcional — prellena login admin en desarrollo |
+| `BLOB_READ_WRITE_TOKEN` | Token de Vercel Blob (subir fotos en admin) |
+| `RESEND_API_KEY` | API key de [resend.com](https://resend.com) — **misma en local y Production** |
+
+### Opcionales en Vercel
+
+| Variable | Cuándo |
+|----------|--------|
+| `MERCADOPAGO_ACCESS_TOKEN` | Pagos reales (sin esto checkout en modo demo) |
+| `MERCADOENVIOS_ACCESS_TOKEN` | Cotización envíos real (sin esto modo demo) |
+
+### No agregar / podés borrar en Vercel
+
+| Variable | Motivo |
+|----------|--------|
+| `DATABASE_URL_UNPOOLED` | Reemplazada por `DIRECT_URL` (Prisma lee `DIRECT_URL`) |
+| `BLOB_STORE_ID` | La crea la integración; el código no la usa |
+| `BLOB_WEBHOOK_PUBLIC_KEY` | El proyecto no usa webhooks de Blob |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email desde DB (owner) |
+| `STORE_NOTIFICATION_EMAIL` | Idem |
+| `STORE_OWNER_EMAIL` | Solo al seed local (`npm run db:setup`) |
+| `DEFAULT_STORE_SLUG` | Solo al seed local (`npm run db:setup`) |
+
+Runtime: **una sola fila** en `Store` por base (este deploy). Contacto, emails y admin usan datos de esa fila y del owner en DB.
+
+### Emails (Resend)
+
+1. Cuenta en [resend.com](https://resend.com) → **API Keys** → crear key (`re_...`)
+2. Misma `RESEND_API_KEY` en **`.env` local** y **Vercel Production**
+3. El remitente (`From`) se arma en runtime: **`{nombre tienda} <{email owner en DB}>`** (mismo email que contacto y notificaciones)
+
+**Resend y el dominio del remitente:** el email del owner debe estar **verificado en Resend** (o su dominio, ej. Gmail verificado), si no Resend rechaza el envío. Para la demo del portfolio con alias Gmail, registrá la cuenta Resend con ese mismo inbox.
+
+Sin `RESEND_API_KEY`, los emails solo se imprimen en logs (`demo-log`).
 
 ### Imágenes (Vercel Blob)
 
@@ -74,11 +100,13 @@ git push -u origin main
 2. **Access: Public** (obligatorio — las fotos se muestran en la tienda con URL directa; un store Private no sirve y no se puede cambiar después)
 3. **Region: São Paulo (gru1)** recomendado para Argentina
 4. Conectá el store al proyecto; se crea `BLOB_READ_WRITE_TOKEN` automáticamente
-5. Para desarrollo local, copiá el token a `.env`:
+5. Para desarrollo local con subida de fotos, copiá el mismo token a `.env`:
 
 ```env
 BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
 ```
+
+(Vercel → tu proyecto → **Storage** → Blob → **Connect to Project** → copiar token, o Settings → Environment Variables.)
 
 Las fotos se comprimen a **WebP** (máx. 1200×1600 px) al subir. Plan Hobby: 1 GB storage, 10 GB transfer/mes.
 
@@ -116,16 +144,16 @@ MIGRATE_TO_ADMIN_EMAIL="admin@tutienda.com" \
 npm run db:rename-store
 ```
 
-Después actualizá `DEFAULT_STORE_SLUG` en Vercel y redeploy.
-
 ### Checklist post-deploy (conexiones)
 
 En Vercel → Settings → Environment Variables, confirmá:
 
 - [ ] `DATABASE_URL` usa host `-pooler`
-- [ ] `DATABASE_URL` incluye `connection_limit=1`
-- [ ] `DATABASE_URL` incluye `pgbouncer=true`
-- [ ] `DIRECT_URL` configurada (Neon direct, sin `-pooler`) — requerida para el build
+- [ ] `DATABASE_URL` incluye `connection_limit=1` y `pgbouncer=true`
+- [ ] `DIRECT_URL` configurada (Neon direct, sin `-pooler`) — no `DATABASE_URL_UNPOOLED`
+- [ ] `BLOB_READ_WRITE_TOKEN` presente si usás subida de fotos
+- [ ] `RESEND_API_KEY` (emails reales local y demo; remitente desde DB)
+- [ ] Sin vars de email duplicadas (todo desde DB)
 - [ ] Tras cambiar URLs → **Redeploy**
 
 ## 5. Actualizar URLs post-deploy
@@ -141,7 +169,7 @@ Redeploy: Deployments → ⋮ → Redeploy.
 
 - Tienda: `https://tu-proyecto.vercel.app`
 - Admin: `https://tu-proyecto.vercel.app/admin/login`
-- Credenciales admin: las del seed (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` en `.env`, ver `prisma/seed-env.ts`)
+- Credenciales admin: email del owner en DB; contraseña la del seed (`STORE_OWNER_EMAIL` / `SEED_ADMIN_PASSWORD` en `.env` al correr `db:setup`, ver `prisma/seed-env.ts`)
 
 ## Desarrollo local con PostgreSQL
 
@@ -160,3 +188,5 @@ DIRECT_URL="postgresql://nexus:nexus@localhost:5432/nexus_web_store"
 npm run db:setup
 npm run dev
 ```
+
+Si subís fotos en admin en local, agregá `BLOB_READ_WRITE_TOKEN` en `.env` (mismo valor que en Vercel Production). Para emails reales, `RESEND_API_KEY` (misma key que en Vercel).

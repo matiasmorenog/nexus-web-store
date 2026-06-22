@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import {
   BRAND_SUFFIX,
   formatStoreName,
@@ -8,12 +9,26 @@ import { db } from "@/lib/db";
 
 export { BRAND_SUFFIX, formatStoreName, getBrandPrefix };
 
+export const STORE_CACHE_TAG = "store";
+
+const STORE_CACHE_REVALIDATE_SECONDS = 300;
+
+const getStoreBySlug = unstable_cache(
+  async (slug: string) =>
+    db.store.findUnique({
+      where: { slug },
+    }),
+  ["store-by-slug"],
+  {
+    revalidate: STORE_CACHE_REVALIDATE_SECONDS,
+    tags: [STORE_CACHE_TAG],
+  },
+);
+
 export const getStore = cache(async () => {
   const slug = process.env.DEFAULT_STORE_SLUG ?? "alaska-indumentaria";
 
-  const store = await db.store.findUnique({
-    where: { slug },
-  });
+  const store = await getStoreBySlug(slug);
 
   if (!store) {
     throw new Error(

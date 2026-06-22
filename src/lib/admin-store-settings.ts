@@ -1,6 +1,7 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { db } from "@/lib/db";
 import { normalizeBrandPrefix } from "@/lib/brand";
+import { STORE_CACHE_TAG } from "@/lib/store-context";
 
 export async function saveStoreSettingsFromForm(
   storeId: string,
@@ -16,6 +17,8 @@ export async function saveStoreSettingsFromForm(
     },
   });
 
+  revalidateTag(STORE_CACHE_TAG, { expire: 0 });
   revalidatePath("/admin/configuracion");
   revalidatePath("/");
+  revalidatePath("/checkout");
 }

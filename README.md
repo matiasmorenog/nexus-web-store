@@ -45,8 +45,7 @@ Abrí [http://localhost:3000](http://localhost:3000)
 ### Credenciales demo (admin)
 
 - **URL:** `/admin/login`
-- **Email:** el del owner en DB (contacto, notificaciones, admin); al seed: `STORE_OWNER_EMAIL` en `.env`
-- **Password:** `admin123`
+- **Email / password:** definidos en `prisma/seed-env.ts` (owner en DB tras el seed)
 
 ## Mercado Pago
 

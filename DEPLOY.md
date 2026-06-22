@@ -79,10 +79,8 @@ git push -u origin main
 | `BLOB_WEBHOOK_PUBLIC_KEY` | El proyecto no usa webhooks de Blob |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Email desde DB (owner) |
 | `STORE_NOTIFICATION_EMAIL` | Idem |
-| `STORE_OWNER_EMAIL` | Solo al seed local (`npm run db:setup`) |
-| `DEFAULT_STORE_SLUG` | Solo al seed local (`npm run db:setup`) |
 
-Runtime: **una sola fila** en `Store` por base (este deploy). Contacto, emails y admin usan datos de esa fila y del owner en DB.
+Runtime: **una sola fila** en `Store` por base. Toda la config del seed: `prisma/seed-env.ts`.
 
 ### Emails (Resend)
 
@@ -122,27 +120,7 @@ DIRECT_URL="postgresql://...@ep-xxx...?sslmode=require" \
 npm run db:setup
 ```
 
-Esto crea las tablas y carga los productos demo.
-
-### Renombrar slug de tienda (migración one-off)
-
-Si la DB tiene un slug legacy (ej. `alaska-indumentaria`) y querés uno genérico:
-
-```bash
-# Usa DIRECT_URL; por defecto migra alaska-indumentaria → demo-store
-MIGRATE_FROM_SLUG="alaska-indumentaria" \
-MIGRATE_TO_SLUG="demo-store" \
-DEFAULT_STORE_SLUG="demo-store" \
-npm run db:rename-store
-```
-
-Opcional: renombrar prefijo visible y admin:
-
-```bash
-MIGRATE_STORE_NAME="Demo" \
-MIGRATE_TO_ADMIN_EMAIL="admin@tutienda.com" \
-npm run db:rename-store
-```
+Esto crea las tablas y carga los productos demo. Config del seed: `prisma/seed-env.ts`.
 
 ### Checklist post-deploy (conexiones)
 
@@ -169,7 +147,7 @@ Redeploy: Deployments → ⋮ → Redeploy.
 
 - Tienda: `https://tu-proyecto.vercel.app`
 - Admin: `https://tu-proyecto.vercel.app/admin/login`
-- Credenciales admin: email del owner en DB; contraseña la del seed (`STORE_OWNER_EMAIL` / `SEED_ADMIN_PASSWORD` en `.env` al correr `db:setup`, ver `prisma/seed-env.ts`)
+- Credenciales admin: las de `prisma/seed-env.ts` (email del owner queda en DB tras el seed)
 
 ## Desarrollo local con PostgreSQL
 

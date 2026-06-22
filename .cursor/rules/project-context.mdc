@@ -42,5 +42,5 @@ alwaysApply: true
 - No explorar el repo entero ni lanzar subagentes para preguntas acotadas; usar grep/read en el archivo indicado arriba
 - Consultar `README.md` (roadmap) antes de planificar features nuevas
 - Cambios mínimos; no refactorizar ni tocar archivos no relacionados
-- Admin demo: email del owner en DB; contraseña del seed (`STORE_OWNER_EMAIL` / `SEED_ADMIN_PASSWORD` en `prisma/seed-env.ts`)
+- Admin demo: email del owner en DB; contraseña del seed (`prisma/seed-env.ts`)
 - Producción: `https://nexus-web-store.vercel.app`; env vars en `DEPLOY.md`

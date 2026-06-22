@@ -81,13 +81,18 @@ export function AdminOrdersList({
     const node = sentinelRef.current;
     if (!node || !hasMore) return;
 
+    const scrollRoot = node.closest("[data-admin-scroll-area]");
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           void loadMore();
         }
       },
-      { rootMargin: "320px 0px" },
+      {
+        root: scrollRoot instanceof HTMLElement ? scrollRoot : null,
+        rootMargin: "320px 0px",
+      },
     );
 
     observer.observe(node);

@@ -458,7 +458,7 @@ export function AdminSkeletonProductEditPage() {
 
 export function AdminSkeletonProductsPage() {
   return (
-    <AdminSkeletonRegion label="Cargando productos" className="flex min-h-0 flex-1 flex-col">
+    <AdminSkeletonRegion label="Cargando productos">
       <AdminSkeletonPageHeader
         titleWidth="w-28"
         descriptionWidth="w-64"
@@ -548,10 +548,7 @@ export function AdminSkeletonSettingsPage() {
 
 export function AdminSkeletonOrdersPage() {
   return (
-    <AdminSkeletonRegion
-      label="Cargando pedidos"
-      className="flex min-h-0 flex-1 flex-col"
-    >
+    <AdminSkeletonRegion label="Cargando pedidos">
       <AdminSkeletonPageHeader
         titleWidth="w-28"
         descriptionWidth="w-72"

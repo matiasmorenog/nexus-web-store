@@ -59,7 +59,7 @@ export function AdminNav({ brandPrefix, userName, userEmail }: AdminNavProps) {
 
   return (
     <>
-      <aside className="relative hidden h-screen w-64 shrink-0 flex-col bg-zinc-900 lg:flex">
+      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col bg-zinc-900 lg:flex lg:h-full">
         <div className="h-1 w-full bg-[var(--brand-primary)]" />
         <div className="flex h-16 items-center border-b border-white/10 px-6">
           <Link href="/admin" className="text-lg font-bold text-white">

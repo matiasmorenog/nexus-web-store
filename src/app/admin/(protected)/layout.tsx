@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AdminBodyScrollLock } from "@/components/admin/admin-body-scroll-lock";
 import { AdminContentScrollArea } from "@/components/admin/admin-content-scroll-area";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { auth } from "@/lib/auth";
@@ -19,15 +20,21 @@ export default async function AdminProtectedLayout({
   const brandPrefix = getBrandPrefix(store.name);
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#f6f6f7] lg:flex-row">
-      <AdminNav
-        brandPrefix={brandPrefix}
-        userName={session.user?.name}
-        userEmail={session.user?.email}
-      />
-      <AdminContentScrollArea className="admin-content-bottom flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
-        <main className="flex flex-col">{children}</main>
-      </AdminContentScrollArea>
-    </div>
+    <>
+      <AdminBodyScrollLock />
+      <div
+        data-admin-shell
+        className="fixed inset-0 flex flex-col overflow-hidden bg-[#f6f6f7] lg:flex-row"
+      >
+        <AdminNav
+          brandPrefix={brandPrefix}
+          userName={session.user?.name}
+          userEmail={session.user?.email}
+        />
+        <AdminContentScrollArea className="admin-content-bottom min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
+          <main>{children}</main>
+        </AdminContentScrollArea>
+      </div>
+    </>
   );
 }

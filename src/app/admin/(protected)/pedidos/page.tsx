@@ -72,7 +72,7 @@ export default async function AdminOrdersPage({
   const filterChips = getActiveAdminOrderFilterChips(filters);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div>
       {needsUrlDefaults && filters.desde && filters.hasta ? (
         <AdminOrdersUrlDefaults
           desde={filters.desde}

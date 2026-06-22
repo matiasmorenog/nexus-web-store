@@ -82,7 +82,7 @@ export default async function AdminProductsPage({
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div>
       <AdminDashboardReveal index={0}>
         <AdminPageHeader title="Productos" description={description} />
       </AdminDashboardReveal>

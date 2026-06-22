@@ -1,9 +1,9 @@
-# Deploy en Vercel — Alaska Indumentaria
+# Deploy en Vercel
 
 ## 1. Base de datos (Neon — gratis)
 
 1. Creá cuenta en [neon.tech](https://neon.tech)
-2. **New Project** → nombre `alaska-indumentaria`
+2. **New Project** → nombre de tu proyecto
 3. En el dashboard → **Connect** → copiá **dos** connection strings:
    - **Pooled** → `DATABASE_URL` (runtime en Vercel y `next dev`)
    - **Direct** → `DIRECT_URL` (solo migraciones y `db:setup` desde tu máquina)
@@ -64,7 +64,7 @@ git push -u origin main
 | `MERCADOPAGO_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
 | `MERCADOENVIOS_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
 | `RESEND_API_KEY` | Opcional (sin esto los emails se loguean en consola) |
-| `EMAIL_FROM` | Remitente de emails transaccionales (ej. `Mi Marca <onboarding@resend.dev>`) |
+| `EMAIL_FROM` | Remitente transaccional (ej. `Mi Tienda <onboarding@resend.dev>`) |
 | `BLOB_READ_WRITE_TOKEN` | Opcional (sin esto no se pueden subir fotos en admin; URLs externas siguen funcionando) |
 | `NEXT_PUBLIC_ADMIN_DEMO_EMAIL` | Opcional — prellena login admin en desarrollo |
 
@@ -119,7 +119,7 @@ Redeploy: Deployments → ⋮ → Redeploy.
 
 - Tienda: `https://tu-proyecto.vercel.app`
 - Admin: `https://tu-proyecto.vercel.app/admin/login`
-- Credenciales: `admin@alaskaindumentaria.com` / `admin123`
+- Credenciales admin: las del seed (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` en `.env`, ver `prisma/seed-env.ts`)
 
 ## Desarrollo local con PostgreSQL
 

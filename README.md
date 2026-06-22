@@ -45,7 +45,7 @@ Abrí [http://localhost:3000](http://localhost:3000)
 ### Credenciales demo (admin)
 
 - **URL:** `/admin/login`
-- **Email:** `admin@alaskaindumentaria.com`
+- **Email:** el configurado en el seed (`SEED_ADMIN_EMAIL`, default `admin@example.com`)
 - **Password:** `admin123`
 
 ## Mercado Pago
@@ -163,7 +163,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 ### Infraestructura y SaaS
 
 - [x] Modelo multi-tenant en Prisma (`storeId` en entidades)
-- [x] Tienda demo Alaska Indumentaria (seed)
+- [x] Tienda demo (seed configurable vía `prisma/seed-env.ts`)
 - [x] Deploy en Vercel + PostgreSQL (Neon)
 - [ ] Dominio propio por tienda (`customDomain` en schema, sin implementar)
 - [ ] Onboarding self-service (“creá tu tienda”)

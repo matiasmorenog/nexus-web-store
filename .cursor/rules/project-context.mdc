@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Nexus Web Store — contexto
 
-**Marca en la tienda:** Alaska Indumentaria. **Nexus** es solo la software factory; no aparece en el storefront.
+**Marca en la tienda:** viene de la DB (`store.name`) + env de contacto/emails. **Nexus** es la software factory; no aparece en el storefront.
 
 ## Stack y convenciones
 

@@ -58,24 +58,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.storeId = user.storeId;
         token.storeSlug = user.storeSlug;
+        return token;
       }
+
+      if (!token.sub) return token;
+
+      const dbUser = await db.user.findUnique({
+        where: { id: token.sub },
+        include: {
+          stores: {
+            take: 1,
+            include: { store: { select: { id: true, slug: true } } },
+          },
+        },
+      });
+
+      if (!dbUser) {
+        token.storeId = null;
+        token.storeSlug = null;
+        return token;
+      }
+
+      const linked = dbUser.stores[0]?.store;
+      if (linked) {
+        token.storeId = linked.id;
+        token.storeSlug = linked.slug;
+        return token;
+      }
+
+      const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
+      token.storeId = storeId;
+      token.storeSlug = storeSlug;
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.role = token.role as string;
-
-        if (token.storeId !== undefined) {
-          session.user.storeId =
-            typeof token.storeId === "string" ? token.storeId : null;
-          session.user.storeSlug =
-            typeof token.storeSlug === "string" ? token.storeSlug : null;
-        } else {
-          const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
-          session.user.storeId = storeId;
-          session.user.storeSlug = storeSlug;
-        }
+        session.user.storeId =
+          typeof token.storeId === "string" ? token.storeId : null;
+        session.user.storeSlug =
+          typeof token.storeSlug === "string" ? token.storeSlug : null;
       }
       return session;
     },

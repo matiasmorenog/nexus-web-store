@@ -19,7 +19,7 @@ import {
   getAdminDashboardPageData,
   parseActivityPeriod,
 } from "@/lib/admin-analytics";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-session";
 import { getStoreDisplayName } from "@/lib/store-context";
 import { formatPrice } from "@/lib/utils";
 import { getOrderStatusLabel, getOrderStatusVariant } from "@/lib/order-status";
@@ -31,12 +31,8 @@ export default async function AdminDashboardPage({
 }: {
   searchParams: Promise<{ period?: string }>;
 }) {
-  const session = await auth();
-  const storeId = session?.user?.storeId;
-
-  if (!storeId) {
-    return <p>No tenés una tienda asignada.</p>;
-  }
+  const session = await requireAdminSession();
+  const storeId = session.user.storeId;
 
   const params = await searchParams;
   const period = parseActivityPeriod(params.period);

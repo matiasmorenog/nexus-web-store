@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
 import { AdminBodyScrollLock } from "@/components/admin/admin-body-scroll-lock";
 import { AdminContentScrollArea } from "@/components/admin/admin-content-scroll-area";
 import { AdminNav } from "@/components/admin/admin-nav";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-session";
 import { getBrandPrefix, getStore } from "@/lib/store-context";
 
 export default async function AdminProtectedLayout({
@@ -10,12 +9,7 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-
-  if (!session) {
-    redirect("/admin/login");
-  }
-
+  const session = await requireAdminSession();
   const store = await getStore();
   const brandPrefix = getBrandPrefix(store.name);
 
@@ -28,8 +22,8 @@ export default async function AdminProtectedLayout({
       >
         <AdminNav
           brandPrefix={brandPrefix}
-          userName={session.user?.name}
-          userEmail={session.user?.email}
+          userName={session.user.name}
+          userEmail={session.user.email}
         />
         <AdminContentScrollArea className="admin-content-bottom min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">
           <main>{children}</main>

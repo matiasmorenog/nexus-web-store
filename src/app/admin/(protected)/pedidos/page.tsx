@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-session";
 import {
   adminOrdersFilterKey,
   getAdminOrdersPage,
@@ -39,10 +39,8 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await auth();
-  const storeId = session?.user?.storeId;
-
-  if (!storeId) return <p>No autorizado</p>;
+  const session = await requireAdminSession();
+  const storeId = session.user.storeId;
 
   const params = await searchParams;
   const filters = resolveAdminOrdersFilters(params);

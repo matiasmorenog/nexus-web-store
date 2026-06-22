@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { ProductEditSections } from "@/components/admin/product-edit-sections";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-session";
 import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +13,8 @@ export default async function AdminProductEditPage({
   params: Promise<{ productId: string }>;
 }) {
   const { productId } = await params;
-  const session = await auth();
-  const storeId = session?.user?.storeId;
-
-  if (!storeId) return <p>No autorizado</p>;
+  const session = await requireAdminSession();
+  const storeId = session.user.storeId;
 
   const product = await db.product.findFirst({
     where: { id: productId, storeId },

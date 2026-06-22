@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-session";
 import {
   adminProductsFilterKey,
   getAdminProductsPage,
@@ -39,10 +39,8 @@ export default async function AdminProductsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await auth();
-  const storeId = session?.user?.storeId;
-
-  if (!storeId) return <p>No autorizado</p>;
+  const session = await requireAdminSession();
+  const storeId = session.user.storeId;
 
   const params = await searchParams;
   const filters = {

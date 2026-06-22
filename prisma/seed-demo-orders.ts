@@ -6,9 +6,10 @@ import {
   summarizeDemoPlans,
   type DemoOrderItem,
 } from "./demo-orders-data";
+import { seedDefaults } from "./seed-env";
 
 const prisma = new PrismaClient();
-const STORE_SLUG = process.env.DEFAULT_STORE_SLUG ?? "alaska-indumentaria";
+const STORE_SLUG = seedDefaults.storeSlug;
 
 type VariantKey = string;
 

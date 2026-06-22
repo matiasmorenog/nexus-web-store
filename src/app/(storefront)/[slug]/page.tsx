@@ -5,11 +5,11 @@ import { InfoPage } from "@/components/storefront/info-page";
 import {
   INFO_PAGES,
   INFO_PAGE_SLUGS,
-  getContactEmail,
   isInfoPageSlug,
   resolvePageContent,
 } from "@/lib/info-pages";
 import { formatStoreName, getStore } from "@/lib/store-context";
+import { getContactEmail } from "@/lib/store-env";
 
 type PageProps = {
   params: Promise<{ slug: string }>;

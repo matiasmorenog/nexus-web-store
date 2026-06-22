@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedDefaults } from "./seed-env";
 
 const prisma = new PrismaClient();
 
@@ -467,8 +468,8 @@ async function main() {
 
   const store = await prisma.store.create({
     data: {
-      name: "Alaska",
-      slug: "alaska-indumentaria",
+      name: seedDefaults.storeName,
+      slug: seedDefaults.storeSlug,
       primaryColor: "#db2777",
       secondaryColor: "#ffffff",
       shippingFlatRate: 2500,
@@ -476,13 +477,13 @@ async function main() {
     },
   });
 
-  const passwordHash = await bcrypt.hash("admin123", 12);
+  const passwordHash = await bcrypt.hash(seedDefaults.adminPassword, 12);
 
   const admin = await prisma.user.create({
     data: {
-      email: "admin@alaskaindumentaria.com",
+      email: seedDefaults.adminEmail,
       passwordHash,
-      name: "Admin Alaska",
+      name: `${seedDefaults.adminDisplayName} ${seedDefaults.storeName}`,
       role: UserRole.STORE_OWNER,
       stores: {
         create: { storeId: store.id },

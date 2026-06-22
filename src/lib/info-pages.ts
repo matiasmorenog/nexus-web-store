@@ -328,11 +328,3 @@ export function resolvePageContent(
     }),
   };
 }
-
-export function getContactEmail() {
-  return (
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL ??
-    process.env.STORE_NOTIFICATION_EMAIL ??
-    "contacto@alaskaindumentaria.com"
-  );
-}

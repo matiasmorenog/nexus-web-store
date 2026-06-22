@@ -58,14 +58,15 @@ git push -u origin main
 | `AUTH_SECRET` | `openssl rand -base64 32` |
 | `AUTH_URL` | `https://TU-DOMINIO.vercel.app` (actualizar después del 1er deploy) |
 | `NEXT_PUBLIC_APP_URL` | Igual que `AUTH_URL` |
-| `DEFAULT_STORE_SLUG` | `alaska-indumentaria` |
+| `DEFAULT_STORE_SLUG` | Slug de la tienda en DB (**obligatorio**) |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Email público en `/contacto` (recomendado) |
+| `STORE_NOTIFICATION_EMAIL` | Avisos de venta; fallback de contacto si no hay `NEXT_PUBLIC_CONTACT_EMAIL` |
 | `MERCADOPAGO_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
 | `MERCADOENVIOS_ACCESS_TOKEN` | Opcional (modo demo sin esto) |
 | `RESEND_API_KEY` | Opcional (sin esto los emails se loguean en consola) |
-| `EMAIL_FROM` | `Alaska Indumentaria <onboarding@resend.dev>` o tu dominio verificado |
-| `STORE_NOTIFICATION_EMAIL` | `admin@alaskaindumentaria.com` (avisos de nueva venta) |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Opcional (email en página de contacto; default `contacto@alaskaindumentaria.com`) |
+| `EMAIL_FROM` | Remitente de emails transaccionales (ej. `Mi Marca <onboarding@resend.dev>`) |
 | `BLOB_READ_WRITE_TOKEN` | Opcional (sin esto no se pueden subir fotos en admin; URLs externas siguen funcionando) |
+| `NEXT_PUBLIC_ADMIN_DEMO_EMAIL` | Opcional — prellena login admin en desarrollo |
 
 ### Imágenes (Vercel Blob)
 

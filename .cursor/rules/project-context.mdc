@@ -10,7 +10,7 @@ alwaysApply: true
 ## Stack y convenciones
 
 - Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand (carrito), Mercado Pago
-- Tienda única vía `DEFAULT_STORE_SLUG` (`alaska-indumentaria`); schema multi-tenant (`storeId`) listo para SaaS
+- Tienda única vía `DEFAULT_STORE_SLUG` (obligatorio, ver `src/lib/store-env.ts`); schema multi-tenant (`storeId`) listo para SaaS
 - Color de marca en `src/app/globals.css` (`--brand-primary`), no en DB ni admin
 - Categorías fijas en `src/lib/categories.ts` (no CRUD)
 - Sin `middleware.ts` (límite Edge en Vercel); admin protegido en `src/app/admin/(protected)/layout.tsx`
@@ -25,7 +25,8 @@ alwaysApply: true
 | Admin | `src/app/admin/(protected)/` |
 | Checkout API | `src/app/api/checkout/route.ts` |
 | Auth | `src/lib/auth.ts` |
-| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts` |
+| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts`, `prisma/seed-env.ts` |
+| Store env | `src/lib/store-env.ts` |
 | Deploy | `DEPLOY.md` (Neon pooled + `DIRECT_URL`) |
 | Features / roadmap | `README.md` → sección **Roadmap de features** |
 | Performance / costo | `.cursor/rules/performance-todo.mdc` |
@@ -42,5 +43,5 @@ alwaysApply: true
 - No explorar el repo entero ni lanzar subagentes para preguntas acotadas; usar grep/read en el archivo indicado arriba
 - Consultar `README.md` (roadmap) antes de planificar features nuevas
 - Cambios mínimos; no refactorizar ni tocar archivos no relacionados
-- Admin demo: `admin@alaskaindumentaria.com` / `admin123`
+- Admin demo: credenciales del seed (`SEED_ADMIN_*` / `prisma/seed-env.ts`)
 - Producción: `https://nexus-web-store.vercel.app`; env vars en `DEPLOY.md`

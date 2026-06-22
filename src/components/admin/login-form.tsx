@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getAdminDemoEmail } from "@/lib/store-env";
 
 export function LoginForm() {
   const router = useRouter();
@@ -39,11 +40,17 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required defaultValue="admin@alaskaindumentaria.com" />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          defaultValue={getAdminDemoEmail()}
+        />
       </div>
       <div>
         <Label htmlFor="password">Contraseña</Label>
-        <Input id="password" name="password" type="password" required defaultValue="admin123" />
+        <Input id="password" name="password" type="password" required />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" className="w-full" disabled={loading}>

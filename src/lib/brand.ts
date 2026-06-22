@@ -2,7 +2,7 @@ export const BRAND_SUFFIX = "Indumentaria";
 
 const SUFFIX_PATTERN = new RegExp(`\\s+${BRAND_SUFFIX}$`, "i");
 
-/** Extrae el prefijo de marca (ej. "Alaska" desde "Alaska Indumentaria" o "Alaska"). */
+/** Extrae el prefijo de marca (ej. "MiMarca" desde "MiMarca Indumentaria"). */
 export function getBrandPrefix(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) return "";

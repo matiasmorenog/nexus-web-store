@@ -6,6 +6,7 @@ import {
   getBrandPrefix,
 } from "@/lib/brand";
 import { db } from "@/lib/db";
+import { getDefaultStoreSlug } from "@/lib/store-env";
 
 export { BRAND_SUFFIX, formatStoreName, getBrandPrefix };
 
@@ -26,7 +27,7 @@ const getStoreBySlug = unstable_cache(
 );
 
 export const getStore = cache(async () => {
-  const slug = process.env.DEFAULT_STORE_SLUG ?? "alaska-indumentaria";
+  const slug = getDefaultStoreSlug();
 
   const store = await getStoreBySlug(slug);
 

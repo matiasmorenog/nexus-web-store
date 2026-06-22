@@ -6,7 +6,6 @@ import {
   getBrandPrefix,
 } from "@/lib/brand";
 import { db } from "@/lib/db";
-import { getDefaultStoreSlug } from "@/lib/store-env";
 
 export { BRAND_SUFFIX, formatStoreName, getBrandPrefix };
 
@@ -14,31 +13,35 @@ export const STORE_CACHE_TAG = "store";
 
 const STORE_CACHE_REVALIDATE_SECONDS = 300;
 
-const getStoreBySlug = unstable_cache(
-  async (slug: string) =>
-    db.store.findUnique({
-      where: { slug },
-    }),
-  ["store-by-slug"],
+const getCachedActiveStore = unstable_cache(
+  async () => {
+    const stores = await db.store.findMany({
+      orderBy: { createdAt: "asc" },
+      take: 2,
+    });
+
+    if (stores.length === 0) {
+      throw new Error(
+        "No hay tienda en la base. Ejecutá npm run db:setup (ver prisma/seed-env.ts).",
+      );
+    }
+
+    if (stores.length > 1) {
+      throw new Error(
+        "Hay más de una tienda en la base. Este deploy es de una sola tienda; usá una DB por cliente o implementá resolución por dominio.",
+      );
+    }
+
+    return stores[0];
+  },
+  ["active-store"],
   {
     revalidate: STORE_CACHE_REVALIDATE_SECONDS,
     tags: [STORE_CACHE_TAG],
   },
 );
 
-export const getStore = cache(async () => {
-  const slug = getDefaultStoreSlug();
-
-  const store = await getStoreBySlug(slug);
-
-  if (!store) {
-    throw new Error(
-      `Store "${slug}" not found. Run npm run db:seed after configuring DATABASE_URL.`,
-    );
-  }
-
-  return store;
-});
+export const getStore = cache(async () => getCachedActiveStore());
 
 export const getStoreId = cache(async () => {
   const store = await getStore();

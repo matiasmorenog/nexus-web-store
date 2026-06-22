@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
 import { auth } from "@/lib/auth";
 import { getBrandPrefix } from "@/lib/brand";
+import { getMerchantEmail } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
 export default async function AdminLoginPage() {
@@ -14,6 +15,7 @@ export default async function AdminLoginPage() {
 
   const store = await getStore();
   const displayName = formatStoreName(store.name);
+  const ownerEmail = await getMerchantEmail(store.id);
   const brandPrefix = getBrandPrefix(store.name);
 
   return (
@@ -48,7 +50,7 @@ export default async function AdminLoginPage() {
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 Iniciar sesión
               </h2>
-              <LoginForm />
+              <LoginForm defaultEmail={ownerEmail} />
             </div>
 
             <p className="mt-6 text-center text-sm text-neutral-500">

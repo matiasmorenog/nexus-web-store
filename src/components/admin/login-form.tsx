@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getAdminDemoEmail } from "@/lib/store-env";
+type LoginFormProps = {
+  defaultEmail?: string;
+};
 
-export function LoginForm() {
+export function LoginForm({ defaultEmail = "" }: LoginFormProps) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +47,7 @@ export function LoginForm() {
           name="email"
           type="email"
           required
-          defaultValue={getAdminDemoEmail()}
+          defaultValue={defaultEmail}
         />
       </div>
       <div>

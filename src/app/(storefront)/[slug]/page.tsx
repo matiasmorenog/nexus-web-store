@@ -8,8 +8,8 @@ import {
   isInfoPageSlug,
   resolvePageContent,
 } from "@/lib/info-pages";
+import { getMerchantEmail } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
-import { getContactEmail } from "@/lib/store-env";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -48,12 +48,9 @@ export default async function StoreInfoPage({ params }: PageProps) {
   const page = resolvePageContent(INFO_PAGES[slug], displayName);
 
   if (page.kind === "contact") {
+    const email = await getMerchantEmail(store.id);
     return (
-      <ContactPage
-        page={page}
-        email={getContactEmail()}
-        storeName={displayName}
-      />
+      <ContactPage page={page} email={email} storeName={displayName} />
     );
   }
 

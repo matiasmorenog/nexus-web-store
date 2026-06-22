@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import {
-  getFromAddress,
+  buildFromAddress,
   isResendConfigured,
   logDemoEmail,
 } from "@/lib/emails/email-utils";
@@ -50,15 +50,16 @@ export async function sendContactEmail(
   merchantEmail: string,
 ): Promise<{ mode: "sent" | "demo-log" }> {
   const email = buildContactEmail(data, merchantEmail);
+  const from = buildFromAddress(data.storeName, merchantEmail);
 
   if (!isResendConfigured()) {
-    logDemoEmail("Consulta de contacto", email.to, email.subject, email.text);
+    logDemoEmail("Consulta de contacto", from, email.to, email.subject, email.text);
     return { mode: "demo-log" };
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const result = await resend.emails.send({
-    from: getFromAddress(),
+    from,
     to: merchantEmail,
     replyTo: data.email,
     subject: email.subject,

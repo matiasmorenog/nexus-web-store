@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import {
-  getFromAddress,
+  buildFromAddress,
   isResendConfigured,
   logDemoEmail,
 } from "@/lib/emails/email-utils";
@@ -29,18 +29,20 @@ export async function sendOrderEmails(
     merchant: { to: merchantEmail, subject: merchantNotification.subject },
   };
 
+  const from = buildFromAddress(data.storeName, merchantEmail);
+
   if (!isResendConfigured()) {
-    logDemoEmail("Cliente", data.customerEmail, customerEmail.subject, customerEmail.text);
-    logDemoEmail("Comerciante", merchantEmail, merchantNotification.subject, merchantNotification.text);
+    logDemoEmail("Cliente", from, data.customerEmail, customerEmail.subject, customerEmail.text);
+    logDemoEmail("Comerciante", from, merchantEmail, merchantNotification.subject, merchantNotification.text);
     return result;
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const from = getFromAddress();
 
   const [customerResult, merchantResult] = await Promise.all([
     resend.emails.send({
       from,
+      replyTo: merchantEmail,
       to: data.customerEmail,
       subject: customerEmail.subject,
       html: customerEmail.html,
@@ -48,6 +50,7 @@ export async function sendOrderEmails(
     }),
     resend.emails.send({
       from,
+      replyTo: merchantEmail,
       to: merchantEmail,
       subject: merchantNotification.subject,
       html: merchantNotification.html,

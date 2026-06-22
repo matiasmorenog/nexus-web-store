@@ -527,7 +527,7 @@ async function main() {
 
   console.log("Seed completed:");
   console.log(`  Store: ${store.name} (${store.slug})`);
-  console.log(`  Admin: ${admin.email} / (ver SEED_ADMIN_PASSWORD en .env)`);
+  console.log(`  Admin: ${admin.email} / ${seedDefaults.adminPassword} (prisma/seed-env.ts)`);
   console.log(`  Products: ${PRODUCTS.length}`);
   console.log(`  Promo 2x1: ${promo2x1Count} productos`);
   console.log("  Por categoría:", byCategory);

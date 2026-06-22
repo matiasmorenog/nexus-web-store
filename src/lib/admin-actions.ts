@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { resolveAdminStoreId } from "@/lib/admin-store";
-import { revalidateCatalogIndexCache } from "@/lib/catalog-index-query";
+import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
 import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
 import {
@@ -82,13 +82,18 @@ export async function createProduct(formData: FormData) {
   });
 
   revalidatePath("/admin/productos");
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
+  revalidateStorefrontProductSurfaces(product.slug);
   return product;
 }
 
 export async function deleteProduct(productId: string) {
   const storeId = await getAdminStoreId();
+
+  const existing = await db.product.findFirst({
+    where: { id: productId, storeId },
+    select: { slug: true },
+  });
+  if (!existing) return;
 
   const variants = await db.productVariant.findMany({
     where: { productId, product: { storeId } },
@@ -104,8 +109,7 @@ export async function deleteProduct(productId: string) {
   await cleanupProductImages(variants.map((variant) => variant.imageUrl));
 
   revalidatePath("/admin/productos");
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
+  revalidateStorefrontProductSurfaces(existing.slug);
 }
 
 async function assertProductOwnership(productId: string, storeId: string) {
@@ -145,9 +149,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${slug}`);
+  revalidateStorefrontProductSurfaces(slug);
 }
 
 export async function upsertProductColor(productId: string, formData: FormData) {
@@ -237,9 +239,7 @@ export async function upsertProductColor(productId: string, formData: FormData) 
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${product.slug}`);
+  revalidateStorefrontProductSurfaces(product.slug);
 }
 
 export async function deleteProductColor(productId: string, color: string) {
@@ -290,9 +290,7 @@ export async function deleteProductColor(productId: string, color: string) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${product.slug}`);
+  revalidateStorefrontProductSurfaces(product.slug);
 }
 
 export async function createVariant(productId: string, formData: FormData) {
@@ -332,9 +330,7 @@ export async function createVariant(productId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${product.slug}`);
+  revalidateStorefrontProductSurfaces(product.slug);
 }
 
 export async function updateVariant(variantId: string, formData: FormData) {
@@ -384,9 +380,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${variant.product.slug}`);
+  revalidateStorefrontProductSurfaces(variant.product.slug);
 }
 
 export async function deleteVariant(variantId: string) {
@@ -420,7 +414,5 @@ export async function deleteVariant(variantId: string) {
 
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
-  revalidateCatalogIndexCache();
-  revalidatePath("/productos");
-  revalidatePath(`/producto/${variant.product.slug}`);
+  revalidateStorefrontProductSurfaces(variant.product.slug);
 }

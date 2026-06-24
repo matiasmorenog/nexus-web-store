@@ -93,6 +93,10 @@ src/
 └── stores/
 ```
 
+## Cache, rutas e invalidación
+
+Referencia completa: [`docs/caching-and-routes.md`](docs/caching-and-routes.md) — qué rutas usan ISR (`revalidate = 600`), `unstable_cache`, `force-dynamic` o cliente, y qué mutaciones del admin refrescan cada superficie.
+
 ## Roadmap de features
 
 Estado actual del producto vs. lo necesario para operar como app real. Actualizar los checkboxes al implementar cada ítem.
@@ -153,7 +157,7 @@ Estado actual del producto vs. lo necesario para operar como app real. Actualiza
 - [x] Filtros y búsqueda en pedidos
 - [ ] Detalle de pedido con notas internas
 - [ ] Exportar pedidos / productos (CSV)
-- [ ] Dashboard con gráficos y períodos
+- [x] Dashboard con gráficos y períodos
 - [ ] Gestión de clientes (CRM lite)
 - [ ] Gestión de usuarios y permisos (roles existen en schema, sin UI)
 - [ ] Configuración de marca (logo, colores, dominio custom)

@@ -29,13 +29,14 @@ alwaysApply: true
 | Deploy | `DEPLOY.md` (Neon pooled + `DIRECT_URL`) |
 | Features / roadmap | `README.md` → sección **Roadmap de features** |
 | Performance / costo | `.cursor/rules/performance-todo.mdc` |
+| Cache por ruta | `docs/caching-and-routes.md` |
 
 ## Performance storefront
 
 - Catálogo: snapshot único cacheado; filtros y counts en el browser (sin counts en DB ni API de paginación)
-- `getStore()` cacheado 5 min (`STORE_CACHE_TAG`)
+- `getStore()` cacheado 1 h (`STORE_CACHE_TAG`); invalidación al guardar config
 - Checkout y admin siguen dinámicos (`force-dynamic` donde aplica)
-- Home, PDP y catálogo: `revalidate = 60` + queries cacheadas (`unstable_cache`)
+- Home, PDP y catálogo: ISR + queries con `STOREFRONT_CATALOG_REVALIDATE_SECONDS` (600s); admin dashboard 300s
 
 ## Ahorro de tokens
 

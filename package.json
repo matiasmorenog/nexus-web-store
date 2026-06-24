@@ -9,10 +9,11 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:demo-orders": "tsx prisma/seed-demo-orders.ts",
+    "db:seed": "tsx prisma/seed.ts && npm run cache:revalidate",
+    "db:demo-orders": "tsx prisma/seed-demo-orders.ts && npm run cache:revalidate",
     "db:setup": "npm run db:push && npm run db:seed && npm run db:demo-orders",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "cache:revalidate": "tsx scripts/revalidate-cache.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

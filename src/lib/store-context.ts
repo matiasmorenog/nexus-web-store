@@ -5,36 +5,29 @@ import {
   formatStoreName,
   getBrandPrefix,
 } from "@/lib/brand";
+import { STORE_CACHE_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
+import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
 
 export { BRAND_SUFFIX, formatStoreName, getBrandPrefix };
 
 export const STORE_CACHE_TAG = "store";
 
-const STORE_CACHE_REVALIDATE_SECONDS = 300;
-
 const getCachedActiveStore = unstable_cache(
   async () => {
-    const stores = await db.store.findMany({
-      orderBy: { createdAt: "asc" },
-      take: 2,
+    const store = await db.store.findUnique({
+      where: { slug: DEFAULT_STORE_SLUG },
     });
 
-    if (stores.length === 0) {
+    if (!store) {
       throw new Error(
-        "No hay tienda en la base. Ejecutá npm run db:setup (ver prisma/seed-env.ts).",
+        `No hay tienda con slug "${DEFAULT_STORE_SLUG}". Ejecutá npm run db:setup (ver prisma/seed-env.ts).`,
       );
     }
 
-    if (stores.length > 1) {
-      throw new Error(
-        "Hay más de una tienda en la base. Este deploy es de una sola tienda; usá una DB por cliente o implementá resolución por dominio.",
-      );
-    }
-
-    return stores[0];
+    return store;
   },
-  ["active-store"],
+  ["active-store", DEFAULT_STORE_SLUG],
   {
     revalidate: STORE_CACHE_REVALIDATE_SECONDS,
     tags: [STORE_CACHE_TAG],

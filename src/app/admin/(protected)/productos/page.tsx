@@ -53,10 +53,8 @@ export default async function AdminProductsPage({
     orden: params.orden,
   };
 
-  const [summary, page] = await Promise.all([
-    getAdminProductsSummary(storeId),
-    getAdminProductsPage(storeId, 1, filters),
-  ]);
+  const summary = await getAdminProductsSummary(storeId);
+  const page = await getAdminProductsPage(storeId, 1, filters);
 
   const hasFilters = Boolean(
     params.categoria ||

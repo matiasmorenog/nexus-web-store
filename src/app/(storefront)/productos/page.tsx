@@ -6,9 +6,10 @@ import {
 } from "@/components/storefront/storefront-skeleton";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getCatalogIndex } from "@/lib/catalog-index-query";
+import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 
-export const revalidate = 60;
+export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
 
 function CatalogPageFallback() {
   return (
@@ -30,10 +31,8 @@ function CatalogPageFallback() {
 
 export default async function ProductsPage() {
   const storeId = await getStoreId();
-  const [storeDisplayName, index] = await Promise.all([
-    getStoreDisplayName(),
-    getCatalogIndex(storeId),
-  ]);
+  const storeDisplayName = await getStoreDisplayName();
+  const index = await getCatalogIndex(storeId);
 
   return (
     <Suspense fallback={<CatalogPageFallback />}>

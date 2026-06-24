@@ -150,10 +150,8 @@ export async function getAdminProductsPage(
 ) {
   const where = buildAdminProductsWhere(storeId, params);
 
-  const [products, total] = await Promise.all([
-    fetchAdminProductsBatch(storeId, page, params),
-    db.product.count({ where }),
-  ]);
+  const products = await fetchAdminProductsBatch(storeId, page, params);
+  const total = await db.product.count({ where });
 
   const rows = products.map(mapAdminProductRow);
 
@@ -166,58 +164,55 @@ export async function getAdminProductsPage(
 }
 
 async function fetchAdminProductsSummary(storeId: string) {
-  const [
-    totalProducts,
-    categoryGroups,
-    audienceGroups,
-    destacado,
-    promo2x1,
-    normal,
-  ] = await Promise.all([
-    db.product.count({ where: { storeId } }),
-    db.product.groupBy({
+  return db.$transaction(async (tx) => {
+    const totalProducts = await tx.product.count({ where: { storeId } });
+    const categoryGroups = await tx.product.groupBy({
       by: ["category"],
       where: { storeId },
       _count: { _all: true },
-    }),
-    db.product.groupBy({
+    });
+    const audienceGroups = await tx.product.groupBy({
       by: ["audience"],
       where: { storeId },
       _count: { _all: true },
-    }),
-    db.product.count({ where: { storeId, featured: true } }),
-    db.product.count({ where: { storeId, promo2x1: true } }),
-    db.product.count({
+    });
+    const destacado = await tx.product.count({
+      where: { storeId, featured: true },
+    });
+    const promo2x1 = await tx.product.count({
+      where: { storeId, promo2x1: true },
+    });
+    const normal = await tx.product.count({
       where: { storeId, featured: false, promo2x1: false },
-    }),
-  ]);
+    });
 
-  const categoryCounts = Object.fromEntries(
-    PRODUCT_CATEGORIES.map((category) => [
-      category.slug,
-      categoryGroups.find((group) => group.category === category.slug)?._count
-        ._all ?? 0,
-    ]),
-  ) as Record<string, number>;
+    const categoryCounts = Object.fromEntries(
+      PRODUCT_CATEGORIES.map((category) => [
+        category.slug,
+        categoryGroups.find((group) => group.category === category.slug)?._count
+          ._all ?? 0,
+      ]),
+    ) as Record<string, number>;
 
-  const audienceCounts = Object.fromEntries(
-    STORE_AUDIENCES.map((audience) => [
-      audience.slug,
-      audienceGroups.find((group) => group.audience === audience.slug)?._count
-        ._all ?? 0,
-    ]),
-  ) as Record<string, number>;
+    const audienceCounts = Object.fromEntries(
+      STORE_AUDIENCES.map((audience) => [
+        audience.slug,
+        audienceGroups.find((group) => group.audience === audience.slug)?._count
+          ._all ?? 0,
+      ]),
+    ) as Record<string, number>;
 
-  return {
-    totalProducts,
-    categoryCounts,
-    audienceCounts,
-    estadoCounts: {
-      destacado,
-      promo2x1,
-      normal,
-    },
-  };
+    return {
+      totalProducts,
+      categoryCounts,
+      audienceCounts,
+      estadoCounts: {
+        destacado,
+        promo2x1,
+        normal,
+      },
+    };
+  });
 }
 
 function getCachedAdminProductsSummary(storeId: string) {

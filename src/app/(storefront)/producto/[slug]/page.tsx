@@ -10,9 +10,10 @@ import {
   getStorefrontProduct,
   getStorefrontProductSlugs,
 } from "@/lib/product-page-query";
+import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 
-export const revalidate = 60;
+export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -30,7 +31,8 @@ export async function generateStaticParams() {
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
-  const [storeId, store] = await Promise.all([getStoreId(), getStore()]);
+  const store = await getStore();
+  const storeId = store.id;
   const displayName = formatStoreName(store.name);
   const sizeGuide = resolvePageContent(INFO_PAGES["guia-de-talles"], displayName);
 

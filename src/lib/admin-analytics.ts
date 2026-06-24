@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
+import type { Prisma } from "@prisma/client";
 import type {
   ActivityPeriod,
   ActivityPoint,
@@ -29,8 +30,6 @@ export {
   buildAdminPaidOrdersHref,
   parseActivityPeriod,
 } from "@/lib/admin-analytics-shared";
-
-const SALE_STATUSES = ["PAID", "SHIPPED"] as const;
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -133,19 +132,19 @@ function bucketKeyForOrder(date: Date, period: ActivityPeriod): string {
   return startOfDay(date).toISOString().slice(0, 10);
 }
 
-function aggregateSalesActivity(
-  ordersInRange: { createdAt: Date; total: { toString(): string } | number }[],
+function aggregateSalesActivityFromRows(
+  rows: { bucketDate: Date; orders: number; revenue: number }[],
   buckets: ActivityPoint[],
   period: ActivityPeriod,
 ) {
   const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
 
-  for (const order of ordersInRange) {
-    const key = bucketKeyForOrder(order.createdAt, period);
+  for (const row of rows) {
+    const key = bucketKeyForOrder(row.bucketDate, period);
     const bucket = bucketMap.get(key);
     if (!bucket) continue;
-    bucket.orders += 1;
-    bucket.revenue += Number(order.total);
+    bucket.orders = row.orders;
+    bucket.revenue = row.revenue;
   }
 
   const totalOrders = buckets.reduce((sum, bucket) => sum + bucket.orders, 0);
@@ -159,40 +158,63 @@ function aggregateSalesActivity(
   };
 }
 
-function aggregateTopProducts(
-  soldItems: {
-    quantity: number;
-    unitPrice: { toString(): string } | number;
-    variant: { product: { id: string; name: string } };
-  }[],
-): TopProduct[] {
-  const productTotals = new Map<
-    string,
-    { productId: string; name: string; quantity: number; revenue: number }
-  >();
-
-  for (const item of soldItems) {
-    const product = item.variant.product;
-    const quantity = item.quantity;
-    const revenue = quantity * Number(item.unitPrice);
-    const existing = productTotals.get(product.id);
-
-    if (existing) {
-      existing.quantity += quantity;
-      existing.revenue += revenue;
-    } else {
-      productTotals.set(product.id, {
-        productId: product.id,
-        name: product.name,
-        quantity,
-        revenue,
-      });
-    }
+async function fetchSalesActivityAggregates(
+  tx: Prisma.TransactionClient,
+  storeId: string,
+  rangeStart: Date,
+  period: ActivityPeriod,
+) {
+  if (period === "year") {
+    return tx.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
+      SELECT
+        date_trunc('month', o."createdAt") AS "bucketDate",
+        COUNT(*)::int AS orders,
+        COALESCE(SUM(o.total), 0)::float AS revenue
+      FROM "Order" o
+      WHERE o."storeId" = ${storeId}
+        AND o.status IN ('PAID', 'SHIPPED')
+        AND o."createdAt" >= ${rangeStart}
+      GROUP BY 1
+    `;
   }
 
-  return [...productTotals.values()]
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5);
+  return tx.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
+    SELECT
+      date_trunc('day', o."createdAt") AS "bucketDate",
+      COUNT(*)::int AS orders,
+      COALESCE(SUM(o.total), 0)::float AS revenue
+    FROM "Order" o
+    WHERE o."storeId" = ${storeId}
+      AND o.status IN ('PAID', 'SHIPPED')
+      AND o."createdAt" >= ${rangeStart}
+    GROUP BY 1
+  `;
+}
+
+async function fetchTopProductsAggregates(
+  tx: Prisma.TransactionClient,
+  storeId: string,
+  rangeStart: Date,
+) {
+  return tx.$queryRaw<
+    { productId: string; name: string; quantity: number; revenue: number }[]
+  >`
+    SELECT
+      p.id AS "productId",
+      p.name,
+      SUM(oi.quantity)::int AS quantity,
+      COALESCE(SUM(oi.quantity * oi."unitPrice"), 0)::float AS revenue
+    FROM "OrderItem" oi
+    INNER JOIN "Order" o ON oi."orderId" = o.id
+    INNER JOIN "ProductVariant" pv ON oi."variantId" = pv.id
+    INNER JOIN "Product" p ON pv."productId" = p.id
+    WHERE o."storeId" = ${storeId}
+      AND o.status IN ('PAID', 'SHIPPED')
+      AND o."createdAt" >= ${rangeStart}
+    GROUP BY p.id, p.name
+    ORDER BY quantity DESC
+    LIMIT 5
+  `;
 }
 
 async function fetchAdminDashboardAttention(storeId: string) {
@@ -220,43 +242,24 @@ async function fetchAdminDashboardAnalytics(
 ) {
   const { buckets, rangeStart } = buildBuckets(period);
 
-  const [ordersInRange, soldItems] = await db.$transaction([
-    db.order.findMany({
-      where: {
-        storeId,
-        status: { in: [...SALE_STATUSES] },
-        createdAt: { gte: rangeStart },
-      },
-      select: {
-        createdAt: true,
-        total: true,
-      },
-    }),
-    db.orderItem.findMany({
-      where: {
-        order: {
-          storeId,
-          status: { in: [...SALE_STATUSES] },
-          createdAt: { gte: rangeStart },
-        },
-      },
-      select: {
-        quantity: true,
-        unitPrice: true,
-        variant: {
-          select: {
-            product: {
-              select: { id: true, name: true },
-            },
-          },
-        },
-      },
-    }),
-  ]);
+  const [salesRows, topProducts] = await db.$transaction(async (tx) => {
+    const salesRows = await fetchSalesActivityAggregates(
+      tx,
+      storeId,
+      rangeStart,
+      period,
+    );
+    const topProducts = await fetchTopProductsAggregates(
+      tx,
+      storeId,
+      rangeStart,
+    );
+    return [salesRows, topProducts] as const;
+  });
 
   return {
-    salesActivity: aggregateSalesActivity(ordersInRange, buckets, period),
-    topProducts: aggregateTopProducts(soldItems),
+    salesActivity: aggregateSalesActivityFromRows(salesRows, buckets, period),
+    topProducts,
   };
 }
 
@@ -337,11 +340,9 @@ export const getAdminDashboardRecentOrders = cache(async (storeId: string) => {
 
 export const getAdminDashboardPageData = cache(
   async (storeId: string, period: ActivityPeriod = "week") => {
-    const [attention, analytics, recentOrders] = await Promise.all([
-      getAdminDashboardAttention(storeId),
-      getAdminDashboardAnalytics(storeId, period),
-      getAdminDashboardRecentOrders(storeId),
-    ]);
+    const attention = await getAdminDashboardAttention(storeId);
+    const analytics = await getAdminDashboardAnalytics(storeId, period);
+    const recentOrders = await getAdminDashboardRecentOrders(storeId);
 
     return {
       recentOrders,

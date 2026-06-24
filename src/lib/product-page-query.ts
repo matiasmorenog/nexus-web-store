@@ -1,8 +1,7 @@
 import { unstable_cache } from "next/cache";
+import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
-
-const STOREFRONT_PRODUCT_REVALIDATE_SECONDS = 60;
 
 const productInclude = {
   variants: {
@@ -21,7 +20,7 @@ const getCachedStorefrontProduct = unstable_cache(
       include: productInclude,
     }),
   ["storefront-product"],
-  { revalidate: STOREFRONT_PRODUCT_REVALIDATE_SECONDS },
+  { revalidate: STOREFRONT_CATALOG_REVALIDATE_SECONDS },
 );
 
 export async function getStorefrontProduct(storeId: string, slug: string) {

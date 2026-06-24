@@ -1,10 +1,9 @@
 import { revalidateTag, unstable_cache } from "next/cache";
+import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
 import type { CatalogIndexData, CatalogIndexProduct } from "@/lib/catalog-index";
 
 export const CATALOG_INDEX_CACHE_TAG = "catalog-index";
-
-const CATALOG_INDEX_REVALIDATE_SECONDS = 60;
 
 const productInclude = {
   variants: {
@@ -60,27 +59,28 @@ function mapProductToIndex(product: {
   };
 }
 
-const getCachedCatalogIndex = unstable_cache(
-  async (storeId: string): Promise<CatalogIndexData> => {
-    const products = await db.product.findMany({
-      where: { storeId },
-      include: productInclude,
-      orderBy: { createdAt: "desc" },
-    });
+const getCachedCatalogIndex = (storeId: string) =>
+  unstable_cache(
+    async (): Promise<CatalogIndexData> => {
+      const products = await db.product.findMany({
+        where: { storeId },
+        include: productInclude,
+        orderBy: { createdAt: "desc" },
+      });
 
-    return {
-      products: products.map(mapProductToIndex),
-    };
-  },
-  ["catalog-index"],
-  {
-    revalidate: CATALOG_INDEX_REVALIDATE_SECONDS,
-    tags: [CATALOG_INDEX_CACHE_TAG],
-  },
-);
+      return {
+        products: products.map(mapProductToIndex),
+      };
+    },
+    ["catalog-index", storeId],
+    {
+      revalidate: STOREFRONT_CATALOG_REVALIDATE_SECONDS,
+      tags: [CATALOG_INDEX_CACHE_TAG],
+    },
+  );
 
 export async function getCatalogIndex(storeId: string) {
-  return getCachedCatalogIndex(storeId);
+  return getCachedCatalogIndex(storeId)();
 }
 
 export function revalidateCatalogIndexCache() {

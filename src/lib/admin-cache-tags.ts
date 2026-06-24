@@ -1,5 +1,7 @@
-export const ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS = 60;
-export const ADMIN_PRODUCTS_SUMMARY_CACHE_REVALIDATE_SECONDS = 60;
+export {
+  ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+  ADMIN_PRODUCTS_SUMMARY_CACHE_REVALIDATE_SECONDS,
+} from "@/lib/cache-ttl";
 
 export function adminDashboardCacheTag(storeId: string) {
   return `admin-dashboard-${storeId}`;

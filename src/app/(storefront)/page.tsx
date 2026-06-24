@@ -9,9 +9,10 @@ import {
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
 import { HOME_CATEGORY_TILES } from "@/lib/categories";
+import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
-export const revalidate = 60;
+export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
 
 const CATEGORY_IMAGES: Record<string, string> = {
   mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",

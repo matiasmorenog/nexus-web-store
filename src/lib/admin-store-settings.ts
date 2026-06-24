@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { db } from "@/lib/db";
 import { normalizeBrandPrefix } from "@/lib/brand";
+import { INFO_PAGE_SLUGS } from "@/lib/info-pages";
 import { STORE_CACHE_TAG } from "@/lib/store-context";
 
 export async function saveStoreSettingsFromForm(
@@ -21,4 +22,7 @@ export async function saveStoreSettingsFromForm(
   revalidatePath("/admin/configuracion");
   revalidatePath("/");
   revalidatePath("/checkout");
+  for (const slug of INFO_PAGE_SLUGS) {
+    revalidatePath(`/${slug}`);
+  }
 }

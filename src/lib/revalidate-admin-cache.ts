@@ -18,4 +18,4 @@ export function revalidateAdminProductDataCaches(storeId: string) {
   revalidateAdminProductsSummaryCache(storeId);
 }
 
-// Pagos vía webhook/checkout: sin revalidateTag (TTL 60s).
+// Pagos: tags storefront + dashboard en fulfillPaidOrder (sin queries extra).

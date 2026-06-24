@@ -11,6 +11,8 @@ type SeedProduct = {
   description: string;
   featured: boolean;
   promo2x1?: boolean;
+  /** Demo: todas las variantes en stock 0 (chip sin stock en dashboard). */
+  outOfStock?: boolean;
   image: string;
   price: number;
   colors: string[];
@@ -150,6 +152,7 @@ const PRODUCTS: SeedProduct[] = [
     description:
       "Par de muñequeras acolchadas para protección en handstand push-ups y levantamientos.",
     featured: false,
+    outOfStock: true,
     image:
       "https://images.unsplash.com/photo-1671581081106-283f2bcdef71?w=800&q=80",
     price: 12900,
@@ -415,6 +418,7 @@ const PRODUCTS: SeedProduct[] = [
     description:
       "Par de rodilleras de neoprene de 7 mm. Soporte y calor para squats, lunges y pistols.",
     featured: false,
+    outOfStock: true,
     image:
       "https://images.unsplash.com/photo-1532382708467-d720b918f0da?w=800&q=80",
     price: 18900,
@@ -427,6 +431,7 @@ const PRODUCTS: SeedProduct[] = [
     description:
       "Coderas acolchadas para muscle-ups y bar work. Ajuste con velcro, par incluido.",
     featured: false,
+    outOfStock: true,
     image:
       "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
     price: 15900,
@@ -455,6 +460,15 @@ function slugify(text: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
+}
+
+function seedVariantStock(
+  product: SeedProduct,
+  colorIndex: number,
+  sizeIndex: number,
+): number {
+  if (product.outOfStock) return 0;
+  return 10 + ((colorIndex + sizeIndex) % 5);
 }
 
 async function main() {
@@ -509,7 +523,7 @@ async function main() {
               size,
               color,
               sku: `${slug}-${color.slice(0, 3).toUpperCase()}-${size}`,
-              stock: 10 + ((colorIndex + sizeIndex) % 5),
+              stock: seedVariantStock(product, colorIndex, sizeIndex),
               price: product.price,
               imageUrl: product.image,
             })),
@@ -520,6 +534,11 @@ async function main() {
   }
 
   const promo2x1Count = PRODUCTS.filter((product) => product.promo2x1).length;
+  const outOfStockProducts = PRODUCTS.filter((product) => product.outOfStock);
+  const outOfStockVariants = outOfStockProducts.reduce(
+    (sum, product) => sum + product.colors.length * SIZES.length,
+    0,
+  );
   const byCategory = PRODUCTS.reduce<Record<string, number>>((acc, product) => {
     acc[product.category] = (acc[product.category] ?? 0) + 1;
     return acc;
@@ -530,6 +549,9 @@ async function main() {
   console.log(`  Admin: ${admin.email} / ${seedDefaults.adminPassword} (prisma/seed-env.ts)`);
   console.log(`  Products: ${PRODUCTS.length}`);
   console.log(`  Promo 2x1: ${promo2x1Count} productos`);
+  console.log(
+    `  Sin stock (demo): ${outOfStockProducts.length} productos, ${outOfStockVariants} variantes`,
+  );
   console.log("  Por categoría:", byCategory);
 }
 

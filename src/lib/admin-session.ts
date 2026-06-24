@@ -2,6 +2,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
+import { getStoreId } from "@/lib/store-context";
 
 type AuthenticatedAdminUser = Session["user"] & {
   id: string;
@@ -16,7 +17,14 @@ export type AdminSession = Omit<Session, "user"> & {
 export const requireAdminSession = cache(async (): Promise<AdminSession> => {
   const session = await auth();
 
-  if (!session?.user?.id || !session.user.storeId) {
+  if (!session?.user?.id) {
+    redirect("/admin/logout");
+  }
+
+  let storeId: string;
+  try {
+    storeId = await getStoreId();
+  } catch {
     redirect("/admin/logout");
   }
 
@@ -25,7 +33,7 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     user: {
       ...session.user,
       id: session.user.id,
-      storeId: session.user.storeId,
+      storeId,
     },
   };
 });

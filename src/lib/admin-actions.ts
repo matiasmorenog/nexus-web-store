@@ -6,7 +6,7 @@ import {
   revalidateAdminDashboardCache,
   revalidateAdminProductDataCaches,
 } from "@/lib/revalidate-admin-cache";
-import { resolveAdminStoreId } from "@/lib/admin-store";
+import { getStoreId } from "@/lib/store-context";
 import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
 import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
@@ -29,16 +29,7 @@ async function getAdminStoreId() {
     throw new Error("No autorizado");
   }
 
-  if (session.user.storeId) {
-    return session.user.storeId;
-  }
-
-  const { storeId } = await resolveAdminStoreId(session.user.id);
-  if (!storeId) {
-    throw new Error("No autorizado");
-  }
-
-  return storeId;
+  return getStoreId();
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {

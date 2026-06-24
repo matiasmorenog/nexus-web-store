@@ -63,6 +63,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       if (!token.sub) return token;
 
+      if (typeof token.storeId === "string" && typeof token.storeSlug === "string") {
+        return token;
+      }
+
       const dbUser = await db.user.findUnique({
         where: { id: token.sub },
         include: {

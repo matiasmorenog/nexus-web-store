@@ -102,11 +102,10 @@ export function RouteLoadingOverlay() {
     <>
       <div
         className={cn(
-          "pointer-events-none fixed inset-x-0 bottom-0 z-[200]",
+          "fixed inset-0 z-[200] cursor-wait touch-none",
           "bg-white/25 backdrop-blur-[3px]",
           "route-loading-enter",
         )}
-        style={{ top: "var(--storefront-banner-height, 0px)" }}
         aria-hidden
       />
       <p className="sr-only" role="status" aria-live="polite">

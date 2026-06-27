@@ -8,6 +8,7 @@ import {
 import {
   ADMIN_PRODUCT_FILTER_PARAMS,
   getActiveAdminProductFilterChips,
+  hasAdminProductListQuery,
 } from "@/lib/admin-product-filters";
 import { AdminProductsSection } from "@/components/admin/admin-products-section";
 import { AdminActiveFilterChips } from "@/components/admin/admin-active-filter-chips";
@@ -54,20 +55,14 @@ export default async function AdminProductsPage({
   };
 
   const summary = await getAdminProductsSummary(storeId);
+  const listQueryActive = hasAdminProductListQuery(filters);
   const page = await getAdminProductsPage(storeId, 1, filters);
 
-  const hasFilters = Boolean(
-    params.categoria ||
-      params.genero ||
-      params.estado ||
-      params.stock ||
-      params.q?.trim() ||
-      (params.orden && params.orden !== "recientes"),
-  );
+  const hasFilters = listQueryActive;
 
   const description = hasFilters
     ? `${page.total} de ${summary.totalProducts} producto${summary.totalProducts !== 1 ? "s" : ""} con los filtros actuales`
-    : `${summary.totalProducts} producto${summary.totalProducts !== 1 ? "s" : ""} en el catálogo`;
+    : `${summary.totalProducts} producto${summary.totalProducts !== 1 ? "s" : ""} en el catálogo — filtrá o buscá para ver el listado`;
 
   const filterChips = getActiveAdminProductFilterChips(filters);
 
@@ -116,6 +111,14 @@ export default async function AdminProductsPage({
                 producto».
               </AdminEmptyState>
             </AdminCard>
+          ) : !listQueryActive ? (
+            <AdminProductsSection
+              awaitingFilters
+              initialProducts={[]}
+              total={0}
+              hasMore={false}
+              filters={filters}
+            />
           ) : page.total === 0 ? (
             <AdminCard>
               <AdminEmptyState>

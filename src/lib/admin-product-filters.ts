@@ -99,3 +99,5 @@ export function hasAdminProductFacetFilters(
 ) {
   return Boolean(params.categoria || params.genero || params.estado || params.stock);
 }
+
+export { hasAdminProductListQuery } from "@/lib/admin-products-query";

@@ -153,7 +153,7 @@ Todo el admin autenticado es **`force-dynamic`**: cada visita pega a la DB (salv
 | Ruta | Qué hace al cargar | Cache de datos |
 |------|-------------------|----------------|
 | `/admin` | Dashboard en 3 bloques con skeleton | **unstable_cache 5 min** (alertas, analytics SQL agregado, pedidos recientes) |
-| `/admin/productos` | Listado + panel de filtros | Facetas: **10 min**. Tabla: siempre DB |
+| `/admin/productos` | Panel de filtros (cache 10 min) + listado | **Tabla:** solo si hay filtro del panel o búsqueda `q`; sin filtros, 0 queries al listado |
 | `/admin/pedidos` | Lista + filtros (1 query grande) | Query en cada visita; `cache()` deduplica si el mismo request la pide más de una vez |
 | `/admin/productos/.../edit` | Producto + variantes por API al abrir | Sin cache |
 | `/admin/configuracion` | Datos de tienda directo de DB | Sin cache |

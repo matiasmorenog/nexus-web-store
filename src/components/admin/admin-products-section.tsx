@@ -49,6 +49,8 @@ type AdminProductsSectionProps = {
   total: number;
   hasMore: boolean;
   filters: AdminProductsFilterParams;
+  /** Sin filtros activos: no se cargó el listado desde la DB. */
+  awaitingFilters?: boolean;
 };
 
 export function AdminProductsSection({
@@ -56,6 +58,7 @@ export function AdminProductsSection({
   total,
   hasMore: initialHasMore,
   filters,
+  awaitingFilters = false,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
@@ -81,7 +84,7 @@ export function AdminProductsSection({
   }, [createOpen]);
 
   const loadMore = async () => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore || awaitingFilters) return;
 
     setLoading(true);
     try {
@@ -144,9 +147,11 @@ export function AdminProductsSection({
             title="Catálogo"
             className={cn(createOpen && "bg-neutral-100/50")}
             description={
-              hasMore || products.length < total
-                ? `${products.length} de ${total} producto${total !== 1 ? "s" : ""}`
-                : `${total} producto${total !== 1 ? "s" : ""}`
+              awaitingFilters
+                ? "Elegí un filtro del panel o buscá por nombre para ver productos."
+                : hasMore || products.length < total
+                  ? `${products.length} de ${total} producto${total !== 1 ? "s" : ""}`
+                  : `${total} producto${total !== 1 ? "s" : ""}`
             }
             padding={false}
             action={
@@ -164,8 +169,9 @@ export function AdminProductsSection({
             <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
             {products.length === 0 ? (
               <AdminTableEmpty colSpan={PRODUCT_COLUMNS.length}>
-                No hay productos en el catálogo. Creá el primero con «Nuevo
-                producto».
+                {awaitingFilters
+                  ? "Usá los filtros del panel o la búsqueda para listar productos."
+                  : "No hay productos en el catálogo. Creá el primero con «Nuevo producto»."}
               </AdminTableEmpty>
             ) : (
               products.map((product) => (
@@ -226,7 +232,7 @@ export function AdminProductsSection({
           <AdminLoadMore
             loaded={products.length}
             total={total}
-            hasMore={hasMore}
+            hasMore={hasMore && !awaitingFilters}
             loading={loading}
             onLoadMore={loadMore}
             label="Cargar más productos"

@@ -28,6 +28,28 @@ export type AdminProductsFilterParams = {
   orden?: string;
 };
 
+/** Panel o búsqueda — sin esto no se consulta el listado de productos. */
+export function hasAdminProductListQuery(
+  params: AdminProductsFilterParams,
+) {
+  return Boolean(
+    params.q?.trim() ||
+      params.categoria ||
+      params.genero ||
+      params.estado ||
+      params.stock,
+  );
+}
+
+export function emptyAdminProductsPage(page = 1) {
+  return {
+    products: [] as AdminProductRow[],
+    total: 0,
+    page,
+    hasMore: false,
+  };
+}
+
 const VALID_CATEGORIES = new Set(
   PRODUCT_CATEGORIES.map((category) => category.slug),
 );
@@ -148,6 +170,10 @@ export async function getAdminProductsPage(
   page = 1,
   params: AdminProductsFilterParams = {},
 ) {
+  if (!hasAdminProductListQuery(params)) {
+    return emptyAdminProductsPage(page);
+  }
+
   const where = buildAdminProductsWhere(storeId, params);
 
   const products = await fetchAdminProductsBatch(storeId, page, params);

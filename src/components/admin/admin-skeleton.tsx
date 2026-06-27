@@ -361,61 +361,48 @@ export function AdminSkeletonDashboardPage() {
   );
 }
 
-function AdminSkeletonProductsTable({ rows = 6 }: { rows?: number }) {
+/** Catálogo sin filtros activos: card + tabla vacía (estado inicial de /admin/productos). */
+function AdminSkeletonProductsCatalogAwaiting() {
   return (
-    <AdminTableScroll>
-      <table className={adminTableClass}>
-        <thead className={adminTableHeadClass}>
-          <tr>
-            {[
-              "w-16",
-              "w-20",
-              "w-12",
-              "w-16",
-              "w-12",
-              "w-14",
-            ].map((width, index) => (
-              <th key={index} className={adminTableThClass}>
-                <AdminSkeleton className={cn("h-3", width)} />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className={adminTableBodyClass}>
-          {Array.from({ length: rows }, (_, rowIndex) => (
-            <tr key={rowIndex} className={adminTableRowClass}>
-              <td className={adminTableTdClass}>
-                <div className="flex items-center gap-3">
-                  <AdminSkeleton className="h-16 w-12 shrink-0 rounded-md lg:h-12 lg:w-9" />
-                  <div className="min-w-0 space-y-1.5">
-                    <AdminSkeleton className="h-4 w-32 max-w-full" />
-                    <AdminSkeleton className="h-3 w-20" />
-                  </div>
-                </div>
-              </td>
-              <td className={adminTableTdClass}>
-                <AdminSkeleton className="h-4 w-20" />
-              </td>
-              <td className={adminTableTdClass}>
-                <AdminSkeleton className="h-4 w-16" />
-              </td>
-              <td className={adminTableTdClass}>
-                <AdminSkeleton className="h-4 w-8" />
-              </td>
-              <td className={adminTableTdClass}>
-                <AdminSkeleton className="h-6 w-16 rounded-full" />
-              </td>
-              <td className={adminTableTdClass}>
-                <div className="flex items-center gap-2">
-                  <AdminSkeleton className="size-8 rounded-md" />
-                  <AdminSkeleton className="size-8 rounded-md" />
-                </div>
+    <div className={cn(adminCardClass, "space-y-0 pb-2")}>
+      <div className={adminCardHeaderClass}>
+        <div className="flex items-center justify-between gap-4">
+          <AdminSkeleton className="h-5 w-20" />
+          <AdminSkeleton className="h-9 w-32 shrink-0 rounded-lg" />
+        </div>
+        <AdminSkeleton className="mt-1 h-3 w-full max-w-md" />
+      </div>
+      <AdminTableScroll>
+        <table className={adminTableClass}>
+          <thead className={adminTableHeadClass}>
+            <tr>
+              {[
+                "w-16",
+                "w-20",
+                "w-12",
+                "w-16",
+                "w-12",
+                "w-14",
+              ].map((width, index) => (
+                <th key={index} className={adminTableThClass}>
+                  <AdminSkeleton className={cn("h-3", width)} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className={adminTableBodyClass}>
+            <tr className={cn(adminTableRowClass, "hover:bg-transparent")}>
+              <td
+                colSpan={6}
+                className={cn(adminTableTdClass, "py-12 text-center")}
+              >
+                <AdminSkeleton className="mx-auto h-4 w-72 max-w-full" />
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </AdminTableScroll>
+          </tbody>
+        </table>
+      </AdminTableScroll>
+    </div>
   );
 }
 
@@ -526,7 +513,7 @@ export function AdminSkeletonProductsPage() {
     <AdminSkeletonRegion label="Cargando productos">
       <AdminSkeletonPageHeader
         titleWidth="w-28"
-        descriptionWidth="w-64"
+        descriptionWidth="w-80"
       />
 
       <div className={adminListLayoutRowClass}>
@@ -536,18 +523,8 @@ export function AdminSkeletonProductsPage() {
           </div>
 
           <AdminSkeletonListToolbar variant="products" />
-          <AdminSkeletonFilterChips />
 
-          <div className={adminCardClass}>
-            <div className={adminCardHeaderClass}>
-              <div className="flex items-center justify-between gap-4">
-                <AdminSkeleton className="h-4 w-20" />
-                <AdminSkeleton className="h-9 w-32 shrink-0 rounded-lg" />
-              </div>
-              <AdminSkeleton className="mt-1 h-3 w-24" />
-            </div>
-            <AdminSkeletonProductsTable />
-          </div>
+          <AdminSkeletonProductsCatalogAwaiting />
         </div>
 
         <aside className={adminFiltersAsideClass}>

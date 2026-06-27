@@ -1,192 +1,215 @@
 # Nexus Web Store
 
-Tienda de **ropa deportiva y CrossFit** construida con Next.js — primer producto de **Nexus**, diseñada para portfolio, despliegue para clientes reales (boxes, tiendas de indumentaria funcional) y evolución futura a plataforma SaaS multi-tienda.
+**E-commerce full-stack** para indumentaria deportiva — storefront, checkout con Mercado Pago, panel admin y emails transaccionales. Primer producto de [**Nexus**](https://github.com/matiasmorenog), pensado para desplegar tiendas reales y evolucionar a SaaS multi-tenant.
 
-## Características
+<p>
+  <a href="https://nexus-web-store.vercel.app"><strong>Demo en vivo →</strong></a>
+  ·
+  <a href="https://nexus-web-store.vercel.app/admin/login">Admin</a>
+  ·
+  <a href="DEPLOY.md">Deploy</a>
+  ·
+  <a href="docs/caching-and-routes.md">Cache & rutas</a>
+</p>
 
-- **Storefront:** catálogo con filtros, detalle de producto con variantes (talle/color), carrito persistente y checkout
-- **Pagos:** integración con Mercado Pago Checkout Pro (modo demo sin credenciales)
-- **Envíos:** cotización y seguimiento con Mercado Envíos (modo demo sin credenciales)
-- **Admin:** panel protegido para gestionar productos, pedidos y configuración de tienda
-- **Multi-tenant ready:** modelo de datos preparado para múltiples tiendas (`storeId` en todas las entidades)
+---
+
+## Resumen
+
+| Área | Qué incluye |
+|------|-------------|
+| **Storefront** | Catálogo con filtros en el cliente, PDP con variantes, carrito persistente, checkout, páginas legales |
+| **Pagos** | Mercado Pago Checkout Pro + webhook (modo demo sin credenciales) |
+| **Admin** | Dashboard con KPIs y gráficos, CRUD de productos/variantes, pedidos, imágenes (Vercel Blob) |
+| **Backend** | PostgreSQL + Prisma, multi-tenant (`storeId`), emails con Resend |
+
+La tienda demo se llama **Goat** en el storefront; **Nexus** no aparece en la UI pública.
+
+---
 
 ## Stack
 
-- Next.js 16 (App Router) + TypeScript
-- Tailwind CSS 4
-- PostgreSQL + Prisma
-- NextAuth.js v5
-- Zustand (carrito)
-- Mercado Pago SDK
+Next.js 16 · TypeScript · Tailwind CSS 4 · PostgreSQL · Prisma · NextAuth v5 · Zustand · Mercado Pago · Resend · Vercel Blob · Neon
+
+---
+
+## Decisiones técnicas
+
+Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
+
+**Catálogo en el cliente** — Un único snapshot de productos (`unstable_cache`, 10 min) se filtra, ordena y pagina en el browser. Cero queries por cambio de filtro en la URL.
+
+**Cache por capas** — ISR en home/catálogo/PDP, `unstable_cache` para datos pesados, `force-dynamic` en admin y checkout. Invalidación por tags al editar productos o confirmar pagos. Detalle en [`docs/caching-and-routes.md`](docs/caching-and-routes.md).
+
+**Neon + serverless** — Pooler con `connection_limit=1`; queries admin en `$transaction` secuencial para evitar timeouts del pool.
+
+**Multi-tenant listo** — Schema con `storeId` en todas las entidades; deploy actual resuelve una tienda por slug (`demo-store`). Preparado para Fase SaaS sin reescribir el modelo.
+
+**Sin middleware Edge** — Auth del admin en layout server-side (límite de Vercel en middleware + DB).
+
+---
+
+## Funcionalidades
+
+### Comprador
+
+- Home con hero, categorías y destacados
+- Catálogo con filtros por URL y búsqueda por texto
+- Ficha de producto (talle, color, stock, 2x1)
+- Carrito (drawer + página) con persistencia local
+- Checkout: envío cotizado por CP, retiro en local, Mercado Pago
+- Páginas legales, FAQ, guía de talles y contacto
+
+### Comerciante (admin)
+
+- Login con NextAuth
+- Dashboard: alertas, ventas por período, top productos, pedidos recientes
+- Productos: alta/edición, variantes, imágenes WebP, filtros y búsqueda
+- Pedidos: listado, filtros, cambio de estado
+- Configuración: nombre, envío fijo, retiro local
+
+### Integraciones
+
+- **Mercado Pago** — Checkout Pro + webhook; demo sin token
+- **Emails** — Confirmación al cliente y aviso al comerciante (Resend o log en dev)
+- **Imágenes** — Subida optimizada a Vercel Blob
+
+---
 
 ## Inicio rápido
 
-### 1. Variables de entorno
+### Requisitos
+
+Node.js 20+, cuenta [Neon](https://neon.tech) (PostgreSQL)
+
+### Setup
 
 ```bash
+git clone https://github.com/matiasmorenog/nexus-web-store.git
+cd nexus-web-store
 cp .env.example .env
-```
-
-### 2. Instalar y configurar
-
-```bash
 npm install
 npm run db:setup
-```
-
-### 3. Desarrollo
-
-```bash
 npm run dev
 ```
 
-Abrí [http://localhost:3000](http://localhost:3000)
+- **Tienda:** [http://localhost:3000](http://localhost:3000)
+- **Admin:** [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
-### Credenciales demo (admin)
+Credenciales demo en `prisma/seed-env.ts` (email del owner + contraseña `admin123` por defecto).
 
-- **URL:** `/admin/login`
-- **Email / password:** definidos en `prisma/seed-env.ts` (owner en DB tras el seed)
+### Scripts útiles
 
-## Mercado Pago
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Desarrollo (Turbopack) |
+| `npm run build && npm run start` | Probar como producción (cache real) |
+| `npm run db:setup` | Schema + seed + pedidos demo |
+| `npm run cache:revalidate` | Invalidar cache (con dev server activo) |
+| `npm run db:studio` | Prisma Studio |
 
-Para activar pagos reales, configurá en `.env`:
+---
 
-```env
-MERCADOPAGO_ACCESS_TOKEN="TEST-..."
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
+## Variables de entorno
 
-Sin credenciales válidas, el checkout funciona en **modo demo** (simula pago exitoso).
+Ver `.env.example`. Mínimo para desarrollo:
 
-## Mercado Envíos
+- `DATABASE_URL` / `DIRECT_URL` — Neon (pooler + direct)
+- `AUTH_SECRET` / `AUTH_URL`
+- `NEXT_PUBLIC_APP_URL`
 
-Sin `MERCADOENVIOS_ACCESS_TOKEN`, el checkout cotiza envío según CP, genera un código de seguimiento simulado (18 caracteres, formato Mercado Libre + Correo Argentino) y enlaza al [formulario oficial de Correo Argentino para envíos MercadoLibre](https://www.correoargentino.com.ar/formularios/mercadolibre). Mercado Libre no expone una URL pública de rastreo; en producción se guarda la URL del transportista que devuelve la API.
+Opcionales: `MERCADOPAGO_ACCESS_TOKEN`, `RESEND_API_KEY`, `BLOB_READ_WRITE_TOKEN`
 
-Para integración real (futuro):
+Sin Mercado Pago configurado, el checkout corre en **modo demo** (pago simulado).
 
-```env
-MERCADOENVIOS_ACCESS_TOKEN="TEST-..."
-```
+---
 
-## Deploy en Vercel
-
-Ver guía paso a paso en [`DEPLOY.md`](DEPLOY.md).
-
-1. Creá un proyecto en [Neon](https://neon.tech) y copiá la connection string (pooler)
-2. Configurá las variables de entorno en Vercel (ver `DEPLOY.md`)
-3. Ejecutá `npm run db:setup` contra la base de producción
-4. Deploy / redeploy en Vercel
-
-## Estructura
+## Estructura del proyecto
 
 ```
 src/
 ├── app/
-│   ├── (storefront)/    # Tienda pública
-│   ├── admin/           # Panel de administración
-│   └── api/             # Checkout, webhooks, auth
+│   ├── (storefront)/     # Tienda pública (ISR + filtros cliente)
+│   ├── admin/            # Panel protegido (force-dynamic)
+│   └── api/              # Checkout, webhooks, admin, internal
 ├── components/
 │   ├── storefront/
 │   ├── admin/
 │   └── ui/
-├── lib/
-└── stores/
+├── lib/                  # Queries, cache, auth, emails, catálogo
+└── stores/               # Carrito (Zustand)
+prisma/                   # Schema, seed, seed-env.ts
+docs/                     # Guías técnicas (cache, rutas)
 ```
-
-## Cache, rutas e invalidación
-
-Referencia completa: [`docs/caching-and-routes.md`](docs/caching-and-routes.md) — qué rutas usan ISR (`revalidate = 600`), `unstable_cache`, `force-dynamic` o cliente, y qué mutaciones del admin refrescan cada superficie.
-
-## Roadmap de features
-
-Estado actual del producto vs. lo necesario para operar como app real. Actualizar los checkboxes al implementar cada ítem.
-
-> Reglas de Cursor en `.cursor/rules/` (`project-context.mdc`, `roadmap.mdc`) — resumen para el agente y prioridades sin re-explorar el código.
-
-### Storefront (comprador)
-
-- [x] Home con hero, categorías y productos destacados
-- [x] Catálogo con listado de productos
-- [x] Filtros por categoría, talle y precio máximo (query params)
-- [x] Detalle de producto con variantes (talle / color / stock / precio)
-- [x] Carrito persistente (Zustand + localStorage)
-- [x] Drawer de carrito en header + página `/carrito`
-- [x] Checkout con datos de envío del cliente
-- [x] Páginas post-pago (éxito / pendiente / error)
-- [x] Header y footer responsive con navegación por categorías
-- [x] Búsqueda por texto (header + filtros del catálogo, query `q`)
-- [ ] Cuenta de cliente (registro, login, perfil)
-- [ ] Mis pedidos y seguimiento de estado
-- [ ] Cupones y promociones
-- [x] Retiro en local en checkout (opción en checkout si `allowPickup`; envío $0)
-- [ ] Múltiples opciones de envío (zonas, carriers, peso)
-- [ ] Wishlist / favoritos
-- [ ] Reviews y valoraciones de productos
-- [ ] Newsletter / captura de emails
-- [x] Páginas legales (términos, privacidad, cambios y devoluciones)
-- [x] FAQ, guía de talles y contacto
-- [ ] SEO por producto/categoría (meta tags, Open Graph, sitemap) — pospuesto para demo
-- [ ] Integración WhatsApp (“consultar por WA”)
-- [ ] Carrito abandonado (email recordatorio)
-
-### Pagos y pedidos
-
-- [x] Integración Mercado Pago Checkout Pro
-- [x] Webhook de confirmación de pago
-- [x] Modo demo sin credenciales MP (simula pago exitoso)
-- [x] Descuento de stock al confirmar pedido
-- [ ] Mercado Pago en producción (credenciales reales)
-- [x] Email de confirmación de compra al cliente (demo: consola; con `RESEND_API_KEY`: envío real)
-- [x] Email de notificación de venta al comerciante
-- [ ] Facturación / integración AFIP (Argentina)
-
-### Panel admin
-
-- [x] Login protegido (NextAuth, credenciales)
-- [x] Dashboard con KPIs básicos (productos, pedidos, ingresos)
-- [x] Alta de productos con variante inicial
-- [x] Listado y eliminación de productos
-- [x] Listado de pedidos con cambio de estado
-- [x] Configuración: nombre tienda, costo envío fijo, flag retiro local
-- [x] Edición de productos existentes
-- [x] CRUD de variantes adicionales (talle/color/stock/precio)
-- [ ] Gestión de inventario (ajustes manuales, alertas de stock bajo)
-- [x] Subida de imágenes (Vercel Blob, WebP optimizado al subir)
-- [ ] Galería / múltiples fotos por producto
-- [ ] Categorías dinámicas (hoy: lista fija en código)
-- [x] Filtros y búsqueda en pedidos
-- [ ] Detalle de pedido con notas internas
-- [ ] Exportar pedidos / productos (CSV)
-- [x] Dashboard con gráficos y períodos
-- [ ] Gestión de clientes (CRM lite)
-- [ ] Gestión de usuarios y permisos (roles existen en schema, sin UI)
-- [ ] Configuración de marca (logo, colores, dominio custom)
-- [ ] Cupones, banners y home editable desde admin
-
-### Infraestructura y SaaS
-
-- [x] Modelo multi-tenant en Prisma (`storeId` en entidades)
-- [x] Tienda demo (seed configurable vía `prisma/seed-env.ts`)
-- [x] Deploy en Vercel + PostgreSQL (Neon)
-- [ ] Dominio propio por tienda (`customDomain` en schema, sin implementar)
-- [ ] Onboarding self-service (“creá tu tienda”)
-- [ ] Planes y facturación (suscripción mensual)
-- [ ] Temas / templates intercambiables
-- [ ] Integraciones (Instagram, Google Shopping, Meta Pixel)
-- [ ] Envíos con carriers (OCA, Andreani, Correo Argentino)
-- [ ] API pública y webhooks para terceros
-
-### Fases de producto
-
-**Fase A — Usable por un negocio real (1 tienda)**  
-Editar productos, subir fotos, emails, búsqueda, retiro en local, páginas legales, SEO básico, cuenta cliente.
-
-**Fase B — Competir con Tienda Nube lite**  
-Cupones, home editable, categorías dinámicas, dominio custom, analytics, envíos carrier, WhatsApp / Meta Pixel.
-
-**Fase C — SaaS multi-tienda**  
-Onboarding, planes/billing, temas, multi-usuario, API.
 
 ---
 
-Built with **Nexus** — e-commerce sin comisiones.
+## Deploy
+
+Guía completa en [`DEPLOY.md`](DEPLOY.md): Neon pooler, env vars en Vercel, `db:setup` en producción.
+
+**Producción:** [https://nexus-web-store.vercel.app](https://nexus-web-store.vercel.app)
+
+---
+
+## Roadmap
+
+Estado del producto. Marcá `[x]` al implementar cada ítem.
+
+<details>
+<summary><strong>Storefront</strong></summary>
+
+- [x] Home, catálogo, filtros URL, PDP variantes
+- [x] Carrito Zustand + drawer
+- [x] Checkout y páginas post-pago
+- [x] Búsqueda por texto
+- [x] Retiro en local
+- [x] Páginas legales, FAQ, contacto
+- [ ] Cuenta cliente + mis pedidos ← **siguiente**
+- [ ] Cupones, wishlist, SEO avanzado, WhatsApp
+
+</details>
+
+<details>
+<summary><strong>Pagos y pedidos</strong></summary>
+
+- [x] Mercado Pago + webhook + descuento de stock
+- [x] Emails transaccionales (Resend)
+- [ ] MP producción, AFIP
+
+</details>
+
+<details>
+<summary><strong>Admin</strong></summary>
+
+- [x] Dashboard con gráficos y períodos
+- [x] CRUD productos, variantes, imágenes
+- [x] Pedidos con filtros y estados
+- [x] Configuración de tienda
+- [ ] CRM lite, export CSV, home editable
+
+</details>
+
+<details>
+<summary><strong>Infra y SaaS</strong></summary>
+
+- [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
+- [ ] Dominio custom, onboarding, planes, API pública
+
+</details>
+
+### Fases
+
+| Fase | Objetivo |
+|------|----------|
+| **A** | Un negocio real (1 tienda) — casi completa |
+| **B** | Competir con Tienda Nube lite (cupones, banners, carriers) |
+| **C** | SaaS multi-tienda (onboarding, billing, temas) |
+
+Reglas de desarrollo para agentes: `.cursor/rules/`
+
+---
+
+## Licencia
+
+Proyecto privado — portfolio / demo de Nexus.

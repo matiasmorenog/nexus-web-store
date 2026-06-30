@@ -25,7 +25,6 @@ type CatalogPageClientProps = {
   showPromo2x1: boolean;
   showProductSearch: boolean;
   catalogVertical: "apparel" | "vape";
-  variantSizeOptions: string[];
   variantSizeParam: "talle" | "nicotina";
   variantSizeLabel: string;
   variantColorLabel?: string;
@@ -60,7 +59,6 @@ export function CatalogPageClient({
   showPromo2x1,
   showProductSearch,
   catalogVertical,
-  variantSizeOptions,
   variantSizeParam,
   variantSizeLabel,
   variantColorLabel,

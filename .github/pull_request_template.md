@@ -15,4 +15,5 @@
 
 ## Deploy
 
-Merge a `main` → producción en **ambos** proyectos Vercel (salvo Ignored Build Step).
+- PR a **`development`** → preview en Vercel (no producción).
+- Release: PR **`development` → `main`** → producción en ambos proyectos Vercel.

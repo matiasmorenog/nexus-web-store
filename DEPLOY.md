@@ -101,22 +101,41 @@ Preview en vape es opcional; podés probar vape con `npm run dev:vape` y dejar p
 
 ## Git: branches y PRs
 
-No pushees features a `main` directo (dispara producción en **ambos** proyectos).
-
-```bash
-git checkout main && git pull
-git checkout -b feat/mi-cambio
-git push -u origin feat/mi-cambio
-gh pr create --base main
-# merge cuando esté listo → producción
+```
+feat/mi-cambio  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
 ```
 
-| Evento | Producción | Preview |
-|--------|------------|---------|
-| Push a `feat/*` | No | Sí (si el proyecto builda) |
-| Merge PR → `main` | Sí (×2) | — |
+- **`development`** — integración. Los PR de features van **acá**, no a `main`.
+- **`main`** — producción. Solo entra vía PR desde `development`.
 
-Opcional: proteger `main` en GitHub → **Require pull request before merging**. Template PR: `.github/pull_request_template.md`.
+### Feature (día a día)
+
+```bash
+git checkout development && git pull
+git checkout -b feat/mi-cambio
+git push -u origin feat/mi-cambio
+gh pr create --base development
+```
+
+### Release a producción
+
+Cuando `development` esté estable:
+
+```bash
+gh pr create --base main --head development --title "release: development → main"
+```
+
+Merge → deploy de producción en apparel + vape (salvo Ignored Build Step).
+
+| Evento | Producción (`main`) | Preview |
+|--------|---------------------|---------|
+| PR / merge → `development` | No | Sí |
+| PR / merge → `main` | Sí (×2) | — |
+| Push directo a `main` | Sí | **Evitar** |
+
+**GitHub (recomendado):** Settings → General → Default branch → `development` (así `gh pr create` apunta ahí por defecto). Protegé `main` y `development` con **Require pull request**.
+
+Template PR: `.github/pull_request_template.md`.
 
 ## Hobby vs Pro
 

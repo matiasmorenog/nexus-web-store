@@ -62,6 +62,9 @@ git push -u origin main
 | `NEXT_PUBLIC_APP_URL` | Igual que `AUTH_URL` |
 | `BLOB_READ_WRITE_TOKEN` | Token de Vercel Blob (subir fotos en admin) |
 | `RESEND_API_KEY` | API key de [resend.com](https://resend.com) — **misma en local y Production** |
+| `STORE_VERTICAL` | `apparel` o `vape` — define UI, catálogo y labels |
+| `NEXT_PUBLIC_STORE_VERTICAL` | Igual que `STORE_VERTICAL` (componentes cliente) |
+| `DEFAULT_STORE_SLUG` | Slug de la tienda en DB (`demo-store` o `vape-demo`) |
 
 ### Opcionales en Vercel
 
@@ -80,7 +83,7 @@ git push -u origin main
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Email desde DB (owner) |
 | `STORE_NOTIFICATION_EMAIL` | Idem |
 
-Runtime: **una sola fila** en `Store` por base. Toda la config del seed: `prisma/seed-env.ts`.
+Runtime: **una fila** en `Store` por deploy, elegida con `DEFAULT_STORE_SLUG`. El seed crea **2 tiendas** en la misma DB (ver `prisma/seed-env.ts`).
 
 ### Emails (Resend)
 
@@ -121,6 +124,14 @@ npm run db:setup
 ```
 
 Esto crea las tablas y carga los productos demo. Config del seed: `prisma/seed-env.ts`.
+
+```bash
+npm run db:seed:all        # ambas tiendas
+npm run db:seed:apparel    # solo demo-store (Goat)
+npm run db:seed:vape       # solo vape-demo (Cloud)
+npm run db:wipe:apparel    # borrar solo apparel
+npm run db:wipe:vape       # borrar solo vape
+```
 
 ### Checklist post-deploy (conexiones)
 
@@ -168,3 +179,54 @@ npm run dev
 ```
 
 Si subís fotos en admin en local, agregá `BLOB_READ_WRITE_TOKEN` en `.env` (mismo valor que en Vercel Production). Para emails reales, `RESEND_API_KEY` (misma key que en Vercel).
+
+## 7. Dos tiendas (mismo repo, dos proyectos Vercel)
+
+Una sola base Neon con **2 filas** `Store` (slugs distintos). Dos proyectos Vercel apuntan al mismo repo `main` pero con env distinto:
+
+| Variable | Proyecto apparel | Proyecto vape |
+|----------|------------------|---------------|
+| `STORE_VERTICAL` | `apparel` | `vape` |
+| `NEXT_PUBLIC_STORE_VERTICAL` | `apparel` | `vape` |
+| `DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
+| `AUTH_URL` / `NEXT_PUBLIC_APP_URL` | URL del deploy apparel | URL del deploy vape |
+| `AUTH_SECRET` | **Distinto por proyecto** | **Distinto por proyecto** |
+| `MERCADOPAGO_ACCESS_TOKEN` | Cuenta MP tienda 1 | Cuenta MP tienda 2 |
+| `BLOB_READ_WRITE_TOKEN` | Mismo o store Blob separado | Mismo o store Blob separado |
+
+Slugs y owners del seed: `prisma/seed-env.ts` → `SEED_STORES`.
+
+Variables, valores permitidos y perfiles: `.env.example` → sección **TIENDA ACTIVA**. En local: `npm run dev:apparel` / `npm run dev:vape` (`scripts/dev-store.sh`).
+
+### Webhooks Mercado Pago
+
+Cada dominio/proyecto necesita su propio webhook en el panel de MP:
+
+- Apparel: `https://tu-tienda-apparel.vercel.app/api/webhooks/mercadopago`
+- Vape: `https://tu-tienda-vape.vercel.app/api/webhooks/mercadopago`
+
+Usá el `MERCADOPAGO_ACCESS_TOKEN` de la cuenta MP correspondiente a cada tienda.
+
+### Aislamiento opcional (2 Neon)
+
+Si más adelante querés separar datos por completo, podés usar **2 proyectos Neon** (uno por tienda) con el mismo código. Para 2 tiendas chicas, **1 Neon + 2 Store** es más barato y suficiente.
+
+## 8. Hobby vs Pro (uso comercial)
+
+| | Hobby (gratis) | Pro (~USD 20/mes por miembro) |
+|---|---|---|
+| Proyectos | Hasta ~200 por cuenta | Más cuota y features de equipo |
+| Uso permitido | Demo personal, portfolio, pruebas | **Tiendas con ventas reales** |
+| Mercado Pago producción | No recomendado (ToS) | Sí |
+| Dominio custom | Limitado en Hobby | Incluido |
+
+**Checklist antes de vender:**
+
+- [ ] Plan **Pro** en Vercel si la tienda es comercial (ventas reales, MP producción)
+- [ ] `AUTH_SECRET` único por proyecto Vercel
+- [ ] `AUTH_URL` y `NEXT_PUBLIC_APP_URL` con el dominio final de cada tienda
+- [ ] Webhook MP configurado por dominio
+- [ ] `DEFAULT_STORE_SLUG` correcto en cada deploy
+- [ ] Email del owner verificado en Resend
+
+> No hay límite de “2 proyectos” en Hobby: el límite real es la **cuota compartida** entre todos tus proyectos y las restricciones de **uso comercial**.

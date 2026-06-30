@@ -20,6 +20,9 @@ import { categoriesForStoreFilter } from "@/lib/categories";
 type CatalogPageClientProps = {
   index: CatalogIndexData;
   storeDisplayName: string;
+  showAudienceFilter: boolean;
+  showPromo2x1: boolean;
+  catalogVertical: "apparel" | "vape";
 };
 
 function catalogDescription(
@@ -46,6 +49,9 @@ function catalogDescription(
 export function CatalogPageClient({
   index,
   storeDisplayName,
+  showAudienceFilter,
+  showPromo2x1,
+  catalogVertical,
 }: CatalogPageClientProps) {
   const searchParams = useSearchParams();
   const params = useMemo(
@@ -61,9 +67,25 @@ export function CatalogPageClient({
     [params.genero],
   );
 
+  const variantSizeOptions = useMemo(() => {
+    const values = new Set<string>();
+    for (const product of index.products) {
+      for (const variant of product.variants) {
+        if (variant.stock > 0) values.add(variant.size);
+      }
+    }
+    return [...values].sort();
+  }, [index.products]);
+
   const filterCounts = useMemo(
-    () => computeCatalogFilterCounts(index.products, params, categorySlugs),
-    [index.products, params, categorySlugs],
+    () =>
+      computeCatalogFilterCounts(
+        index.products,
+        params,
+        categorySlugs,
+        variantSizeOptions,
+      ),
+    [index.products, params, categorySlugs, variantSizeOptions],
   );
 
   const filteredProducts = useMemo(
@@ -77,8 +99,8 @@ export function CatalogPageClient({
   );
 
   const activeFilterChips = useMemo(
-    () => getActiveCatalogFilterChips(params),
-    [params],
+    () => getActiveCatalogFilterChips(params, { promo2x1: showPromo2x1 }),
+    [params, showPromo2x1],
   );
 
   return (
@@ -89,7 +111,13 @@ export function CatalogPageClient({
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
-        <ProductFilters counts={filterCounts} />
+        <ProductFilters
+          counts={filterCounts}
+          showAudienceFilter={showAudienceFilter}
+          showPromo2x1={showPromo2x1}
+          catalogVertical={catalogVertical}
+          variantSizeOptions={variantSizeOptions}
+        />
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">
             <p className="text-sm font-medium text-neutral-700">
@@ -103,6 +131,8 @@ export function CatalogPageClient({
               params.categoria ?? "",
               params.genero ?? "",
               params.talle ?? "",
+              params.nicotina ?? "",
+              params.sabor ?? "",
               params.precioMax ?? "",
               params.q?.trim() ?? "",
               params.orden ?? "",

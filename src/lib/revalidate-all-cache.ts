@@ -7,6 +7,7 @@ import { revalidateCatalogIndexCache } from "@/lib/catalog-index-query";
 import { revalidateFeaturedProductsCache } from "@/lib/featured-products-query";
 import { INFO_PAGE_SLUGS } from "@/lib/info-pages";
 import { STORE_CACHE_TAG } from "@/lib/store-context";
+import { revalidateStorefrontProductsCache } from "@/lib/storefront-products-query";
 
 /** Invalida tags y paths de storefront + admin para una tienda. */
 export function revalidateAllStoreCache(
@@ -18,6 +19,7 @@ export function revalidateAllStoreCache(
   revalidateTag(adminProductsSummaryCacheTag(storeId), { expire: 0 });
   revalidateCatalogIndexCache();
   revalidateFeaturedProductsCache();
+  revalidateStorefrontProductsCache();
 
   revalidatePath("/");
   revalidatePath("/productos");

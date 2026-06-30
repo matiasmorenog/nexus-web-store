@@ -12,6 +12,8 @@ import {
 } from "@/lib/product-page-query";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
+import { getVerticalConfig } from "@/lib/store-verticals";
+import { getVariantLabels } from "@/lib/variant-labels";
 
 export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
 
@@ -33,6 +35,8 @@ export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
   const store = await getStore();
   const storeId = store.id;
+  const config = getVerticalConfig();
+  const variantLabels = getVariantLabels();
   const displayName = formatStoreName(store.name);
   const sizeGuide = resolvePageContent(INFO_PAGES["guia-de-talles"], displayName);
 
@@ -41,13 +45,17 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   const mainImage = product.variants[0]?.imageUrl ?? "";
+  const catalogHref = config.features.catalog ? "/productos" : "/";
+  const catalogLabel = config.features.catalog ? "Catálogo" : "Inicio";
+  const showSizeGuide =
+    config.features.sizeGuide && product.category !== "accesorios";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <StorefrontReveal index={0}>
         <nav className="mb-6 text-sm text-neutral-500">
-          <Link href="/productos" className="transition-colors hover:text-[var(--brand-primary)]">
-            Catálogo
+          <Link href={catalogHref} className="transition-colors hover:text-[var(--brand-primary)]">
+            {catalogLabel}
           </Link>
           <span className="mx-2">/</span>
           <span className="text-neutral-900">{product.name}</span>
@@ -79,8 +87,9 @@ export default async function ProductPage({ params }: PageProps) {
               productId={product.id}
               productName={product.name}
               productSlug={product.slug}
-              promo2x1={product.promo2x1}
-              showSizeGuideLink={product.category !== "accesorios"}
+              promo2x1={config.features.promo2x1 ? product.promo2x1 : false}
+              showSizeGuideLink={showSizeGuide}
+              variantLabels={variantLabels}
               variants={product.variants.map((v) => ({
                 id: v.id,
                 size: v.size,
@@ -94,7 +103,7 @@ export default async function ProductPage({ params }: PageProps) {
         </StorefrontReveal>
       </div>
 
-      {product.category !== "accesorios" && sizeGuide.kind === "info" && (
+      {showSizeGuide && sizeGuide.kind === "info" && (
         <StorefrontReveal index={3} className="mt-12 lg:mt-16">
           <section id="size-guide" aria-labelledby="size-guide-heading" className="scroll-mt-28">
             <h2

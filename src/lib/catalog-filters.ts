@@ -3,26 +3,45 @@ import {
   getCategoryLabel,
 } from "@/lib/categories";
 
+import { getVerticalConfig } from "@/lib/store-verticals";
+import type { VerticalFeatures } from "@/lib/store-verticals/types";
+
 export type CatalogFilterChip = {
-  param: "genero" | "categoria" | "talle" | "precioMax" | "q" | "promo" | "destacados";
+  param:
+    | "genero"
+    | "categoria"
+    | "talle"
+    | "nicotina"
+    | "sabor"
+    | "precioMax"
+    | "q"
+    | "promo"
+    | "destacados";
   label: string;
 };
 
-const PRECIO_MAX_LABELS: Record<string, string> = {
-  "20000": "Hasta $20.000",
-  "35000": "Hasta $35.000",
-  "50000": "Hasta $50.000",
-};
+function getPriceLabels() {
+  const config = getVerticalConfig();
+  const facet = config.catalogFacets.find((item) => item.type === "priceMax");
+  return Object.fromEntries(
+    (facet?.priceTiers ?? []).map((tier) => [tier.value, tier.label]),
+  );
+}
 
-export function getActiveCatalogFilterChips(params: {
-  genero?: string | null;
-  categoria?: string | null;
-  talle?: string | null;
-  precioMax?: string | null;
-  q?: string | null;
-  promo?: string | null;
-  destacados?: string | null;
-}): CatalogFilterChip[] {
+export function getActiveCatalogFilterChips(
+  params: {
+    genero?: string | null;
+    categoria?: string | null;
+    talle?: string | null;
+    nicotina?: string | null;
+    sabor?: string | null;
+    precioMax?: string | null;
+    q?: string | null;
+    promo?: string | null;
+    destacados?: string | null;
+  },
+  features?: Pick<VerticalFeatures, "promo2x1">,
+): CatalogFilterChip[] {
   const chips: CatalogFilterChip[] = [];
 
   if (params.genero) {
@@ -46,14 +65,29 @@ export function getActiveCatalogFilterChips(params: {
     });
   }
 
-  if (params.precioMax) {
+  if (params.nicotina) {
     chips.push({
-      param: "precioMax",
-      label: PRECIO_MAX_LABELS[params.precioMax] ?? `Hasta $${params.precioMax}`,
+      param: "nicotina",
+      label: `Nicotina ${params.nicotina}`,
     });
   }
 
-  if (params.promo === "2x1") {
+  if (params.sabor) {
+    chips.push({
+      param: "sabor",
+      label: `Sabor ${params.sabor}`,
+    });
+  }
+
+  if (params.precioMax) {
+    const priceLabels = getPriceLabels();
+    chips.push({
+      param: "precioMax",
+      label: priceLabels[params.precioMax] ?? `Hasta $${params.precioMax}`,
+    });
+  }
+
+  if (features?.promo2x1 !== false && params.promo === "2x1") {
     chips.push({
       param: "promo",
       label: "2x1",
@@ -82,6 +116,8 @@ export const CATALOG_FILTER_PARAMS = [
   "genero",
   "categoria",
   "talle",
+  "nicotina",
+  "sabor",
   "precioMax",
   "q",
   "promo",

@@ -34,6 +34,8 @@ import {
   normalizeVariantColor,
 } from "@/lib/variant-images";
 import { cn, formatPrice } from "@/lib/utils";
+import { getClientVariantLabels } from "@/lib/variant-labels";
+import type { VariantLabels } from "@/lib/store-verticals/types";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,6 +79,12 @@ type VariantFormValues = {
 
 type ColorEdit = { type: "new" } | { type: "edit"; color: string } | null;
 
+function pluralPrimaryLabel(label: string) {
+  if (label === "Color") return "Colores";
+  if (label === "Sabor") return "Sabores";
+  return `${label}s`;
+}
+
 function ColorFormPanel({
   formId,
   title,
@@ -88,6 +96,7 @@ function ColorFormPanel({
   onSubmit,
   onCancel,
   blockedHint = 0,
+  primaryLabel,
 }: {
   formId: string;
   title: string;
@@ -99,6 +108,7 @@ function ColorFormPanel({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   blockedHint?: number;
+  primaryLabel: string;
 }) {
   return (
     <BlockedEditHint blockedHint={blockedHint}>
@@ -109,7 +119,7 @@ function ColorFormPanel({
 
         <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
           <div className="space-y-2">
-            <Label htmlFor={`${formId}-color`}>Nombre del color</Label>
+            <Label htmlFor={`${formId}-color`}>Nombre del {primaryLabel.toLowerCase()}</Label>
             <Input
               id={`${formId}-color`}
               name="color"
@@ -158,12 +168,14 @@ function NewColorRow({
   onSuccess,
   onVariantsReload,
   blockedHint = 0,
+  variantLabels,
 }: {
   productId: string;
   onCancel: () => void;
   onSuccess: () => void;
   onVariantsReload?: () => Promise<void>;
   blockedHint?: number;
+  variantLabels: VariantLabels;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -189,15 +201,18 @@ function NewColorRow({
       <AdminTableCell colSpan={3} className={adminBlockedEditShellClass}>
         <ColorFormPanel
           formId="new-color"
-          title="Nuevo color"
+          title={`Nuevo ${variantLabels.primary.toLowerCase()}`}
           loading={loading}
           error={error}
           onSubmit={handleSubmit}
           onCancel={onCancel}
           blockedHint={blockedHint}
+          primaryLabel={variantLabels.primary}
         />
         <p className="mt-3 text-xs text-neutral-400">
-          Se crea el talle M con stock 0 para que puedas sumar más talles en variantes.
+          Se crea el {variantLabels.secondary.toLowerCase()}{" "}
+          {variantLabels.secondaryInitial ?? "M"} con stock 0 para que puedas sumar más{" "}
+          {variantLabels.secondary.toLowerCase()}s en variantes.
         </p>
       </AdminTableCell>
     </AdminTableRow>
@@ -217,6 +232,7 @@ function ColorEditRow({
   onVariantsReload,
   onBlockedToggle,
   blockedHint = 0,
+  variantLabels,
 }: {
   productId: string;
   color: string;
@@ -230,6 +246,7 @@ function ColorEditRow({
   onVariantsReload?: () => Promise<void>;
   onBlockedToggle?: () => void;
   blockedHint?: number;
+  variantLabels: VariantLabels;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -280,6 +297,7 @@ function ColorEditRow({
             onSubmit={handleSubmit}
             onCancel={onCancelEdit}
             blockedHint={blockedHint}
+            primaryLabel={variantLabels.primary}
           />
         </AdminTableCell>
       </AdminTableRow>
@@ -373,6 +391,8 @@ export function ProductColorsCard({
   onBlockedToggle?: () => void;
   blockedHint?: number;
 }) {
+  const variantLabels = getClientVariantLabels();
+  const primaryPlural = pluralPrimaryLabel(variantLabels.primary);
   const [activeEdit, setActiveEdit] = useState<ColorEdit>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -395,10 +415,10 @@ export function ProductColorsCard({
   }, [variants]);
   const isBusy = activeEdit !== null;
   const colorSummary = !variantsFetched
-    ? "Fotos por color del producto"
+    ? `Fotos por ${variantLabels.primary.toLowerCase()} del producto`
     : productColors.length === 0
-      ? "Sin colores cargados"
-      : `${productColors.length} color${productColors.length !== 1 ? "es" : ""}`;
+      ? `Sin ${primaryPlural.toLowerCase()} cargados`
+      : `${productColors.length} ${primaryPlural.toLowerCase()}`;
 
   const handleAddColor = () => {
     setSuccess(null);
@@ -419,10 +439,10 @@ export function ProductColorsCard({
       disabled={disabled}
       onBlockedToggle={onBlockedToggle}
       contentId="product-colors"
-      title="Colores"
+      title={primaryPlural}
       description={
         open
-          ? "Una foto por color; los talles se agregan en variantes."
+          ? `Una foto por ${variantLabels.primary.toLowerCase()}; los ${variantLabels.secondary.toLowerCase()}s se agregan en variantes.`
           : colorSummary
       }
       action={
@@ -434,16 +454,16 @@ export function ProductColorsCard({
           onClick={handleAddColor}
           disabled={disabled || isBusy || showLoading}
         >
-          Agregar color
+          Agregar {variantLabels.primary.toLowerCase()}
         </Button>
       }
     >
       {showLoading ? (
         <AdminDataTableSkeleton
-          columns={["Imagen", "Color", "Acciones"]}
+          columns={["Imagen", variantLabels.primary, "Acciones"]}
           rows={3}
           tableClassName="min-w-[24rem]"
-          ariaLabel="Cargando colores"
+          ariaLabel={`Cargando ${primaryPlural.toLowerCase()}`}
         />
       ) : variantsError ? (
         <p className="p-4 text-sm text-red-600 sm:p-6">{variantsError}</p>
@@ -459,7 +479,7 @@ export function ProductColorsCard({
             id="product-colors-table"
             scrollClassName={cn(isBusy && "pb-6")}
             tableClassName="min-w-[24rem]"
-            columns={["Imagen", "Color", "Acciones"]}
+            columns={["Imagen", variantLabels.primary, "Acciones"]}
           >
             {activeEdit?.type === "new" ? (
               <NewColorRow
@@ -467,10 +487,11 @@ export function ProductColorsCard({
                 onCancel={() => setActiveEdit(null)}
                 onSuccess={() => {
                   setActiveEdit(null);
-                  setSuccess("Color agregado");
+                  setSuccess(`${variantLabels.primary} agregado`);
                 }}
                 onVariantsReload={onVariantsReload}
                 blockedHint={blockedHint}
+                variantLabels={variantLabels}
               />
             ) : null}
 
@@ -480,8 +501,8 @@ export function ProductColorsCard({
                   colSpan={3}
                   className="px-4 py-8 text-center text-sm text-neutral-500 sm:px-6"
                 >
-                  Todavía no hay colores. Usá &quot;Agregar color&quot; para cargar el
-                  primero.
+                  Todavía no hay {primaryPlural.toLowerCase()}. Usá &quot;Agregar{" "}
+                  {variantLabels.primary.toLowerCase()}&quot; para cargar el primero.
                 </AdminTableCell>
               </AdminTableRow>
             ) : (
@@ -510,6 +531,7 @@ export function ProductColorsCard({
                     onVariantsReload={onVariantsReload}
                     blockedHint={blockedHint}
                     onBlockedToggle={onBlockedToggle}
+                    variantLabels={variantLabels}
                   />
                 );
               })
@@ -525,15 +547,17 @@ function VariantFormFields({
   formId,
   values,
   colors,
+  variantLabels,
 }: {
   formId: string;
   values?: Partial<VariantFormValues>;
   colors: string[];
+  variantLabels: VariantLabels;
 }) {
   return (
     <AdminFormGrid columns={4} className="gap-3">
       <div>
-        <Label htmlFor={`${formId}-color`}>Color</Label>
+        <Label htmlFor={`${formId}-color`}>{variantLabels.primary}</Label>
         <select
           id={`${formId}-color`}
           name="color"
@@ -542,7 +566,7 @@ function VariantFormFields({
           required
         >
           <option value="" disabled>
-            Seleccionar color
+            Seleccionar {variantLabels.primary.toLowerCase()}
           </option>
           {colors.map((color) => (
             <option key={color} value={color}>
@@ -552,11 +576,11 @@ function VariantFormFields({
         </select>
       </div>
       <div>
-        <Label htmlFor={`${formId}-size`}>Talle</Label>
+        <Label htmlFor={`${formId}-size`}>{variantLabels.secondary}</Label>
         <Input
           id={`${formId}-size`}
           name="size"
-          defaultValue={values?.size ?? "M"}
+          defaultValue={values?.size ?? variantLabels.secondaryInitial ?? "M"}
           required
         />
       </div>
@@ -598,6 +622,7 @@ function VariantInlineForm({
   onSubmit,
   onCancel,
   blockedHint = 0,
+  variantLabels,
 }: {
   formId: string;
   title: string;
@@ -609,6 +634,7 @@ function VariantInlineForm({
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onCancel: () => void;
   blockedHint?: number;
+  variantLabels: VariantLabels;
 }) {
   const rowRef = useRef<HTMLTableRowElement>(null);
 
@@ -629,6 +655,7 @@ function VariantInlineForm({
               formId={formId}
               values={values}
               colors={colors}
+              variantLabels={variantLabels}
             />
             <AdminFormActions sticky>
               <Button type="submit" size="sm" disabled={loading}>
@@ -659,6 +686,7 @@ function NewVariantRow({
   onSuccess,
   onVariantsReload,
   blockedHint = 0,
+  variantLabels,
 }: {
   productId: string;
   colors: string[];
@@ -666,6 +694,7 @@ function NewVariantRow({
   onSuccess: () => void;
   onVariantsReload?: () => Promise<void>;
   blockedHint?: number;
+  variantLabels: VariantLabels;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -696,6 +725,7 @@ function NewVariantRow({
       onSubmit={handleCreate}
       onCancel={onCancel}
       blockedHint={blockedHint}
+      variantLabels={variantLabels}
     />
   );
 }
@@ -710,6 +740,7 @@ function VariantEditRow({
   onVariantsReload,
   onBlockedToggle,
   blockedHint = 0,
+  variantLabels,
 }: {
   variant: VariantRow;
   colors: string[];
@@ -720,6 +751,7 @@ function VariantEditRow({
   onVariantsReload?: () => Promise<void>;
   onBlockedToggle?: () => void;
   blockedHint?: number;
+  variantLabels: VariantLabels;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -767,6 +799,7 @@ function VariantEditRow({
         onSubmit={handleUpdate}
         onCancel={onCancelEdit}
         blockedHint={blockedHint}
+        variantLabels={variantLabels}
       />
     );
   }
@@ -868,6 +901,8 @@ export function VariantManager({
   onBlockedToggle,
   blockedHint = 0,
 }: VariantManagerProps) {
+  const variantLabels = getClientVariantLabels();
+  const variantColumnLabel = `${variantLabels.secondary} / ${variantLabels.primary}`;
   const [activeEdit, setActiveEdit] = useState<ActiveEdit>(null);
 
   const productColors = useMemo(() => getUniqueProductColors(variants), [variants]);
@@ -891,7 +926,7 @@ export function VariantManager({
   };
 
   const variantSummary = !variantsFetched
-    ? "Talles, precio y stock"
+    ? `${variantLabels.secondary}s, precio y stock`
     : `${variants.length} variante${variants.length !== 1 ? "s" : ""} registrada${variants.length !== 1 ? "s" : ""}.`;
 
   return (
@@ -904,7 +939,7 @@ export function VariantManager({
       title={variantsFetched ? `Variantes (${variants.length})` : "Variantes"}
       description={
         open
-          ? "Talles, precio y stock por variante."
+          ? `${variantLabels.secondary}s, precio y stock por variante.`
           : variantSummary
       }
       action={
@@ -919,7 +954,7 @@ export function VariantManager({
               canAddVariant
                 ? undefined
                 : variantsFetched
-                  ? "Agregá al menos un color antes de crear variantes"
+                  ? `Agregá al menos un ${variantLabels.primary.toLowerCase()} antes de crear variantes`
                   : "Abrí la sección para cargar variantes"
             }
           >
@@ -931,7 +966,7 @@ export function VariantManager({
           <AdminDataTableSkeleton
             columns={[
               "Imagen",
-              "Talle / Color",
+              variantColumnLabel,
               "SKU",
               "Precio",
               "Stock",
@@ -951,7 +986,7 @@ export function VariantManager({
         tableClassName="min-w-[40rem]"
         columns={[
           "Imagen",
-          "Talle / Color",
+          variantColumnLabel,
           "SKU",
           "Precio",
           "Stock",
@@ -966,6 +1001,7 @@ export function VariantManager({
             onSuccess={() => setActiveEdit(null)}
             onVariantsReload={onVariantsReload}
             blockedHint={blockedHint}
+            variantLabels={variantLabels}
           />
         )}
         {variants.map((variant) => {
@@ -984,6 +1020,7 @@ export function VariantManager({
               onVariantsReload={onVariantsReload}
               blockedHint={blockedHint}
               onBlockedToggle={onBlockedToggle}
+              variantLabels={variantLabels}
             />
           );
         })}

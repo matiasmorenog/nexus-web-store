@@ -9,6 +9,7 @@ import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/stores/cart-store";
 import { useCartStore } from "@/stores/cart-store";
+import { getClientVariantLabels } from "@/lib/variant-labels";
 import { cn } from "@/lib/utils";
 
 type CartLineItemProps = {
@@ -30,6 +31,7 @@ export function CartLineItem({
   className,
   style,
 }: CartLineItemProps) {
+  const variantLabels = getClientVariantLabels();
   const isPage = variant === "page";
   const cartItems = useCartStore((state) => state.items);
   const pricing = useMemo(() => {
@@ -82,7 +84,8 @@ export function CartLineItem({
                 {item.productName}
               </Link>
               <p className="mt-1 text-xs text-neutral-500 sm:text-sm">
-                {item.size} · {item.color}
+                {variantLabels.secondary}: {item.size} · {variantLabels.primary}:{" "}
+                {item.color}
               </p>
               {pricing.eligible && (
                 <div className="mt-1.5">

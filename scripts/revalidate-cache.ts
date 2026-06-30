@@ -45,9 +45,31 @@ async function main() {
       `cache:revalidate — OK (${data.storeSlug ?? "tienda"}, ${data.productPaths ?? 0} PDPs)`,
     );
   } catch (error) {
+    const refused =
+      error instanceof Error &&
+      "cause" in error &&
+      error.cause instanceof AggregateError &&
+      error.cause.errors.some(
+        (e) => e instanceof Error && "code" in e && e.code === "ECONNREFUSED",
+      );
+
+    if (refused) {
+      console.warn(
+        "cache:revalidate — omitido: no hay servidor en",
+        baseUrl.replace(/\/$/, ""),
+      );
+      console.warn(
+        "  Levantá `npm run dev` (u otro `next start`) y corré `npm run cache:revalidate`.",
+      );
+      console.warn(
+        "  Los datos del seed ya están en la DB; el cache de Next se actualiza solo vía el servidor.",
+      );
+      return;
+    }
+
     console.warn("cache:revalidate — no se pudo conectar:", error);
     console.warn(
-      "  Reiniciá `npm run dev` para limpiar cache en memoria tras db:seed.",
+      "  Reiniciá `npm run dev` y corré `npm run cache:revalidate` si los datos se ven viejos.",
     );
   }
 }

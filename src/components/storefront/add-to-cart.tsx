@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
 import { isProductPromo2x1Eligible } from "@/lib/promo-2x1";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
+import type { VariantLabels } from "@/lib/store-verticals/types";
 
 type Variant = {
   id: string;
@@ -24,6 +25,7 @@ type AddToCartProps = {
   productSlug: string;
   promo2x1?: boolean;
   showSizeGuideLink?: boolean;
+  variantLabels?: VariantLabels;
   variants: Variant[];
 };
 
@@ -37,6 +39,7 @@ export function AddToCart({
   productSlug,
   promo2x1 = false,
   showSizeGuideLink = false,
+  variantLabels = { primary: "Color", secondary: "Talle" },
   variants,
 }: AddToCartProps) {
   const router = useRouter();
@@ -108,7 +111,7 @@ export function AddToCart({
       )}
 
       <div>
-        <p className="mb-2 text-sm font-medium">Color</p>
+        <p className="mb-2 text-sm font-medium">{variantLabels.primary}</p>
         <div className="flex flex-wrap gap-2">
           {colors.map((color) => (
             <button
@@ -133,7 +136,7 @@ export function AddToCart({
 
       <div>
         <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-sm font-medium">Talle</p>
+          <p className="text-sm font-medium">{variantLabels.secondary}</p>
           {showSizeGuideLink && (
             <button
               type="button"

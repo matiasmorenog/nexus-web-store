@@ -8,7 +8,19 @@ import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
-const SIZES = ["XS", "S", "M", "L", "XL"];
+const APPAREL_SIZES = ["XS", "S", "M", "L", "XL"];
+
+const APPAREL_PRICE_OPTIONS = [
+  { value: "20000", label: "Hasta $20.000" },
+  { value: "35000", label: "Hasta $35.000" },
+  { value: "50000", label: "Hasta $50.000" },
+] as const;
+
+const VAPE_PRICE_OPTIONS = [
+  { value: "5000", label: "Hasta $5.000" },
+  { value: "15000", label: "Hasta $15.000" },
+  { value: "30000", label: "Hasta $30.000" },
+] as const;
 
 const fieldClass =
   "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
@@ -55,11 +67,27 @@ function FilterCount({
 
 type ProductFiltersProps = {
   counts: CatalogFilterCounts;
+  showAudienceFilter: boolean;
+  showPromo2x1: boolean;
+  catalogVertical: "apparel" | "vape";
+  variantSizeOptions: string[];
 };
 
-export function ProductFilters({ counts }: ProductFiltersProps) {
+export function ProductFilters({
+  counts,
+  showAudienceFilter,
+  showPromo2x1,
+  catalogVertical,
+  variantSizeOptions,
+}: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useCatalogNavigation();
+  const isVape = catalogVertical === "vape";
+  const sizeParam = isVape ? "nicotina" : "talle";
+  const sizeCounts = isVape ? counts.nicotina : counts.talle;
+  const sizeOptions = isVape ? variantSizeOptions : APPAREL_SIZES;
+  const priceOptions = isVape ? VAPE_PRICE_OPTIONS : APPAREL_PRICE_OPTIONS;
+  const sizeLabel = isVape ? "Nicotina" : "Talle";
 
   const update = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -79,13 +107,16 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
   const activeCategory = searchParams.get("categoria") ?? "";
   const activeDestacados = searchParams.get("destacados") === "1";
   const activePromo2x1 = searchParams.get("promo") === "2x1";
+  const activeSize = searchParams.get(sizeParam) ?? "";
+  const activeSabor = searchParams.get("sabor") ?? "";
 
   const hasActiveFilters = Boolean(
     activeGenero ||
       activeCategory ||
       activeDestacados ||
-      activePromo2x1 ||
-      searchParams.get("talle") ||
+      (showPromo2x1 && activePromo2x1) ||
+      activeSize ||
+      activeSabor ||
       searchParams.get("precioMax") ||
       searchParams.get("q")?.trim(),
   );
@@ -94,7 +125,9 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
     (audience) => audience.slug !== "unisex",
   );
 
-  const categoryOptions = categoriesForStoreFilter(activeGenero || undefined);
+  const categoryOptions = categoriesForStoreFilter(
+    showAudienceFilter ? activeGenero || undefined : undefined,
+  );
 
   const selectGenero = (genero: string) => {
     const nextCategories = categoriesForStoreFilter(genero || undefined);
@@ -108,9 +141,12 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
     });
   };
 
-  const clearFilters = () => {
-    navigateCatalog("/productos");
-  };
+  const baseFilterParams = () => ({
+    ...(showAudienceFilter ? { genero: activeGenero } : {}),
+    categoria: activeCategory,
+  });
+
+  const saborOptions = Object.keys(counts.sabor);
 
   return (
     <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain">
@@ -127,56 +163,60 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
             <span>Destacados</span>
             <FilterCount count={counts.destacados} active={activeDestacados} />
           </button>
-          <button
-            type="button"
-            onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
-            className={filterButtonClass(activePromo2x1)}
-          >
-            <span>2x1</span>
-            <FilterCount count={counts.promo2x1} active={activePromo2x1} />
-          </button>
+          {showPromo2x1 ? (
+            <button
+              type="button"
+              onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
+              className={filterButtonClass(activePromo2x1)}
+            >
+              <span>2x1</span>
+              <FilterCount count={counts.promo2x1} active={activePromo2x1} />
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <div>
-        <Label className="mb-2 block text-neutral-700">Género</Label>
-        <div className="space-y-1">
-          <button
-            type="button"
-            onClick={() => selectGenero("")}
-            className={filterButtonClass(!activeGenero)}
-          >
-            <span>Todo</span>
-            <FilterCount count={counts.genero.all} active={!activeGenero} />
-          </button>
-          {genderOptions.map((audience) => {
-            const count =
-              audience.slug === "mujer"
-                ? counts.genero.mujer
-                : counts.genero.hombre;
-            const isActive = activeGenero === audience.slug;
+      {showAudienceFilter ? (
+        <div>
+          <Label className="mb-2 block text-neutral-700">Género</Label>
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => selectGenero("")}
+              className={filterButtonClass(!activeGenero)}
+            >
+              <span>Todo</span>
+              <FilterCount count={counts.genero.all} active={!activeGenero} />
+            </button>
+            {genderOptions.map((audience) => {
+              const count =
+                audience.slug === "mujer"
+                  ? counts.genero.mujer
+                  : counts.genero.hombre;
+              const isActive = activeGenero === audience.slug;
 
-            return (
-              <button
-                key={audience.slug}
-                type="button"
-                onClick={() => selectGenero(audience.slug)}
-                className={filterButtonClass(isActive)}
-              >
-                <span>{audience.label}</span>
-                <FilterCount count={count} active={isActive} />
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={audience.slug}
+                  type="button"
+                  onClick={() => selectGenero(audience.slug)}
+                  className={filterButtonClass(isActive)}
+                >
+                  <span>{audience.label}</span>
+                  <FilterCount count={count} active={isActive} />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div>
         <Label className="mb-2 block text-neutral-700">Categoría</Label>
         <div className="space-y-1">
           <button
             type="button"
-            onClick={() => update({ genero: activeGenero, categoria: "" })}
+            onClick={() => update({ ...baseFilterParams(), categoria: "" })}
             className={filterButtonClass(!activeCategory)}
           >
             <span>Todas</span>
@@ -192,7 +232,7 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
                 key={category.slug}
                 type="button"
                 onClick={() =>
-                  update({ genero: activeGenero, categoria: category.slug })
+                  update({ ...baseFilterParams(), categoria: category.slug })
                 }
                 className={filterButtonClass(isActive)}
               >
@@ -204,36 +244,69 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
         </div>
       </div>
 
-      <div>
-        <Label className="mb-2 block text-neutral-700">Talle</Label>
-        <div className="flex flex-wrap gap-2">
-          {SIZES.map((size) => {
-            const isActive = searchParams.get("talle") === size;
+      {sizeOptions.length > 0 ? (
+        <div>
+          <Label className="mb-2 block text-neutral-700">{sizeLabel}</Label>
+          <div className="flex flex-wrap gap-2">
+            {sizeOptions.map((size) => {
+              const isActive = activeSize === size;
 
-            return (
-              <button
-                key={size}
-                type="button"
-                onClick={() =>
-                  update({
-                    genero: activeGenero,
-                    categoria: activeCategory,
-                    talle: isActive ? "" : size,
-                  })
-                }
-                className={sizeButtonClass(isActive)}
-              >
-                <span>{size}</span>
-                <FilterCount
-                  count={counts.talle[size] ?? 0}
-                  active={isActive}
-                  compact
-                />
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() =>
+                    update({
+                      ...baseFilterParams(),
+                      [sizeParam]: isActive ? "" : size,
+                    })
+                  }
+                  className={sizeButtonClass(isActive)}
+                >
+                  <span>{size}</span>
+                  <FilterCount
+                    count={sizeCounts[size] ?? 0}
+                    active={isActive}
+                    compact
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {isVape && saborOptions.length > 0 ? (
+        <div>
+          <Label className="mb-2 block text-neutral-700">Sabor</Label>
+          <div className="flex flex-wrap gap-2">
+            {saborOptions.map((sabor) => {
+              const isActive = activeSabor === sabor;
+
+              return (
+                <button
+                  key={sabor}
+                  type="button"
+                  onClick={() =>
+                    update({
+                      ...baseFilterParams(),
+                      sabor: isActive ? "" : sabor,
+                    })
+                  }
+                  className={sizeButtonClass(isActive)}
+                >
+                  <span>{sabor}</span>
+                  <FilterCount
+                    count={counts.sabor[sabor] ?? 0}
+                    active={isActive}
+                    compact
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
 
       <div>
         <Label htmlFor="precio-max" className="mb-2 block text-neutral-700">
@@ -245,28 +318,29 @@ export function ProductFilters({ counts }: ProductFiltersProps) {
           value={searchParams.get("precioMax") ?? ""}
           onChange={(e) =>
             update({
-              genero: activeGenero,
-              categoria: activeCategory,
+              ...baseFilterParams(),
               precioMax: e.target.value,
             })
           }
         >
           <option value="">Sin límite</option>
-          <option value="20000">Hasta $20.000</option>
-          <option value="35000">Hasta $35.000</option>
-          <option value="50000">Hasta $50.000</option>
+          {priceOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
 
-      {hasActiveFilters && (
+      {hasActiveFilters ? (
         <button
           type="button"
-          onClick={clearFilters}
+          onClick={() => navigateCatalog("/productos")}
           className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
         >
           Limpiar filtros
         </button>
-      )}
+      ) : null}
     </aside>
   );
 }

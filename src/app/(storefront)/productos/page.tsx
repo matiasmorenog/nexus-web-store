@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { CatalogPageClient } from "@/components/storefront/catalog-page-client";
 import {
@@ -8,6 +9,7 @@ import { StorefrontPageHeader } from "@/components/storefront/storefront-page-he
 import { getCatalogIndex } from "@/lib/catalog-index-query";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
+import { getVerticalConfig } from "@/lib/store-verticals";
 
 export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
 
@@ -30,13 +32,25 @@ function CatalogPageFallback() {
 }
 
 export default async function ProductsPage() {
+  const config = getVerticalConfig();
+
+  if (!config.features.catalog) {
+    redirect("/");
+  }
+
   const storeId = await getStoreId();
   const storeDisplayName = await getStoreDisplayName();
   const index = await getCatalogIndex(storeId);
 
   return (
     <Suspense fallback={<CatalogPageFallback />}>
-      <CatalogPageClient index={index} storeDisplayName={storeDisplayName} />
+      <CatalogPageClient
+        index={index}
+        storeDisplayName={storeDisplayName}
+        showAudienceFilter={config.features.showAudienceFilter}
+        showPromo2x1={config.features.promo2x1}
+        catalogVertical={config.id}
+      />
     </Suspense>
   );
 }

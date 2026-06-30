@@ -10,6 +10,7 @@ import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { useCartStore } from "@/stores/cart-store";
 import { formatPrice } from "@/lib/utils";
+import { getClientVariantLabels } from "@/lib/variant-labels";
 
 type CheckoutViewProps = {
   shippingCost: number;
@@ -22,6 +23,7 @@ export function CheckoutView({
   allowPickup,
   storeName,
 }: CheckoutViewProps) {
+  const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
   const rawSubtotal = useCartStore((s) => s.rawSubtotal());
   const promoDiscount = useCartStore((s) => s.promoDiscount());
@@ -94,7 +96,8 @@ export function CheckoutView({
                     {item.productName}
                   </p>
                   <p className="text-xs text-neutral-500">
-                    {item.size} · {item.color} × {item.quantity}
+                    {variantLabels.secondary}: {item.size} · {variantLabels.primary}:{" "}
+                    {item.color} × {item.quantity}
                   </p>
                 </div>
                 <p className="shrink-0 text-sm font-medium">

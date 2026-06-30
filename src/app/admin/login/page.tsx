@@ -24,6 +24,10 @@ async function getLoginDefaultEmail(storeId: string) {
 export default async function AdminLoginPage() {
   const session = await auth();
 
+  if (session?.user?.role === "CUSTOMER") {
+    redirect("/cuenta/pedidos");
+  }
+
   if (session) {
     redirect("/admin");
   }

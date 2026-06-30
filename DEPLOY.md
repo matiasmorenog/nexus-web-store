@@ -6,10 +6,10 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB,
 
 ## Checklist operación (Vercel / GitHub)
 
-- [ ] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-apparel.sh`
-- [ ] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
-- [ ] Branch protection: `main` + `development` → Require pull request
-- [ ] (Opcional) Default branch en GitHub → `development`
+- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-apparel.sh`
+- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
+- [x] Branch protection: `main` + `development` → Require pull request
+- [x] Default branch en GitHub → `development`
 - [ ] Release `development` → `main` cuando haya cambios listos para producción
 
 Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → pegar el comando de la fila correspondiente.
@@ -40,6 +40,7 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
 | `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel | cuenta MP vape |
+| `VAPE_STOREFRONT_MODE` | — | opcional: `full` para catálogo público (default: home-only) |
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 

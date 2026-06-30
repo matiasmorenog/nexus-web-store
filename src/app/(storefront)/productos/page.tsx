@@ -8,6 +8,11 @@ import {
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getCatalogIndex } from "@/lib/catalog-index-query";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
+import {
+  getCatalogPriceTiers,
+  getVariantColorFacetParam,
+  getVariantSizeFacetParam,
+} from "@/lib/store-verticals/catalog-facets";
 import { getVerticalConfig } from "@/lib/store-verticals";
 
 /** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
@@ -41,6 +46,9 @@ export default async function ProductsPage() {
   const storeId = await getStoreId();
   const storeDisplayName = await getStoreDisplayName();
   const index = await getCatalogIndex(storeId);
+  const priceTiers = getCatalogPriceTiers(config);
+  const variantSizeParam = getVariantSizeFacetParam(config);
+  const variantColorParam = getVariantColorFacetParam(config);
 
   return (
     <Suspense fallback={<CatalogPageFallback />}>
@@ -49,7 +57,14 @@ export default async function ProductsPage() {
         storeDisplayName={storeDisplayName}
         showAudienceFilter={config.features.showAudienceFilter}
         showPromo2x1={config.features.promo2x1}
+        showProductSearch={config.features.productSearch}
         catalogVertical={config.id}
+        variantSizeParam={variantSizeParam}
+        variantSizeLabel={config.variantLabels.secondary}
+        variantColorLabel={
+          variantColorParam ? config.variantLabels.primary : undefined
+        }
+        priceTiers={priceTiers}
       />
     </Suspense>
   );

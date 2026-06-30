@@ -85,3 +85,30 @@ export const vapeConfig: VerticalConfig = {
     { param: "destacados", type: "featured", label: "Destacados" },
   ],
 };
+
+const VAPE_CATALOG_NAV: HeaderNavLink[] = [
+  { href: "/", label: "Inicio", match: { type: "home" } },
+  { href: "/productos", label: "Productos", match: { type: "catalog" } },
+  { href: "/contacto", label: "Contacto", match: { type: "contact" } },
+];
+
+/** Fase 2: catálogo público cuando `VAPE_STOREFRONT_MODE=full` en el deploy vape. */
+export function withVapeCatalogFull(base: VerticalConfig): VerticalConfig {
+  return {
+    ...base,
+    storefrontMode: "full",
+    features: {
+      ...base.features,
+      catalog: true,
+      catalogFilters: true,
+      productSearch: true,
+    },
+    headerNavDesktop: VAPE_CATALOG_NAV,
+    headerNavMobile: VAPE_CATALOG_NAV,
+    home: {
+      ...base.home,
+      showAllProducts: false,
+      productsSectionTitle: "Destacados",
+    },
+  };
+}

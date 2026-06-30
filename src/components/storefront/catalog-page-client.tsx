@@ -8,6 +8,7 @@ import { ProductFilters } from "@/components/storefront/product-filters";
 import { ProductSortSelect } from "@/components/storefront/product-sort-select";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getActiveCatalogFilterChips } from "@/lib/catalog-filters";
+import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
 import {
   computeCatalogFilterCounts,
   filterCatalogProducts,
@@ -22,7 +23,12 @@ type CatalogPageClientProps = {
   storeDisplayName: string;
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
+  showProductSearch: boolean;
   catalogVertical: "apparel" | "vape";
+  variantSizeParam: "talle" | "nicotina";
+  variantSizeLabel: string;
+  variantColorLabel?: string;
+  priceTiers: readonly CatalogPriceTier[];
 };
 
 function catalogDescription(
@@ -51,7 +57,12 @@ export function CatalogPageClient({
   storeDisplayName,
   showAudienceFilter,
   showPromo2x1,
+  showProductSearch,
   catalogVertical,
+  variantSizeParam,
+  variantSizeLabel,
+  variantColorLabel,
+  priceTiers,
 }: CatalogPageClientProps) {
   const searchParams = useSearchParams();
   const params = useMemo(
@@ -115,8 +126,13 @@ export function CatalogPageClient({
           counts={filterCounts}
           showAudienceFilter={showAudienceFilter}
           showPromo2x1={showPromo2x1}
+          showProductSearch={showProductSearch}
           catalogVertical={catalogVertical}
           variantSizeOptions={variantSizeOptions}
+          variantSizeParam={variantSizeParam}
+          variantSizeLabel={variantSizeLabel}
+          variantColorLabel={variantColorLabel}
+          priceTiers={priceTiers}
         />
         <div className="min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">

@@ -3,24 +3,13 @@
 import { useSearchParams } from "next/navigation";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import type { CatalogFilterCounts } from "@/lib/catalog-index";
+import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
 const APPAREL_SIZES = ["XS", "S", "M", "L", "XL"];
-
-const APPAREL_PRICE_OPTIONS = [
-  { value: "20000", label: "Hasta $20.000" },
-  { value: "35000", label: "Hasta $35.000" },
-  { value: "50000", label: "Hasta $50.000" },
-] as const;
-
-const VAPE_PRICE_OPTIONS = [
-  { value: "5000", label: "Hasta $5.000" },
-  { value: "15000", label: "Hasta $15.000" },
-  { value: "30000", label: "Hasta $30.000" },
-] as const;
 
 const fieldClass =
   "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
@@ -69,25 +58,34 @@ type ProductFiltersProps = {
   counts: CatalogFilterCounts;
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
+  showProductSearch: boolean;
   catalogVertical: "apparel" | "vape";
   variantSizeOptions: string[];
+  variantSizeParam: "talle" | "nicotina";
+  variantSizeLabel: string;
+  variantColorLabel?: string;
+  priceTiers: readonly CatalogPriceTier[];
 };
 
 export function ProductFilters({
   counts,
   showAudienceFilter,
   showPromo2x1,
+  showProductSearch,
   catalogVertical,
   variantSizeOptions,
+  variantSizeParam,
+  variantSizeLabel,
+  variantColorLabel,
+  priceTiers,
 }: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useCatalogNavigation();
   const isVape = catalogVertical === "vape";
-  const sizeParam = isVape ? "nicotina" : "talle";
+  const sizeParam = variantSizeParam;
   const sizeCounts = isVape ? counts.nicotina : counts.talle;
   const sizeOptions = isVape ? variantSizeOptions : APPAREL_SIZES;
-  const priceOptions = isVape ? VAPE_PRICE_OPTIONS : APPAREL_PRICE_OPTIONS;
-  const sizeLabel = isVape ? "Nicotina" : "Talle";
+  const sizeLabel = variantSizeLabel;
 
   const update = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -150,7 +148,7 @@ export function ProductFilters({
 
   return (
     <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain">
-      <ProductSearch />
+      {showProductSearch ? <ProductSearch /> : null}
 
       <div>
         <Label className="mb-2 block text-neutral-700">Promoción</Label>
@@ -276,9 +274,9 @@ export function ProductFilters({
         </div>
       ) : null}
 
-      {isVape && saborOptions.length > 0 ? (
+      {isVape && variantColorLabel && saborOptions.length > 0 ? (
         <div>
-          <Label className="mb-2 block text-neutral-700">Sabor</Label>
+          <Label className="mb-2 block text-neutral-700">{variantColorLabel}</Label>
           <div className="flex flex-wrap gap-2">
             {saborOptions.map((sabor) => {
               const isActive = activeSabor === sabor;
@@ -324,7 +322,7 @@ export function ProductFilters({
           }
         >
           <option value="">Sin límite</option>
-          {priceOptions.map((option) => (
+          {priceTiers.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

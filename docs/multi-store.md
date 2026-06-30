@@ -62,16 +62,23 @@ Marcá `[x]` al cerrar cada ítem. El roadmap general del producto sigue en [`RE
 
 Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 
-- [ ] **Ignored Build Step** en proyecto **apparel**: `bash scripts/vercel-should-build-apparel.sh`
-- [ ] **Ignored Build Step** en proyecto **vape**: `bash scripts/vercel-should-build-vape.sh`
-- [ ] **Protección de branches** en GitHub: `main` y `development` con *Require pull request*
-- [ ] **Default branch** en GitHub → `development` (opcional; facilita `gh pr create`)
-- [ ] **Release** `development` → `main` cuando `development` tenga cambios que producción aún no tiene
+- [x] **Ignored Build Step** en proyecto **apparel**: `bash scripts/vercel-should-build-apparel.sh`
+- [x] **Ignored Build Step** en proyecto **vape**: `bash scripts/vercel-should-build-vape.sh`
+- [x] **Protección de branches** en GitHub: `main` y `development` con *Require pull request*
+- [x] **Default branch** en GitHub → `development`
+- [x] **Release** `development` → `main` (PR #3 mergeado)
 
-### Fase 2 — cuando el catálogo vape crezca
+### Fase 2 — catálogo vape (cuando crezca el stock)
 
-- [ ] Activar `features.catalog: true` en `vape/config.ts`
-- [ ] Exponer `/productos` con facets nicotina/sabor (config ya en `catalogFacets`)
+Motor de filtros listo (`catalogFacets`, `product-filters`, `catalog-index`). Para activar catálogo público **sin tocar código**:
+
+1. En Vercel proyecto **nexus-vape-store** → env `VAPE_STOREFRONT_MODE=full`
+2. Redeploy
+
+Eso habilita `/productos`, búsqueda y filtros nicotina/sabor. Por defecto vape sigue en **home-only**.
+
+- [x] Motor de filtros parametrizado por `catalogFacets` + labels desde config
+- [x] Switch `VAPE_STOREFRONT_MODE=full` en deploy vape
 - [ ] (Opcional) `Product.attributes` para campos por categoría
 - [ ] (Opcional) `@@unique([storeId, sku])` si hace falta SKU estricto entre productos
 - [ ] (Opcional) `primaryColor` editable desde admin

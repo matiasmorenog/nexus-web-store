@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { apparelConfig } from "@/lib/store-verticals/apparel/config";
-import { vapeConfig } from "@/lib/store-verticals/vape/config";
+import { vapeConfig, withVapeCatalogFull } from "@/lib/store-verticals/vape/config";
 import type { StoreVertical, VerticalConfig } from "@/lib/store-verticals/types";
 
 const VERTICAL_REGISTRY: Record<StoreVertical, VerticalConfig> = {
@@ -13,16 +13,24 @@ function parseStoreVertical(value: string | undefined): StoreVertical {
   return "apparel";
 }
 
+function resolveVerticalConfig(vertical: StoreVertical): VerticalConfig {
+  const base = VERTICAL_REGISTRY[vertical];
+  if (vertical === "vape" && process.env.VAPE_STOREFRONT_MODE === "full") {
+    return withVapeCatalogFull(base);
+  }
+  return base;
+}
+
 export const getStoreVertical = cache((): StoreVertical => {
   return parseStoreVertical(process.env.STORE_VERTICAL);
 });
 
 export function getVerticalConfig(): VerticalConfig {
-  return VERTICAL_REGISTRY[getStoreVertical()];
+  return resolveVerticalConfig(getStoreVertical());
 }
 
 export function getVerticalConfigById(id: StoreVertical): VerticalConfig {
-  return VERTICAL_REGISTRY[id];
+  return resolveVerticalConfig(id);
 }
 
 export { VERTICAL_REGISTRY };

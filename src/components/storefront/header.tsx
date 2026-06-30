@@ -8,11 +8,10 @@ import { PromoBanner } from "@/components/storefront/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
 import { promoBanner } from "@/lib/promo-banner";
 import {
-  HEADER_NAV_DESKTOP,
-  HEADER_NAV_MOBILE,
   isStorefrontNavActive,
   type HeaderNavLink,
-} from "@/lib/categories";
+} from "@/lib/store-verticals/nav";
+import type { VerticalFeatures } from "@/lib/store-verticals/types";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
@@ -23,12 +22,24 @@ import { cn } from "@/lib/utils";
 
 type HeaderProps = {
   storeName: string;
+  brandSuffix: string;
+  navDesktop: HeaderNavLink[];
+  navMobile: HeaderNavLink[];
+  features: VerticalFeatures;
 };
 
-export function Header({ storeName }: HeaderProps) {
+export function Header({
+  storeName,
+  brandSuffix,
+  navDesktop,
+  navMobile,
+  features,
+}: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
   const bannerWrapRef = useRef<HTMLDivElement>(null);
-  const [promoActive, setPromoActive] = useState<boolean>(promoBanner.enabled);
+  const [promoActive, setPromoActive] = useState<boolean>(
+    features.promoBanner && promoBanner.enabled,
+  );
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
@@ -149,9 +160,11 @@ export function Header({ storeName }: HeaderProps) {
       <div ref={stickyRef} className="sticky top-0 z-40">
         <div
           ref={bannerWrapRef}
-          className={cn(promoActive && "bg-[var(--brand-primary)]")}
+          className={cn(features.promoBanner && promoActive && "bg-[var(--brand-primary)]")}
         >
-          <PromoBanner onActiveChange={setPromoActive} />
+          {features.promoBanner ? (
+            <PromoBanner onActiveChange={setPromoActive} />
+          ) : null}
           <HeaderProgressLine />
         </div>
         <header className="relative border-b border-neutral-100 bg-white/90 shadow-sm backdrop-blur-md">
@@ -165,11 +178,11 @@ export function Header({ storeName }: HeaderProps) {
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <StoreLogo storeName={storeName} />
+            <StoreLogo storeName={storeName} brandSuffix={brandSuffix} />
           </div>
 
           <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
-            {HEADER_NAV_DESKTOP.map((link) => (
+            {navDesktop.map((link) => (
               <Link key={link.href} href={link.href} className={navLinkClass(link)}>
                 {navLinkLabel(link)}
               </Link>
@@ -177,7 +190,7 @@ export function Header({ storeName }: HeaderProps) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <ProductSearch compact />
+            {features.productSearch ? <ProductSearch compact /> : null}
             <Button
               type="button"
               variant="secondary"
@@ -208,7 +221,7 @@ export function Header({ storeName }: HeaderProps) {
           )}
         >
           <nav className="max-h-[min(70vh,28rem)] space-y-1 overflow-y-auto px-4 py-3">
-            {HEADER_NAV_MOBILE.map((link) => (
+            {navMobile.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

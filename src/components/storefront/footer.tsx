@@ -1,13 +1,23 @@
 import Link from "next/link";
+import type { VerticalFeatures } from "@/lib/store-verticals/types";
 
 type FooterProps = {
   storeName: string;
+  brandSuffix: string;
+  tagline: string;
+  features: VerticalFeatures;
 };
 
-const helpLinks = [
+const helpLinksApparel = [
   { href: "/guia-de-talles", label: "Guía de talles" },
   { href: "/envios", label: "Envíos y entregas" },
   { href: "/cambios-y-devoluciones", label: "Cambios y devoluciones" },
+  { href: "/faq", label: "Preguntas frecuentes" },
+  { href: "/contacto", label: "Contacto" },
+] as const;
+
+const helpLinksVape = [
+  { href: "/envios", label: "Envíos y entregas" },
   { href: "/faq", label: "Preguntas frecuentes" },
   { href: "/contacto", label: "Contacto" },
 ] as const;
@@ -20,7 +30,13 @@ const legalLinks = [
 const linkClass =
   "transition-colors hover:text-[var(--brand-primary)]";
 
-export function Footer({ storeName }: FooterProps) {
+export function Footer({
+  storeName,
+  tagline,
+  features,
+}: FooterProps) {
+  const helpLinks = features.sizeGuide ? helpLinksApparel : helpLinksVape;
+
   return (
     <footer className="mt-auto border-t border-neutral-200 bg-neutral-50">
       <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
@@ -30,8 +46,7 @@ export function Footer({ storeName }: FooterProps) {
             {storeName}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-            Ropa deportiva para CrossFit y entrenamiento funcional. Envíos a todo
-            el país.
+            {tagline}
           </p>
         </div>
         <div>
@@ -39,29 +54,38 @@ export function Footer({ storeName }: FooterProps) {
             Tienda
           </p>
           <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+            {features.catalog ? (
+              <>
+                <li>
+                  <Link href="/productos" className={linkClass}>
+                    Catálogo
+                  </Link>
+                </li>
+                {features.showAudienceFilter ? (
+                  <>
+                    <li>
+                      <Link href="/productos?genero=hombre" className={linkClass}>
+                        Hombre
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/productos?genero=mujer" className={linkClass}>
+                        Mujer
+                      </Link>
+                    </li>
+                  </>
+                ) : null}
+              </>
+            ) : (
+              <li>
+                <Link href="/" className={linkClass}>
+                  Productos
+                </Link>
+              </li>
+            )}
             <li>
-              <Link href="/productos" className={linkClass}>
-                Catálogo
-              </Link>
-            </li>
-            <li>
-              <Link href="/productos?genero=hombre" className={linkClass}>
-                Hombre
-              </Link>
-            </li>
-            <li>
-              <Link href="/productos?genero=mujer" className={linkClass}>
-                Mujer
-              </Link>
-            </li>
-            <li>
-              <Link href="/productos?categoria=leggings" className={linkClass}>
-                Calzas
-              </Link>
-            </li>
-            <li>
-              <Link href="/productos?categoria=shorts" className={linkClass}>
-                Shorts
+              <Link href="/contacto" className={linkClass}>
+                Contacto
               </Link>
             </li>
           </ul>

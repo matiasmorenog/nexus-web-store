@@ -11,6 +11,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/admin-form";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
+import { getClientVariantLabels } from "@/lib/variant-labels";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,10 @@ export function ProductCreateForm({
   blockedHint = 0,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
+  const variantLabels = getClientVariantLabels();
+  const showPromo2x1 =
+    (process.env.NEXT_PUBLIC_STORE_VERTICAL ?? process.env.STORE_VERTICAL ?? "apparel") !==
+    "vape";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,26 +79,38 @@ export function ProductCreateForm({
                   />
                 </div>
                 <div>
-                  <Label htmlFor="size">Talle inicial</Label>
-                  <Input id="size" name="size" defaultValue="M" required />
+                  <Label htmlFor="size">{variantLabels.secondary} inicial</Label>
+                  <Input
+                    id="size"
+                    name="size"
+                    defaultValue={variantLabels.secondaryInitial ?? "M"}
+                    required
+                  />
                 </div>
                 <div>
-                  <Label htmlFor="color">Color inicial</Label>
-                  <Input id="color" name="color" defaultValue="Negro" required />
+                  <Label htmlFor="color">{variantLabels.primary} inicial</Label>
+                  <Input
+                    id="color"
+                    name="color"
+                    defaultValue={variantLabels.primaryInitial ?? "Negro"}
+                    required
+                  />
                 </div>
                 <ImageUploadField
                   name="imageUrl"
                   id="imageUrl"
-                  label="Imagen del color"
+                  label={`Imagen del ${variantLabels.primary.toLowerCase()}`}
                 />
                 <div className="flex items-center gap-2 sm:col-span-2">
                   <input type="checkbox" id="featured" name="featured" />
                   <Label htmlFor="featured">Destacado</Label>
                 </div>
-                <div className="flex items-center gap-2 sm:col-span-2">
-                  <input type="checkbox" id="promo2x1" name="promo2x1" />
-                  <Label htmlFor="promo2x1">Promoción 2x1</Label>
-                </div>
+                {showPromo2x1 ? (
+                  <div className="flex items-center gap-2 sm:col-span-2">
+                    <input type="checkbox" id="promo2x1" name="promo2x1" />
+                    <Label htmlFor="promo2x1">Promoción 2x1</Label>
+                  </div>
+                ) : null}
               </AdminFormGrid>
 
               <AdminFormActions>

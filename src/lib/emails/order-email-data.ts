@@ -1,4 +1,5 @@
 import { formatStoreName } from "@/lib/brand";
+import { getVariantLabels } from "@/lib/variant-labels";
 import {
   getMercadoEnviosCarrier,
   resolveMercadoEnviosTrackingUrl,
@@ -114,13 +115,14 @@ export function buildOrderEmailData(order: {
 }
 
 function renderItemsTable(data: OrderEmailData) {
+  const variantLabels = getVariantLabels();
   const rows = data.items
     .map(
       (item) => `
         <tr>
           <td style="padding:8px 0;border-bottom:1px solid #eee;">
             ${item.name}<br>
-            <span style="color:#666;font-size:13px;">${item.size} / ${item.color}</span>
+            <span style="color:#666;font-size:13px;">${variantLabels.secondary}: ${item.size} / ${variantLabels.primary}: ${item.color}</span>
           </td>
           <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:center;">${item.quantity}</td>
           <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;">${formatPrice(item.unitPrice * item.quantity)}</td>

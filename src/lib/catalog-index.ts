@@ -10,6 +10,8 @@ export type CatalogParams = {
   categoria?: string;
   genero?: string;
   talle?: string;
+  nicotina?: string;
+  sabor?: string;
   precioMax?: string;
   q?: string;
   orden?: string;
@@ -65,6 +67,8 @@ export type CatalogFilterCounts = {
   categoria: Record<string, number>;
   categoriaAll: number;
   talle: Record<string, number>;
+  nicotina: Record<string, number>;
+  sabor: Record<string, number>;
   destacados: number;
   promo2x1: number;
 };
@@ -75,6 +79,8 @@ type CatalogFacet = {
   genero?: string;
   categoria?: string;
   talle?: string;
+  nicotina?: string;
+  sabor?: string;
   featured?: boolean;
   promo2x1?: boolean;
 };
@@ -93,6 +99,8 @@ export function parseCatalogParams(
     categoria: searchParams.get("categoria") ?? undefined,
     genero: searchParams.get("genero") ?? undefined,
     talle: searchParams.get("talle") ?? undefined,
+    nicotina: searchParams.get("nicotina") ?? undefined,
+    sabor: searchParams.get("sabor") ?? undefined,
     precioMax: searchParams.get("precioMax") ?? undefined,
     q: searchParams.get("q") ?? undefined,
     orden: searchParams.get("orden") ?? undefined,
@@ -119,6 +127,17 @@ export function matchesCatalogIndexProduct(
   const talle = omit.includes("talle")
     ? facet.talle
     : (facet.talle ?? params.talle);
+
+  const nicotina = omit.includes("nicotina")
+    ? facet.nicotina
+    : (facet.nicotina ?? params.nicotina);
+
+  const sabor = omit.includes("sabor")
+    ? facet.sabor
+    : (facet.sabor ?? params.sabor);
+
+  const variantSizeFilter = talle ?? nicotina;
+  const variantColorFilter = sabor;
 
   if (!omit.includes("promo") && params.promo === "2x1" && !product.promo2x1) {
     return false;
@@ -162,11 +181,20 @@ export function matchesCatalogIndexProduct(
     }
   }
 
-  if (talle) {
+  if (variantSizeFilter) {
     const hasSize = product.variants.some(
-      (variant) => variant.size === talle && variant.stock > 0,
+      (variant) => variant.size === variantSizeFilter && variant.stock > 0,
     );
     if (!hasSize) {
+      return false;
+    }
+  }
+
+  if (variantColorFilter) {
+    const hasColor = product.variants.some(
+      (variant) => variant.color === variantColorFilter && variant.stock > 0,
+    );
+    if (!hasColor) {
       return false;
     }
   }
@@ -199,6 +227,7 @@ export function computeCatalogFilterCounts(
   products: CatalogIndexProduct[],
   params: CatalogParams,
   categorySlugs: string[],
+  variantSizeOptions: string[] = [...SIZE_OPTIONS],
 ): CatalogFilterCounts {
   const count = (
     facet: CatalogFacet,
@@ -210,7 +239,25 @@ export function computeCatalogFilterCounts(
   ) as Record<string, number>;
 
   const talleCounts = Object.fromEntries(
-    SIZE_OPTIONS.map((size) => [size, count({ talle: size }, ["talle"])]),
+    variantSizeOptions.map((size) => [size, count({ talle: size }, ["talle", "nicotina"])]),
+  ) as Record<string, number>;
+
+  const nicotinaCounts = Object.fromEntries(
+    variantSizeOptions.map((size) => [size, count({ nicotina: size }, ["nicotina", "talle"])]),
+  ) as Record<string, number>;
+
+  const saborOptions = [
+    ...new Set(
+      products.flatMap((product) =>
+        product.variants
+          .filter((variant) => variant.stock > 0)
+          .map((variant) => variant.color),
+      ),
+    ),
+  ].sort();
+
+  const saborCounts = Object.fromEntries(
+    saborOptions.map((color) => [color, count({ sabor: color }, ["sabor"])]),
   ) as Record<string, number>;
 
   return {
@@ -222,6 +269,8 @@ export function computeCatalogFilterCounts(
     categoria: categoryCounts,
     categoriaAll: count({}, ["categoria"]),
     talle: talleCounts,
+    nicotina: nicotinaCounts,
+    sabor: saborCounts,
     destacados: count({ featured: true }, ["destacados", "promo"]),
     promo2x1: count({ promo2x1: true }, ["promo", "destacados"]),
   };

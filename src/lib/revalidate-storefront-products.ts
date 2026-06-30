@@ -1,10 +1,12 @@
 import { revalidatePath } from "next/cache";
 import { revalidateCatalogIndexCache } from "@/lib/catalog-index-query";
 import { revalidateFeaturedProductsCache } from "@/lib/featured-products-query";
+import { revalidateStorefrontProductsCache } from "@/lib/storefront-products-query";
 
 function revalidateStorefrontListingSurfaces() {
   revalidateCatalogIndexCache();
   revalidateFeaturedProductsCache();
+  revalidateStorefrontProductsCache();
   revalidatePath("/");
   revalidatePath("/productos");
 }

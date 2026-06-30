@@ -1,19 +1,44 @@
-export const BRAND_SUFFIX = "Indumentaria";
+import { apparelConfig } from "@/lib/store-verticals/apparel/config";
+import { vapeConfig } from "@/lib/store-verticals/vape/config";
+import type { StoreVertical } from "@/lib/store-verticals/types";
 
-const SUFFIX_PATTERN = new RegExp(`\\s+${BRAND_SUFFIX}$`, "i");
+const BRAND_SUFFIX_BY_VERTICAL: Record<StoreVertical, string> = {
+  apparel: apparelConfig.brandSuffix,
+  vape: vapeConfig.brandSuffix,
+};
 
-/** Extrae el prefijo de marca (ej. "MiMarca" desde "MiMarca Indumentaria"). */
-export function getBrandPrefix(name: string): string {
-  const trimmed = name.trim();
-  if (!trimmed) return "";
-  return trimmed.replace(SUFFIX_PATTERN, "").trim();
+function resolveVertical(): StoreVertical {
+  const value = process.env.STORE_VERTICAL ?? process.env.NEXT_PUBLIC_STORE_VERTICAL;
+  return value === "vape" ? "vape" : "apparel";
 }
 
-/** Nombre completo para mostrar en el sitio: "{prefijo} Indumentaria". */
-export function formatStoreName(nameOrPrefix: string): string {
-  const prefix = getBrandPrefix(nameOrPrefix);
-  if (!prefix) return BRAND_SUFFIX;
-  return `${prefix} ${BRAND_SUFFIX}`;
+export function getBrandSuffix(): string {
+  return BRAND_SUFFIX_BY_VERTICAL[resolveVertical()];
+}
+
+/** @deprecated Usar getBrandSuffix(); se mantiene para imports legacy. */
+export const BRAND_SUFFIX = "Indumentaria";
+
+function suffixPattern(suffix: string) {
+  if (!suffix) return null;
+  return new RegExp(`\\s+${suffix}$`, "i");
+}
+
+/** Extrae el prefijo de marca (ej. "MiMarca" desde "MiMarca Indumentaria"). */
+export function getBrandPrefix(name: string, suffix = getBrandSuffix()): string {
+  const trimmed = name.trim();
+  if (!trimmed) return "";
+  const pattern = suffixPattern(suffix);
+  if (!pattern) return trimmed;
+  return trimmed.replace(pattern, "").trim();
+}
+
+/** Nombre completo para mostrar en el sitio. */
+export function formatStoreName(nameOrPrefix: string, suffix = getBrandSuffix()): string {
+  const prefix = getBrandPrefix(nameOrPrefix, suffix);
+  if (!prefix) return suffix || nameOrPrefix.trim();
+  if (!suffix) return prefix;
+  return `${prefix} ${suffix}`;
 }
 
 /** Normaliza el valor del input de configuración (solo prefijo, sin sufijo). */

@@ -12,6 +12,7 @@ Lista completa con checkboxes en `README.md` → **Roadmap de features**. No re-
 Storefront: home, catálogo, filtros URL, PDP variantes, carrito Zustand, checkout, páginas post-pago, header/footer responsive.
 Admin: login, dashboard KPIs, alta/baja productos, listado pedidos + cambio estado, config (nombre, envío fijo, retiro local flag).
 Backend: MP + webhook (demo sin token), multi-tenant schema, seed demo.
+Infra: dos tiendas en producción (apparel + vape, 2 Vercel, 1 Neon) — checklist ops en `docs/multi-store.md` y `DEPLOY.md`.
 Performance: catálogo con índice cliente + cache store (`performance-todo.mdc`).
 
 ## Próximo — Fase A (1 negocio real)

@@ -10,9 +10,9 @@ alwaysApply: true
 ## Stack y convenciones
 
 - Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand (carrito), Mercado Pago
-- Tienda única: runtime lee la **única fila** en `Store` (`src/lib/store-context.ts`); schema multi-tenant (`storeId`) listo para SaaS
-- Color de marca en `src/app/globals.css` (`--brand-primary`), no en DB ni admin
-- Categorías fijas en `src/lib/categories.ts` (no CRUD)
+- **Dos deploys** (apparel + vape): runtime lee **una** fila `Store` por proyecto vía `DEFAULT_STORE_SLUG` (`src/lib/store-context.ts`); vertical por `STORE_VERTICAL` (`src/lib/store-verticals/`)
+- Color de marca: CSS vars por vertical + opcional `Store.primaryColor`; ver `docs/multi-store.md`
+- Categorías por vertical en config (`store-verticals/*/config.ts`); `src/lib/categories.ts` delega al vertical activo
 - Sin `middleware.ts` (límite Edge en Vercel); admin protegido en `src/app/admin/(protected)/layout.tsx`
 - Store resuelto en `src/lib/store-context.ts`; DB en `src/lib/db.ts`
 
@@ -26,7 +26,7 @@ alwaysApply: true
 | Checkout API | `src/app/api/checkout/route.ts` |
 | Auth | `src/lib/auth.ts` |
 | Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts`, `prisma/seed-env.ts` |
-| Deploy | `DEPLOY.md` (Neon pooled + `DIRECT_URL`) |
+| Deploy / dos tiendas | `DEPLOY.md`, `docs/multi-store.md` |
 | Features / roadmap | `README.md` → sección **Roadmap de features** |
 | Performance / costo | `.cursor/rules/performance-todo.mdc` |
 | Cache por ruta | `docs/caching-and-routes.md` |

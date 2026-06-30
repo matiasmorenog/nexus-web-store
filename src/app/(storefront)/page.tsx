@@ -1,9 +1,9 @@
-import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { resolveHomePage } from "@/lib/store-verticals/home-page";
 import { getStoreVertical } from "@/lib/store-verticals";
 
-export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
+/** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
+export const revalidate = 600;
 
 export default async function HomePage() {
   const store = await getStore();

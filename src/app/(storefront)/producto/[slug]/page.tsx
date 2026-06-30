@@ -10,12 +10,12 @@ import {
   getStorefrontProduct,
   getStorefrontProductSlugs,
 } from "@/lib/product-page-query";
-import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getVerticalConfig } from "@/lib/store-verticals";
 import { getVariantLabels } from "@/lib/variant-labels";
 
-export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
+/** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
+export const revalidate = 600;
 
 type PageProps = {
   params: Promise<{ slug: string }>;

@@ -7,11 +7,11 @@ import {
 } from "@/components/storefront/storefront-skeleton";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getCatalogIndex } from "@/lib/catalog-index-query";
-import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 import { getVerticalConfig } from "@/lib/store-verticals";
 
-export const revalidate = STOREFRONT_CATALOG_REVALIDATE_SECONDS;
+/** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
+export const revalidate = 600;
 
 function CatalogPageFallback() {
   return (

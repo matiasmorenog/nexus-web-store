@@ -167,7 +167,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Búsqueda por texto
 - [x] Retiro en local
 - [x] Páginas legales, FAQ, contacto
-- [ ] Cuenta cliente + mis pedidos ← **siguiente**
+- [x] Cuenta cliente + mis pedidos
 - [ ] Cupones, wishlist, SEO avanzado, WhatsApp
 
 </details>

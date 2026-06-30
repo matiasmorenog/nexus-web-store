@@ -50,6 +50,10 @@ type CheckoutFormProps = {
   allowPickup: boolean;
   storeName: string;
   showSummary?: boolean;
+  defaultCustomer?: {
+    name: string;
+    email: string;
+  };
 };
 
 export function CheckoutForm({
@@ -57,6 +61,7 @@ export function CheckoutForm({
   allowPickup,
   storeName,
   showSummary = true,
+  defaultCustomer,
 }: CheckoutFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -313,6 +318,7 @@ export function CheckoutForm({
             id="checkout-name"
             name="name"
             autoComplete="name"
+            defaultValue={defaultCustomer?.name}
             required
           />
         </div>
@@ -323,6 +329,7 @@ export function CheckoutForm({
             name="email"
             type="email"
             autoComplete="email"
+            defaultValue={defaultCustomer?.email}
             required
           />
         </div>

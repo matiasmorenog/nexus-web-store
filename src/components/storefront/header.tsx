@@ -16,6 +16,7 @@ import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
+import { HeaderAccountLink } from "@/components/storefront/header-account-link";
 import { StoreLogo } from "@/components/storefront/store-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -191,6 +192,7 @@ export function Header({
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             {features.productSearch ? <ProductSearch compact /> : null}
+            <HeaderAccountLink />
             <Button
               type="button"
               variant="secondary"

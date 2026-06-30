@@ -9,6 +9,8 @@
   ·
   <a href="DEPLOY.md">Deploy</a>
   ·
+  <a href="docs/multi-store.md">Dos tiendas</a>
+  ·
   <a href="docs/caching-and-routes.md">Cache & rutas</a>
 </p>
 
@@ -43,7 +45,7 @@ Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
 
 **Neon + serverless** — Pooler con `connection_limit=1`; queries admin en `$transaction` secuencial para evitar timeouts del pool.
 
-**Multi-tenant listo** — Schema con `storeId` en todas las entidades; deploy actual resuelve una tienda por slug (`demo-store`). Preparado para Fase SaaS sin reescribir el modelo.
+**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (apparel + vape) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
 
 **Sin middleware Edge** — Auth del admin en layout server-side (límite de Vercel en middleware + DB).
 
@@ -194,6 +196,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 <summary><strong>Infra y SaaS</strong></summary>
 
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
+- [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
 - [ ] Dominio custom, onboarding, planes, API pública
 
 </details>

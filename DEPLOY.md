@@ -2,6 +2,18 @@
 
 Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB, **dos proyectos Vercel** con env distinto. Cada deploy lee una tienda vía `DEFAULT_STORE_SLUG` + `STORE_VERTICAL`.
 
+**Avances y checklist:** [`docs/multi-store.md`](docs/multi-store.md) (implementación hecha + pendientes Vercel/GitHub).
+
+## Checklist operación (Vercel / GitHub)
+
+- [ ] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-apparel.sh`
+- [ ] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
+- [ ] Branch protection: `main` + `development` → Require pull request
+- [ ] (Opcional) Default branch en GitHub → `development`
+- [ ] Release `development` → `main` cuando haya cambios listos para producción
+
+Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → pegar el comando de la fila correspondiente.
+
 ## Producción actual
 
 | Proyecto Vercel | Tienda | URL | `DEFAULT_STORE_SLUG` |

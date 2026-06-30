@@ -26,6 +26,7 @@ case "$PROFILE" in
     export STORE_VERTICAL=apparel
     export NEXT_PUBLIC_STORE_VERTICAL=apparel
     export DEFAULT_STORE_SLUG=demo-store
+    export NEXT_DIST_DIR=".next-apparel"
     PORT=3000
     LABEL="Goat (apparel)"
     ;;
@@ -33,6 +34,7 @@ case "$PROFILE" in
     export STORE_VERTICAL=vape
     export NEXT_PUBLIC_STORE_VERTICAL=vape
     export DEFAULT_STORE_SLUG=vape-demo
+    export NEXT_DIST_DIR=".next-vape"
     PORT=3001
     LABEL="Cloud (vape)"
     ;;
@@ -49,6 +51,10 @@ echo "→ ${LABEL}"
 echo "  slug:    ${DEFAULT_STORE_SLUG}"
 echo "  vertical: ${STORE_VERTICAL}"
 echo "  URL:     http://localhost:${PORT}"
+echo "  dist:    ${NEXT_DIST_DIR}"
 echo ""
 
-exec npx prisma generate && npx next dev -p "${PORT}"
+if [[ "${SKIP_PRISMA_GENERATE:-}" != "1" ]]; then
+  npx prisma generate
+fi
+exec npx next dev -p "${PORT}"

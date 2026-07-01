@@ -14,7 +14,7 @@ Uso: npm run dev:apparel | npm run dev:vape
 
 Perfiles:
   apparel   slug demo-store   puerto 3000   catálogo ropa (Goat)
-  vape      slug vape-demo    puerto 3001   home-only vape (Cloud)
+  vape      slug vape-demo    puerto 3001   home-only vape (VAPORX)
 
 Requiere .env con DATABASE_URL (y el resto de vars compartidas).
 Este script sobrescribe STORE_VERTICAL, DEFAULT_STORE_SLUG y URLs por perfil.
@@ -36,7 +36,7 @@ case "$PROFILE" in
     export DEFAULT_STORE_SLUG=vape-demo
     export NEXT_DIST_DIR=".next-vape"
     PORT=3001
-    LABEL="Cloud (vape)"
+    LABEL="VAPORX (vape)"
     ;;
   *)
     usage

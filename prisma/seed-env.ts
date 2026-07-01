@@ -10,7 +10,7 @@ export const STORE_OWNER_EMAIL = "matiasmorenog+nexus-web-store@gmail.com";
 
 /** Tienda vape (deploy 2). */
 export const VAPE_STORE_SLUG = "vape-demo";
-export const VAPE_STORE_NAME = "Cloud";
+export const VAPE_STORE_NAME = "VAPORX";
 export const VAPE_STORE_OWNER_EMAIL = "matiasmorenog+vape-nexus@gmail.com";
 
 export const SEED_ADMIN_PASSWORD = "admin123";
@@ -42,7 +42,7 @@ export const SEED_STORES: SeedStoreConfig[] = [
     adminEmail: VAPE_STORE_OWNER_EMAIL,
     adminPassword: SEED_ADMIN_PASSWORD,
     adminDisplayName: SEED_ADMIN_NAME,
-    primaryColor: "#22c55e",
+    primaryColor: "#00e5ff",
     shippingFlatRate: 2000,
   },
 ];

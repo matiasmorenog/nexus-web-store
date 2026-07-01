@@ -5,13 +5,22 @@ export type HeaderNavMatch =
   | { type: "genero"; slug: string }
   | { type: "categoria"; slug: string }
   | { type: "destacados" }
-  | { type: "promo2x1" };
+  | { type: "promo2x1" }
+  | { type: "hash"; hash: string };
 
 export type HeaderNavLink = {
   href: string;
   label: string;
   match: HeaderNavMatch;
+  /** Distingue tabs que comparten el mismo hash (ej. categorías en home vape). */
+  navKey?: string;
   accent?: "promo2x1";
+};
+
+export type StorefrontNavActiveContext = {
+  hash?: string;
+  navKey?: string | null;
+  linkNavKey?: string;
 };
 
 export function isStorefrontNavActive(
@@ -23,7 +32,18 @@ export function isStorefrontNavActive(
     promo?: string | null;
     destacados?: string | null;
   },
+  context?: StorefrontNavActiveContext,
 ) {
+  if (match.type === "hash") {
+    if (pathname !== "/") return false;
+    const currentHash = (context?.hash ?? "").replace(/^#/, "");
+    if (currentHash !== match.hash) return false;
+    if (context?.linkNavKey) {
+      return context.navKey === context.linkNavKey;
+    }
+    return true;
+  }
+
   if (match.type === "home") {
     return pathname === "/";
   }

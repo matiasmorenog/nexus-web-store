@@ -22,7 +22,9 @@ function resolveVerticalConfig(vertical: StoreVertical): VerticalConfig {
 }
 
 export const getStoreVertical = cache((): StoreVertical => {
-  return parseStoreVertical(process.env.STORE_VERTICAL);
+  const value =
+    process.env.STORE_VERTICAL ?? process.env.NEXT_PUBLIC_STORE_VERTICAL;
+  return parseStoreVertical(value);
 });
 
 export function getVerticalConfig(): VerticalConfig {

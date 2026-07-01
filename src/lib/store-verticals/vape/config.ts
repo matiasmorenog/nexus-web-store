@@ -1,5 +1,8 @@
 import type { HeaderNavLink } from "@/lib/store-verticals/nav";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
+import { vapeCssVars, vapePalette } from "@/lib/store-verticals/vape/theme";
+
+export { vapePalette };
 
 export const VAPE_PRODUCT_CATEGORIES = [
   { slug: "kits", label: "Kits y dispositivos" },
@@ -15,21 +18,13 @@ const VAPE_PRICE_TIERS = [
   { value: "30000", label: "Hasta $30.000" },
 ] as const;
 
-function navCategoria(slug: string, label: string): HeaderNavLink {
-  return {
-    href: `/productos?categoria=${slug}`,
-    label,
-    match: { type: "categoria", slug },
-  };
-}
-
 export const vapeConfig: VerticalConfig = {
   id: "vape",
   storefrontMode: "home-only",
   brandSuffix: "",
   metadata: {
     description:
-      "Vapers, líquidos y accesorios. Productos seleccionados para tu experiencia.",
+      "Tu tienda de confianza para vapes premium. Envío seguro y productos seleccionados.",
   },
   features: {
     catalog: false,
@@ -50,27 +45,66 @@ export const vapeConfig: VerticalConfig = {
   },
   ui: {
     id: "vape",
-    cssVars: {
-      "--brand-primary": "#22c55e",
-      "--ui-button-radius": "9999px",
-      "--ui-button-primary-shadow":
-        "0 0 20px color-mix(in srgb, var(--brand-primary) 35%, transparent)",
-      "--ui-button-font-weight": "600",
-    },
+    cssVars: vapeCssVars,
   },
   productCategories: VAPE_PRODUCT_CATEGORIES,
   audiences: [{ slug: "unisex", label: "Unisex" }],
   headerNavDesktop: [
-    { href: "/", label: "Inicio", match: { type: "home" } },
-    { href: "/contacto", label: "Contacto", match: { type: "contact" } },
+    {
+      href: "/#categorias",
+      label: "Dispositivos",
+      match: { type: "hash", hash: "categorias" },
+      navKey: "dispositivos",
+    },
+    {
+      href: "/#categorias",
+      label: "Líquidos",
+      match: { type: "hash", hash: "categorias" },
+      navKey: "liquidos",
+    },
+    {
+      href: "/#categorias",
+      label: "Pods",
+      match: { type: "hash", hash: "categorias" },
+      navKey: "pods",
+    },
+    {
+      href: "/#categorias",
+      label: "Accesorios",
+      match: { type: "hash", hash: "categorias" },
+      navKey: "accesorios",
+    },
+    {
+      href: "/#ofertas",
+      label: "Ofertas",
+      match: { type: "hash", hash: "ofertas" },
+      navKey: "ofertas",
+    },
   ],
   headerNavMobile: [
-    { href: "/", label: "Inicio", match: { type: "home" } },
+    {
+      href: "/#categorias",
+      label: "Categorías",
+      match: { type: "hash", hash: "categorias" },
+      navKey: "categorias",
+    },
+    {
+      href: "/#productos-vape",
+      label: "Productos",
+      match: { type: "hash", hash: "productos-vape" },
+      navKey: "productos",
+    },
+    {
+      href: "/#ofertas",
+      label: "Ofertas",
+      match: { type: "hash", hash: "ofertas" },
+      navKey: "ofertas",
+    },
     { href: "/contacto", label: "Contacto", match: { type: "contact" } },
   ],
   home: {
     showAllProducts: true,
-    productsSectionTitle: "Nuestros productos",
+    productsSectionTitle: "PRODUCTOS DESTACADOS",
   },
   catalogFacets: [
     { param: "categoria", type: "category", label: "Categoría" },

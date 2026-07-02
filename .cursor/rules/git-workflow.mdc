@@ -18,18 +18,30 @@ feat/*  ──PR──►  development  ──PR──►  main  ──►  prod
 
 ## Reglas
 
+- **Una implementación = un branch nuevo.** Antes de tocar código, crear branch desde `development` actualizado. No reutilizar branches de tareas anteriores salvo que el usuario lo pida explícitamente.
+- **No mezclar desarrollos** en el mismo branch (ej. rules + fix admin + refactor en uno solo).
+- Al iniciar una tarea, verificar `git branch --show-current` y `git status`. Si el branch actual tiene commits o cambios de otra tarea → crear branch nuevo desde `development`.
 - **Nunca** abrir PR de feature directo a `main`.
-- Crear branches `feat/*` (o `fix/*`, `refactor/*`) desde `development` actualizado.
+- Nombres de branch: `feat/descripcion-corta`, `fix/descripcion-corta`, `refactor/descripcion-corta`, `chore/descripcion-corta`.
 - Default branch del repo: `development` (`gh pr create` sin `--base` → `development`).
 - No push directo a `main` en el día a día.
 - No `git push --force` a `main` / `master`.
 - Commits solo cuando el usuario lo pida explícitamente.
 
-## Comandos
+## Inicio de implementación (obligatorio para el agente)
 
 ```bash
-git checkout development && git pull
-git checkout -b feat/mi-cambio
+git fetch origin development
+git checkout development && git pull origin development
+git checkout -b feat/nombre-de-la-tarea   # o fix/ refactor/ chore/
+# recién después: editar archivos
+```
+
+Si el usuario ya indicó un branch concreto y es el de **esta** tarea, usarlo. Si no indicó branch o el actual es de otra tarea → **crear uno nuevo** y avisar el nombre elegido.
+
+## Cierre de tarea (PR)
+
+```bash
 gh pr create --base development
 
 # Release (cuando el usuario lo pida):

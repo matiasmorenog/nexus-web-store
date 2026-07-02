@@ -40,7 +40,7 @@ export function VapeThemeToggle({ className, compact = false }: VapeThemeToggleP
               compact ? "h-8 w-8" : "gap-1.5 px-2.5 py-1 text-xs",
               active
                 ? "bg-[var(--brand-primary)] text-[var(--ui-button-primary-foreground)]"
-                : "text-[var(--vape-muted-foreground)] hover:text-[var(--brand-primary-light)]",
+                : "text-vape-muted hover:text-[var(--brand-primary-light)]",
             )}
           >
             <span

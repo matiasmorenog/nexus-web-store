@@ -732,7 +732,7 @@ button:not(:disabled),
 [data-storefront-ui="vape"] {
   --font-display: var(--font-rajdhani);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
-  color: var(--brand-primary-darker);
+  color: var(--brand-primary-light, #f0f0f5);
 }
 
 [data-storefront-ui="vape"] .font-vape-display {
@@ -740,7 +740,10 @@ button:not(:disabled),
 }
 
 [data-storefront-ui="vape"] .text-vape-muted {
-  color: var(--vape-muted-foreground);
+  color: var(
+    --vape-muted-foreground,
+    color-mix(in srgb, var(--brand-primary-light, #f0f0f5) 72%, transparent)
+  );
 }
 
 [data-storefront-ui="vape"] .border-vape {

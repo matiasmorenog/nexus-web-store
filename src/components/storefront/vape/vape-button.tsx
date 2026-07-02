@@ -14,10 +14,10 @@ const variantClass: Record<VapeButtonVariant, string> = {
   secondary:
     "border border-[var(--vape-theme-border)] bg-transparent text-[var(--brand-primary-light)] hover:border-[color-mix(in_srgb,var(--brand-primary)_50%,transparent)] hover:text-[var(--brand-primary)]",
   ghost:
-    "border border-[var(--vape-theme-border)] bg-transparent text-[var(--vape-muted-foreground)] hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)] hover:text-[var(--brand-primary)]",
+    "border border-[var(--vape-theme-border)] bg-transparent text-vape-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)] hover:text-[var(--brand-primary)]",
   promo:
     "border border-transparent bg-[var(--brand-promo-accent)] text-[var(--ui-button-primary-foreground)] shadow-[0_0_24px_var(--vape-glow-promo)] hover:brightness-110 active:brightness-105",
-  tab: "border border-transparent bg-transparent text-[var(--vape-muted-foreground)] hover:text-[var(--brand-primary-light)]",
+  tab: "border border-transparent bg-transparent text-vape-muted hover:text-[var(--brand-primary-light)]",
   "tab-active":
     "border border-transparent bg-[var(--brand-primary)] text-[var(--ui-button-primary-foreground)]",
 };

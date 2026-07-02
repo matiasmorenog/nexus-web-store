@@ -112,6 +112,8 @@ Preview en vape es opcional; podés probar vape con `npm run dev:vape` y dejar p
 
 ## Git: branches y PRs
 
+Regla para el agente: `.cursor/rules/git-workflow.mdc`.
+
 ```
 feat/mi-cambio  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
 ```

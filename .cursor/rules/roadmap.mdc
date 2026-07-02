@@ -7,31 +7,31 @@ alwaysApply: true
 
 Lista completa con checkboxes en `README.md` → **Roadmap de features**. No re-inventariar el código; usar ese listado.
 
+Al implementar un ítem pendiente: marcar `[x]` en `README.md` y abrir PR a **`development`** (ver `git-workflow.mdc`).
+
 ## Ya implementado (no rehacer)
 
-Storefront: home, catálogo, filtros URL, PDP variantes, carrito Zustand, checkout, páginas post-pago, header/footer responsive.
-Admin: login, dashboard KPIs, alta/baja productos, listado pedidos + cambio estado, config (nombre, envío fijo, retiro local flag).
-Backend: MP + webhook (demo sin token), multi-tenant schema, seed demo.
-Infra: dos tiendas en producción (apparel + vape, 2 Vercel, 1 Neon) — checklist ops en `docs/multi-store.md` y `DEPLOY.md`.
-Performance: catálogo con índice cliente + cache store (`performance-todo.mdc`).
+Storefront: home, catálogo, filtros URL, PDP variantes, carrito, checkout, post-pago, header/footer, cuenta cliente + mis pedidos.
+Admin: login, dashboard KPIs, CRUD productos/variantes/stock, pedidos, config, imágenes Blob.
+Backend: MP + webhook, multi-tenant, emails (Resend/log), búsqueda, retiro local, páginas legales.
+Infra: dos tiendas (2 Vercel, 1 Neon), storefront por `DEFAULT_STORE_SLUG`, catálogo vape activo.
+Performance: índice catálogo cliente + cache store — ver `performance-todo.mdc`.
 
-## Próximo — Fase A (1 negocio real)
+## Próximo — Fase A
 
-1. ~~Editar productos + variantes + stock en admin~~ ✅
-2. ~~Subida de imágenes (Vercel Blob + WebP)~~ ✅
-3. ~~Emails transaccionales~~ ✅ (demo log / Resend)
+1. ~~Editar productos + variantes + stock~~ ✅
+2. ~~Imágenes (Vercel Blob + WebP)~~ ✅
+3. ~~Emails transaccionales~~ ✅
 4. ~~Búsqueda por texto~~ ✅
-5. ~~Retiro en local en checkout~~ ✅
+5. ~~Retiro en local~~ ✅
 6. ~~Páginas legales y contacto~~ ✅
-7. SEO básico (meta, sitemap, Open Graph) — pospuesto para demo
+7. SEO básico — pospuesto demo
 8. ~~Cuenta cliente + mis pedidos~~ ✅
 
-## Fase B — competir con Tienda Nube lite
+## Fase B — Tienda Nube lite
 
 Cupones, home/banners editables, categorías dinámicas, dominio custom, analytics admin, envíos carrier, WhatsApp/Meta Pixel.
 
 ## Fase C — SaaS
 
 Onboarding tiendas, planes/billing, temas, multi-usuario, API/webhooks.
-
-Al implementar un ítem pendiente, marcar `[x]` en `README.md`.

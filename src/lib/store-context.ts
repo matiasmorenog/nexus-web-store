@@ -1,7 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import {
-  BRAND_SUFFIX,
   formatStoreName,
   getBrandPrefix,
 } from "@/lib/brand";
@@ -9,7 +8,7 @@ import { STORE_CACHE_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
 import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
 
-export { BRAND_SUFFIX, formatStoreName, getBrandPrefix };
+export { formatStoreName, getBrandPrefix };
 
 export const STORE_CACHE_TAG = "store";
 

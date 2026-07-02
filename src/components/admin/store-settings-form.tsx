@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BRAND_SUFFIX } from "@/lib/brand";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import { Label } from "@/components/ui/label";
 
 type StoreSettingsFormProps = {
   store: {
-    brandPrefix: string;
     shippingFlatRate: number;
     allowPickup: boolean;
   };
@@ -19,7 +17,6 @@ type StoreSettingsFormProps = {
 
 export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const router = useRouter();
-  const [brandPrefix, setBrandPrefix] = useState(store.brandPrefix);
   const [shippingFlatRate, setShippingFlatRate] = useState(
     String(store.shippingFlatRate),
   );
@@ -29,10 +26,9 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setBrandPrefix(store.brandPrefix);
     setShippingFlatRate(String(store.shippingFlatRate));
     setAllowPickup(store.allowPickup);
-  }, [store.allowPickup, store.brandPrefix, store.shippingFlatRate]);
+  }, [store.allowPickup, store.shippingFlatRate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,7 +37,6 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
     setError(null);
 
     const formData = new FormData();
-    formData.set("name", brandPrefix.trim());
     formData.set("shippingFlatRate", shippingFlatRate);
     if (allowPickup) {
       formData.set("allowPickup", "on");
@@ -75,42 +70,9 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
     }
   };
 
-  const previewPrefix = brandPrefix.trim();
-
   return (
-    <AdminCard title="Tienda y envíos" className="max-w-lg">
+    <AdminCard title="Envíos y retiro" className="max-w-lg">
       <AdminForm onSubmit={handleSubmit}>
-        <div>
-          <Label htmlFor="name">Nombre de marca</Label>
-          <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-neutral-200 bg-white focus-within:border-[var(--brand-primary)] focus-within:ring-2 focus-within:ring-[var(--brand-primary)] focus-within:ring-offset-1">
-            <Input
-              id="name"
-              name="name"
-              value={brandPrefix}
-              onChange={(event) => setBrandPrefix(event.target.value)}
-              required
-              autoComplete="organization"
-              enterKeyHint="done"
-              className="min-w-0 flex-1 rounded-none border-0 text-base shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm"
-              placeholder="Ej. Mi marca"
-              aria-describedby="brand-suffix-hint"
-            />
-            <span
-              id="brand-suffix-hint"
-              className="flex shrink-0 items-center rounded-r-lg border-l border-neutral-200 bg-neutral-50 px-3 text-sm font-medium text-neutral-600"
-            >
-              {BRAND_SUFFIX}
-            </span>
-          </div>
-          <p className="mt-1.5 text-xs text-neutral-500">
-            En el sitio se mostrará como{" "}
-            <span className="font-medium text-neutral-700">
-              {previewPrefix ? `${previewPrefix} ` : ""}
-              {BRAND_SUFFIX}
-            </span>
-            .
-          </p>
-        </div>
         <div>
           <Label htmlFor="shippingFlatRate">Costo de envío fijo (ARS)</Label>
           <Input

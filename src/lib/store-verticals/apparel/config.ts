@@ -71,7 +71,7 @@ const APPAREL_PRICE_TIERS = [
 export const apparelConfig: VerticalConfig = {
   id: "apparel",
   storefrontMode: "full",
-  brandSuffix: "Indumentaria",
+  brandLogoAccent: "Indumentaria",
   metadata: {
     description:
       "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",

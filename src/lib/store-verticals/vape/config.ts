@@ -21,7 +21,6 @@ const VAPE_PRICE_TIERS = [
 export const vapeConfig: VerticalConfig = {
   id: "vape",
   storefrontMode: "home-only",
-  brandSuffix: "",
   metadata: {
     description:
       "Tu tienda de confianza para vapes premium. Envío seguro y productos seleccionados.",

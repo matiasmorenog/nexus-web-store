@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 
 type FooterProps = {
   storeName: string;
-  brandSuffix: string;
   tagline: string;
   features: VerticalFeatures;
   chrome?: "light" | "dark";

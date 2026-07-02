@@ -195,11 +195,13 @@ export function Header({
             : "border-[var(--brand-primary)] text-[var(--brand-primary)]"
         : mobile
           ? isDarkChrome
-            ? "text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
+            ? isVapeUi
+              ? "text-vape-muted hover:bg-white/5 hover:text-[var(--brand-primary-light)]"
+              : "text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
           : isDarkChrome
             ? isVapeUi
-              ? "border-transparent text-vape-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary)]"
+              ? "border-transparent text-vape-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary-light)]"
               : "border-transparent text-neutral-400 hover:border-white/20 hover:text-neutral-100"
             : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-900",
     );

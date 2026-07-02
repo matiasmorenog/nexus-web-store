@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { VapeSectionHeading } from "@/components/storefront/home/vape/vape-section-heading";
+import { vapeCatalogHref } from "@/lib/store-verticals/vape/config";
 import { VAPE_HOME_CATEGORIES } from "@/lib/store-verticals/vape/home-content";
 
 export function VapeCategoriesSection() {
@@ -10,7 +11,7 @@ export function VapeCategoriesSection() {
       <div className="mb-10 flex items-end justify-between">
         <VapeSectionHeading eyebrow="Catálogo" title="CATEGORÍAS" />
         <Link
-          href="#productos-vape"
+          href="/productos"
           className="hidden items-center gap-1 text-sm text-vape-muted transition-colors hover:text-[var(--brand-primary)] sm:flex"
         >
           Ver todo <ChevronRight className="h-3.5 w-3.5" />
@@ -21,7 +22,7 @@ export function VapeCategoriesSection() {
         {VAPE_HOME_CATEGORIES.map((cat) => (
           <Link
             key={cat.slug}
-            href="#productos-vape"
+            href={vapeCatalogHref(cat.slug)}
             className="group relative aspect-[3/4] overflow-hidden rounded-lg border border-vape bg-vape-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)]"
           >
             <Image

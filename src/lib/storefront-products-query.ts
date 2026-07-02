@@ -12,11 +12,11 @@ export type StorefrontProductCard = {
   category: string;
   audience: string;
   promo2x1: boolean;
+  featured: boolean;
   imageUrl: string;
   hoverImageUrl?: string;
   price: number;
   inStock: boolean;
-  featured: boolean;
 };
 
 type GetStorefrontProductsOptions = {

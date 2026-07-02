@@ -8,7 +8,6 @@ import {
   isInfoPageSlug,
   resolvePageContent,
 } from "@/lib/info-pages";
-import { STORE_CACHE_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
 
@@ -16,8 +15,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-/** ISR storefront — alineado con TTL de `getStore()` en cache-ttl.ts */
-export const revalidate = STORE_CACHE_REVALIDATE_SECONDS;
+/** ISR storefront — mantener en sync con STORE_CACHE_REVALIDATE_SECONDS en cache-ttl.ts */
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {

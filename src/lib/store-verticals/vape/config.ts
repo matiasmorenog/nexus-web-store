@@ -18,24 +18,30 @@ const VAPE_PRICE_TIERS = [
   { value: "30000", label: "Hasta $30.000" },
 ] as const;
 
-function navCategoria(slug: string, label: string): HeaderNavLink {
+function navCategoria(
+  slug: string,
+  label: string,
+  navKey?: string,
+): HeaderNavLink {
   return {
     href: `/productos?categoria=${slug}`,
     label,
     match: { type: "categoria", slug },
+    ...(navKey ? { navKey } : {}),
   };
 }
 
 const VAPE_HEADER_NAV_DESKTOP: HeaderNavLink[] = [
   { href: "/", label: "Inicio", match: { type: "home" } },
-  navCategoria("kits", "Dispositivos"),
-  navCategoria("liquidos", "Líquidos"),
-  navCategoria("pods", "Pods"),
-  navCategoria("accesorios", "Accesorios"),
+  navCategoria("kits", "Dispositivos", "dispositivos"),
+  navCategoria("liquidos", "Líquidos", "liquidos"),
+  navCategoria("pods", "Pods", "pods"),
+  navCategoria("accesorios", "Accesorios", "accesorios"),
   {
     href: "/productos?destacados=1",
     label: "Ofertas",
     match: { type: "destacados" },
+    navKey: "ofertas",
   },
 ];
 
@@ -46,6 +52,7 @@ const VAPE_HEADER_NAV_MOBILE: HeaderNavLink[] = [
     href: "/productos?destacados=1",
     label: "Ofertas",
     match: { type: "destacados" },
+    navKey: "ofertas",
   },
   { href: "/contacto", label: "Contacto", match: { type: "contact" } },
 ];
@@ -84,7 +91,7 @@ export const vapeConfig: VerticalConfig = {
   headerNavMobile: VAPE_HEADER_NAV_MOBILE,
   home: {
     showAllProducts: false,
-    productsSectionTitle: "Destacados",
+    productsSectionTitle: "DESTACADOS",
   },
   catalogFacets: [
     { param: "categoria", type: "category", label: "Categoría" },
@@ -99,3 +106,8 @@ export const vapeConfig: VerticalConfig = {
     { param: "destacados", type: "featured", label: "Destacados" },
   ],
 };
+
+export function vapeCatalogHref(categoria?: string) {
+  if (!categoria) return "/productos";
+  return `/productos?categoria=${encodeURIComponent(categoria)}`;
+}

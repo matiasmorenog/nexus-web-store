@@ -17,6 +17,7 @@ import {
   type CatalogIndexData,
 } from "@/lib/catalog-index";
 import { categoriesForStoreFilter } from "@/lib/categories";
+import { cn } from "@/lib/utils";
 
 type CatalogPageClientProps = {
   index: CatalogIndexData;
@@ -114,11 +115,14 @@ export function CatalogPageClient({
     [params, showPromo2x1],
   );
 
+  const isVape = catalogVertical === "vape";
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <StorefrontPageHeader
         title="Productos"
         description={catalogDescription(params, storeDisplayName)}
+        className={isVape ? "[&_h1]:text-[var(--brand-primary-light)] [&_p]:text-vape-muted" : undefined}
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
@@ -135,8 +139,18 @@ export function CatalogPageClient({
           priceTiers={priceTiers}
         />
         <div className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3">
-            <p className="text-sm font-medium text-neutral-700">
+          <div
+            className={cn(
+              "mb-4 flex flex-wrap items-center justify-between gap-3 border-b pb-3",
+              isVape ? "border-vape" : "border-neutral-200/80",
+            )}
+          >
+            <p
+              className={cn(
+                "text-sm font-medium",
+                isVape ? "text-[var(--brand-primary-light)]" : "text-neutral-700",
+              )}
+            >
               {page.total} producto{page.total !== 1 ? "s" : ""}
             </p>
             <ProductSortSelect />
@@ -156,6 +170,7 @@ export function CatalogPageClient({
               params.destacados ?? "",
             ].join("|")}
             products={filteredProducts}
+            catalogVertical={catalogVertical}
             initialPage={page}
           />
         </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AtSign, Link2, Share2 } from "lucide-react";
 import { VapeBrandWordmark } from "@/components/storefront/home/vape/vape-brand-wordmark";
 import { getBrandPrefix } from "@/lib/brand";
-import { VAPE_PRODUCT_CATEGORIES } from "@/lib/store-verticals/vape/config";
+import { VAPE_PRODUCT_CATEGORIES, vapeCatalogHref } from "@/lib/store-verticals/vape/config";
 
 type VapeFooterProps = {
   storeName: string;
@@ -56,7 +56,7 @@ export function VapeFooter({ storeName, tagline }: VapeFooterProps) {
             <ul className="space-y-2">
               {VAPE_PRODUCT_CATEGORIES.map((cat) => (
                 <li key={cat.slug}>
-                  <Link href="#productos-vape" className={linkClass}>
+                  <Link href={vapeCatalogHref(cat.slug)} className={linkClass}>
                     {cat.label}
                   </Link>
                 </li>

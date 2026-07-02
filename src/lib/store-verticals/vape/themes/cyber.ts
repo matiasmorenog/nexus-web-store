@@ -13,7 +13,7 @@ export const cyberTheme: VapeThemeDefinition = {
     primaryForeground: "#08080e",
     secondary: "#1a1a2e",
     muted: "#16162a",
-    mutedForeground: "#8888aa",
+    mutedForeground: "#b4b6cc",
     promo: "#ff6b35",
     border: "rgba(0, 229, 255, 0.12)",
     ring: "#00e5ff",

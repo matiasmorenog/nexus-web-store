@@ -13,7 +13,7 @@ export const tealTheme: VapeThemeDefinition = {
     primaryForeground: "#08080e",
     secondary: "#101e1c",
     muted: "#121e1c",
-    mutedForeground: "#6aada4",
+    mutedForeground: "#a8d4cc",
     promo: "#f0b429",
     border: "rgba(47, 216, 190, 0.13)",
     ring: "#2fd8be",

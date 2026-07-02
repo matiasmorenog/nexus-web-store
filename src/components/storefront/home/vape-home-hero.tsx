@@ -59,11 +59,11 @@ export function VapeHomeHero({ storeDisplayName }: VapeHomeHeroProps) {
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <VapeButtonLink href="#productos-vape" variant="primary" size="lg">
+            <VapeButtonLink href="/productos" variant="primary" size="lg">
               Comprar ahora
               <ArrowRight className="h-4 w-4" />
             </VapeButtonLink>
-            <VapeButtonLink href="#productos-vape" variant="secondary" size="lg">
+            <VapeButtonLink href="/productos" variant="secondary" size="lg">
               Ver catálogo
             </VapeButtonLink>
           </div>

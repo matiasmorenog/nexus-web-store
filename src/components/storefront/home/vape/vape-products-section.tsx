@@ -67,7 +67,7 @@ export function VapeProductsSection({
       )}
 
       <div className="mt-10 flex justify-center">
-        <VapeButtonLink href="#productos-vape" variant="ghost" size="lg" className="px-8">
+        <VapeButtonLink href="/productos" variant="ghost" size="lg" className="px-8">
           Ver todos los productos <ArrowRight className="h-3.5 w-3.5" />
         </VapeButtonLink>
       </div>

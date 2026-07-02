@@ -13,7 +13,7 @@ import {
   getVariantColorFacetParam,
   getVariantSizeFacetParam,
 } from "@/lib/store-verticals/catalog-facets";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 /** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
 export const revalidate = 600;
@@ -37,7 +37,7 @@ function CatalogPageFallback() {
 }
 
 export default async function ProductsPage() {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
 
   if (!config.features.catalog) {
     redirect("/");

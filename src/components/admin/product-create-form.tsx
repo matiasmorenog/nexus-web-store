@@ -11,6 +11,7 @@ import {
   AdminTextarea,
 } from "@/components/admin/admin-form";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
@@ -28,10 +29,9 @@ export function ProductCreateForm({
   blockedHint = 0,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
+  const storefrontConfig = getClientStorefrontConfig();
   const variantLabels = getClientVariantLabels();
-  const showPromo2x1 =
-    (process.env.NEXT_PUBLIC_STORE_VERTICAL ?? process.env.STORE_VERTICAL ?? "apparel") !==
-    "vape";
+  const showPromo2x1 = storefrontConfig.features.promo2x1;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

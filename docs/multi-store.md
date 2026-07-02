@@ -1,6 +1,6 @@
 # Dos tiendas, un repo (apparel + vape)
 
-Arquitectura para correr **Goat Indumentaria** (ropa) y **VAPORX** (vape) sin SaaS: mismo código en `main`, **dos proyectos Vercel**, **una base Neon** con dos filas `Store`. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` + `STORE_VERTICAL`.
+Arquitectura para correr **Goat Indumentaria** (ropa) y **VAPORX** (vape) sin SaaS: mismo código en `main`, **dos proyectos Vercel**, **una base Neon** con dos filas `Store`. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` (layout y config derivados del slug).
 
 Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-and-routes.md`](caching-and-routes.md).
 
@@ -8,10 +8,10 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 
 ## Producción
 
-| Proyecto Vercel | Vertical | URL | `DEFAULT_STORE_SLUG` |
-|-----------------|----------|-----|----------------------|
-| `nexus-web-store` | apparel | https://nexus-web-store.vercel.app | `demo-store` |
-| `nexus-vape-store` | vape | https://nexus-vape-store.vercel.app | `vape-demo` |
+| Proyecto Vercel | Slug | URL | Config storefront |
+|-----------------|------|-----|-------------------|
+| `nexus-web-store` | `demo-store` | https://nexus-web-store.vercel.app | apparel |
+| `nexus-vape-store` | `vape-demo` | https://nexus-vape-store.vercel.app | vape |
 
 ---
 
@@ -19,16 +19,16 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 
 | Pieza | Ruta |
 |-------|------|
-| Resolver vertical | `src/lib/store-verticals/index.ts` |
+| Registry slug → config | `src/lib/store-slugs.ts`, `src/lib/store-verticals/index.ts` |
 | Config apparel / vape | `src/lib/store-verticals/apparel/config.ts`, `.../vape/config.ts` |
 | Homes | `src/components/storefront/home/apparel-home.tsx`, `vape-home.tsx` |
 | Store por deploy | `src/lib/store-env.ts`, `src/lib/store-context.ts` |
 | Seed multi-tienda | `prisma/seed-env.ts` → `SEED_STORES` |
 | Dev local | `scripts/dev-store.sh`, `npm run dev:apparel` / `dev:vape` / `dev:both` |
 
-**Apparel:** catálogo completo, filtros género/categoría/talle, home con hero y tiles.
+**Apparel (`demo-store`):** catálogo completo, filtros género/categoría/talle, home con hero y tiles.
 
-**Vape (arranque):** `storefrontMode: "home-only"` — grid de todos los productos en `/`, `/productos` redirige a `/`, nav mínima. Variantes en UI como **Sabor** / **Nicotina** (mismos campos `color` / `size` en DB).
+**Vape (`vape-demo`):** catálogo completo con filtros nicotina/sabor, home con destacados. Variantes en UI como **Sabor** / **Nicotina** (mismos campos `color` / `size` en DB).
 
 ---
 
@@ -38,12 +38,12 @@ Marcá `[x]` al cerrar cada ítem. El roadmap general del producto sigue en [`RE
 
 ### Código y datos
 
-- [x] Registry de verticales (`apparel` / `vape`) + env `STORE_VERTICAL`
+- [x] Registry slug → storefront config (`demo-store` / `vape-demo`)
 - [x] Switches en home, redirect catálogo vape, Header/Footer desde config
 - [x] Tokens UI por vertical (CSS vars, `Button.tsx`, layout storefront)
 - [x] Categorías vape + admin sin filtro género (`ProductTaxonomyFields`)
 - [x] Labels Sabor/Nicotina en admin, PDP, carrito, checkout y emails
-- [x] Modo home-only vape + `VapeHome` (hero + grid)
+- [x] Modo home-only vape (histórico) + `VapeHome` (hero + grid)
 - [x] Branding por deploy (metadata, `brandSuffix`, aviso +18, color por vertical / `Store.primaryColor`)
 - [x] Seed: `demo-store` + `vape-demo`, owners distintos, scripts wipe/seed por tienda
 - [x] `.env.example` documentado + `scripts/dev-store.sh`
@@ -68,17 +68,10 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 - [x] **Default branch** en GitHub → `development`
 - [x] **Release** `development` → `main` (PR #3 mergeado)
 
-### Fase 2 — catálogo vape (cuando crezca el stock)
-
-Motor de filtros listo (`catalogFacets`, `product-filters`, `catalog-index`). Para activar catálogo público **sin tocar código**:
-
-1. En Vercel proyecto **nexus-vape-store** → env `VAPE_STOREFRONT_MODE=full`
-2. Redeploy
-
-Eso habilita `/productos`, búsqueda y filtros nicotina/sabor. Por defecto vape sigue en **home-only**.
+### Catálogo vape
 
 - [x] Motor de filtros parametrizado por `catalogFacets` + labels desde config
-- [x] Switch `VAPE_STOREFRONT_MODE=full` en deploy vape
+- [x] Catálogo público activo en config `vape-demo` (sin env extra)
 - [ ] (Opcional) `Product.attributes` para campos por categoría
 - [ ] (Opcional) `@@unique([storeId, sku])` si hace falta SKU estricto entre productos
 - [ ] (Opcional) `primaryColor` editable desde admin

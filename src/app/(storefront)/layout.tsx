@@ -6,11 +6,11 @@ import { VapeFooter } from "@/components/storefront/vape-footer";
 import { VapeThemeShell } from "@/components/storefront/vape-theme-shell";
 import { Header } from "@/components/storefront/header";
 import { formatStoreName, getStore } from "@/lib/store-context";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const displayName = formatStoreName(store.name);
 
   return {
@@ -28,7 +28,7 @@ export default async function StorefrontLayout({
   children: React.ReactNode;
 }) {
   const store = await getStore();
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const displayName = formatStoreName(store.name);
   const brandPrimary =
     store.primaryColor?.trim() || config.ui.cssVars["--brand-primary"];

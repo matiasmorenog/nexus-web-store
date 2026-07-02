@@ -18,17 +18,56 @@ const VAPE_PRICE_TIERS = [
   { value: "30000", label: "Hasta $30.000" },
 ] as const;
 
+function navCategoria(
+  slug: string,
+  label: string,
+  navKey?: string,
+): HeaderNavLink {
+  return {
+    href: `/productos?categoria=${slug}`,
+    label,
+    match: { type: "categoria", slug },
+    ...(navKey ? { navKey } : {}),
+  };
+}
+
+const VAPE_HEADER_NAV_DESKTOP: HeaderNavLink[] = [
+  { href: "/", label: "Inicio", match: { type: "home" } },
+  navCategoria("kits", "Dispositivos", "dispositivos"),
+  navCategoria("liquidos", "Líquidos", "liquidos"),
+  navCategoria("pods", "Pods", "pods"),
+  navCategoria("accesorios", "Accesorios", "accesorios"),
+  {
+    href: "/productos?destacados=1",
+    label: "Ofertas",
+    match: { type: "destacados" },
+    navKey: "ofertas",
+  },
+];
+
+const VAPE_HEADER_NAV_MOBILE: HeaderNavLink[] = [
+  { href: "/", label: "Inicio", match: { type: "home" } },
+  { href: "/productos", label: "Productos", match: { type: "catalog" } },
+  {
+    href: "/productos?destacados=1",
+    label: "Ofertas",
+    match: { type: "destacados" },
+    navKey: "ofertas",
+  },
+  { href: "/contacto", label: "Contacto", match: { type: "contact" } },
+];
+
 export const vapeConfig: VerticalConfig = {
   id: "vape",
-  storefrontMode: "home-only",
+  storefrontMode: "full",
   metadata: {
     description:
       "Tu tienda de confianza para vapes premium. Envío seguro y productos seleccionados.",
   },
   features: {
-    catalog: false,
-    catalogFilters: false,
-    productSearch: false,
+    catalog: true,
+    catalogFilters: true,
+    productSearch: true,
     promo2x1: false,
     promoBanner: false,
     categoryTilesOnHome: false,
@@ -48,62 +87,11 @@ export const vapeConfig: VerticalConfig = {
   },
   productCategories: VAPE_PRODUCT_CATEGORIES,
   audiences: [{ slug: "unisex", label: "Unisex" }],
-  headerNavDesktop: [
-    {
-      href: "/#categorias",
-      label: "Dispositivos",
-      match: { type: "hash", hash: "categorias" },
-      navKey: "dispositivos",
-    },
-    {
-      href: "/#categorias",
-      label: "Líquidos",
-      match: { type: "hash", hash: "categorias" },
-      navKey: "liquidos",
-    },
-    {
-      href: "/#categorias",
-      label: "Pods",
-      match: { type: "hash", hash: "categorias" },
-      navKey: "pods",
-    },
-    {
-      href: "/#categorias",
-      label: "Accesorios",
-      match: { type: "hash", hash: "categorias" },
-      navKey: "accesorios",
-    },
-    {
-      href: "/#ofertas",
-      label: "Ofertas",
-      match: { type: "hash", hash: "ofertas" },
-      navKey: "ofertas",
-    },
-  ],
-  headerNavMobile: [
-    {
-      href: "/#categorias",
-      label: "Categorías",
-      match: { type: "hash", hash: "categorias" },
-      navKey: "categorias",
-    },
-    {
-      href: "/#productos-vape",
-      label: "Productos",
-      match: { type: "hash", hash: "productos-vape" },
-      navKey: "productos",
-    },
-    {
-      href: "/#ofertas",
-      label: "Ofertas",
-      match: { type: "hash", hash: "ofertas" },
-      navKey: "ofertas",
-    },
-    { href: "/contacto", label: "Contacto", match: { type: "contact" } },
-  ],
+  headerNavDesktop: VAPE_HEADER_NAV_DESKTOP,
+  headerNavMobile: VAPE_HEADER_NAV_MOBILE,
   home: {
-    showAllProducts: true,
-    productsSectionTitle: "PRODUCTOS DESTACADOS",
+    showAllProducts: false,
+    productsSectionTitle: "DESTACADOS",
   },
   catalogFacets: [
     { param: "categoria", type: "category", label: "Categoría" },
@@ -119,29 +107,7 @@ export const vapeConfig: VerticalConfig = {
   ],
 };
 
-const VAPE_CATALOG_NAV: HeaderNavLink[] = [
-  { href: "/", label: "Inicio", match: { type: "home" } },
-  { href: "/productos", label: "Productos", match: { type: "catalog" } },
-  { href: "/contacto", label: "Contacto", match: { type: "contact" } },
-];
-
-/** Fase 2: catálogo público cuando `VAPE_STOREFRONT_MODE=full` en el deploy vape. */
-export function withVapeCatalogFull(base: VerticalConfig): VerticalConfig {
-  return {
-    ...base,
-    storefrontMode: "full",
-    features: {
-      ...base.features,
-      catalog: true,
-      catalogFilters: true,
-      productSearch: true,
-    },
-    headerNavDesktop: VAPE_CATALOG_NAV,
-    headerNavMobile: VAPE_CATALOG_NAV,
-    home: {
-      ...base.home,
-      showAllProducts: false,
-      productsSectionTitle: "Destacados",
-    },
-  };
+export function vapeCatalogHref(categoria?: string) {
+  if (!categoria) return "/productos";
+  return `/productos?categoria=${encodeURIComponent(categoria)}`;
 }

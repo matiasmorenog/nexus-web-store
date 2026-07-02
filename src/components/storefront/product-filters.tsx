@@ -146,12 +146,21 @@ export function ProductFilters({
 
   const saborOptions = Object.keys(counts.sabor);
 
+  const asideClass = cn(
+    "h-fit w-full self-start space-y-6 rounded-xl border p-5 shadow-md lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain",
+    isVape
+      ? "border-vape bg-vape-card"
+      : "border-neutral-200/90 bg-white ring-1 ring-neutral-900/[0.04]",
+  );
+
+  const labelClass = cn("mb-2 block", isVape ? "text-vape-muted" : "text-neutral-700");
+
   return (
-    <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/90 bg-white p-5 shadow-md ring-1 ring-neutral-900/[0.04] lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain">
+    <aside className={asideClass}>
       {showProductSearch ? <ProductSearch /> : null}
 
       <div>
-        <Label className="mb-2 block text-neutral-700">Promoción</Label>
+        <Label className={labelClass}>Promoción</Label>
         <div className="space-y-1">
           <button
             type="button"
@@ -176,7 +185,7 @@ export function ProductFilters({
 
       {showAudienceFilter ? (
         <div>
-          <Label className="mb-2 block text-neutral-700">Género</Label>
+          <Label className={labelClass}>Género</Label>
           <div className="space-y-1">
             <button
               type="button"
@@ -210,7 +219,7 @@ export function ProductFilters({
       ) : null}
 
       <div>
-        <Label className="mb-2 block text-neutral-700">Categoría</Label>
+        <Label className={labelClass}>Categoría</Label>
         <div className="space-y-1">
           <button
             type="button"
@@ -244,7 +253,7 @@ export function ProductFilters({
 
       {sizeOptions.length > 0 ? (
         <div>
-          <Label className="mb-2 block text-neutral-700">{sizeLabel}</Label>
+          <Label className={labelClass}>{sizeLabel}</Label>
           <div className="flex flex-wrap gap-2">
             {sizeOptions.map((size) => {
               const isActive = activeSize === size;
@@ -276,7 +285,7 @@ export function ProductFilters({
 
       {isVape && variantColorLabel && saborOptions.length > 0 ? (
         <div>
-          <Label className="mb-2 block text-neutral-700">{variantColorLabel}</Label>
+          <Label className={labelClass}>{variantColorLabel}</Label>
           <div className="flex flex-wrap gap-2">
             {saborOptions.map((sabor) => {
               const isActive = activeSabor === sabor;
@@ -307,7 +316,7 @@ export function ProductFilters({
       ) : null}
 
       <div>
-        <Label htmlFor="precio-max" className="mb-2 block text-neutral-700">
+        <Label htmlFor="precio-max" className={labelClass}>
           Precio máximo
         </Label>
         <select

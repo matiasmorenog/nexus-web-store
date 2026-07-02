@@ -11,7 +11,7 @@ import { VapeHomeHero } from "@/components/storefront/home/vape-home-hero";
 import { VapeJunglePageAtmosphere } from "@/components/storefront/home/vape-nature-decor";
 import { getStorefrontProducts } from "@/lib/storefront-products-query";
 import { getProductTaxonomyLabel } from "@/lib/categories";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getStoreId } from "@/lib/store-context";
 
 type VapeHomeProps = {
@@ -20,7 +20,7 @@ type VapeHomeProps = {
 
 async function VapeProducts() {
   const storeId = await getStoreId();
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const products = await getStorefrontProducts(storeId, {
     featuredOnly: !config.home.showAllProducts,
   });
@@ -39,7 +39,7 @@ async function VapeProducts() {
 }
 
 export function VapeHome({ storeDisplayName }: VapeHomeProps) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
 
   return (
     <>

@@ -10,7 +10,7 @@ alwaysApply: true
 ## Stack y convenciones
 
 - Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand (carrito), Mercado Pago
-- **Dos deploys** (apparel + vape): runtime lee **una** fila `Store` por proyecto vía `DEFAULT_STORE_SLUG` (`src/lib/store-context.ts`); vertical por `STORE_VERTICAL` (`src/lib/store-verticals/`)
+- **Dos deploys** (apparel + vape): runtime lee **una** fila `Store` por proyecto vía `DEFAULT_STORE_SLUG` (`src/lib/store-context.ts`); layout/config por slug en `src/lib/store-verticals/`
 - Color de marca: CSS vars por vertical + opcional `Store.primaryColor`; ver `docs/multi-store.md`
 - Categorías por vertical en config (`store-verticals/*/config.ts`); `src/lib/categories.ts` delega al vertical activo
 - Sin `middleware.ts` (límite Edge en Vercel); admin protegido en `src/app/admin/(protected)/layout.tsx`

@@ -5,7 +5,7 @@ import {
   getCategoryLabelFromList,
   getProductTaxonomyLabel as taxonomyLabel,
 } from "@/lib/store-verticals/taxonomy";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import { APPAREL_PRODUCT_CATEGORIES } from "@/lib/store-verticals/apparel/config";
 
 export const STORE_AUDIENCES = [
@@ -26,7 +26,7 @@ export const STORE_CATEGORIES = PRODUCT_CATEGORIES;
 export type StoreCategory = ProductCategory;
 
 export function categoriesForStoreFilter(genero?: string) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   return categoriesForStoreFilterBase(config.productCategories, genero);
 }
 
@@ -47,22 +47,22 @@ export const HOME_CATEGORY_TILES = [
 ] as const;
 
 export function categoriesForAudience(audience: StoreAudience) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   return categoriesForAudienceFilter(config.productCategories, audience);
 }
 
 export function getAudienceLabel(slug: string) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   return config.audiences.find((audience) => audience.slug === slug)?.label ?? slug;
 }
 
 export function getCategoryLabel(slug: string) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   return getCategoryLabelFromList(config.productCategories, slug);
 }
 
 export function getProductTaxonomyLabel(category: string, audience: string) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   return taxonomyLabel(
     config.productCategories,
     config.audiences,

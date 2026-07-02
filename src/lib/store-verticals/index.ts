@@ -1,38 +1,55 @@
 import { cache } from "react";
+import { getActiveStoreSlug } from "@/lib/store-env";
+import {
+  APPAREL_STORE_SLUG,
+  isKnownStoreSlug,
+  VAPE_STORE_SLUG,
+} from "@/lib/store-slugs";
 import { apparelConfig } from "@/lib/store-verticals/apparel/config";
-import { vapeConfig, withVapeCatalogFull } from "@/lib/store-verticals/vape/config";
+import { vapeConfig } from "@/lib/store-verticals/vape/config";
 import type { StoreVertical, VerticalConfig } from "@/lib/store-verticals/types";
 
-const VERTICAL_REGISTRY: Record<StoreVertical, VerticalConfig> = {
+const STOREFRONT_CONFIG_BY_SLUG: Record<string, VerticalConfig> = {
+  [APPAREL_STORE_SLUG]: apparelConfig,
+  [VAPE_STORE_SLUG]: vapeConfig,
+};
+
+const STOREFRONT_CONFIG_BY_KIND: Record<StoreVertical, VerticalConfig> = {
   apparel: apparelConfig,
   vape: vapeConfig,
 };
 
-function parseStoreVertical(value: string | undefined): StoreVertical {
-  if (value === "vape") return "vape";
-  return "apparel";
-}
-
-function resolveVerticalConfig(vertical: StoreVertical): VerticalConfig {
-  const base = VERTICAL_REGISTRY[vertical];
-  if (vertical === "vape" && process.env.VAPE_STOREFRONT_MODE === "full") {
-    return withVapeCatalogFull(base);
+function resolveStorefrontConfig(slug: string): VerticalConfig {
+  if (isKnownStoreSlug(slug)) {
+    return STOREFRONT_CONFIG_BY_SLUG[slug];
   }
-  return base;
+
+  throw new Error(
+    `No hay storefront config para slug "${slug}". Slugs conocidos: ${APPAREL_STORE_SLUG}, ${VAPE_STORE_SLUG}.`,
+  );
 }
 
-export const getStoreVertical = cache((): StoreVertical => {
-  const value =
-    process.env.STORE_VERTICAL ?? process.env.NEXT_PUBLIC_STORE_VERTICAL;
-  return parseStoreVertical(value);
+/** Config de storefront según `DEFAULT_STORE_SLUG` del deploy. */
+export const getStorefrontConfig = cache((): VerticalConfig => {
+  return resolveStorefrontConfig(getActiveStoreSlug());
 });
 
-export function getVerticalConfig(): VerticalConfig {
-  return resolveVerticalConfig(getStoreVertical());
+/** Plantilla interna (apparel | vape) derivada del slug activo. */
+export function getStorefrontKind(): StoreVertical {
+  return getStorefrontConfig().id;
 }
 
-export function getVerticalConfigById(id: StoreVertical): VerticalConfig {
-  return resolveVerticalConfig(id);
+export function getStorefrontConfigByKind(kind: StoreVertical): VerticalConfig {
+  return STOREFRONT_CONFIG_BY_KIND[kind];
 }
 
-export { VERTICAL_REGISTRY };
+/** @deprecated Usar `getStorefrontConfig`. */
+export const getVerticalConfig = getStorefrontConfig;
+
+/** @deprecated Usar `getStorefrontKind`. */
+export const getStoreVertical = getStorefrontKind;
+
+/** @deprecated Usar `getStorefrontConfigByKind`. */
+export const getVerticalConfigById = getStorefrontConfigByKind;
+
+export { STOREFRONT_CONFIG_BY_SLUG, STOREFRONT_CONFIG_BY_KIND };

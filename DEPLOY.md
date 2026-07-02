@@ -1,6 +1,6 @@
 # Deploy y operación
 
-Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB, **dos proyectos Vercel** con env distinto. Cada deploy lee una tienda vía `DEFAULT_STORE_SLUG` + `STORE_VERTICAL`.
+Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB, **dos proyectos Vercel** con env distinto. Cada deploy lee una tienda y su layout vía `DEFAULT_STORE_SLUG`.
 
 **Avances y checklist:** [`docs/multi-store.md`](docs/multi-store.md) (implementación hecha + pendientes Vercel/GitHub).
 
@@ -29,9 +29,8 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 
 | Variable | Apparel | Vape |
 |----------|---------|------|
-| `STORE_VERTICAL` | `apparel` | `vape` |
-| `NEXT_PUBLIC_STORE_VERTICAL` | `apparel` | `vape` |
 | `DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
+| `NEXT_PUBLIC_DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
 | `AUTH_URL` | `https://nexus-web-store.vercel.app` | `https://nexus-vape-store.vercel.app` |
 | `NEXT_PUBLIC_APP_URL` | igual que `AUTH_URL` | igual que `AUTH_URL` |
 | `AUTH_SECRET` | **único por proyecto** | **único por proyecto** |
@@ -40,13 +39,12 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
 | `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel | cuenta MP vape |
-| `VAPE_STOREFRONT_MODE` | — | opcional: `full` para catálogo público (default: home-only) |
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 
 No uses: `DATABASE_URL_UNPOOLED`, `BLOB_STORE_ID`, `BLOB_WEBHOOK_PUBLIC_KEY`, vars de email en env (salen de DB).
 
-Detalle de verticales y valores: `.env.example` → **TIENDA ACTIVA**.
+Detalle de slugs y valores: `.env.example` → **TIENDA ACTIVA**.
 
 ## Neon (`DATABASE_URL` en Vercel)
 

@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { getStore } from "@/lib/store-context";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export default async function AdminLayout({
   children,
@@ -8,7 +8,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const store = await getStore();
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const brandPrimary =
     store.primaryColor?.trim() || config.ui.cssVars["--brand-primary"];
 

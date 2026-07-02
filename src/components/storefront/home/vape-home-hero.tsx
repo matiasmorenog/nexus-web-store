@@ -14,7 +14,7 @@ export function VapeHomeHero({ storeDisplayName }: VapeHomeHeroProps) {
     <section className="relative flex min-h-[min(88vh,40rem)] items-center overflow-hidden bg-[var(--jungle-night-sky)]">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1525286006286-f5e98c7be5e3?w=1600&h=900&fit=crop&auto=format"
+          src="https://source.unsplash.com/1600x900/?vape,neon,smoke"
           alt=""
           fill
           priority

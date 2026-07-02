@@ -12,6 +12,7 @@ export type StorefrontProductCard = {
   category: string;
   audience: string;
   promo2x1: boolean;
+  featured: boolean;
   imageUrl: string;
   hoverImageUrl?: string;
   price: number;
@@ -58,6 +59,7 @@ const getCachedStorefrontProducts = (
           category: product.category,
           audience: product.audience,
           promo2x1: product.promo2x1,
+          featured: product.featured,
           imageUrl: cardImages.imageUrl,
           hoverImageUrl: cardImages.hoverImageUrl,
           price: cardImages.price,

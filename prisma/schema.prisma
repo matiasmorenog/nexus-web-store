@@ -11,6 +11,7 @@ datasource db {
 enum UserRole {
   PLATFORM_ADMIN
   STORE_OWNER
+  CUSTOMER
 }
 
 enum OrderStatus {
@@ -54,6 +55,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   stores UserStore[]
+  orders Order[]
 }
 
 model UserStore {
@@ -108,6 +110,7 @@ model ProductVariant {
 model Order {
   id              String      @id @default(cuid())
   storeId         String
+  userId          String?
   status          OrderStatus @default(PENDING)
   total           Decimal
   promoDiscount   Decimal     @default(0)
@@ -132,10 +135,13 @@ model Order {
   updatedAt       DateTime    @updatedAt
 
   store Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   items OrderItem[]
 
   @@index([storeId, createdAt(sort: Desc)])
   @@index([storeId, status, createdAt])
+  @@index([storeId, userId, createdAt(sort: Desc)])
+  @@index([storeId, customerEmail, createdAt(sort: Desc)])
 }
 
 model OrderItem {

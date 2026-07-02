@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { VerticalFeatures } from "@/lib/store-verticals/types";
+import { cn } from "@/lib/utils";
 
 type FooterProps = {
   storeName: string;
-  brandSuffix: string;
   tagline: string;
   features: VerticalFeatures;
+  chrome?: "light" | "dark";
 };
 
 const helpLinksApparel = [
@@ -34,26 +35,55 @@ export function Footer({
   storeName,
   tagline,
   features,
+  chrome = "light",
 }: FooterProps) {
+  const isDarkChrome = chrome === "dark";
   const helpLinks = features.sizeGuide ? helpLinksApparel : helpLinksVape;
 
   return (
-    <footer className="mt-auto border-t border-neutral-200 bg-neutral-50">
+    <footer
+      className={cn(
+        "mt-auto border-t",
+        isDarkChrome
+          ? "border-white/10 bg-black/90 text-neutral-300"
+          : "border-neutral-200 bg-neutral-50",
+      )}
+    >
       <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
         <div>
-          <p className="text-lg font-bold tracking-tight text-neutral-900">
+          <p
+            className={cn(
+              "text-lg font-bold tracking-tight",
+              isDarkChrome ? "text-white" : "text-neutral-900",
+            )}
+          >
             {storeName}
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-600">
+          <p
+            className={cn(
+              "mt-2 text-sm leading-relaxed",
+              isDarkChrome ? "text-neutral-400" : "text-neutral-600",
+            )}
+          >
             {tagline}
           </p>
         </div>
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <p
+            className={cn(
+              "text-sm font-semibold uppercase tracking-wide",
+              isDarkChrome ? "text-neutral-500" : "text-neutral-500",
+            )}
+          >
             Tienda
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <ul
+            className={cn(
+              "mt-3 space-y-2 text-sm",
+              isDarkChrome ? "text-neutral-400" : "text-neutral-600",
+            )}
+          >
             {features.catalog ? (
               <>
                 <li>
@@ -94,7 +124,12 @@ export function Footer({
           <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
             Ayuda
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <ul
+            className={cn(
+              "mt-3 space-y-2 text-sm",
+              isDarkChrome ? "text-neutral-400" : "text-neutral-600",
+            )}
+          >
             {helpLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClass}>
@@ -108,7 +143,12 @@ export function Footer({
           <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
             Legal
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-neutral-600">
+          <ul
+            className={cn(
+              "mt-3 space-y-2 text-sm",
+              isDarkChrome ? "text-neutral-400" : "text-neutral-600",
+            )}
+          >
             {legalLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className={linkClass}>
@@ -119,7 +159,14 @@ export function Footer({
           </ul>
         </div>
       </div>
-      <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500">
+      <div
+        className={cn(
+          "border-t py-4 text-center text-xs",
+          isDarkChrome
+            ? "border-white/10 text-neutral-500"
+            : "border-neutral-200 text-neutral-500",
+        )}
+      >
         © {new Date().getFullYear()} {storeName}. Todos los derechos reservados.
       </div>
     </footer>

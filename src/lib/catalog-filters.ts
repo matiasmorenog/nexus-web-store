@@ -3,7 +3,7 @@ import {
   getCategoryLabel,
 } from "@/lib/categories";
 
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import type { VerticalFeatures } from "@/lib/store-verticals/types";
 
 export type CatalogFilterChip = {
@@ -21,7 +21,7 @@ export type CatalogFilterChip = {
 };
 
 function getPriceLabels() {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const facet = config.catalogFacets.find((item) => item.type === "priceMax");
   return Object.fromEntries(
     (facet?.priceTiers ?? []).map((tier) => [tier.value, tier.label]),

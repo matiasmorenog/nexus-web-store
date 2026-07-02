@@ -16,12 +16,17 @@ type CheckoutViewProps = {
   shippingCost: number;
   allowPickup: boolean;
   storeName: string;
+  defaultCustomer?: {
+    name: string;
+    email: string;
+  };
 };
 
 export function CheckoutView({
   shippingCost,
   allowPickup,
   storeName,
+  defaultCustomer,
 }: CheckoutViewProps) {
   const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
@@ -67,6 +72,7 @@ export function CheckoutView({
             allowPickup={allowPickup}
             storeName={storeName}
             showSummary={false}
+            defaultCustomer={defaultCustomer}
           />
         </div>
 

@@ -15,8 +15,16 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return INFO_PAGE_SLUGS.map((slug) => ({ slug }));
+/** ISR storefront — mantener en sync con STORE_CACHE_REVALIDATE_SECONDS en cache-ttl.ts */
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  try {
+    await getStore();
+    return INFO_PAGE_SLUGS.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

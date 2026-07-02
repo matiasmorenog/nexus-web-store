@@ -35,6 +35,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!valid) return null;
 
+        if (user.role === "CUSTOMER") {
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            storeId: null,
+            storeSlug: null,
+          };
+        }
+
         return {
           id: user.id,
           email: user.email,
@@ -62,6 +73,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       if (!token.sub) return token;
+
+      if (token.role === "CUSTOMER") {
+        token.storeId = null;
+        token.storeSlug = null;
+        return token;
+      }
 
       if (typeof token.storeId === "string" && typeof token.storeSlug === "string") {
         return token;

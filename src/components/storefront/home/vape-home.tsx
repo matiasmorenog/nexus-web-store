@@ -1,76 +1,73 @@
 import { Suspense } from "react";
-import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
+import { VapeAgeNotice } from "@/components/storefront/home/vape/vape-age-notice";
+import { VapeCategoriesSection } from "@/components/storefront/home/vape/vape-categories-section";
+import { VapeFeaturesBar } from "@/components/storefront/home/vape/vape-features-bar";
+import { VapeNewsletter } from "@/components/storefront/home/vape/vape-newsletter";
+import { VapeProductsSection } from "@/components/storefront/home/vape/vape-products-section";
+import { VapePromoBanner } from "@/components/storefront/home/vape/vape-promo-banner";
 import { VapeHomeHero } from "@/components/storefront/home/vape-home-hero";
+import { VapeJunglePageAtmosphere } from "@/components/storefront/home/vape-nature-decor";
 import { getStorefrontProducts } from "@/lib/storefront-products-query";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getProductTaxonomyLabel } from "@/lib/categories";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getStoreId } from "@/lib/store-context";
 
 type VapeHomeProps = {
   storeDisplayName: string;
 };
 
-async function VapeProductsGrid() {
+async function VapeProducts() {
   const storeId = await getStoreId();
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const products = await getStorefrontProducts(storeId, {
     featuredOnly: !config.home.showAllProducts,
   });
 
+  const productsWithLabels = products.map((product) => ({
+    ...product,
+    categoryLabel: getProductTaxonomyLabel(product.category, product.audience),
+  }));
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          slug={product.slug}
-          name={product.name}
-          category={product.category}
-          audience={product.audience}
-          imageUrl={product.imageUrl}
-          hoverImageUrl={product.hoverImageUrl}
-          price={product.price}
-          inStock={product.inStock}
-          promo2x1={product.promo2x1}
-        />
-      ))}
-    </div>
+    <VapeProductsSection
+      products={productsWithLabels}
+      title={config.home.productsSectionTitle}
+    />
   );
 }
 
 export function VapeHome({ storeDisplayName }: VapeHomeProps) {
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
 
   return (
     <>
+      <VapeJunglePageAtmosphere />
       <VapeHomeHero storeDisplayName={storeDisplayName} />
+      <VapeFeaturesBar />
 
       {config.features.ageNotice && (
         <StorefrontReveal index={1}>
-          <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-            <p className="rounded-lg border border-amber-200/80 bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
-              Venta exclusiva para mayores de 18 años. El uso de productos con
-              nicotina está restringido a adultos.
-            </p>
-          </div>
+          <VapeAgeNotice />
         </StorefrontReveal>
       )}
 
       <StorefrontReveal index={2}>
-        <section
-          id="productos-vape"
-          className="mx-auto max-w-7xl scroll-mt-28 px-4 py-12 sm:px-6 sm:py-16"
-        >
-          <h2 className="mb-8 text-center text-2xl font-bold">
-            <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
-              {config.home.productsSectionTitle}
-            </span>
-          </h2>
-          <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
-            <VapeProductsGrid />
-          </Suspense>
-        </section>
+        <VapeCategoriesSection />
       </StorefrontReveal>
+
+      <StorefrontReveal index={3}>
+        <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
+          <VapeProducts />
+        </Suspense>
+      </StorefrontReveal>
+
+      <StorefrontReveal index={4}>
+        <VapePromoBanner />
+      </StorefrontReveal>
+
+      <VapeNewsletter />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import type { Prisma } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import type {
   ActivityPeriod,
   ActivityPoint,
@@ -158,14 +158,16 @@ function aggregateSalesActivityFromRows(
   };
 }
 
+type AnalyticsQueryClient = Pick<PrismaClient, "$queryRaw">;
+
 async function fetchSalesActivityAggregates(
-  tx: Prisma.TransactionClient,
+  client: AnalyticsQueryClient,
   storeId: string,
   rangeStart: Date,
   period: ActivityPeriod,
 ) {
   if (period === "year") {
-    return tx.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
+    return client.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
       SELECT
         date_trunc('month', o."createdAt") AS "bucketDate",
         COUNT(*)::int AS orders,
@@ -178,7 +180,7 @@ async function fetchSalesActivityAggregates(
     `;
   }
 
-  return tx.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
+  return client.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
     SELECT
       date_trunc('day', o."createdAt") AS "bucketDate",
       COUNT(*)::int AS orders,
@@ -192,11 +194,11 @@ async function fetchSalesActivityAggregates(
 }
 
 async function fetchTopProductsAggregates(
-  tx: Prisma.TransactionClient,
+  client: AnalyticsQueryClient,
   storeId: string,
   rangeStart: Date,
 ) {
-  return tx.$queryRaw<
+  return client.$queryRaw<
     { productId: string; name: string; quantity: number; revenue: number }[]
   >`
     SELECT
@@ -218,17 +220,15 @@ async function fetchTopProductsAggregates(
 }
 
 async function fetchAdminDashboardAttention(storeId: string) {
-  const [paidAwaitingShipment, outOfStockVariants] = await db.$transaction([
-    db.order.count({
-      where: { storeId, status: "PAID" },
-    }),
-    db.productVariant.count({
-      where: {
-        product: { storeId },
-        stock: { lte: 0 },
-      },
-    }),
-  ]);
+  const paidAwaitingShipment = await db.order.count({
+    where: { storeId, status: "PAID" },
+  });
+  const outOfStockVariants = await db.productVariant.count({
+    where: {
+      product: { storeId },
+      stock: { lte: 0 },
+    },
+  });
 
   return {
     paidAwaitingShipment,
@@ -242,20 +242,13 @@ async function fetchAdminDashboardAnalytics(
 ) {
   const { buckets, rangeStart } = buildBuckets(period);
 
-  const [salesRows, topProducts] = await db.$transaction(async (tx) => {
-    const salesRows = await fetchSalesActivityAggregates(
-      tx,
-      storeId,
-      rangeStart,
-      period,
-    );
-    const topProducts = await fetchTopProductsAggregates(
-      tx,
-      storeId,
-      rangeStart,
-    );
-    return [salesRows, topProducts] as const;
-  });
+  const salesRows = await fetchSalesActivityAggregates(
+    db,
+    storeId,
+    rangeStart,
+    period,
+  );
+  const topProducts = await fetchTopProductsAggregates(db, storeId, rangeStart);
 
   return {
     salesActivity: aggregateSalesActivityFromRows(salesRows, buckets, period),

@@ -2,6 +2,12 @@
 
 -
 
+## Branch
+
+- [ ] Branch nuevo desde `development` (`feat/` / `fix/` / `refactor/` / `chore/` / `docs/`)
+- [ ] Un solo objetivo por PR (sin mezclar tareas)
+- [ ] Base del PR: **`development`** (no `main`)
+
 ## Tienda(s) afectada(s)
 
 - [ ] Apparel (`demo-store`)

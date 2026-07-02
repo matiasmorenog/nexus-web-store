@@ -11,7 +11,7 @@ import {
   getStorefrontProductSlugs,
 } from "@/lib/product-page-query";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
-import { getVerticalConfig } from "@/lib/store-verticals";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getVariantLabels } from "@/lib/variant-labels";
 
 /** ISR storefront — mantener en sync con STOREFRONT_CATALOG_REVALIDATE_SECONDS en cache-ttl.ts */
@@ -35,7 +35,7 @@ export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
   const store = await getStore();
   const storeId = store.id;
-  const config = getVerticalConfig();
+  const config = getStorefrontConfig();
   const variantLabels = getVariantLabels();
   const displayName = formatStoreName(store.name);
   const sizeGuide = resolvePageContent(INFO_PAGES["guia-de-talles"], displayName);

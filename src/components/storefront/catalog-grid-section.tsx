@@ -1,15 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { VapeProductCard } from "@/components/storefront/home/vape/vape-product-card";
 import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonProductCard } from "@/components/storefront/storefront-skeleton";
 import type { CatalogProductRow } from "@/lib/catalog-index";
+import { getProductTaxonomyLabel } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cn } from "@/lib/utils";
 
 type CatalogGridSectionProps = {
   products: CatalogProductRow[];
+  catalogVertical?: "apparel" | "vape";
   initialPage: {
     products: CatalogProductRow[];
     total: number;
@@ -19,6 +22,7 @@ type CatalogGridSectionProps = {
 
 export function CatalogGridSection({
   products,
+  catalogVertical = "apparel",
   initialPage,
 }: CatalogGridSectionProps) {
   const [visibleCount, setVisibleCount] = useState(
@@ -26,6 +30,7 @@ export function CatalogGridSection({
   );
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const isVape = catalogVertical === "vape";
 
   useEffect(() => {
     setVisibleCount(initialPage.products.length);
@@ -64,9 +69,23 @@ export function CatalogGridSection({
 
   if (products.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center">
-        <p className="font-medium text-neutral-900">No se encontraron productos</p>
-        <p className="mt-2 text-sm text-neutral-500">
+      <div
+        className={cn(
+          "rounded-xl border border-dashed px-6 py-16 text-center",
+          isVape
+            ? "border-vape bg-vape-card"
+            : "border-neutral-200 bg-[var(--brand-primary-soft)]/40",
+        )}
+      >
+        <p
+          className={cn(
+            "font-medium",
+            isVape ? "text-[var(--brand-primary-light)]" : "text-neutral-900",
+          )}
+        >
+          No se encontraron productos
+        </p>
+        <p className={cn("mt-2 text-sm", isVape ? "text-vape-muted" : "text-neutral-500")}>
           Probá con otros filtros o una búsqueda distinta.
         </p>
       </div>
@@ -78,17 +97,27 @@ export function CatalogGridSection({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {visibleProducts.map((product, index) => (
           <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
-            <ProductCard
-              slug={product.slug}
-              name={product.name}
-              category={product.category}
-              audience={product.audience}
-              imageUrl={product.imageUrl}
-              hoverImageUrl={product.hoverImageUrl}
-              price={product.price}
-              inStock={product.inStock}
-              promo2x1={product.promo2x1}
-            />
+            {isVape ? (
+              <VapeProductCard
+                {...product}
+                categoryLabel={getProductTaxonomyLabel(
+                  product.category,
+                  product.audience,
+                )}
+              />
+            ) : (
+              <ProductCard
+                slug={product.slug}
+                name={product.name}
+                category={product.category}
+                audience={product.audience}
+                imageUrl={product.imageUrl}
+                hoverImageUrl={product.hoverImageUrl}
+                price={product.price}
+                inStock={product.inStock}
+                promo2x1={product.promo2x1}
+              />
+            )}
           </StorefrontReveal>
         ))}
 
@@ -102,7 +131,12 @@ export function CatalogGridSection({
       <div ref={sentinelRef} className="h-px" aria-hidden />
 
       {hasMore && !loading ? (
-        <p className="mt-6 text-center text-sm text-neutral-500">
+        <p
+          className={cn(
+            "mt-6 text-center text-sm",
+            isVape ? "text-vape-muted" : "text-neutral-500",
+          )}
+        >
           Mostrando {visibleProducts.length} de {products.length}
         </p>
       ) : null}
@@ -110,7 +144,8 @@ export function CatalogGridSection({
       {!hasMore && products.length > 0 ? (
         <p
           className={cn(
-            "mt-6 text-center text-sm text-neutral-500",
+            "mt-6 text-center text-sm",
+            isVape ? "text-vape-muted" : "text-neutral-500",
             products.length <= CATALOG_PAGE_SIZE && "sr-only",
           )}
         >

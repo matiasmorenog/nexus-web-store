@@ -1,9 +1,6 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import {
-  AdminDashboardAnalyticsSection,
-  AdminDashboardAttentionSection,
-  AdminDashboardRecentOrdersSection,
+  AdminDashboardSections,
 } from "@/components/admin/admin-dashboard-sections";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
@@ -39,16 +36,16 @@ export default async function AdminDashboardPage({
         />
       </AdminDashboardReveal>
 
-      <Suspense fallback={<AdminSkeletonDashboardAttention />}>
-        <AdminDashboardAttentionSection storeId={storeId} />
-      </Suspense>
-
-      <Suspense fallback={<AdminSkeletonDashboardAnalytics />}>
-        <AdminDashboardAnalyticsSection storeId={storeId} period={period} />
-      </Suspense>
-
-      <Suspense fallback={<AdminSkeletonDashboardRecentOrders />}>
-        <AdminDashboardRecentOrdersSection storeId={storeId} />
+      <Suspense
+        fallback={
+          <>
+            <AdminSkeletonDashboardAttention />
+            <AdminSkeletonDashboardAnalytics />
+            <AdminSkeletonDashboardRecentOrders />
+          </>
+        }
+      >
+        <AdminDashboardSections storeId={storeId} period={period} />
       </Suspense>
     </div>
   );

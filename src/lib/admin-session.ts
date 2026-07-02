@@ -21,6 +21,14 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     redirect("/admin/logout");
   }
 
+  if (session.user.role === "CUSTOMER") {
+    redirect("/cuenta/pedidos");
+  }
+
+  if (session.user.role !== "STORE_OWNER" && session.user.role !== "PLATFORM_ADMIN") {
+    redirect("/admin/logout");
+  }
+
   let storeId: string;
   try {
     storeId = await getStoreId();

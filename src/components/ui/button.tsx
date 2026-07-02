@@ -15,7 +15,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           "inline-flex cursor-pointer items-center justify-center font-[var(--ui-button-font-weight,500)] transition-colors disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50",
           "rounded-[var(--ui-button-radius,0.5rem)]",
           {
-            "bg-[var(--brand-primary)] text-white shadow-[var(--ui-button-primary-shadow,none)] hover:brightness-95 active:brightness-90":
+            "bg-[var(--brand-primary)] text-[var(--ui-button-primary-foreground,white)] shadow-[var(--ui-button-primary-shadow,none)] hover:brightness-95 active:brightness-90":
               variant === "primary",
             "border border-[var(--brand-primary)] bg-transparent text-[var(--brand-primary)] hover:bg-[var(--brand-primary-soft)] active:brightness-95":
               variant === "secondary",

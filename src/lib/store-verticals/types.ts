@@ -62,7 +62,8 @@ export type CatalogFacetDef = {
 export type VerticalConfig = {
   id: StoreVertical;
   storefrontMode: StorefrontMode;
-  brandSuffix: string;
+  /** Línea secundaria del logo (ej. «Indumentaria» bajo «Goat»). No se concatena al nombre en DB. */
+  brandLogoAccent?: string;
   metadata: { description: string };
   features: VerticalFeatures;
   variantLabels: VariantLabels;

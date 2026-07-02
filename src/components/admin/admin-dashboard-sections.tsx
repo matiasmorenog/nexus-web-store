@@ -12,6 +12,7 @@ import {
   ACTIVITY_PERIOD_LABELS,
   getAdminDashboardAnalytics,
   getAdminDashboardAttention,
+  getAdminDashboardPageData,
   getAdminDashboardRecentOrders,
   type ActivityPeriod,
 } from "@/lib/admin-analytics";
@@ -97,5 +98,74 @@ export async function AdminDashboardRecentOrdersSection({
         <AdminDashboardRecentOrders orders={recentOrders} />
       </AdminCard>
     </AdminDashboardReveal>
+  );
+}
+
+export async function AdminDashboardSections({
+  storeId,
+  period,
+}: {
+  storeId: string;
+  period: ActivityPeriod;
+}) {
+  const { attention, analytics, recentOrders } = await getAdminDashboardPageData(
+    storeId,
+    period,
+  );
+  const periodLabels = ACTIVITY_PERIOD_LABELS[period];
+
+  return (
+    <>
+      <AdminDashboardReveal index={1}>
+        <AdminDashboardAttention attention={attention} />
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal
+        index={2}
+        className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+      >
+        <AdminCard
+          title="Actividad de ventas"
+          description={periodLabels.description}
+          className="overflow-visible"
+          action={
+            <Suspense fallback={<AdminSkeletonTabs />}>
+              <AdminActivityPeriodTabs period={period} />
+            </Suspense>
+          }
+        >
+          <AdminActivityChart
+            period={analytics.salesActivity.period}
+            data={analytics.salesActivity.points}
+            totalOrders={analytics.salesActivity.totalOrders}
+            totalRevenue={analytics.salesActivity.totalRevenue}
+          />
+        </AdminCard>
+
+        <AdminCard
+          title="Productos más vendidos"
+          description={`Ranking por unidades vendidas (${periodLabels.summary})`}
+        >
+          <AdminTopProducts products={analytics.topProducts} />
+        </AdminCard>
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal index={3}>
+        <AdminCard
+          title="Pedidos recientes"
+          padding={false}
+          action={
+            <Link
+              href="/admin/pedidos?todos=1"
+              className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+            >
+              Ver todos
+            </Link>
+          }
+        >
+          <AdminDashboardRecentOrders orders={recentOrders} />
+        </AdminCard>
+      </AdminDashboardReveal>
+    </>
   );
 }

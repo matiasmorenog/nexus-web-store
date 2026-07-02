@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { auth } from "@/lib/auth";
 import { formatStoreName } from "@/lib/brand";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
@@ -122,9 +123,14 @@ export async function POST(request: NextRequest) {
         }).cost;
     const total = subtotal + shippingCost;
 
+    const session = await auth();
+    const customerUserId =
+      session?.user?.role === "CUSTOMER" ? session.user.id : undefined;
+
     const order = await db.order.create({
       data: {
         storeId,
+        userId: customerUserId,
         total,
         promoDiscount,
         shippingCost,

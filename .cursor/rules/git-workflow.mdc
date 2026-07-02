@@ -1,0 +1,97 @@
+---
+description: Flujo Git y PRs — branches, naming y buenas prácticas
+alwaysApply: true
+---
+
+# Git y PRs
+
+## Modelo de branches
+
+```
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción
+```
+
+| Branch | Rol |
+|--------|-----|
+| `development` | Integración. Default del repo. Preview Vercel. |
+| `main` | Producción. Solo entra vía release PR. |
+| `feat/*`, `fix/*`, … | Una tarea = un branch. Vida corta. |
+
+## Buenas prácticas (obligatorio)
+
+### Antes de codear
+
+1. `git fetch origin development`
+2. `git checkout development && git pull origin development`
+3. Working tree limpio (sin cambios de otra tarea). Si hay restos → stash o descartar con cuidado.
+4. `git checkout -b <prefijo>/<nombre-corto>` — **branch nuevo por implementación**
+5. Avisar al usuario el nombre del branch elegido.
+
+**No** reutilizar branches de tareas cerradas o mezcladas (ej. `fix/admin-*` para rules + admin).
+
+### Naming de branches
+
+| Prefijo | Cuándo |
+|---------|--------|
+| `feat/` | Feature nueva |
+| `fix/` | Bugfix |
+| `refactor/` | Refactor sin cambio de comportamiento |
+| `chore/` | Tooling, rules, deps, CI |
+| `docs/` | Solo documentación |
+
+Formato: `kebab-case`, corto y descriptivo. Ej: `feat/cupones-checkout`, `fix/legal-page-ssg`.
+
+### Durante el trabajo
+
+- **Un PR = un objetivo.** Si aparece scope distinto → branch nuevo.
+- Commits **solo cuando el usuario lo pida** (salvo que pida cerrar tarea con commit).
+- Mensajes: imperativo, enfocados en el *por qué* (`feat: …`, `fix: …`, `chore: …`).
+- No incluir archivos no relacionados (`.env`, secrets, cambios de otra feature).
+- Mantener el diff pequeño y revisable.
+
+### Antes del PR
+
+```bash
+git fetch origin development
+git merge origin/development   # o rebase si el usuario prefiere historial lineal
+# validar: npx tsc --noEmit (si aplica)
+git push -u origin HEAD
+gh pr create --base development
+```
+
+- Base del PR: **siempre `development`** (features/fixes/refactors).
+- Usar `.github/pull_request_template.md`.
+- Un branch → un PR abierto. No duplicar PRs al mismo destino.
+
+### Después del merge
+
+- Borrar branch local/remoto cuando ya no sirva (`git branch -d`, `gh pr merge` con delete branch).
+- Próxima tarea: volver a `development` y repetir el flujo desde cero.
+
+## Prohibido
+
+- PR de feature/fix **directo a `main`**
+- Push directo a `main` o `development` en el día a día
+- `git push --force` a `main` / `master`
+- Mezclar varias implementaciones en un mismo branch
+- Abrir PR sin sincronizar con `development` reciente (si el branch tiene días)
+
+## Release a producción
+
+Solo cuando el usuario lo pida y `development` esté estable:
+
+```bash
+gh pr create --base main --head development --title "release: development → main"
+```
+
+## Checklist agente (inicio de tarea)
+
+- [ ] ¿Branch actual corresponde a **esta** tarea? Si no → branch nuevo.
+- [ ] ¿Partí de `development` actualizado?
+- [ ] ¿Nombre de branch con prefijo correcto?
+- [ ] ¿PR irá a `development`?
+
+## Referencias
+
+- `DEPLOY.md` → Git
+- `.github/pull_request_template.md`

@@ -130,8 +130,8 @@ Mismo TTL (600s) en datos e HTML: si expira solo por tiempo, las dos capas se al
 
 | Área | Patrón |
 |------|--------|
-| Dashboard analytics (gráfico + top 5) | `$transaction` con dos `$queryRaw` seguidos |
-| Dashboard alertas | `$transaction` con dos `count` |
+| Dashboard analytics (gráfico + top 5) | Queries en serie (sin `$transaction`; bloques Suspense en paralelo) |
+| Dashboard alertas | Dos `count` en serie |
 | Pedidos admin (`getAdminOrdersPageData`) | Una `$transaction` con todas las queries de la página |
 | Productos admin (summary) | `$transaction` secuencial |
 | Listados con total + página | Secuencial (batch, luego `count`) |

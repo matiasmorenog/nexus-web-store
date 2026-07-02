@@ -24,6 +24,10 @@ async function getLoginDefaultEmail(storeId: string) {
 export default async function AdminLoginPage() {
   const session = await auth();
 
+  if (session?.user?.role === "CUSTOMER") {
+    redirect("/cuenta/pedidos");
+  }
+
   if (session) {
     redirect("/admin");
   }
@@ -35,7 +39,7 @@ export default async function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="relative hidden w-1/2 flex-col justify-between bg-zinc-900 p-12 text-white lg:flex">
+      <div className="relative hidden w-1/2 flex-col justify-between bg-[var(--brand-primary-darker,#18181b)] p-12 text-white lg:flex">
         <div className="h-1 w-14 bg-[var(--brand-primary)]" />
         <div>
           <h1 className="text-4xl font-bold tracking-tight">{displayName}</h1>

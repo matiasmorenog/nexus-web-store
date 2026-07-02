@@ -1,47 +1,51 @@
 ---
-description: Contexto del proyecto y guía para ahorrar tokens
+description: Stack, multi-store y mapa de archivos del repo
 alwaysApply: true
 ---
 
 # Nexus Web Store — contexto
 
-**Marca en la tienda:** viene de la DB (`store.name`). **Nexus** es la software factory; no aparece en el storefront.
+**Marca en la tienda:** `store.name` en DB. **Nexus** es la software factory; no aparece en el storefront.
 
-## Stack y convenciones
+## Rules del repo
 
-- Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand (carrito), Mercado Pago
-- **Dos deploys** (apparel + vape): runtime lee **una** fila `Store` por proyecto vía `DEFAULT_STORE_SLUG` (`src/lib/store-context.ts`); vertical por `STORE_VERTICAL` (`src/lib/store-verticals/`)
-- Color de marca: CSS vars por vertical + opcional `Store.primaryColor`; ver `docs/multi-store.md`
-- Categorías por vertical en config (`store-verticals/*/config.ts`); `src/lib/categories.ts` delega al vertical activo
-- Sin `middleware.ts` (límite Edge en Vercel); admin protegido en `src/app/admin/(protected)/layout.tsx`
-- Store resuelto en `src/lib/store-context.ts`; DB en `src/lib/db.ts`
+| Rule | Cuándo |
+|------|--------|
+| `git-workflow.mdc` | Siempre — branches y PRs |
+| `roadmap.mdc` | Siempre — qué está hecho vs pendiente |
+| `performance-todo.mdc` | Al tocar cache, catálogo, queries admin o costo Neon |
 
-## Archivos clave (leer solo si hace falta)
+## Stack
+
+Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v5, Zustand, Mercado Pago.
+
+## Multi-store (dos deploys)
+
+- Una fila `Store` por proyecto Vercel → `DEFAULT_STORE_SLUG` (`src/lib/store-env.ts`, `src/lib/store-context.ts`).
+- Layout y UI por slug → `src/lib/store-slugs.ts`, `src/lib/store-verticals/` (`getStorefrontConfig()`).
+- Slugs seed: `demo-store` (apparel/Goat), `vape-demo` (vape/VAPORX) en `prisma/seed-env.ts`.
+- Env cliente: `NEXT_PUBLIC_DEFAULT_STORE_SLUG` (mismo valor que `DEFAULT_STORE_SLUG`).
+- **No usar** `STORE_VERTICAL` ni `VAPE_STOREFRONT_MODE` (obsoletos).
+- Dev local: `npm run dev:apparel` / `dev:vape` / `dev:both` (`scripts/dev-store.sh`).
+
+## Archivos clave
 
 | Área | Ruta |
 |------|------|
-| Storefront pages | `src/app/(storefront)/` |
-| Catálogo (índice + filtros cliente) | `src/lib/catalog-index.ts`, `catalog-index-query.ts`, `catalog-page-client.tsx` |
+| Storefront | `src/app/(storefront)/` |
+| Catálogo (índice + filtros cliente) | `src/lib/catalog-index.ts`, `catalog-page-client.tsx` |
 | Admin | `src/app/admin/(protected)/` |
-| Checkout API | `src/app/api/checkout/route.ts` |
+| Checkout | `src/app/api/checkout/route.ts` |
 | Auth | `src/lib/auth.ts` |
-| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts`, `prisma/seed-env.ts` |
-| Deploy / dos tiendas | `DEPLOY.md`, `docs/multi-store.md` |
-| Features / roadmap | `README.md` → sección **Roadmap de features** |
-| Performance / costo | `.cursor/rules/performance-todo.mdc` |
+| Schema / seed | `prisma/schema.prisma`, `prisma/seed-env.ts` |
+| Deploy | `DEPLOY.md`, `docs/multi-store.md` |
+| Roadmap producto | `README.md` → **Roadmap de features** |
 | Cache por ruta | `docs/caching-and-routes.md` |
 
-## Performance storefront
+## Convenciones agente
 
-- Catálogo: snapshot único cacheado; filtros y counts en el browser (sin counts en DB ni API de paginación)
-- `getStore()` cacheado 1 h (`STORE_CACHE_TAG`); invalidación al guardar config
-- Checkout y admin siguen dinámicos (`force-dynamic` donde aplica)
-- Home, PDP y catálogo: ISR + queries con `STOREFRONT_CATALOG_REVALIDATE_SECONDS` (600s); admin dashboard 300s
-
-## Ahorro de tokens
-
-- No explorar el repo entero ni lanzar subagentes para preguntas acotadas; usar grep/read en el archivo indicado arriba
-- Consultar `README.md` (roadmap) antes de planificar features nuevas
-- Cambios mínimos; no refactorizar ni tocar archivos no relacionados
-- Admin demo: email del owner en DB; contraseña del seed (`prisma/seed-env.ts`)
-- Producción: `https://nexus-web-store.vercel.app`; env vars en `DEPLOY.md`
+- **Git:** una tarea = branch nuevo desde `development`; ver checklist en `git-workflow.mdc`.
+- Cambios mínimos; no refactorizar fuera del pedido.
+- Preguntas acotadas → `grep`/`read` en la ruta de la tabla; no explorar todo el repo.
+- Sin `middleware.ts`; admin en `src/app/admin/(protected)/layout.tsx`.
+- Admin demo: owner en DB; contraseña en `prisma/seed-env.ts`.

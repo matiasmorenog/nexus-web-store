@@ -1,6 +1,6 @@
 # Dos tiendas, un repo (apparel + vape)
 
-Arquitectura para correr **Goat** (ropa) y **Cloud** (vape) sin SaaS: mismo código en `main`, **dos proyectos Vercel**, **una base Neon** con dos filas `Store`. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` + `STORE_VERTICAL`.
+Arquitectura para correr **Goat Indumentaria** (ropa) y **VAPORX** (vape) sin SaaS: mismo código en `main`, **dos proyectos Vercel**, **una base Neon** con dos filas `Store`. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` + `STORE_VERTICAL`.
 
 Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-and-routes.md`](caching-and-routes.md).
 

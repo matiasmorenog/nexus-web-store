@@ -26,7 +26,6 @@ import { cn } from "@/lib/utils";
 
 type HeaderProps = {
   storeName: string;
-  brandSuffix: string;
   navDesktop: HeaderNavLink[];
   navMobile: HeaderNavLink[];
   features: VerticalFeatures;
@@ -36,7 +35,6 @@ type HeaderProps = {
 
 export function Header({
   storeName,
-  brandSuffix,
   navDesktop,
   navMobile,
   features,
@@ -267,7 +265,7 @@ export function Header({
             {isVapeUi ? (
               <VapeStoreLogo storeName={storeName} />
             ) : (
-              <StoreLogo storeName={storeName} brandSuffix={brandSuffix} />
+              <StoreLogo storeName={storeName} />
             )}
           </div>
 

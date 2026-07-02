@@ -5,7 +5,7 @@
 
 /** Tienda apparel (deploy 1). */
 export const DEFAULT_STORE_SLUG = "demo-store";
-export const SEED_STORE_NAME = "Goat";
+export const SEED_STORE_NAME = "Goat Indumentaria";
 export const STORE_OWNER_EMAIL = "matiasmorenog+nexus-web-store@gmail.com";
 
 /** Tienda vape (deploy 2). */

@@ -49,7 +49,6 @@ export default async function StorefrontLayout({
         >
           <Header
             storeName={displayName}
-            brandSuffix={config.brandSuffix}
             navDesktop={config.headerNavDesktop}
             navMobile={config.headerNavMobile}
             features={config.features}
@@ -76,7 +75,6 @@ export default async function StorefrontLayout({
       >
         <Header
           storeName={displayName}
-          brandSuffix={config.brandSuffix}
           navDesktop={config.headerNavDesktop}
           navMobile={config.headerNavMobile}
           features={config.features}
@@ -87,7 +85,6 @@ export default async function StorefrontLayout({
       <main className="storefront-content-bottom flex-1">{children}</main>
       <Footer
         storeName={displayName}
-        brandSuffix={config.brandSuffix}
         tagline={config.metadata.description}
         features={config.features}
         chrome="light"

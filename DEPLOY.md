@@ -112,18 +112,25 @@ Preview en vape es opcional; podés probar vape con `npm run dev:vape` y dejar p
 
 ## Git: branches y PRs
 
+Regla completa para el agente: `.cursor/rules/git-workflow.mdc`.
+
 ```
-feat/mi-cambio  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
 ```
 
-- **`development`** — integración. Los PR de features van **acá**, no a `main`.
-- **`main`** — producción. Solo entra vía PR desde `development`.
+- **`development`** — integración y preview. **Una tarea = un branch nuevo** desde acá.
+- **`main`** — producción. Solo release PR desde `development`.
+- Nombres: `feat/`, `fix/`, `refactor/`, `chore/`, `docs/` + `kebab-case`.
+- No mezclar implementaciones en el mismo branch. No PR de features a `main`.
 
 ### Feature (día a día)
 
 ```bash
-git checkout development && git pull
-git checkout -b feat/mi-cambio
+git fetch origin development
+git checkout development && git pull origin development
+git checkout -b feat/mi-cambio          # branch nuevo, nombre acorde a la tarea
+# ... trabajo y commits cuando corresponda ...
+git fetch origin development && git merge origin/development
 git push -u origin feat/mi-cambio
 gh pr create --base development
 ```

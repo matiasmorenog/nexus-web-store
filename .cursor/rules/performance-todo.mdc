@@ -1,70 +1,51 @@
 ---
-description: Backlog de performance/costo (Vercel + Neon) — prioridad y estado
-alwaysApply: true
+description: Performance y costo Neon/Vercel — cache, catálogo, admin
+globs: src/lib/catalog*.ts,src/lib/store-context.ts,src/lib/cache*.ts,src/lib/admin*.ts,src/lib/revalidate*.ts,src/app/(storefront)/**/page.tsx,src/app/admin/**/*.tsx,docs/caching-and-routes.md
+alwaysApply: false
 ---
 
 # Performance todo (costo servidor)
 
-Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente (ver abajo).
+Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente.
 
-## Estado
+## Estado (cerrados)
 
-| # | Ítem | Estado |
-|---|------|--------|
-| 1 | Cache `getStore()` + `revalidateTag` | ✅ Hecho |
-| — | Catálogo: índice cliente + `unstable_cache` 600s | ✅ Hecho |
-| — | Quitar orden «más vendidos» (sin `salesTotals` en índice) | ✅ Hecho |
-| 2 | ISR home + PDP + quitar `force-dynamic` del layout storefront | ✅ Hecho |
-| 7 | Neon pooler + `connection_limit=1` en `DATABASE_URL` | ✅ Doc + `directUrl` en schema |
-| 7b | Queries admin pool-safe (`$transaction`, sin `Promise.all` paralelo a DB) | ✅ Hecho |
-| 6a | Debounce cotización envío en checkout | ✅ Hecho (350ms + AbortController) |
-| 5 | Helper `revalidateStorefrontProductSurfaces()` en admin | ✅ Hecho |
-| — | Seed demo → `prisma/seed-env.ts`; runtime tienda/owner desde DB | ✅ Hecho |
-| A1 | Dashboard admin: aggregate ingresos + top productos acotado al período | ✅ Hecho |
-| A2 | Dashboard admin: streaming por sección (`Suspense`) | ✅ Hecho |
-| A3 | Admin: `unstable_cache` dashboard + products summary + tags | ✅ Hecho |
-| A4 | Pedidos admin: streaming por sección (`Suspense`) | ✅ Hecho |
-| A5 | Dashboard: agregación SQL (gráfico + top 5) + índice pedidos + JWT sin DB extra | ✅ Hecho |
-| A6 | Índices DB: Order/Product por fecha, featured, OrderItem FKs | ✅ Hecho |
+| Ítem | Estado |
+|------|--------|
+| Cache `getStore()` + `revalidateTag` | ✅ |
+| Catálogo: índice cliente + `unstable_cache` 600s | ✅ |
+| ISR home + PDP + layout sin `force-dynamic` global | ✅ |
+| Neon pooler + `connection_limit=1` | ✅ Doc + `directUrl` |
+| Admin pool-safe (`$transaction`, sin `Promise.all` DB) | ✅ |
+| Debounce cotización envío checkout (350ms) | ✅ |
+| `revalidateStorefrontProductSurfaces()` en admin | ✅ |
+| Dashboard admin: SQL aggregate + streaming + cache tags | ✅ |
+| Índices DB Order/Product | ✅ |
 
-## Backlog futuro (cuando el admin crezca)
+## Backlog (prioridad baja)
 
-Prioridad baja; abordar si hay quejas de lentitud o costo en Neon:
+- Cache `getAdminOrdersSummary` (~60s TTL)
+- Streaming en `/admin/productos`
+- Índice cliente en listado admin (si catálogo > ~100)
 
-| Ítem | Beneficio esperado |
-|------|-------------------|
-| Cache `getAdminOrdersSummary` con `unstable_cache` + tag (TTL ~60s) | Menos queries en `/admin/pedidos` |
-| Streaming en `/admin/productos` (mismo patrón que pedidos) | Header y filtros antes que la tabla |
-| Índice cliente en listado productos admin | Solo si el catálogo supera ~100 productos |
-
-Ver también `docs/caching-and-routes.md` → sección **Pendiente (opcional)**.
+Detalle: `docs/caching-and-routes.md` → **Pendiente (opcional)**.
 
 ## Obsoletos (no reimplementar)
 
-- Cache de filter counts en servidor (~18 `count()`)
+- Cache filter counts en servidor (~18 `count()`)
 - `GET /api/catalog/products` + Cache-Control
-- ISR del catálogo por URL / combo de filtros
+- ISR catálogo por URL / combo filtros
 
 ## Catálogo (arquitectura actual)
 
-- **Server:** `getCatalogIndex()` → 1 `findMany` (productos + variantes), `unstable_cache` 600s, tag `catalog-index`
-- **Cliente:** filtros, counts facetados, sort y paginación en memoria (`catalog-index.ts`, `CatalogPageClient`)
-- **Invalidación:** `revalidateCatalogIndexCache()` en `admin-actions` al editar productos
-- **Sort:** recientes, precio asc/desc, nombre A–Z. Promos vía filtros Destacados / 2x1 (no «más vendidos»)
-- **Páginas:** `/productos` usa `STOREFRONT_CATALOG_REVALIDATE_SECONDS` (600s) y **no** lee `searchParams` en server (filtros = 0 queries)
+- **Server:** `getCatalogIndex()` → 1 `findMany`, `unstable_cache` 600s, tag `catalog-index`
+- **Cliente:** filtros, counts, sort, paginación en memoria (`CatalogPageClient`)
+- **Invalidación:** `revalidateCatalogIndexCache()` en `admin-actions`
+- **Sort:** recientes, precio, nombre A–Z; promos vía Destacados / 2x1
+- **`/productos`:** ISR 600s; server **no** lee `searchParams` (filtros = 0 queries)
 
-## Archivos clave performance
+## Archivos clave
 
-| Área | Ruta |
-|------|------|
-| Índice catálogo | `src/lib/catalog-index.ts`, `catalog-index-query.ts` |
-| Store cache | `src/lib/store-context.ts`, `src/lib/cache-ttl.ts` |
-| Home | `src/app/(storefront)/page.tsx`, `featured-products-query.ts` |
-| PDP | `src/app/(storefront)/producto/[slug]/page.tsx`, `product-page-query.ts` |
-| Revalidación admin | `src/lib/revalidate-storefront-products.ts` |
-| Dashboard admin | `src/lib/admin-analytics.ts` |
-| Cache admin | `src/lib/admin-cache-tags.ts`, `revalidate-admin-cache.ts` |
-| Pool / conexión Neon | `docs/caching-and-routes.md` → sección **Neon y connection_limit=1** |
-| Rutas + invalidación | `docs/caching-and-routes.md` |
+`src/lib/catalog-index.ts`, `catalog-index-query.ts`, `store-context.ts`, `cache-ttl.ts`, `revalidate-storefront-products.ts`, `admin-analytics.ts`, `admin-cache-tags.ts`.
 
-Al cerrar un ítem, actualizar esta tabla.
+Al cerrar un ítem del backlog, actualizar esta rule y `docs/caching-and-routes.md`.

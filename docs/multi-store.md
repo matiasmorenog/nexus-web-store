@@ -81,11 +81,13 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 
 ## Flujo Git
 
+Ver `.cursor/rules/git-workflow.mdc` y `DEPLOY.md`.
+
 ```
-feat/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
 ```
 
-Features → `development`. Producción solo desde PR `development` → `main`.
+Una tarea = branch nuevo desde `development`. Producción solo vía release PR.
 
 ---
 

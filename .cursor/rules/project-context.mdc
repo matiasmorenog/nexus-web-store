@@ -44,7 +44,7 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 
 ## Convenciones agente
 
-- **Antes de implementar:** branch nuevo desde `development` (ver `git-workflow.mdc`); no mezclar tareas en el mismo branch.
+- **Git:** una tarea = branch nuevo desde `development`; ver checklist en `git-workflow.mdc`.
 - Cambios mínimos; no refactorizar fuera del pedido.
 - Preguntas acotadas → `grep`/`read` en la ruta de la tabla; no explorar todo el repo.
 - Sin `middleware.ts`; admin en `src/app/admin/(protected)/layout.tsx`.

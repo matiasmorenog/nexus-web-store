@@ -9,7 +9,7 @@ export function VapePromoBanner() {
       <div className="relative overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--brand-primary)_20%,transparent)] bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] via-vape-card to-[color-mix(in_srgb,var(--brand-promo-accent)_10%,transparent)]">
         <div className="absolute inset-0 opacity-10">
           <Image
-            src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1400&h=400&fit=crop&auto=format"
+            src="https://source.unsplash.com/1400x400/?vape,device,dark"
             alt=""
             fill
             className="object-cover"

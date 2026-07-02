@@ -19,7 +19,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 | Proyecto Vercel | Tienda | URL | `DEFAULT_STORE_SLUG` |
 |-----------------|--------|-----|----------------------|
 | `nexus-web-store` | Goat (apparel) | https://nexus-web-store.vercel.app | `demo-store` |
-| `nexus-vape-store` | Cloud (vape) | https://nexus-vape-store.vercel.app | `vape-demo` |
+| `nexus-vape-store` | VAPORX (vape) | https://nexus-vape-store.vercel.app | `vape-demo` |
 
 Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 

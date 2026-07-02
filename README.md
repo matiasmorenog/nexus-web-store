@@ -197,6 +197,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
 - [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
+- [ ] Separar Vercel Blob por tienda antes de salir a producción
 - [ ] Dominio custom, onboarding, planes, API pública
 
 </details>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -86,16 +87,16 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
             className="text-base sm:text-sm"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+        <div className="flex items-center gap-2.5">
+          <Checkbox
             id="allowPickup"
             name="allowPickup"
             checked={allowPickup}
             onChange={(event) => setAllowPickup(event.target.checked)}
-            className="size-4 shrink-0"
           />
-          <Label htmlFor="allowPickup">Permitir retiro en local</Label>
+          <Label htmlFor="allowPickup" className="cursor-pointer">
+            Permitir retiro en local
+          </Label>
         </div>
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (

@@ -13,6 +13,7 @@ import {
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -108,23 +109,25 @@ export function ProductEditForm({
               required
             />
           </div>
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2.5 sm:col-span-2">
+            <Checkbox
               id="featured"
               name="featured"
               defaultChecked={product.featured}
             />
-            <Label htmlFor="featured">Destacado en home</Label>
+            <Label htmlFor="featured" className="cursor-pointer">
+              Destacado en home
+            </Label>
           </div>
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2.5 sm:col-span-2">
+            <Checkbox
               id="promo2x1"
               name="promo2x1"
               defaultChecked={product.promo2x1}
             />
-            <Label htmlFor="promo2x1">Promoción 2x1</Label>
+            <Label htmlFor="promo2x1" className="cursor-pointer">
+              Promoción 2x1
+            </Label>
           </div>
         </AdminFormGrid>
 

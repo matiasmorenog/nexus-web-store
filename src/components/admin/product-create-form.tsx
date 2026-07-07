@@ -16,6 +16,7 @@ import { getClientVariantLabels } from "@/lib/variant-labels";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -101,14 +102,18 @@ export function ProductCreateForm({
                   id="imageUrl"
                   label={`Imagen del ${variantLabels.primary.toLowerCase()}`}
                 />
-                <div className="flex items-center gap-2 sm:col-span-2">
-                  <input type="checkbox" id="featured" name="featured" />
-                  <Label htmlFor="featured">Destacado</Label>
+                <div className="flex items-center gap-2.5 sm:col-span-2">
+                  <Checkbox id="featured" name="featured" />
+                  <Label htmlFor="featured" className="cursor-pointer">
+                    Destacado
+                  </Label>
                 </div>
                 {showPromo2x1 ? (
-                  <div className="flex items-center gap-2 sm:col-span-2">
-                    <input type="checkbox" id="promo2x1" name="promo2x1" />
-                    <Label htmlFor="promo2x1">Promoción 2x1</Label>
+                  <div className="flex items-center gap-2.5 sm:col-span-2">
+                    <Checkbox id="promo2x1" name="promo2x1" />
+                    <Label htmlFor="promo2x1" className="cursor-pointer">
+                      Promoción 2x1
+                    </Label>
                   </div>
                 ) : null}
               </AdminFormGrid>

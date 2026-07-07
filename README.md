@@ -212,7 +212,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
 - [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
 - [ ] Separar Vercel Blob por tienda antes de salir a producción
-- [ ] Dominio custom, onboarding, billing automático, API pública
+- [ ] Onboarding, billing automático, API pública
 
 </details>
 

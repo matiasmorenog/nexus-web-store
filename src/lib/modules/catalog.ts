@@ -67,14 +67,6 @@ const MODULE_LIST = [
     storefrontSurfaces: ["layout"],
   },
   {
-    id: "customDomain",
-    name: "Dominio custom",
-    description: "Tu tienda en tu propio dominio (ej. tienda.com).",
-    monthlyPriceUsd: 12,
-    category: "integrations",
-    adminRoutes: ["/admin/dominio"],
-  },
-  {
     id: "multiUser",
     name: "Multi-usuario",
     description:

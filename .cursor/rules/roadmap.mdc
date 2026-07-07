@@ -30,7 +30,7 @@ Performance: índice catálogo cliente + cache store — ver `performance-todo.m
 
 ## Fase B — Tienda Nube lite
 
-Cupones, home/banners editables, categorías dinámicas, dominio custom, analytics admin, envíos carrier, WhatsApp/Meta Pixel.
+Cupones, home/banners editables, categorías dinámicas, analytics admin, envíos carrier, WhatsApp/Meta Pixel. Dominio propio: ops en Vercel (`AUTH_URL` / `NEXT_PUBLIC_APP_URL`), no es módulo Plus.
 
 ## Fase C — SaaS
 

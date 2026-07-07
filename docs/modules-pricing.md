@@ -152,8 +152,9 @@ Funcionalidad que debe existir siempre en plan base:
 7. **Wishlist** — favoritos en storefront y cuenta ✅
 8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
 9. **Marketing** — WhatsApp y Meta Pixel ✅
-10. **API / Multi-usuario / Envíos carrier / Temas premium** — cuando haya demanda
-11. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
+10. **Envíos carrier** — cotización por CP, operador preferido y etiquetas demo ✅
+11. **API / Multi-usuario / Temas premium** — cuando haya demanda
+12. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
 
 ---
 
@@ -171,6 +172,7 @@ Funcionalidad que debe existir siempre en plan base:
 | Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
 | Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics` |
 | Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
+| Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
 | Errores API | `src/lib/modules/api-error.ts` |
 | Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |

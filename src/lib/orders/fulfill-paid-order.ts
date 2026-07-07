@@ -84,6 +84,7 @@ export async function fulfillPaidOrder(orderId: string) {
 
   await createOrderShipment({
     id: order.id,
+    storeId: order.storeId,
     isPickup: order.isPickup,
     shippingZip: order.shippingZip,
     meShipmentId: order.meShipmentId,

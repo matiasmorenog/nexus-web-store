@@ -6,8 +6,8 @@ import { normalizeCouponCode } from "@/lib/coupons/format";
 import { validateCouponForCheckout } from "@/lib/coupons/validate";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
-import { quoteMercadoEnvios } from "@/lib/mercado-envios";
 import { storeHasModule } from "@/lib/modules";
+import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
   getMercadoPagoUnitPriceFromPricing,
@@ -161,12 +161,12 @@ export async function POST(request: NextRequest) {
         .filter((line) => line.lineKey)
         .map((line) => [line.lineKey!, line]),
     );
-    const shippingCost = isPickup
-      ? 0
-      : quoteMercadoEnvios({
-          zip: customer.zip!.trim(),
-          baseRate: Number(store.shippingFlatRate),
-        }).cost;
+    const shippingCost = await resolveCheckoutShippingCost({
+      storeId,
+      zip: customer.zip!.trim(),
+      flatRate: Number(store.shippingFlatRate),
+      isPickup,
+    });
     const total = subtotalAfterCoupon + shippingCost;
 
     const session = await auth();

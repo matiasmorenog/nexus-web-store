@@ -55,6 +55,7 @@ type CheckoutFormProps = {
   storeName: string;
   showSummary?: boolean;
   couponsEnabled?: boolean;
+  dynamicShippingEnabled?: boolean;
   appliedCoupon?: AppliedCheckoutCoupon | null;
   onCouponChange?: (coupon: AppliedCheckoutCoupon | null) => void;
   defaultCustomer?: {
@@ -69,6 +70,7 @@ export function CheckoutForm({
   storeName,
   showSummary = true,
   couponsEnabled = false,
+  dynamicShippingEnabled = false,
   appliedCoupon = null,
   onCouponChange,
   defaultCustomer,
@@ -114,7 +116,7 @@ export function CheckoutForm({
   const total = subtotalAfterCoupon + effectiveShipping;
 
   useEffect(() => {
-    if (deliveryMethod !== "shipping") {
+    if (!dynamicShippingEnabled || deliveryMethod !== "shipping") {
       setShippingQuote(null);
       return;
     }
@@ -157,7 +159,7 @@ export function CheckoutForm({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [deliveryMethod, zip]);
+  }, [deliveryMethod, dynamicShippingEnabled, zip]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -266,13 +268,15 @@ export function CheckoutForm({
                 Mercado Envíos
               </span>
               <span className="mt-1 text-sm text-neutral-600">
-                {quoteLoading
-                  ? "Calculando envío..."
-                  : effectiveShipping > 0
-                    ? formatPrice(effectiveShipping)
-                    : "Ingresá tu CP para cotizar"}
+                {dynamicShippingEnabled
+                  ? quoteLoading
+                    ? "Calculando envío..."
+                    : effectiveShipping > 0
+                      ? formatPrice(effectiveShipping)
+                      : "Ingresá tu CP para cotizar"
+                  : formatPrice(effectiveShipping)}
               </span>
-              {shippingQuote && deliveryMethod === "shipping" ? (
+              {dynamicShippingEnabled && shippingQuote && deliveryMethod === "shipping" ? (
                 <span className="mt-1 text-xs text-neutral-500">
                   Llega en {shippingQuote.deliveryWindow}
                   {shippingQuote.demoMode ? " · demo" : ""}
@@ -315,11 +319,13 @@ export function CheckoutForm({
             Envío con Mercado Envíos
           </p>
           <p className="mt-1 text-neutral-600">
-            {quoteLoading
-              ? "Calculando costo y plazo..."
-              : shippingQuote
-                ? `${formatPrice(effectiveShipping)} · llega en ${shippingQuote.deliveryWindow}`
-                : "Ingresá tu código postal para cotizar el envío."}
+            {dynamicShippingEnabled
+              ? quoteLoading
+                ? "Calculando costo y plazo..."
+                : shippingQuote
+                  ? `${formatPrice(effectiveShipping)} · llega en ${shippingQuote.deliveryWindow}`
+                  : "Ingresá tu código postal para cotizar el envío."
+              : `Costo fijo: ${formatPrice(effectiveShipping)}`}
           </p>
         </div>
       ) : null}

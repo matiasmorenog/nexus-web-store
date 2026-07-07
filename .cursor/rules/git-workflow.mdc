@@ -46,6 +46,7 @@ Formato: `kebab-case`, corto y descriptivo. Ej: `feat/cupones-checkout`, `fix/le
 - **Un PR = un objetivo.** Si aparece scope distinto → branch nuevo.
 - Commits **solo cuando el usuario lo pida** (salvo que pida cerrar tarea con commit).
 - Mensajes: imperativo, enfocados en el *por qué* (`feat: …`, `fix: …`, `chore: …`).
+- **Idioma:** títulos y cuerpos de commits en **inglés** (imperativo, conciso).
 - No incluir archivos no relacionados (`.env`, secrets, cambios de otra feature).
 - Mantener el diff pequeño y revisable.
 
@@ -62,6 +63,7 @@ gh pr create --base development --head "$(git branch --show-current)"
 - Base del PR: **siempre `development`** (features/fixes/refactors/chore/docs).
 - **Obligatorio:** `gh pr create` debe incluir `--base development`. Sin excepción salvo release.
 - Si un PR quedó con base `main` por error → `gh pr edit <número> --base development`.
+- **Idioma:** título y descripción del PR en **inglés** (seguir `.github/pull_request_template.md`).
 - Usar `.github/pull_request_template.md`.
 - Un branch → un PR abierto. No duplicar PRs al mismo destino.
 
@@ -93,6 +95,7 @@ gh pr create --base main --head development --title "release: development → ma
 - [ ] ¿Partí de `development` actualizado?
 - [ ] ¿Nombre de branch con prefijo correcto?
 - [ ] ¿PR irá a `development`?
+- [ ] ¿Commits y PR en **inglés**?
 
 ## Referencias
 

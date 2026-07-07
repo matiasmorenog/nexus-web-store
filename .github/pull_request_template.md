@@ -1,4 +1,5 @@
-> **Base del PR:** siempre `development`. No abrir features/fixes contra `main`.
+> **PR base:** always `development`. Do not open feature/fix PRs against `main`.
+> **Language:** PR title and body must be in **English**.
 
 ## Qué cambia
 

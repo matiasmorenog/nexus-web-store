@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
-import type { CSSProperties } from "react";
 import { Suspense } from "react";
-import { Footer } from "@/components/storefront/footer";
-import { VapeFooter } from "@/components/storefront/vape-footer";
-import { VapeThemeShell } from "@/components/storefront/vape-theme-shell";
-import { Header } from "@/components/storefront/header";
+import type { Metadata } from "next";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
+import { ApparelStorefrontLayout } from "@/themes/apparel/components/storefront-layout";
+import { VapeStorefrontLayout } from "@/themes/vape/components/storefront-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
@@ -32,63 +29,22 @@ export default async function StorefrontLayout({
   const displayName = formatStoreName(store.name);
   const brandPrimary =
     store.primaryColor?.trim() || config.ui.cssVars["--brand-primary"];
-  const isVape = config.ui.id === "vape";
 
-  const apparelThemeStyle = {
-    ...config.ui.cssVars,
-    "--brand-primary": brandPrimary,
-  } as CSSProperties;
-
-  if (isVape) {
+  if (config.ui.id === "vape") {
     return (
-      <VapeThemeShell initialCssVars={config.ui.cssVars}>
-        <Suspense
-          fallback={
-            <div className="h-[4.625rem] border-b border-white/10 bg-black/80" />
-          }
-        >
-          <Header
-            storeName={displayName}
-            navDesktop={config.headerNavDesktop}
-            navMobile={config.headerNavMobile}
-            features={config.features}
-            chrome="dark"
-            uiVariant="vape"
-          />
-        </Suspense>
-        <main className="storefront-content-bottom flex-1">{children}</main>
-        <VapeFooter storeName={displayName} tagline={config.metadata.description} />
-      </VapeThemeShell>
+      <VapeStorefrontLayout storeDisplayName={displayName} config={config}>
+        {children}
+      </VapeStorefrontLayout>
     );
   }
 
   return (
-    <div
-      data-storefront-ui={config.ui.id}
-      style={apparelThemeStyle}
-      className="storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
+    <ApparelStorefrontLayout
+      storeDisplayName={displayName}
+      config={config}
+      brandPrimary={brandPrimary}
     >
-      <Suspense
-        fallback={
-          <div className="h-[4.625rem] border-b border-neutral-100 bg-white/90 shadow-sm" />
-        }
-      >
-        <Header
-          storeName={displayName}
-          navDesktop={config.headerNavDesktop}
-          navMobile={config.headerNavMobile}
-          features={config.features}
-          chrome="light"
-          uiVariant="apparel"
-        />
-      </Suspense>
-      <main className="storefront-content-bottom flex-1">{children}</main>
-      <Footer
-        storeName={displayName}
-        tagline={config.metadata.description}
-        features={config.features}
-        chrome="light"
-      />
-    </div>
+      {children}
+    </ApparelStorefrontLayout>
   );
 }

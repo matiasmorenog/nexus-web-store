@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { VapeProductCard } from "@/components/storefront/home/vape/vape-product-card";
-import { ProductCard } from "@/components/storefront/product-card";
+import { renderCatalogProductCard } from "@/themes/catalog-product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonProductCard } from "@/components/storefront/storefront-skeleton";
 import type { CatalogProductRow } from "@/lib/catalog-index";
-import { getProductTaxonomyLabel } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cn } from "@/lib/utils";
 
@@ -97,27 +95,7 @@ export function CatalogGridSection({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {visibleProducts.map((product, index) => (
           <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
-            {isVape ? (
-              <VapeProductCard
-                {...product}
-                categoryLabel={getProductTaxonomyLabel(
-                  product.category,
-                  product.audience,
-                )}
-              />
-            ) : (
-              <ProductCard
-                slug={product.slug}
-                name={product.name}
-                category={product.category}
-                audience={product.audience}
-                imageUrl={product.imageUrl}
-                hoverImageUrl={product.hoverImageUrl}
-                price={product.price}
-                inStock={product.inStock}
-                promo2x1={product.promo2x1}
-              />
-            )}
+            {renderCatalogProductCard(catalogVertical, product)}
           </StorefrontReveal>
         ))}
 

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { vapeButtonClassName } from "@/components/storefront/vape/vape-button";
+import { vapeButtonClassName } from "@/themes/vape/components/vape-button";
 
 const vapeLinkClass = vapeButtonClassName({
   variant: "secondary",

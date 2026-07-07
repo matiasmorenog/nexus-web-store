@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getVapeThemeCssVars } from "@/lib/store-verticals/vape/themes";
 import { useVapeThemeStore } from "@/stores/vape-theme-store";
 import { cn } from "@/lib/utils";
+import "@/themes/vape/styles/theme.css";
 
 type VapeThemeShellProps = {
   children: ReactNode;

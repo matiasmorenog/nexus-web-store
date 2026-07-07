@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AtSign, Link2, Share2 } from "lucide-react";
-import { VapeBrandWordmark } from "@/components/storefront/home/vape/vape-brand-wordmark";
+import { VapeBrandWordmark } from "@/themes/vape/components/home/vape-brand-wordmark";
 import { getBrandPrefix } from "@/lib/brand";
 import { VAPE_PRODUCT_CATEGORIES, vapeCatalogHref } from "@/lib/store-verticals/vape/config";
 

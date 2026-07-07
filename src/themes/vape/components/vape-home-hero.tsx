@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { VapeBrandWordmark } from "@/components/storefront/home/vape/vape-brand-wordmark";
-import { VapeHeroNatureDecor } from "@/components/storefront/home/vape-nature-decor";
-import { VapeButtonLink } from "@/components/storefront/vape/vape-button";
+import { VapeBrandWordmark } from "@/themes/vape/components/home/vape-brand-wordmark";
+import { VapeHeroNatureDecor } from "@/themes/vape/components/vape-nature-decor";
+import { VapeButtonLink } from "@/themes/vape/components/vape-button";
 import { VAPE_HERO_STATS } from "@/lib/store-verticals/vape/home-content";
 
 type VapeHomeHeroProps = {

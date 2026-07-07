@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { vapeButtonClassName } from "@/components/storefront/vape/vape-button";
+import { vapeButtonClassName } from "@/themes/vape/components/vape-button";
 import { Star } from "lucide-react";
 import type { StorefrontProductCard } from "@/lib/storefront-products-query";
 import { formatPrice, cn } from "@/lib/utils";

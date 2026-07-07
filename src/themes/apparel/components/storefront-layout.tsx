@@ -1,0 +1,55 @@
+import type { CSSProperties, ReactNode } from "react";
+import { Suspense } from "react";
+import { Header } from "@/components/storefront/header";
+import { Footer } from "@/themes/apparel/components/footer";
+import type { VerticalConfig } from "@/lib/store-verticals/types";
+import "@/themes/apparel/styles/theme.css";
+
+type ApparelStorefrontLayoutProps = {
+  children: ReactNode;
+  storeDisplayName: string;
+  config: VerticalConfig;
+  brandPrimary: string;
+};
+
+export function ApparelStorefrontLayout({
+  children,
+  storeDisplayName,
+  config,
+  brandPrimary,
+}: ApparelStorefrontLayoutProps) {
+  const themeStyle = {
+    ...config.ui.cssVars,
+    "--brand-primary": brandPrimary,
+  } as CSSProperties;
+
+  return (
+    <div
+      data-storefront-ui={config.ui.id}
+      style={themeStyle}
+      className="storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
+    >
+      <Suspense
+        fallback={
+          <div className="h-[4.625rem] border-b border-neutral-100 bg-white/90 shadow-sm" />
+        }
+      >
+        <Header
+          storeName={storeDisplayName}
+          navDesktop={config.headerNavDesktop}
+          navMobile={config.headerNavMobile}
+          features={config.features}
+          chrome="light"
+          uiVariant="apparel"
+        />
+      </Suspense>
+      <main className="storefront-content-bottom flex-1">{children}</main>
+      <Footer
+        storeName={storeDisplayName}
+        tagline={config.metadata.description}
+        features={config.features}
+        chrome="light"
+      />
+    </div>
+  );
+}

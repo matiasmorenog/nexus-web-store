@@ -26,7 +26,7 @@ while IFS= read -r file; do
   if ! echo "$file" | grep -qE '^(DEPLOY\.md|README\.md|\.env\.example|\.github/|docs/|AGENTS\.md|CLAUDE\.md)'; then
     docs_only=false
   fi
-  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/apparel/|src/components/storefront/home/apparel-home|prisma/seed-data-apparel\.ts|prisma/seed-apparel\.ts|prisma/seed-demo-orders\.ts|prisma/demo-orders-data\.ts|scripts/seed-apparel\.sh)'; then
+  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/apparel/|src/themes/apparel/|prisma/seed-data-apparel\.ts|prisma/seed-apparel\.ts|prisma/seed-demo-orders\.ts|prisma/demo-orders-data\.ts|scripts/seed-apparel\.sh)'; then
     apparel_only=false
   fi
 done <<< "$CHANGED"

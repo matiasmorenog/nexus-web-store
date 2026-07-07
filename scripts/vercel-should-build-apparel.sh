@@ -26,7 +26,7 @@ while IFS= read -r file; do
   if ! echo "$file" | grep -qE '^(DEPLOY\.md|README\.md|\.env\.example|\.github/|docs/|AGENTS\.md|CLAUDE\.md)'; then
     docs_only=false
   fi
-  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/vape/|src/components/storefront/home/vape-home|prisma/seed-data-vape\.ts|prisma/seed-vape\.ts|scripts/seed-vape\.sh)'; then
+  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/vape/|src/themes/vape/|prisma/seed-data-vape\.ts|prisma/seed-vape\.ts|scripts/seed-vape\.sh)'; then
     vape_only=false
   fi
 done <<< "$CHANGED"

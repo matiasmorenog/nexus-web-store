@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
-import { PromoBanner } from "@/components/storefront/promo-banner";
+import { PromoBanner } from "@/themes/apparel/components/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
 import { promoBanner } from "@/lib/promo-banner";
 import {
@@ -17,11 +17,11 @@ import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { HeaderAccountLink } from "@/components/storefront/header-account-link";
-import { VapeStoreLogo } from "@/components/storefront/home/vape/vape-store-logo";
-import { VapeThemeToggle } from "@/components/storefront/vape-theme-toggle";
+import { VapeStoreLogo } from "@/themes/vape/components/home/vape-store-logo";
+import { VapeThemeToggle } from "@/themes/vape/components/vape-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
 import { Button } from "@/components/ui/button";
-import { VapeButton } from "@/components/storefront/vape/vape-button";
+import { VapeButton } from "@/themes/vape/components/vape-button";
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {

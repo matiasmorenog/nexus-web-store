@@ -21,7 +21,8 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 |-------|------|
 | Registry slug → config | `src/lib/store-slugs.ts`, `src/lib/store-verticals/index.ts` |
 | Config apparel / vape | `src/lib/store-verticals/apparel/config.ts`, `.../vape/config.ts` |
-| Homes | `src/components/storefront/home/apparel-home.tsx`, `vape-home.tsx` |
+| Homes y layout por tienda | `src/themes/apparel/`, `src/themes/vape/` |
+| Componentes compartidos | `src/components/storefront/` (catálogo, carrito, checkout, header) |
 | Store por deploy | `src/lib/store-env.ts`, `src/lib/store-context.ts` |
 | Seed multi-tienda | `prisma/seed-env.ts` → `SEED_STORES` |
 | Dev local | `scripts/dev-store.sh`, `npm run dev:apparel` / `dev:vape` / `dev:both` |

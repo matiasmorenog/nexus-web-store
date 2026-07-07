@@ -1,5 +1,5 @@
-import { ApparelHome } from "@/components/storefront/home/apparel-home";
-import { VapeHome } from "@/components/storefront/home/vape-home";
+import { ApparelHome } from "@/themes/apparel/components/apparel-home";
+import { VapeHome } from "@/themes/vape/components/vape-home";
 import type { StoreVertical } from "@/lib/store-verticals/types";
 
 type HomePageProps = {

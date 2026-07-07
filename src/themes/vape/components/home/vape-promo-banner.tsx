@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { VapeButtonLink } from "@/components/storefront/vape/vape-button";
+import { VapeButtonLink } from "@/themes/vape/components/vape-button";
 import { VAPE_PROMO } from "@/lib/store-verticals/vape/home-content";
 
 export function VapePromoBanner() {

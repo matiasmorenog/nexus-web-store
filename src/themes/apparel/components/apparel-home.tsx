@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { HomeHeroCarousel } from "@/components/storefront/home-hero-carousel";
+import { HomeHeroCarousel } from "@/themes/apparel/components/home-hero-carousel";
 import {
   FeaturedProductsSection,
   FeaturedProductsSectionShell,
-} from "@/components/storefront/featured-products-section";
+} from "@/themes/apparel/components/featured-products-section";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonFeaturedProducts } from "@/components/storefront/storefront-skeleton";
 import { apparelConfig } from "@/lib/store-verticals/apparel/config";

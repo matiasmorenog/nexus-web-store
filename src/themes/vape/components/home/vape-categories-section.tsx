@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
-import { VapeSectionHeading } from "@/components/storefront/home/vape/vape-section-heading";
+import { VapeSectionHeading } from "@/themes/vape/components/home/vape-section-heading";
 import { vapeCatalogHref } from "@/lib/store-verticals/vape/config";
 import { VAPE_HOME_CATEGORIES } from "@/lib/store-verticals/vape/home-content";
 

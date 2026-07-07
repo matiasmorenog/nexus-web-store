@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { HomeHeroContent } from "@/components/storefront/home-hero-content";
+import { HomeHeroContent } from "@/themes/apparel/components/home-hero-content";
 import { Button } from "@/components/ui/button";
 import {
   getHomeHeroSlides,

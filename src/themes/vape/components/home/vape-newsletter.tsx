@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent } from "react";
-import { VapeButton } from "@/components/storefront/vape/vape-button";
+import { VapeButton } from "@/themes/vape/components/vape-button";
 
 export function VapeNewsletter() {
   const submit = (e: FormEvent) => {

@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { vapeButtonClassName, VapeButtonLink } from "@/components/storefront/vape/vape-button";
-import { VapeProductCard, type VapeProductCardData } from "@/components/storefront/home/vape/vape-product-card";
-import { VapeSectionHeading } from "@/components/storefront/home/vape/vape-section-heading";
+import { vapeButtonClassName, VapeButtonLink } from "@/themes/vape/components/vape-button";
+import { VapeProductCard, type VapeProductCardData } from "@/themes/vape/components/home/vape-product-card";
+import { VapeSectionHeading } from "@/themes/vape/components/home/vape-section-heading";
 
 const FILTER_TABS = ["Todos", "Destacados", "Nuevos", "Ofertas"] as const;
 type FilterTab = (typeof FILTER_TABS)[number];

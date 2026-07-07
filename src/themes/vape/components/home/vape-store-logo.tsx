@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { VapeBrandWordmark } from "@/components/storefront/home/vape/vape-brand-wordmark";
+import { VapeBrandWordmark } from "@/themes/vape/components/home/vape-brand-wordmark";
 
 type VapeStoreLogoProps = {
   storeName: string;

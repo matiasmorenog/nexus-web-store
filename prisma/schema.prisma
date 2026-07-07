@@ -62,7 +62,6 @@ model Store {
   logo             String?
   primaryColor     String   @default("#171717")
   secondaryColor   String   @default("#f5f5f5")
-  domain           String?
   shippingFlatRate Decimal  @default(0)
   allowPickup      Boolean  @default(true)
   createdAt        DateTime @default(now())

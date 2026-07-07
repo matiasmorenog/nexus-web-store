@@ -34,7 +34,6 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
 | `shippingCarriers` | Envíos carrier | +40 | Cotización y etiquetas con operadores logísticos |
 | `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |
-| `customDomain` | Dominio custom | +12 | `tienda.com` en lugar de subdominio Vercel |
 | `multiUser` | Multi-usuario | +18/usuario | Roles vendedor, depósito, solo lectura |
 | `api` | API y webhooks | +50 | REST para productos/pedidos, webhooks de eventos |
 | `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (vape, apparel, futuros) |
@@ -153,7 +152,7 @@ Funcionalidad que debe existir siempre en plan base:
 7. **Wishlist** — favoritos en storefront y cuenta ✅
 8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
 9. **Marketing** — WhatsApp y Meta Pixel ✅
-10. **API / Dominio custom** — cuando haya demanda
+10. **API / Multi-usuario / Envíos carrier / Temas premium** — cuando haya demanda
 11. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
 
 ---

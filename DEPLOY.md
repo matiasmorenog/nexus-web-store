@@ -57,6 +57,52 @@ DIRECT_URL="postgresql://USER:PASSWORD@ep-xxx.region.aws.neon.tech/neondb?sslmod
 
 No uses la URL direct como `DATABASE_URL` en Vercel.
 
+### Integración Neon ↔ Vercel (preview branching)
+
+Si conectaste Neon con la integración de Vercel, puede crearse **un branch de Neon por cada preview deploy** (cada PR). Eso no viene del código del repo.
+
+**Para este proyecto** (un Neon, dos tiendas, datos demo compartidos) conviene **una sola DB** para Production y Preview.
+
+#### ¿Qué integración tenés?
+
+| Dónde ves Neon | Tipo | Cómo cortar branches por preview |
+|----------------|------|----------------------------------|
+| Vercel → **Storage** → aparece Neon Postgres | Vercel-Managed | Desactivar **Preview** en Deployments Configuration (abajo) |
+| Vercel → **Storage** solo muestra Blob (tu caso habitual) | **Neon-Managed** | **Disconnect** en Neon Console (no hay toggle) |
+
+Si en Storage solo ves Blob, Neon está enlazado desde **Neon Console → Integrations → Vercel** o desde **Vercel → Integrations** (Connectable Account), no desde Storage.
+
+#### Neon-Managed — desactivar branching (recomendado acá)
+
+No se puede apagar el branching por preview sin desconectar la integración. Pasos:
+
+1. **Neon Console** → [console.neon.tech](https://console.neon.tech) → tu proyecto.
+2. Menú **Integrations** → Vercel → **Manage** → **Disconnect**.
+3. En **Vercel** (cada proyecto: `nexus-web-store` y `nexus-vape-store`):
+   - **Settings → Environment Variables**
+   - Confirmá que existen `DATABASE_URL` y `DIRECT_URL` para **Production** y **Preview** (copiá las URLs desde Neon → Connection details del branch `main` / production).
+   - Si la integración había inyectado vars con prefijo o duplicadas (`POSTGRES_URL`, `PGHOST`, etc.), dejalas solo si las usás; este repo usa `DATABASE_URL` + `DIRECT_URL`.
+4. Opcional: **Vercel → Team/Project → Integrations** → Neon → **Remove** si sigue instalada.
+5. **Redeploy** un preview para verificar que ya no aparecen branches `preview/*` nuevos.
+
+La DB en Neon no se borra; solo dejás de crear branches automáticos.
+
+#### Vercel-Managed — solo si Neon aparece en Storage
+
+Repetí en **cada** proyecto Vercel:
+
+1. Vercel → proyecto → **Storage** → base Neon.
+2. **Projects** → tu proyecto → **Settings**.
+3. **Advanced Options** → **Deployments Configuration**.
+4. **Desactivá Preview**.
+5. Guardá.
+
+#### Limpiar branches viejos
+
+Neon Console → proyecto → **Branches** (o Integrations → Vercel → Manage → Branches) → eliminá `preview/*`. No borres `main` / `production`.
+
+Doc Neon: [Neon-Managed](https://neon.com/docs/guides/neon-managed-vercel-integration), [Vercel-Managed](https://neon.com/docs/guides/vercel-managed-integration), [preview branch cleanup](https://neon.com/docs/guides/vercel-branch-cleanup).
+
 ## Base de datos (seed)
 
 Desde tu máquina (una vez o cuando resetees demo):

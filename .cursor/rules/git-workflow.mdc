@@ -56,10 +56,12 @@ git fetch origin development
 git merge origin/development   # o rebase si el usuario prefiere historial lineal
 # validar: npx tsc --noEmit (si aplica)
 git push -u origin HEAD
-gh pr create --base development
+gh pr create --base development --head "$(git branch --show-current)"
 ```
 
-- Base del PR: **siempre `development`** (features/fixes/refactors).
+- Base del PR: **siempre `development`** (features/fixes/refactors/chore/docs).
+- **Obligatorio:** `gh pr create` debe incluir `--base development`. Sin excepción salvo release.
+- Si un PR quedó con base `main` por error → `gh pr edit <número> --base development`.
 - Usar `.github/pull_request_template.md`.
 - Un branch → un PR abierto. No duplicar PRs al mismo destino.
 
@@ -70,6 +72,7 @@ gh pr create --base development
 
 ## Prohibido
 
+- PR de feature/fix/refactor/chore/docs con **`--base main`** (solo release usa `main` como base)
 - PR de feature/fix **directo a `main`**
 - Push directo a `main` o `development` en el día a día
 - `git push --force` a `main` / `master`

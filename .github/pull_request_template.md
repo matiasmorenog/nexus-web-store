@@ -1,3 +1,5 @@
+> **Base del PR:** siempre `development`. No abrir features/fixes contra `main`.
+
 ## Qué cambia
 
 -

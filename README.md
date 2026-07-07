@@ -176,6 +176,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
 - [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
+- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
 
 </details>
 
@@ -202,6 +203,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Wishlist (módulo Plus)
 - [x] Analytics avanzado (módulo Plus)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
+- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
 
 </details>
 

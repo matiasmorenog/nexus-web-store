@@ -19,6 +19,7 @@ type CheckoutViewProps = {
   allowPickup: boolean;
   storeName: string;
   couponsEnabled?: boolean;
+  dynamicShippingEnabled?: boolean;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -30,6 +31,7 @@ export function CheckoutView({
   allowPickup,
   storeName,
   couponsEnabled = false,
+  dynamicShippingEnabled = false,
   defaultCustomer,
 }: CheckoutViewProps) {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(
@@ -83,6 +85,7 @@ export function CheckoutView({
             showSummary={false}
             defaultCustomer={defaultCustomer}
             couponsEnabled={couponsEnabled}
+            dynamicShippingEnabled={dynamicShippingEnabled}
             appliedCoupon={appliedCoupon}
             onCouponChange={setAppliedCoupon}
           />

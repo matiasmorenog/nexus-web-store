@@ -8,7 +8,7 @@ export type MercadoEnviosQuote = {
   demoMode: boolean;
 };
 
-export type MercadoEnviosCarrierId = "correo_argentino";
+export type MercadoEnviosCarrierId = "mercado_envios" | "correo_argentino";
 
 export type MercadoEnviosCarrier = {
   id: MercadoEnviosCarrierId;
@@ -36,6 +36,14 @@ export const MERCADO_ENVIOS_CARRIERS: Record<
   MercadoEnviosCarrierId,
   MercadoEnviosCarrier
 > = {
+  mercado_envios: {
+    id: "mercado_envios",
+    label: "Mercado Envíos",
+    trackingPortalUrl: "https://www.mercadolibre.com.ar/ventas/envios",
+    trackingPortalLabel: "Rastrear en Mercado Envíos",
+    trackingHint:
+      "Ingresá con la cuenta de Mercado Libre vinculada a la tienda para ver el envío.",
+  },
   correo_argentino: {
     id: "correo_argentino",
     label: "Correo Argentino",
@@ -72,10 +80,13 @@ export function isMercadoEnviosConfigured() {
 export function quoteMercadoEnvios({
   zip,
   baseRate,
+  carrierId = "mercado_envios",
 }: {
   zip: string;
   baseRate: number;
+  carrierId?: MercadoEnviosCarrierId;
 }): MercadoEnviosQuote {
+  const carrier = getMercadoEnviosCarrier(carrierId);
   const zipDigits = zip.replace(/\D/g, "");
   const zipNum = parseInt(zipDigits.slice(0, 4), 10) || 1000;
   const multiplier = 1 + (zipNum % 7) * 0.015;
@@ -85,8 +96,11 @@ export function quoteMercadoEnvios({
 
   return {
     cost,
-    carrier: "Mercado Envíos",
-    service: "Envío a domicilio",
+    carrier: carrier.label,
+    service:
+      carrierId === "correo_argentino"
+        ? "Correo Argentino vía Mercado Envíos"
+        : "Envío a domicilio",
     deliveryDaysMin,
     deliveryDaysMax,
     estimatedDelivery: addCalendarDays(new Date(), deliveryDaysMax),
@@ -116,9 +130,24 @@ export function generateMercadoEnviosTrackingNumber(orderId: string) {
 }
 
 export function getMercadoEnviosCarrier(
-  carrierId: MercadoEnviosCarrierId = "correo_argentino",
+  carrierId: MercadoEnviosCarrierId = "mercado_envios",
 ): MercadoEnviosCarrier {
   return MERCADO_ENVIOS_CARRIERS[carrierId];
+}
+
+export function resolveMercadoEnviosCarrierId(
+  carrierLabel: string | null | undefined,
+  fallback: MercadoEnviosCarrierId = "mercado_envios",
+): MercadoEnviosCarrierId {
+  if (!carrierLabel?.trim()) return fallback;
+
+  for (const carrier of Object.values(MERCADO_ENVIOS_CARRIERS)) {
+    if (carrier.label === carrierLabel.trim()) {
+      return carrier.id;
+    }
+  }
+
+  return fallback;
 }
 
 /**
@@ -127,7 +156,7 @@ export function getMercadoEnviosCarrier(
  */
 export function resolveMercadoEnviosTrackingUrl({
   trackingUrl,
-  carrierId = "correo_argentino",
+  carrierId = "mercado_envios",
 }: {
   trackingUrl?: string | null;
   carrierId?: MercadoEnviosCarrierId;
@@ -142,13 +171,13 @@ export function resolveMercadoEnviosTrackingUrl({
 export function createMercadoEnviosShipmentDemo({
   orderId,
   zip,
-  carrierId = "correo_argentino",
+  carrierId = "mercado_envios",
 }: {
   orderId: string;
   zip: string;
   carrierId?: MercadoEnviosCarrierId;
 }): MercadoEnviosShipment {
-  const quote = quoteMercadoEnvios({ zip, baseRate: 0 });
+  const quote = quoteMercadoEnvios({ zip, baseRate: 0, carrierId });
   const carrier = getMercadoEnviosCarrier(carrierId);
   const trackingNumber = generateMercadoEnviosTrackingNumber(orderId);
   const trackingUrl = resolveMercadoEnviosTrackingUrl({ carrierId });
@@ -170,15 +199,17 @@ export function createMercadoEnviosShipmentDemo({
 export async function createMercadoEnviosShipment({
   orderId,
   zip,
+  carrierId = "mercado_envios",
 }: {
   orderId: string;
   zip: string;
+  carrierId?: MercadoEnviosCarrierId;
 }): Promise<MercadoEnviosShipment> {
   if (isMercadoEnviosConfigured()) {
     throw new Error("Mercado Envíos real aún no está implementado");
   }
 
-  return createMercadoEnviosShipmentDemo({ orderId, zip });
+  return createMercadoEnviosShipmentDemo({ orderId, zip, carrierId });
 }
 
 export function formatMercadoEnviosDeliveryWindow(

@@ -76,6 +76,7 @@ model Store {
   seoSettings       StoreSeoSettings?
   wishlistItems     WishlistItem[]
   marketingSettings StoreMarketingSettings?
+  shippingSettings  StoreShippingSettings?
 }
 
 model StoreMarketingSettings {
@@ -86,6 +87,15 @@ model StoreMarketingSettings {
   metaPixelEnabled Boolean  @default(false)
   metaPixelId      String?
   updatedAt        DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreShippingSettings {
+  storeId            String   @id
+  carriersEnabled    Boolean  @default(true)
+  preferredCarrierId String   @default("mercado_envios")
+  updatedAt          DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }

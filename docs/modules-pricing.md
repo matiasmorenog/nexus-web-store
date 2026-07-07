@@ -152,8 +152,9 @@ Funcionalidad que debe existir siempre en plan base:
 6. **SEO avanzado** — sitemap, robots, meta y JSON-LD ✅
 7. **Wishlist** — favoritos en storefront y cuenta ✅
 8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
-9. **Marketing / API / Dominio** — cuando haya demanda
-10. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
+9. **Marketing** — WhatsApp y Meta Pixel ✅
+10. **API / Dominio custom** — cuando haya demanda
+11. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
 
 ---
 
@@ -170,6 +171,7 @@ Funcionalidad que debe existir siempre en plan base:
 | SEO avanzado | `src/lib/seo/`, `/admin/modulos/seo`, `/sitemap.xml`, `/robots.txt` |
 | Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
 | Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics` |
+| Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
 | Errores API | `src/lib/modules/api-error.ts` |
 | Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |

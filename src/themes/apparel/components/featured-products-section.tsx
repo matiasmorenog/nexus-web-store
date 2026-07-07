@@ -32,11 +32,21 @@ export async function FeaturedProductsSection() {
 
 export function FeaturedProductsSectionShell({
   storeDisplayName,
+  title = "Destacados",
+  titleAccent,
+  viewAllHref = "/productos?destacados=1",
   children,
 }: {
-  storeDisplayName: string;
+  storeDisplayName?: string;
+  title?: string;
+  titleAccent?: string;
+  viewAllHref?: string;
   children: ReactNode;
 }) {
+  const accent =
+    titleAccent ??
+    (storeDisplayName ? getBrandPrefix(storeDisplayName) : undefined);
+
   return (
     <StorefrontReveal index={1}>
       <section className="bg-neutral-50 py-16">
@@ -44,14 +54,14 @@ export function FeaturedProductsSectionShell({
           <div className="mb-8 flex items-end justify-between">
             <h2 className="text-2xl font-bold">
               <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
-                Destacados
+                {title}
               </span>{" "}
-              <span className="text-[var(--brand-primary)]">
-                {getBrandPrefix(storeDisplayName)}
-              </span>
+              {accent ? (
+                <span className="text-[var(--brand-primary)]">{accent}</span>
+              ) : null}
             </h2>
             <Link
-              href="/productos?destacados=1"
+              href={viewAllHref}
               className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
             >
               Ver todos

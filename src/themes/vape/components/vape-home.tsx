@@ -9,6 +9,11 @@ import { VapeProductsSection } from "@/themes/vape/components/home/vape-products
 import { VapePromoBanner } from "@/themes/vape/components/home/vape-promo-banner";
 import { VapeHomeHero } from "@/themes/vape/components/vape-home-hero";
 import { VapeJunglePageAtmosphere } from "@/themes/vape/components/vape-nature-decor";
+import {
+  getEnabledHomeSections,
+  getStoreHomeContent,
+} from "@/lib/home-content/query";
+import type { HomeSection } from "@/lib/home-content/types";
 import { getStorefrontProducts } from "@/lib/storefront-products-query";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { getStorefrontConfig } from "@/lib/store-verticals";
@@ -18,7 +23,7 @@ type VapeHomeProps = {
   storeDisplayName: string;
 };
 
-async function VapeProducts() {
+async function VapeProducts({ title }: { title: string }) {
   const storeId = await getStoreId();
   const config = getStorefrontConfig();
   const products = await getStorefrontProducts(storeId, {
@@ -30,44 +35,83 @@ async function VapeProducts() {
     categoryLabel: getProductTaxonomyLabel(product.category, product.audience),
   }));
 
-  return (
-    <VapeProductsSection
-      products={productsWithLabels}
-      title={config.home.productsSectionTitle}
-    />
-  );
+  return <VapeProductsSection products={productsWithLabels} title={title} />;
 }
 
-export function VapeHome({ storeDisplayName }: VapeHomeProps) {
+function renderVapeSection(
+  section: HomeSection,
+  storeDisplayName: string,
+  revealIndex: number,
+  showAgeNotice: boolean,
+) {
+  switch (section.type) {
+    case "hero.static":
+      return (
+        <VapeHomeHero
+          key={section.id}
+          storeDisplayName={storeDisplayName}
+          content={section.content}
+        />
+      );
+    case "features.bar":
+      return <VapeFeaturesBar key={section.id} content={section.content} />;
+    case "categories.grid":
+      return (
+        <div key={section.id}>
+          {showAgeNotice ? (
+            <StorefrontReveal index={revealIndex}>
+              <VapeAgeNotice />
+            </StorefrontReveal>
+          ) : null}
+          <StorefrontReveal index={revealIndex + (showAgeNotice ? 1 : 0)}>
+            <VapeCategoriesSection content={section.content} />
+          </StorefrontReveal>
+        </div>
+      );
+    case "featured.products":
+      return (
+        <StorefrontReveal key={section.id} index={revealIndex}>
+          <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
+            <VapeProducts title={section.content.title} />
+          </Suspense>
+        </StorefrontReveal>
+      );
+    case "promo.banner":
+      return (
+        <StorefrontReveal key={section.id} index={revealIndex}>
+          <VapePromoBanner content={section.content} />
+        </StorefrontReveal>
+      );
+    case "newsletter":
+      return <VapeNewsletter key={section.id} content={section.content} />;
+    default:
+      return null;
+  }
+}
+
+export async function VapeHome({ storeDisplayName }: VapeHomeProps) {
+  const storeId = await getStoreId();
   const config = getStorefrontConfig();
+  const homeContent = await getStoreHomeContent(storeId, { storeDisplayName });
+  const sections = getEnabledHomeSections(homeContent);
 
   return (
     <>
       <VapeJunglePageAtmosphere />
-      <VapeHomeHero storeDisplayName={storeDisplayName} />
-      <VapeFeaturesBar />
+      {sections.map((section, index) => {
+        const usesReveal =
+          section.type !== "hero.static" &&
+          section.type !== "features.bar" &&
+          section.type !== "newsletter";
+        const revealIndex = usesReveal ? index : 0;
 
-      {config.features.ageNotice && (
-        <StorefrontReveal index={1}>
-          <VapeAgeNotice />
-        </StorefrontReveal>
-      )}
-
-      <StorefrontReveal index={2}>
-        <VapeCategoriesSection />
-      </StorefrontReveal>
-
-      <StorefrontReveal index={3}>
-        <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
-          <VapeProducts />
-        </Suspense>
-      </StorefrontReveal>
-
-      <StorefrontReveal index={4}>
-        <VapePromoBanner />
-      </StorefrontReveal>
-
-      <VapeNewsletter />
+        return renderVapeSection(
+          section,
+          storeDisplayName,
+          revealIndex,
+          config.features.ageNotice && section.type === "categories.grid",
+        );
+      })}
     </>
   );
 }

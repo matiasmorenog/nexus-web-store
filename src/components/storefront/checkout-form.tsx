@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
+import {
+  CheckoutCouponField,
+  type AppliedCheckoutCoupon,
+} from "@/components/storefront/checkout-coupon-field";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +54,9 @@ type CheckoutFormProps = {
   allowPickup: boolean;
   storeName: string;
   showSummary?: boolean;
+  couponsEnabled?: boolean;
+  appliedCoupon?: AppliedCheckoutCoupon | null;
+  onCouponChange?: (coupon: AppliedCheckoutCoupon | null) => void;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -61,6 +68,9 @@ export function CheckoutForm({
   allowPickup,
   storeName,
   showSummary = true,
+  couponsEnabled = false,
+  appliedCoupon = null,
+  onCouponChange,
   defaultCustomer,
 }: CheckoutFormProps) {
   const router = useRouter();
@@ -98,7 +108,10 @@ export function CheckoutForm({
   const quotedShipping = shippingQuote?.cost ?? shippingCost;
   const effectiveShipping =
     deliveryMethod === "pickup" ? 0 : quotedShipping;
-  const total = subtotal() + effectiveShipping;
+  const orderSubtotal = subtotal();
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const subtotalAfterCoupon = Math.max(0, orderSubtotal - couponDiscount);
+  const total = subtotalAfterCoupon + effectiveShipping;
 
   useEffect(() => {
     if (deliveryMethod !== "shipping") {
@@ -190,6 +203,7 @@ export function CheckoutForm({
         body: JSON.stringify({
           deliveryMethod,
           customer,
+          couponCode: appliedCoupon?.code,
           items: items.map((i) => ({
             variantId: i.variantId,
             quantity: i.quantity,
@@ -387,12 +401,23 @@ export function CheckoutForm({
         </div>
       </fieldset>
 
+      {couponsEnabled ? (
+        <CheckoutCouponField
+          subtotal={orderSubtotal}
+          applied={appliedCoupon}
+          onApplied={(coupon) => onCouponChange?.(coupon)}
+        />
+      ) : null}
+
       {showSummary ? (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 text-sm">
           <CartPromoSummary
             rawSubtotal={rawSubtotal()}
             promoDiscount={promoDiscount()}
-            subtotal={subtotal()}
+            subtotal={orderSubtotal}
+            couponCode={appliedCoupon?.code}
+            couponDiscount={couponDiscount}
+            totalAfterDiscounts={subtotalAfterCoupon}
           />
           <DeliverySection
             method={deliveryMethod}

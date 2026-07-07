@@ -66,6 +66,13 @@ export async function fulfillPaidOrder(orderId: string) {
           data: { stock: { decrement: item.quantity } },
         });
       }
+
+      if (order.couponId) {
+        await tx.coupon.update({
+          where: { id: order.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
     });
 
     const productSlugs = [

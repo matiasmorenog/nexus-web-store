@@ -2,38 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ExternalLink,
-  LayoutDashboard,
-  Package,
-  Settings,
-  ShoppingCart,
-} from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { SignOutButton } from "@/components/admin/sign-out-button";
+import {
+  isModuleNavItemEnabled,
+  splitAdminNavItems,
+  type AdminNavItem,
+  type ModuleId,
+} from "@/lib/modules";
+import { moduleUpgradeHref } from "@/lib/modules/access";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  {
-    href: "/admin",
-    label: "Dashboard",
-    shortLabel: "Inicio",
-    icon: LayoutDashboard,
-    exact: true,
-  },
-  { href: "/admin/productos", label: "Productos", shortLabel: "Productos", icon: Package },
-  { href: "/admin/pedidos", label: "Pedidos", shortLabel: "Pedidos", icon: ShoppingCart },
-  {
-    href: "/admin/configuracion",
-    label: "Configuración",
-    shortLabel: "Config",
-    icon: Settings,
-  },
-];
 
 type AdminNavProps = {
   brandPrefix: string;
   userName?: string | null;
   userEmail?: string | null;
+  enabledModuleIds: ModuleId[];
 };
 
 function isActive(pathname: string, href: string, exact?: boolean) {
@@ -41,14 +25,67 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AdminNav({ brandPrefix, userName, userEmail }: AdminNavProps) {
-  const pathname = usePathname();
+function navItemHref(
+  item: AdminNavItem,
+  enabledModuleIds: ModuleId[],
+) {
+  if (item.kind === "module" && !isModuleNavItemEnabled(item, enabledModuleIds)) {
+    return moduleUpgradeHref(item.moduleId);
+  }
+  return item.href;
+}
 
-  const linkClass = (href: string, exact?: boolean, mobile = false) =>
-    cn(
+function DesktopNavLink({
+  item,
+  enabledModuleIds,
+  pathname,
+}: {
+  item: AdminNavItem;
+  enabledModuleIds: ModuleId[];
+  pathname: string;
+}) {
+  const active = isActive(pathname, item.href, item.exact);
+
+  return (
+    <Link
+      href={navItemHref(item, enabledModuleIds)}
+      className={cn(
+        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-white/10 text-white"
+          : "text-neutral-400 hover:bg-white/5 hover:text-white",
+      )}
+    >
+      <item.icon className="h-4 w-4 shrink-0" />
+      <span className="flex min-w-0 items-center gap-2">
+        <span className="truncate">{item.label}</span>
+        {item.kind === "plan" ? (
+          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--brand-primary)]">
+            Plus
+          </span>
+        ) : null}
+      </span>
+    </Link>
+  );
+}
+
+export function AdminNav({
+  brandPrefix,
+  userName,
+  userEmail,
+  enabledModuleIds,
+}: AdminNavProps) {
+  const pathname = usePathname();
+  const { coreItems, moduleItems, planItem } = splitAdminNavItems(enabledModuleIds);
+  const navItems = [...coreItems, ...moduleItems, planItem];
+
+  const linkClass = (item: AdminNavItem, mobile = false) => {
+    const active = isActive(pathname, item.href, item.exact);
+
+    return cn(
       "flex items-center gap-3 rounded-lg text-sm font-medium transition-colors",
       mobile ? "px-3 py-2.5" : "px-3 py-2.5",
-      isActive(pathname, href, exact)
+      active
         ? mobile
           ? "bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
           : "bg-white/10 text-white"
@@ -56,32 +93,66 @@ export function AdminNav({ brandPrefix, userName, userEmail }: AdminNavProps) {
           ? "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
           : "text-neutral-400 hover:bg-white/5 hover:text-white",
     );
+  };
 
   return (
     <>
-      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col bg-zinc-900 lg:flex lg:h-full">
-        <div className="h-1 w-full bg-[var(--brand-primary)]" />
-        <div className="flex h-16 items-center border-b border-white/10 px-6">
+      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col overflow-hidden bg-zinc-900 lg:flex lg:h-full">
+        <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
+        <div className="flex h-16 shrink-0 items-center border-b border-white/10 px-6">
           <Link href="/admin" className="text-lg font-bold text-white">
             {brandPrefix}{" "}
             <span className="font-normal text-[var(--brand-primary)]">Admin</span>
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 p-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={linkClass(item.href, item.exact)}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <nav
+            aria-label="Navegación principal"
+            className="shrink-0 space-y-1 border-b border-white/10 p-4"
+          >
+            {coreItems.map((item) => (
+              <DesktopNavLink
+                key={item.href}
+                item={item}
+                enabledModuleIds={enabledModuleIds}
+                pathname={pathname}
+              />
+            ))}
+          </nav>
 
-        <div className="space-y-3 border-t border-white/10 p-4">
+          {moduleItems.length > 0 ? (
+            <nav
+              aria-label="Módulos Plus"
+              className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
+            >
+              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+                Módulos
+              </p>
+              {moduleItems.map((item) => (
+                <DesktopNavLink
+                  key={item.href}
+                  item={item}
+                  enabledModuleIds={enabledModuleIds}
+                  pathname={pathname}
+                />
+              ))}
+            </nav>
+          ) : null}
+
+          <nav
+            aria-label="Plan"
+            className="shrink-0 space-y-1 border-t border-white/10 p-4"
+          >
+            <DesktopNavLink
+              item={planItem}
+              enabledModuleIds={enabledModuleIds}
+              pathname={pathname}
+            />
+          </nav>
+        </div>
+
+        <div className="shrink-0 space-y-3 border-t border-white/10 p-4">
           <Link
             href="/"
             target="_blank"
@@ -131,10 +202,10 @@ export function AdminNav({ brandPrefix, userName, userEmail }: AdminNavProps) {
           {navItems.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              href={navItemHref(item, enabledModuleIds)}
               aria-label={item.label}
               className={cn(
-                linkClass(item.href, item.exact, true),
+                linkClass(item, true),
                 "flex-col justify-center gap-1 px-1 py-2.5 text-center text-[11px] leading-tight sm:flex-row sm:justify-start sm:gap-3 sm:px-3 sm:py-2.5 sm:text-left sm:text-sm",
               )}
             >

@@ -34,4 +34,4 @@ Cupones, home/banners editables, categorías dinámicas, dominio custom, analyti
 
 ## Fase C — SaaS
 
-Onboarding tiendas, planes/billing, temas, multi-usuario, API/webhooks.
+Onboarding tiendas, billing automático (Stripe/MP), temas, multi-usuario, API/webhooks. Catálogo de módulos y gating: `docs/modules-pricing.md`, `src/lib/modules/`.

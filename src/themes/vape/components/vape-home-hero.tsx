@@ -1,20 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import type { HeroStaticContent } from "@/lib/home-content/types";
 import { VapeBrandWordmark } from "@/themes/vape/components/home/vape-brand-wordmark";
 import { VapeHeroNatureDecor } from "@/themes/vape/components/vape-nature-decor";
 import { VapeButtonLink } from "@/themes/vape/components/vape-button";
-import { VAPE_HERO_STATS } from "@/lib/store-verticals/vape/home-content";
 
 type VapeHomeHeroProps = {
   storeDisplayName: string;
+  content: HeroStaticContent;
 };
 
-export function VapeHomeHero({ storeDisplayName }: VapeHomeHeroProps) {
+export function VapeHomeHero({ storeDisplayName, content }: VapeHomeHeroProps) {
   return (
     <section className="relative flex min-h-[min(88vh,40rem)] items-center overflow-hidden bg-[var(--jungle-night-sky)]">
       <div className="absolute inset-0">
         <Image
-          src="https://source.unsplash.com/1600x900/?vape,neon,smoke"
+          src={content.backgroundImageUrl}
           alt=""
           fill
           priority
@@ -37,7 +39,7 @@ export function VapeHomeHero({ storeDisplayName }: VapeHomeHeroProps) {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] bg-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] px-3 py-1.5">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--brand-primary)]" />
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--brand-primary)]">
-              Nuevas llegadas 2025
+              {content.eyebrow}
             </span>
           </div>
 
@@ -46,38 +48,55 @@ export function VapeHomeHero({ storeDisplayName }: VapeHomeHeroProps) {
           </div>
 
           <h1 className="font-vape-display text-5xl font-bold leading-none tracking-tight text-[var(--brand-primary-light,#f0f0f5)] sm:text-7xl">
-            ELEVA TU
+            {content.titleLine1}
             <br />
-            <span className="text-[var(--brand-primary)] text-glow-primary">EXPERIENCIA</span>
+            <span
+              className={
+                content.titleLine2Highlight
+                  ? "text-[var(--brand-primary)] text-glow-primary"
+                  : undefined
+              }
+            >
+              {content.titleLine2}
+            </span>
             <br />
-            VAPE
+            {content.titleLine3}
           </h1>
 
           <p className="mt-6 max-w-lg text-base font-light leading-relaxed text-vape-muted sm:text-lg">
-            Los mejores dispositivos, e-líquidos y accesorios. Envío gratis en pedidos
-            mayores a $50. Calidad certificada, sabores únicos.
+            {content.description}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <VapeButtonLink href="/productos" variant="primary" size="lg">
-              Comprar ahora
+            <VapeButtonLink
+              href={content.primaryCta.href}
+              variant="primary"
+              size="lg"
+            >
+              {content.primaryCta.label}
               <ArrowRight className="h-4 w-4" />
             </VapeButtonLink>
-            <VapeButtonLink href="/productos" variant="secondary" size="lg">
-              Ver catálogo
+            <VapeButtonLink
+              href={content.secondaryCta.href}
+              variant="secondary"
+              size="lg"
+            >
+              {content.secondaryCta.label}
             </VapeButtonLink>
           </div>
 
-          <div className="mt-12 flex gap-8">
-            {VAPE_HERO_STATS.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-vape-display text-2xl font-bold text-[var(--brand-primary)]">
-                  {stat.value}
+          {content.stats.length > 0 ? (
+            <div className="mt-12 flex flex-wrap gap-8">
+              {content.stats.map((stat) => (
+                <div key={`${stat.label}-${stat.value}`}>
+                  <div className="font-vape-display text-2xl font-bold text-[var(--brand-primary)]">
+                    {stat.value}
+                  </div>
+                  <div className="mt-0.5 text-xs text-vape-muted">{stat.label}</div>
                 </div>
-                <div className="mt-0.5 text-xs text-vape-muted">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

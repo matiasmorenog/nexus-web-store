@@ -11,6 +11,7 @@ datasource db {
 enum UserRole {
   PLATFORM_ADMIN
   STORE_OWNER
+  STORE_STAFF
   CUSTOMER
 }
 
@@ -77,6 +78,43 @@ model Store {
   wishlistItems     WishlistItem[]
   marketingSettings StoreMarketingSettings?
   shippingSettings  StoreShippingSettings?
+  themeSettings     StoreThemeSettings?
+  apiKeys           StoreApiKey[]
+  webhookSettings   StoreWebhookSettings?
+}
+
+model StoreThemeSettings {
+  storeId                  String   @id
+  themeId                  String   @default("default")
+  allowCustomerThemeToggle Boolean  @default(true)
+  updatedAt                DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreApiKey {
+  id         String    @id @default(cuid())
+  storeId    String
+  name       String
+  keyPrefix  String
+  keyHash    String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([keyHash])
+}
+
+model StoreWebhookSettings {
+  storeId   String   @id
+  enabled   Boolean  @default(false)
+  url       String?
+  secret    String?
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model StoreMarketingSettings {

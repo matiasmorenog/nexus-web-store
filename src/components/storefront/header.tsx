@@ -33,6 +33,7 @@ type HeaderProps = {
   chrome?: "light" | "dark";
   uiVariant?: "apparel" | "vape";
   wishlistEnabled?: boolean;
+  showVapeThemeToggle?: boolean;
 };
 
 export function Header({
@@ -43,6 +44,7 @@ export function Header({
   chrome = "light",
   uiVariant = "apparel",
   wishlistEnabled = false,
+  showVapeThemeToggle = true,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
   const bannerWrapRef = useRef<HTMLDivElement>(null);
@@ -286,7 +288,7 @@ export function Header({
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {isVapeUi ? (
+            {isVapeUi && showVapeThemeToggle ? (
               <>
                 <VapeThemeToggle compact className="flex sm:hidden" />
                 <VapeThemeToggle className="hidden sm:flex" />

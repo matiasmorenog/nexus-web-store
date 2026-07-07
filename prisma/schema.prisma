@@ -70,12 +70,25 @@ model Store {
 
   users    UserStore[]
   products Product[]
-  orders   Order[]
-  coupons      Coupon[]
-  homeContent  StoreHomeContent?
-  customers    StoreCustomer[]
-  seoSettings  StoreSeoSettings?
-  wishlistItems WishlistItem[]
+  orders            Order[]
+  coupons           Coupon[]
+  homeContent       StoreHomeContent?
+  customers         StoreCustomer[]
+  seoSettings       StoreSeoSettings?
+  wishlistItems     WishlistItem[]
+  marketingSettings StoreMarketingSettings?
+}
+
+model StoreMarketingSettings {
+  storeId          String   @id
+  whatsappEnabled  Boolean  @default(false)
+  whatsappPhone    String?
+  whatsappMessage  String?
+  metaPixelEnabled Boolean  @default(false)
+  metaPixelId      String?
+  updatedAt        DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model StoreHomeContent {

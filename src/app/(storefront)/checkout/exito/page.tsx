@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { CheckCircle, Truck } from "lucide-react";
+import { MetaPixelPurchaseEvent } from "@/components/storefront/meta-pixel-purchase-event";
 import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
 import { db } from "@/lib/db";
+import { getStoreMarketingSettings } from "@/lib/marketing/query";
 import { getOrderShippingInfo } from "@/lib/order-shipping";
 import { formatOrderId } from "@/lib/order-status";
+import { getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +16,16 @@ export default async function CheckoutSuccessPage({
   searchParams: Promise<{ order?: string }>;
 }) {
   const params = await searchParams;
+  const storeId = await getStoreId();
+  const marketing = await getStoreMarketingSettings(storeId);
+
   const order = params.order
     ? await db.order.findUnique({
         where: { id: params.order },
         select: {
           id: true,
+          storeId: true,
+          total: true,
           isPickup: true,
           meShipmentId: true,
           meTrackingNumber: true,
@@ -30,12 +38,25 @@ export default async function CheckoutSuccessPage({
       })
     : null;
 
+  const trackPurchase =
+    marketing.metaPixelEnabled &&
+    marketing.metaPixelId &&
+    order &&
+    order.storeId === storeId;
+
   const shipping = order
     ? getOrderShippingInfo(order)
     : null;
 
   return (
-    <StorefrontStatusPage
+    <>
+      {trackPurchase ? (
+        <MetaPixelPurchaseEvent
+          orderId={order.id}
+          value={Number(order.total)}
+        />
+      ) : null}
+      <StorefrontStatusPage
       icon={CheckCircle}
       iconClassName="text-green-600"
       title="¡Compra confirmada!"
@@ -88,5 +109,6 @@ export default async function CheckoutSuccessPage({
       ) : null}
       <p>Te enviamos un email con el detalle de tu compra.</p>
     </StorefrontStatusPage>
+    </>
   );
 }

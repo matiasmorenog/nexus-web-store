@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StorefrontMarketingShell } from "@/components/storefront/storefront-marketing-shell";
 import { StorefrontWebsiteJsonLd } from "@/components/storefront/seo-website-json-ld";
 import { truncateMetaDescription } from "@/lib/seo/format";
 import {
@@ -6,8 +7,9 @@ import {
   buildStorefrontMetadata,
 } from "@/lib/seo/build-metadata";
 import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
+import { getStoreMarketingSettings } from "@/lib/marketing/query";
 import { storeHasModule } from "@/lib/modules";
-import { formatStoreName, getStore } from "@/lib/store-context";
+import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { ApparelStorefrontLayout } from "@/themes/apparel/components/storefront-layout";
 import { VapeStorefrontLayout } from "@/themes/vape/components/storefront-layout";
@@ -35,6 +37,7 @@ export default async function StorefrontLayout({
   children: React.ReactNode;
 }) {
   const store = await getStore();
+  const storeId = await getStoreId();
   const config = getStorefrontConfig();
   const displayName = formatStoreName(store.name);
   const brandPrimary =
@@ -53,10 +56,11 @@ export default async function StorefrontLayout({
       />
     ) : null;
   const wishlistEnabled = await storeHasModule(store.id, "wishlist");
+  const marketing = await getStoreMarketingSettings(storeId);
 
   if (config.ui.id === "vape") {
     return (
-      <>
+      <StorefrontMarketingShell settings={marketing}>
         {structuredData}
         <VapeStorefrontLayout
           storeDisplayName={displayName}
@@ -65,12 +69,12 @@ export default async function StorefrontLayout({
         >
           {children}
         </VapeStorefrontLayout>
-      </>
+      </StorefrontMarketingShell>
     );
   }
 
   return (
-    <>
+    <StorefrontMarketingShell settings={marketing}>
       {structuredData}
       <ApparelStorefrontLayout
         storeDisplayName={displayName}
@@ -80,6 +84,6 @@ export default async function StorefrontLayout({
       >
         {children}
       </ApparelStorefrontLayout>
-    </>
+    </StorefrontMarketingShell>
   );
 }

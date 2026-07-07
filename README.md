@@ -175,6 +175,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] SEO avanzado (módulo Plus — sitemap, meta, JSON-LD)
 - [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
 - [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
+- [x] WhatsApp y Meta Pixel (módulo Plus)
 
 </details>
 
@@ -200,6 +201,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] SEO avanzado (módulo Plus)
 - [x] Wishlist (módulo Plus)
 - [x] Analytics avanzado (módulo Plus)
+- [x] WhatsApp y Meta Pixel (módulo Plus)
 
 </details>
 

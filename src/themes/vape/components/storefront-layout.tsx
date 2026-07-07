@@ -4,6 +4,8 @@ import { Header } from "@/components/storefront/header";
 import { WishlistSync } from "@/components/storefront/wishlist-sync";
 import { VapeFooter } from "@/themes/vape/components/vape-footer";
 import { VapeThemeShell } from "@/themes/vape/components/vape-theme-shell";
+import type { ResolvedStoreTheme } from "@/lib/premium-themes";
+import type { VapeColorThemeId } from "@/lib/store-verticals/vape/themes";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
 
 type VapeStorefrontLayoutProps = {
@@ -11,6 +13,7 @@ type VapeStorefrontLayoutProps = {
   storeDisplayName: string;
   config: VerticalConfig;
   wishlistEnabled?: boolean;
+  storeTheme?: ResolvedStoreTheme;
 };
 
 export function VapeStorefrontLayout({
@@ -18,9 +21,22 @@ export function VapeStorefrontLayout({
   storeDisplayName,
   config,
   wishlistEnabled = false,
+  storeTheme,
 }: VapeStorefrontLayoutProps) {
+  const vapeThemeId =
+    storeTheme?.themeId && storeTheme.themeId !== "default"
+      ? (storeTheme.themeId as VapeColorThemeId)
+      : undefined;
+  const showVapeThemeToggle = storeTheme?.moduleActive
+    ? storeTheme.allowCustomerThemeToggle
+    : true;
+
   return (
-    <VapeThemeShell initialCssVars={config.ui.cssVars}>
+    <VapeThemeShell
+      initialCssVars={config.ui.cssVars}
+      storeThemeId={vapeThemeId}
+      allowCustomerThemeToggle={showVapeThemeToggle}
+    >
       {wishlistEnabled ? <WishlistSync /> : null}
       <Suspense
         fallback={
@@ -35,6 +51,7 @@ export function VapeStorefrontLayout({
           chrome="dark"
           uiVariant="vape"
           wishlistEnabled={wishlistEnabled}
+          showVapeThemeToggle={showVapeThemeToggle}
         />
       </Suspense>
       <main className="storefront-content-bottom flex-1">{children}</main>

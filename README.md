@@ -177,6 +177,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
 - [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
+- [x] Temas premium (módulo Plus — paletas vape + toggle visitante)
 
 </details>
 
@@ -204,17 +205,17 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Analytics avanzado (módulo Plus)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
 - [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
+- [x] Temas premium (módulo Plus)
+- [x] Multi-usuario (módulo Plus)
+- [x] API y webhooks (módulo Plus)
 
 </details>
-
-<details>
-<summary><strong>Infra y SaaS</strong></summary>
 
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
 - [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
 - [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
 - [ ] Separar Vercel Blob por tienda antes de salir a producción
-- [ ] Onboarding, billing automático, API pública
+- [ ] Onboarding, billing automático
 
 </details>
 

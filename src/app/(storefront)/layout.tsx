@@ -8,6 +8,7 @@ import {
 } from "@/lib/seo/build-metadata";
 import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
 import { getStoreMarketingSettings } from "@/lib/marketing/query";
+import { getResolvedStoreTheme } from "@/lib/premium-themes";
 import { storeHasModule } from "@/lib/modules";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
@@ -57,6 +58,7 @@ export default async function StorefrontLayout({
     ) : null;
   const wishlistEnabled = await storeHasModule(store.id, "wishlist");
   const marketing = await getStoreMarketingSettings(storeId);
+  const storeTheme = await getResolvedStoreTheme(storeId);
 
   if (config.ui.id === "vape") {
     return (
@@ -66,6 +68,7 @@ export default async function StorefrontLayout({
           storeDisplayName={displayName}
           config={config}
           wishlistEnabled={wishlistEnabled}
+          storeTheme={storeTheme}
         >
           {children}
         </VapeStorefrontLayout>

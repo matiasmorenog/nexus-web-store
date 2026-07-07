@@ -168,7 +168,10 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Retiro en local
 - [x] Páginas legales, FAQ, contacto
 - [x] Cuenta cliente + mis pedidos
-- [ ] Cupones, wishlist, SEO avanzado, WhatsApp
+- [x] Cupones (módulo Plus — admin + checkout)
+- [x] Home editable (módulo Plus — bloques por tienda)
+- [x] Export CSV (módulo Plus — pedidos y productos)
+- [ ] Wishlist, SEO avanzado, WhatsApp
 
 </details>
 
@@ -188,7 +191,9 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] CRUD productos, variantes, imágenes
 - [x] Pedidos con filtros y estados
 - [x] Configuración de tienda
-- [ ] CRM lite, export CSV, home editable
+- [x] Home editable (módulo Plus — bloques por tienda)
+- [x] Export CSV (módulo Plus)
+- [ ] CRM lite (módulo Plus)
 
 </details>
 
@@ -197,8 +202,9 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
 - [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
+- [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
 - [ ] Separar Vercel Blob por tienda antes de salir a producción
-- [ ] Dominio custom, onboarding, planes, API pública
+- [ ] Dominio custom, onboarding, billing automático, API pública
 
 </details>
 

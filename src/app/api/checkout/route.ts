@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { formatStoreName } from "@/lib/brand";
+import { normalizeCouponCode } from "@/lib/coupons/format";
+import { validateCouponForCheckout } from "@/lib/coupons/validate";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { quoteMercadoEnvios } from "@/lib/mercado-envios";
+import { storeHasModule } from "@/lib/modules";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
   getMercadoPagoUnitPriceFromPricing,
@@ -29,6 +32,7 @@ const checkoutSchema = z
         quantity: z.number().int().positive(),
       }),
     ),
+    couponCode: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.deliveryMethod !== "shipping") return;
@@ -61,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const { customer, items, deliveryMethod } = parsed.data;
+    const { customer, items, deliveryMethod, couponCode } = parsed.data;
     const storeId = await getStoreId();
 
     const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
@@ -110,6 +114,48 @@ export async function POST(request: NextRequest) {
 
     const promoPricing = pricePromo2x1Lines(promoLines);
     const { rawSubtotal, promoDiscount, subtotal } = promoPricing;
+
+    let couponId: string | undefined;
+    let resolvedCouponCode: string | undefined;
+    let couponDiscount = 0;
+
+    const normalizedCouponCode = couponCode
+      ? normalizeCouponCode(couponCode)
+      : "";
+
+    if (normalizedCouponCode) {
+      if (!(await storeHasModule(storeId, "coupons"))) {
+        return NextResponse.json(
+          { error: "Los cupones no están disponibles en esta tienda." },
+          { status: 400 },
+        );
+      }
+
+      const coupon = await db.coupon.findUnique({
+        where: {
+          storeId_code: {
+            storeId,
+            code: normalizedCouponCode,
+          },
+        },
+      });
+
+      const couponResult = validateCouponForCheckout(
+        coupon,
+        normalizedCouponCode,
+        subtotal,
+      );
+
+      if (!couponResult.valid) {
+        return NextResponse.json({ error: couponResult.message }, { status: 400 });
+      }
+
+      couponId = couponResult.couponId;
+      resolvedCouponCode = couponResult.code;
+      couponDiscount = couponResult.discount;
+    }
+
+    const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
     const promoByVariant = new Map(
       promoPricing.lines
         .filter((line) => line.lineKey)
@@ -121,7 +167,7 @@ export async function POST(request: NextRequest) {
           zip: customer.zip!.trim(),
           baseRate: Number(store.shippingFlatRate),
         }).cost;
-    const total = subtotal + shippingCost;
+    const total = subtotalAfterCoupon + shippingCost;
 
     const session = await auth();
     const customerUserId =
@@ -133,6 +179,9 @@ export async function POST(request: NextRequest) {
         userId: customerUserId,
         total,
         promoDiscount,
+        couponId,
+        couponCode: resolvedCouponCode,
+        couponDiscount,
         shippingCost,
         isPickup,
         customerName: customer.name,
@@ -175,7 +224,8 @@ export async function POST(request: NextRequest) {
       (sum, item) => sum + item.unit_price * item.quantity,
       0,
     );
-    const mpAdjustment = Math.round((subtotal - mpItemsTotal) * 100) / 100;
+    const mpAdjustment =
+      Math.round((subtotalAfterCoupon - mpItemsTotal) * 100) / 100;
     if (mpAdjustment !== 0 && mpItems[0]) {
       mpItems[0].unit_price =
         Math.round((mpItems[0].unit_price + mpAdjustment / mpItems[0].quantity) * 100) /

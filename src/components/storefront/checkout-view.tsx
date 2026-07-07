@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
+import type { AppliedCheckoutCoupon } from "@/components/storefront/checkout-coupon-field";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ type CheckoutViewProps = {
   shippingCost: number;
   allowPickup: boolean;
   storeName: string;
+  couponsEnabled?: boolean;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -26,13 +29,19 @@ export function CheckoutView({
   shippingCost,
   allowPickup,
   storeName,
+  couponsEnabled = false,
   defaultCustomer,
 }: CheckoutViewProps) {
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(
+    null,
+  );
   const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
   const rawSubtotal = useCartStore((s) => s.rawSubtotal());
   const promoDiscount = useCartStore((s) => s.promoDiscount());
   const subtotal = useCartStore((s) => s.subtotal());
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
   const promoByVariant = getCartPromoPricing(items).byVariantId;
 
   if (items.length === 0) {
@@ -73,6 +82,9 @@ export function CheckoutView({
             storeName={storeName}
             showSummary={false}
             defaultCustomer={defaultCustomer}
+            couponsEnabled={couponsEnabled}
+            appliedCoupon={appliedCoupon}
+            onCouponChange={setAppliedCoupon}
           />
         </div>
 
@@ -118,6 +130,9 @@ export function CheckoutView({
               rawSubtotal={rawSubtotal}
               promoDiscount={promoDiscount}
               subtotal={subtotal}
+              couponCode={appliedCoupon?.code}
+              couponDiscount={couponDiscount}
+              totalAfterDiscounts={subtotalAfterCoupon}
             />
           </div>
           <p className="mt-2 text-xs text-neutral-400">

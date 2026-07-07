@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 
 type HomeHeroCarouselProps = {
   storeDisplayName: string;
+  slides?: HomeHeroSlide[];
+  autoplayMs?: number;
 };
 
 function HeroSlideCopy({ slide }: { slide: HomeHeroSlide }) {
@@ -43,8 +45,12 @@ function HeroSlideCopy({ slide }: { slide: HomeHeroSlide }) {
   );
 }
 
-export function HomeHeroCarousel({ storeDisplayName }: HomeHeroCarouselProps) {
-  const slides = getHomeHeroSlides(storeDisplayName);
+export function HomeHeroCarousel({
+  storeDisplayName,
+  slides: slidesProp,
+  autoplayMs = HOME_HERO_AUTOPLAY_MS,
+}: HomeHeroCarouselProps) {
+  const slides = slidesProp ?? getHomeHeroSlides(storeDisplayName);
   const [activeIndex, setActiveIndex] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
   const [hoverPaused, setHoverPaused] = useState(false);
@@ -80,10 +86,10 @@ export function HomeHeroCarousel({ storeDisplayName }: HomeHeroCarouselProps) {
 
     const timeout = window.setTimeout(() => {
       goTo(activeIndex + 1);
-    }, HOME_HERO_AUTOPLAY_MS);
+    }, autoplayMs);
 
     return () => window.clearTimeout(timeout);
-  }, [activeIndex, autoplayPaused, goTo, reduceMotion, slides.length]);
+  }, [activeIndex, autoplayMs, autoplayPaused, goTo, reduceMotion, slides.length]);
 
   useEffect(() => {
     if (slides.length <= 1) return;

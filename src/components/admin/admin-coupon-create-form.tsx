@@ -11,6 +11,7 @@ import {
   adminSelectClass,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -141,8 +142,8 @@ export function AdminCouponCreateForm() {
           </div>
         </AdminFormGrid>
 
-        <label className="flex items-center gap-2 text-sm text-neutral-700">
-          <input type="checkbox" name="active" defaultChecked className="rounded" />
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Checkbox name="active" defaultChecked />
           Activo al crear
         </label>
 

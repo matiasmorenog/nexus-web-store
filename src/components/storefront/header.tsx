@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { HeaderAccountLink } from "@/components/storefront/header-account-link";
+import { WishlistHeaderLink } from "@/components/storefront/wishlist-header-link";
 import { VapeStoreLogo } from "@/themes/vape/components/home/vape-store-logo";
 import { VapeThemeToggle } from "@/themes/vape/components/vape-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
@@ -31,6 +32,7 @@ type HeaderProps = {
   features: VerticalFeatures;
   chrome?: "light" | "dark";
   uiVariant?: "apparel" | "vape";
+  wishlistEnabled?: boolean;
 };
 
 export function Header({
@@ -40,6 +42,7 @@ export function Header({
   features,
   chrome = "light",
   uiVariant = "apparel",
+  wishlistEnabled = false,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
   const bannerWrapRef = useRef<HTMLDivElement>(null);
@@ -290,6 +293,9 @@ export function Header({
               </>
             ) : null}
             {features.productSearch ? <ProductSearch compact /> : null}
+            {wishlistEnabled ? (
+              <WishlistHeaderLink chrome={chrome} uiVariant={uiVariant} />
+            ) : null}
             <HeaderAccountLink chrome={chrome} uiVariant={uiVariant} />
             {isVapeUi ? (
               <VapeButton

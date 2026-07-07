@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Suspense } from "react";
 import { Header } from "@/components/storefront/header";
+import { WishlistSync } from "@/components/storefront/wishlist-sync";
 import { Footer } from "@/themes/apparel/components/footer";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
 import "@/themes/apparel/styles/theme.css";
@@ -10,6 +11,7 @@ type ApparelStorefrontLayoutProps = {
   storeDisplayName: string;
   config: VerticalConfig;
   brandPrimary: string;
+  wishlistEnabled?: boolean;
 };
 
 export function ApparelStorefrontLayout({
@@ -17,6 +19,7 @@ export function ApparelStorefrontLayout({
   storeDisplayName,
   config,
   brandPrimary,
+  wishlistEnabled = false,
 }: ApparelStorefrontLayoutProps) {
   const themeStyle = {
     ...config.ui.cssVars,
@@ -29,6 +32,7 @@ export function ApparelStorefrontLayout({
       style={themeStyle}
       className="storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
     >
+      {wishlistEnabled ? <WishlistSync /> : null}
       <Suspense
         fallback={
           <div className="h-[4.625rem] border-b border-neutral-100 bg-white/90 shadow-sm" />
@@ -41,6 +45,7 @@ export function ApparelStorefrontLayout({
           features={config.features}
           chrome="light"
           uiVariant="apparel"
+          wishlistEnabled={wishlistEnabled}
         />
       </Suspense>
       <main className="storefront-content-bottom flex-1">{children}</main>

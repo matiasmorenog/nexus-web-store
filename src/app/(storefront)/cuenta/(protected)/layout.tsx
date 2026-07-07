@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CustomerSignOutButton } from "@/components/storefront/customer-sign-out-button";
 import { requireCustomerSession } from "@/lib/customer-session";
+import { storeHasModule } from "@/lib/modules";
+import { getStoreId } from "@/lib/store-context";
 
 export default async function CustomerAccountLayout({
   children,
@@ -8,6 +10,8 @@ export default async function CustomerAccountLayout({
   children: React.ReactNode;
 }) {
   const session = await requireCustomerSession();
+  const storeId = await getStoreId();
+  const wishlistEnabled = await storeHasModule(storeId, "wishlist");
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
@@ -25,6 +29,14 @@ export default async function CustomerAccountLayout({
           >
             Mis pedidos
           </Link>
+          {wishlistEnabled ? (
+            <Link
+              href="/favoritos"
+              className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+            >
+              Favoritos
+            </Link>
+          ) : null}
           <CustomerSignOutButton />
         </div>
       </div>

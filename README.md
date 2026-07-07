@@ -171,7 +171,10 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Cupones (módulo Plus — admin + checkout)
 - [x] Home editable (módulo Plus — bloques por tienda)
 - [x] Export CSV (módulo Plus — pedidos y productos)
-- [ ] Wishlist, SEO avanzado, WhatsApp
+- [x] CRM lite (módulo Plus — clientes, tags y notas)
+- [x] SEO avanzado (módulo Plus — sitemap, meta, JSON-LD)
+- [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
+- [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
 
 </details>
 
@@ -193,7 +196,10 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Configuración de tienda
 - [x] Home editable (módulo Plus — bloques por tienda)
 - [x] Export CSV (módulo Plus)
-- [ ] CRM lite (módulo Plus)
+- [x] CRM lite (módulo Plus)
+- [x] SEO avanzado (módulo Plus)
+- [x] Wishlist (módulo Plus)
+- [x] Analytics avanzado (módulo Plus)
 
 </details>
 

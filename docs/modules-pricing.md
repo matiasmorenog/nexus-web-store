@@ -148,8 +148,12 @@ Funcionalidad que debe existir siempre en plan base:
 2. **Cupones** — CRUD admin, validación checkout, descuento en pedido ✅
 3. **Home editable** — bloques por tienda (hero estático vape, carrusel apparel) ✅
 4. **Export CSV** — pedidos y productos en admin ✅
-5. **Analytics / CRM** — cuando haya demanda
-6. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
+5. **CRM lite** — clientes desde pedidos, tags y notas ✅
+6. **SEO avanzado** — sitemap, robots, meta y JSON-LD ✅
+7. **Wishlist** — favoritos en storefront y cuenta ✅
+8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
+9. **Marketing / API / Dominio** — cuando haya demanda
+10. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
 
 ---
 
@@ -162,6 +166,10 @@ Funcionalidad que debe existir siempre en plan base:
 | Cupones | `src/lib/coupons/`, `/admin/modulos/coupons` |
 | Home editable | `src/lib/home-content/`, `/admin/modulos/homeEditor` |
 | Export CSV | `src/lib/exports/`, `/admin/modulos/exports` |
+| CRM lite | `src/lib/crm/`, `/admin/modulos/crm` |
+| SEO avanzado | `src/lib/seo/`, `/admin/modulos/seo`, `/sitemap.xml`, `/robots.txt` |
+| Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
+| Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics` |
 | Errores API | `src/lib/modules/api-error.ts` |
 | Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |

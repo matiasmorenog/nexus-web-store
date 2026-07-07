@@ -153,8 +153,10 @@ Funcionalidad que debe existir siempre en plan base:
 8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
 9. **Marketing** — WhatsApp y Meta Pixel ✅
 10. **Envíos carrier** — cotización por CP, operador preferido y etiquetas demo ✅
-11. **API / Multi-usuario / Temas premium** — cuando haya demanda
-12. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
+11. **Temas premium** — paletas vape, tema por tienda y toggle visitante ✅
+12. **Multi-usuario** — staff admin con invitación por email ✅
+13. **API y webhooks** — REST v1 (productos/pedidos) y webhook `order.paid` ✅
+14. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
 
 ---
 
@@ -173,6 +175,9 @@ Funcionalidad que debe existir siempre en plan base:
 | Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics` |
 | Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
 | Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
+| Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |
+| Multi-usuario | `src/lib/store-users/`, `/admin/modulos/multiUser` |
+| API y webhooks | `src/lib/store-api/`, `/admin/modulos/api`, `/api/v1/*` |
 | Errores API | `src/lib/modules/api-error.ts` |
 | Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |

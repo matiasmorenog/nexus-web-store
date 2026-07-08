@@ -102,7 +102,7 @@ export async function requireModule(moduleId: ModuleId): Promise<void> {
 export async function assertModule(moduleId: ModuleId): Promise<void> {
   const access = await checkModuleAccess(moduleId);
   if (!access.allowed) {
-    const module = getModuleDefinition(moduleId);
+    const moduleDef = getModuleDefinition(moduleId);
     const error = new Error(`Module required: ${moduleId}`) as Error & {
       code: typeof MODULE_REQUIRED_ERROR_CODE;
       moduleId: ModuleId;
@@ -112,7 +112,7 @@ export async function assertModule(moduleId: ModuleId): Promise<void> {
     };
     error.code = MODULE_REQUIRED_ERROR_CODE;
     error.moduleId = moduleId;
-    error.moduleName = module.name;
+    error.moduleName = moduleDef.name;
     error.upgradeHref = access.upgradeHref;
     error.status = 403;
     throw error;

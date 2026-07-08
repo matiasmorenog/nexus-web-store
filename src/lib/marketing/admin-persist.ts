@@ -17,7 +17,7 @@ export async function saveStoreMarketingSettings(
   const metaPixelEnabled = input.metaPixelEnabled;
 
   let whatsappPhone: string | null = null;
-  let whatsappMessage = input.whatsappMessage?.trim() || null;
+  const whatsappMessage = input.whatsappMessage?.trim() || null;
   let metaPixelId: string | null = null;
 
   if (whatsappEnabled) {

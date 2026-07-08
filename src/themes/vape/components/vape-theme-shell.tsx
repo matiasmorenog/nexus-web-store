@@ -1,7 +1,8 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
+import { useEffect, useMemo } from "react";
 import {
   getVapeThemeCssVars,
   type VapeColorThemeId,
@@ -30,11 +31,7 @@ export function VapeThemeShell({
 }: VapeThemeShellProps) {
   const persistedThemeId = useVapeThemeStore((s) => s.themeId);
   const setThemeId = useVapeThemeStore((s) => s.setThemeId);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
+  const ready = useHydrated();
 
   useEffect(() => {
     if (storeThemeId) {

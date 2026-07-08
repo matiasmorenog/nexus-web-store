@@ -31,11 +31,19 @@ export function CatalogGridSection({
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isVape = catalogVertical === "vape";
+  const [prevGridSeed, setPrevGridSeed] = useState({
+    initialProducts: initialPage.products,
+    products,
+  });
 
-  useEffect(() => {
+  if (
+    initialPage.products !== prevGridSeed.initialProducts ||
+    products !== prevGridSeed.products
+  ) {
+    setPrevGridSeed({ initialProducts: initialPage.products, products });
     setVisibleCount(initialPage.products.length);
     setLoading(false);
-  }, [initialPage.products, products]);
+  }
 
   const hasMore = visibleCount < products.length;
   const visibleProducts = products.slice(0, visibleCount);

@@ -20,10 +20,13 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const qFromUrl = searchParams.get("q") ?? "";
+  const [prevQFromUrl, setPrevQFromUrl] = useState(qFromUrl);
 
-  useEffect(() => {
-    setQuery(searchParams.get("q") ?? "");
-  }, [searchParams]);
+  if (qFromUrl !== prevQFromUrl) {
+    setPrevQFromUrl(qFromUrl);
+    setQuery(qFromUrl);
+  }
 
   useEffect(() => {
     if (mobileOpen) inputRef.current?.focus();

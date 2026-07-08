@@ -111,7 +111,7 @@ export const ADMIN_PLAN_NAV_ITEM: AdminPlanNavItem = {
 /** Ítems de nav para módulos que declaran al menos una ruta admin. */
 export const ADMIN_MODULE_NAV_ITEMS: AdminModuleNavItem[] = MODULE_IDS.flatMap(
   (moduleId) => {
-    const module = MODULE_CATALOG[moduleId];
+    const moduleDef = MODULE_CATALOG[moduleId];
     const href = moduleAdminPath(moduleId);
 
     return [
@@ -119,8 +119,8 @@ export const ADMIN_MODULE_NAV_ITEMS: AdminModuleNavItem[] = MODULE_IDS.flatMap(
         kind: "module" as const,
         moduleId,
         href,
-        label: module.name,
-        shortLabel: module.name.split(" ")[0] ?? module.name,
+        label: moduleDef.name,
+        shortLabel: moduleDef.name.split(" ")[0] ?? moduleDef.name,
         icon: MODULE_NAV_ICONS[moduleId],
       },
     ];

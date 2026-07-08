@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
@@ -31,12 +31,22 @@ export function AdminOrdersToolbar({
   const [query, setQuery] = useState(queryProp);
   const [draftDesde, setDraftDesde] = useState(desdeProp);
   const [draftHasta, setDraftHasta] = useState(hastaProp);
+  const [prevFilters, setPrevFilters] = useState({
+    queryProp,
+    desdeProp,
+    hastaProp,
+  });
 
-  useEffect(() => {
+  if (
+    queryProp !== prevFilters.queryProp ||
+    desdeProp !== prevFilters.desdeProp ||
+    hastaProp !== prevFilters.hastaProp
+  ) {
+    setPrevFilters({ queryProp, desdeProp, hastaProp });
     setQuery(queryProp);
     setDraftDesde(desdeProp);
     setDraftHasta(hastaProp);
-  }, [queryProp, desdeProp, hastaProp]);
+  }
 
   const navigate = (updates: {
     q?: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { cn } from "@/lib/utils";
@@ -16,12 +16,8 @@ export function WishlistHeaderLink({
   chrome = "light",
   uiVariant = "apparel",
 }: WishlistHeaderLinkProps) {
-  const [ready, setReady] = useState(false);
+  const ready = useHydrated();
   const totalItems = useWishlistStore((state) => state.totalItems());
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
 
   const vapeClass = vapeButtonClassName({
     variant: "ghost",

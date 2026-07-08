@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { cn } from "@/lib/utils";
@@ -22,10 +22,12 @@ export function AdminCrmSearchToolbar({
 }: AdminCrmSearchToolbarProps) {
   const navigate = useAdminListNavigation();
   const [query, setQuery] = useState(queryProp);
+  const [prevQueryProp, setPrevQueryProp] = useState(queryProp);
 
-  useEffect(() => {
+  if (queryProp !== prevQueryProp) {
+    setPrevQueryProp(queryProp);
     setQuery(queryProp);
-  }, [queryProp]);
+  }
 
   const applyQuery = (value: string) => {
     const params = readSearchParams();

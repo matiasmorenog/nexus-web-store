@@ -129,8 +129,10 @@ export function AdminExportsPanel({
         <p className="mb-4 text-sm text-neutral-600">
           Incluye todo el catálogo de la tienda activa, ordenado por fecha de alta.
         </p>
+        {/* File download — <a> is intentional (not a Next.js page route). */}
         <a
           href="/api/admin/exports/products"
+          download
           className="inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] bg-[var(--brand-primary)] px-4 text-sm font-[var(--ui-button-font-weight,500)] text-[var(--ui-button-primary-foreground,white)] shadow-[var(--ui-button-primary-shadow,none)] transition-colors hover:brightness-95 active:brightness-90"
         >
           <Download className="mr-2 h-4 w-4" />

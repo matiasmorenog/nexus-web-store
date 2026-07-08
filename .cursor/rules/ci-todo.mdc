@@ -1,0 +1,54 @@
+---
+description: CI/CD backlog — GitHub Actions fases pendientes y deuda previa a branch protection
+alwaysApply: true
+---
+
+# CI / CD backlog
+
+Estado actual: workflow `.github/workflows/ci.yml` — job `lint-and-typecheck` (`typecheck` + `lint` en `src/`).
+
+## Fase 1 — hecho
+
+- GitHub Actions en PRs/push a `development` y `main`
+- `npm run typecheck` (`tsc --noEmit`)
+- `npm run lint` (`eslint src`)
+- `prisma generate` con `DATABASE_URL` dummy (sin Neon en CI)
+- Node 24 (alineado con Vercel)
+
+## Fase 1.5 — deuda antes de branch protection (bloqueante)
+
+El repo tiene **~31 errores de ESLint preexistentes** (reglas React 19 / `react-hooks/set-state-in-effect`, `no-assign-module-variable`, etc.). Mientras fallen, el job `lint-and-typecheck` sale rojo.
+
+**Antes** de marcar el check como requerido en GitHub branch protection:
+
+1. Corregir o ajustar reglas en los archivos afectados (prioridad: `prefer-const`, `no-assign-module-variable`; evaluar si relajar `react-hooks/set-state-in-effect` para patrones válidos de hidratación).
+2. Confirmar `npm run lint` y `npm run typecheck` en verde localmente.
+3. Recién entonces activar **Require status checks** → `lint-and-typecheck` en `development`.
+
+Hasta cerrar 1.5: mergear cuando **typecheck** pase localmente; el check de Actions puede estar rojo por lint.
+
+## Fase 2 — build en CI (opcional, futuro / producción madura)
+
+**No cancelada.** Hoy **no se implementa**: el proyecto está en desarrollo y Vercel ya corre `prisma generate && next build` en cada preview/deploy con env real.
+
+Cuándo evaluarla (app más profesional, ventas reales activas, mayor rigor pre-merge):
+
+- Sumar `npm run build` al workflow (env dummy o secrets mínimos: `AUTH_SECRET`, URLs, slugs).
+- Validar rutas que consulten Neon en build time; ajustar páginas o secret read-only en GitHub.
+- Útil si querés un segundo gate de compilación independiente de Vercel (ej. Ignored Build Step saltea muchos previews).
+
+Hasta entonces: **build = responsabilidad de Vercel**; Actions = `typecheck` + `lint` solamente.
+
+Referencia: `docs/ci.md`
+
+## Fase 3 — branch protection (pendiente)
+
+- GitHub → Settings → Branches → `development` → **Require status checks** → `lint-and-typecheck`.
+- Depende de **Fase 1.5** cerrada.
+- Vercel preview sigue siendo complementario (puede omitirse por Ignored Build Step).
+
+## Referencias
+
+- `docs/ci.md` — detalle operativo
+- `.cursor/rules/git-workflow.mdc` — merge y autonomía del agente
+- `DEPLOY.md` — checklist Vercel/GitHub

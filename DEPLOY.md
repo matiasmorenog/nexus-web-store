@@ -10,6 +10,10 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB,
 - [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
+- [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
+- [ ] CI Fase 1.5: corregir errores ESLint preexistentes (~31) para check verde
+- [ ] CI Fase 2 (opcional, futuro): `npm run build` en Actions — cuando producción esté activa; hoy build lo hace Vercel
+- [ ] CI Fase 3: branch protection → require check `lint-and-typecheck`
 - [ ] Release `development` → `main` cuando haya cambios listos para producción
 
 Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → pegar el comando de la fila correspondiente.

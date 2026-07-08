@@ -214,6 +214,9 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
 - [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
 - [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
+- [x] GitHub Actions CI (lint + typecheck en PRs) — ver [`docs/ci.md`](docs/ci.md)
+- [ ] CI Fase 1.5: corregir lint preexistente + branch protection en `development`
+- [ ] CI Fase 2 (opcional, futuro): `build` en GitHub Actions — cuando la app esté en producción activa; hoy Vercel builda en preview/deploy
 - [ ] Separar Vercel Blob por tienda antes de salir a producción
 - [ ] Onboarding, billing automático
 

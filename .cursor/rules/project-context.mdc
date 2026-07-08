@@ -12,6 +12,7 @@ alwaysApply: true
 | Rule | Cuándo |
 |------|--------|
 | `git-workflow.mdc` | Siempre — branches y PRs |
+| `ci-todo.mdc` | Siempre — CI/CD backlog y merge gates |
 | `roadmap.mdc` | Siempre — qué está hecho vs pendiente |
 | `modules-gating.mdc` | Siempre — módulos Plus por tienda, promo 2x1, no gatear por vertical |
 | `performance-todo.mdc` | Al tocar cache, catálogo, queries admin o costo Neon |

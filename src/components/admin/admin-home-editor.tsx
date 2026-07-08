@@ -13,7 +13,7 @@ import {
   adminSelectClass,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -120,7 +120,7 @@ function SectionFields({
           />
           <div className="flex items-end">
             <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-              <Checkbox
+              <Switch
                 checked={section.content.titleLine2Highlight}
                 onChange={(event) =>
                   onChange({
@@ -698,7 +698,7 @@ export function AdminHomeEditor({ initialPayload, vertical }: AdminHomeEditorPro
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-                  <Checkbox
+                  <Switch
                     checked={section.enabled}
                     onChange={(event) =>
                       updateSection(index, {

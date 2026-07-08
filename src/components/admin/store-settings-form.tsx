@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -88,7 +88,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
           />
         </div>
         <div className="flex items-center gap-2.5">
-          <Checkbox
+          <Switch
             id="allowPickup"
             name="allowPickup"
             checked={allowPickup}

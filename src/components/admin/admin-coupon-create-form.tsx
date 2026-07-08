@@ -11,7 +11,7 @@ import {
   adminSelectClass,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -143,7 +143,7 @@ export function AdminCouponCreateForm() {
         </AdminFormGrid>
 
         <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Checkbox name="active" defaultChecked />
+          <Switch name="active" defaultChecked />
           Activo al crear
         </label>
 

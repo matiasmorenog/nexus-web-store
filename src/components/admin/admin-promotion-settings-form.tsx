@@ -9,6 +9,7 @@ import {
   AdminFormAlert,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import type { StorePromotionSettingsData } from "@/lib/promotions";
 
 type AdminPromotionSettingsFormProps = {
@@ -67,9 +68,8 @@ export function AdminPromotionSettingsForm({
           <AdminFormAlert variant="success">Cambios guardados</AdminFormAlert>
         ) : null}
 
-        <label className="flex items-center gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
             checked={settings.promo2x1Enabled}
             onChange={(event) =>
               setSettings((current) => ({

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminTextarea } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { StoreSeoSettingsData } from "@/lib/seo";
@@ -106,7 +106,7 @@ export function AdminSeoSettingsForm({
 
           <div className="space-y-3 rounded-lg border border-neutral-200 p-4">
             <label className="flex items-start gap-3">
-              <Checkbox
+              <Switch
                 checked={settings.robotsIndex}
                 onChange={(event) =>
                   setSettings((current) => ({
@@ -126,7 +126,7 @@ export function AdminSeoSettingsForm({
             </label>
 
             <label className="flex items-start gap-3">
-              <Checkbox
+              <Switch
                 checked={settings.structuredDataEnabled}
                 onChange={(event) =>
                   setSettings((current) => ({

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { StoreMarketingSettingsData } from "@/lib/marketing";
 
 type AdminMarketingSettingsFormProps = {
@@ -64,9 +65,8 @@ export function AdminMarketingSettingsForm({
         title="WhatsApp"
         description="Botón flotante en el storefront para que los clientes te escriban."
       >
-        <label className="mb-4 flex items-center gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
+        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
             checked={settings.whatsappEnabled}
             onChange={(event) =>
               setSettings((current) => ({
@@ -115,9 +115,8 @@ export function AdminMarketingSettingsForm({
         title="Meta Pixel"
         description="Seguimiento de conversiones. Registra PageView y Purchase al confirmar pedido."
       >
-        <label className="mb-4 flex items-center gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
+        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
             checked={settings.metaPixelEnabled}
             onChange={(event) =>
               setSettings((current) => ({

@@ -13,6 +13,7 @@ import {
   getMercadoPagoUnitPriceFromPricing,
   pricePromo2x1Lines,
 } from "@/lib/promo-2x1";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
 
 const checkoutSchema = z
@@ -112,7 +113,8 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    const promoPricing = pricePromo2x1Lines(promoLines);
+    const promo2x1Active = await isPromo2x1ActiveForStore(storeId);
+    const promoPricing = pricePromo2x1Lines(promoLines, promo2x1Active);
     const { rawSubtotal, promoDiscount, subtotal } = promoPricing;
 
     let couponId: string | undefined;

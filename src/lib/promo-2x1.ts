@@ -1,5 +1,3 @@
-import { promoBanner } from "@/lib/promo-banner";
-
 export type Promo2x1LineInput = {
   unitPrice: number;
   quantity: number;
@@ -19,17 +17,23 @@ export type Promo2x1LinePricing = {
   eligible: boolean;
 };
 
-export function isPromo2x1Active() {
-  return promoBanner.enabled;
+/**
+ * Elegibilidad de una línea. `active` viene del estado de la tienda
+ * (módulo `coupons` + toggle 2x1), no de una constante de build.
+ */
+export function isProductPromo2x1Eligible(
+  productPromo2x1: boolean,
+  active: boolean,
+) {
+  return active && productPromo2x1;
 }
 
-export function isProductPromo2x1Eligible(productPromo2x1: boolean) {
-  return isPromo2x1Active() && productPromo2x1;
-}
-
-function priceStandaloneLine(line: Promo2x1LineInput): Promo2x1LinePricing {
+function priceStandaloneLine(
+  line: Promo2x1LineInput,
+  active: boolean,
+): Promo2x1LinePricing {
   const rawTotal = line.unitPrice * line.quantity;
-  const eligible = isProductPromo2x1Eligible(line.productPromo2x1);
+  const eligible = isProductPromo2x1Eligible(line.productPromo2x1, active);
 
   if (!eligible || line.quantity < 2) {
     return {
@@ -57,6 +61,7 @@ function priceStandaloneLine(line: Promo2x1LineInput): Promo2x1LinePricing {
 
 function pricePromo2x1ProductGroup(
   lines: Promo2x1LineInput[],
+  active: boolean,
 ): Promo2x1LinePricing[] {
   type UnitSlot = { lineIndex: number; unitPrice: number };
   const slots: UnitSlot[] = [];
@@ -68,7 +73,7 @@ function pricePromo2x1ProductGroup(
   });
 
   if (slots.length < 2) {
-    return lines.map((line) => priceStandaloneLine(line));
+    return lines.map((line) => priceStandaloneLine(line, active));
   }
 
   slots.sort((a, b) => a.unitPrice - b.unitPrice);
@@ -98,15 +103,18 @@ function pricePromo2x1ProductGroup(
 }
 
 /** Calcula 2x1 agrupando por producto (suma talles/colores del mismo ítem). */
-export function pricePromo2x1Lines(lines: Promo2x1LineInput[]) {
+export function pricePromo2x1Lines(
+  lines: Promo2x1LineInput[],
+  active: boolean,
+) {
   const priced: Promo2x1LinePricing[] = [];
   const promoGroups = new Map<string, Promo2x1LineInput[]>();
 
   for (const line of lines) {
-    const eligible = isProductPromo2x1Eligible(line.productPromo2x1);
+    const eligible = isProductPromo2x1Eligible(line.productPromo2x1, active);
 
     if (!eligible) {
-      priced.push(priceStandaloneLine(line));
+      priced.push(priceStandaloneLine(line, active));
       continue;
     }
 
@@ -117,7 +125,7 @@ export function pricePromo2x1Lines(lines: Promo2x1LineInput[]) {
   }
 
   for (const group of promoGroups.values()) {
-    priced.push(...pricePromo2x1ProductGroup(group));
+    priced.push(...pricePromo2x1ProductGroup(group, active));
   }
 
   return {
@@ -128,12 +136,18 @@ export function pricePromo2x1Lines(lines: Promo2x1LineInput[]) {
   };
 }
 
-export function sumPromo2x1Cart(lines: Promo2x1LineInput[]) {
-  return pricePromo2x1Lines(lines);
+export function sumPromo2x1Cart(lines: Promo2x1LineInput[], active: boolean) {
+  return pricePromo2x1Lines(lines, active);
 }
 
-export function getPromo2x1LinePricing(line: Promo2x1LineInput): Promo2x1LinePricing {
-  return pricePromo2x1Lines([line]).lines[0] ?? priceStandaloneLine(line);
+export function getPromo2x1LinePricing(
+  line: Promo2x1LineInput,
+  active: boolean,
+): Promo2x1LinePricing {
+  return (
+    pricePromo2x1Lines([line], active).lines[0] ??
+    priceStandaloneLine(line, active)
+  );
 }
 
 export type CartPromoItem = {
@@ -144,7 +158,7 @@ export type CartPromoItem = {
   promo2x1?: boolean;
 };
 
-export function getCartPromoPricing(items: CartPromoItem[]) {
+export function getCartPromoPricing(items: CartPromoItem[], active: boolean) {
   const result = pricePromo2x1Lines(
     items.map((item) => ({
       unitPrice: item.price,
@@ -153,6 +167,7 @@ export function getCartPromoPricing(items: CartPromoItem[]) {
       productId: item.productId,
       lineKey: item.variantId,
     })),
+    active,
   );
 
   const byVariantId = new Map<string, Promo2x1LinePricing>();
@@ -169,8 +184,11 @@ export function getCartPromoPricing(items: CartPromoItem[]) {
 }
 
 /** Precio unitario efectivo para Mercado Pago (mantiene quantity real). */
-export function getMercadoPagoUnitPrice(input: Promo2x1LineInput) {
-  const { lineTotal } = getPromo2x1LinePricing(input);
+export function getMercadoPagoUnitPrice(
+  input: Promo2x1LineInput,
+  active: boolean,
+) {
+  const { lineTotal } = getPromo2x1LinePricing(input, active);
   return Math.round((lineTotal / input.quantity) * 100) / 100;
 }
 

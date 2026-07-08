@@ -8,10 +8,12 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 
 ## Producción
 
-| Proyecto Vercel | Slug | URL | Config storefront |
-|-----------------|------|-----|-------------------|
-| `nexus-web-store` | `demo-store` | https://nexus-web-store.vercel.app | apparel |
-| `nexus-vape-store` | `vape-demo` | https://nexus-vape-store.vercel.app | vape |
+| Proyecto Vercel | Slug | URL | Config storefront | Módulos (`ENABLED_MODULES`) |
+|-----------------|------|-----|-------------------|----------------------------|
+| `nexus-web-store` | `demo-store` | https://nexus-web-store.vercel.app | apparel | omitido → todos (demo full) |
+| `nexus-vape-store` | `vape-demo` | https://nexus-vape-store.vercel.app | vape | `none` → plan base (activar módulos por env) |
+
+Los módulos Plus están **disponibles para ambas tiendas**; el vertical no los bloquea. Detalle en [`modules-pricing.md`](modules-pricing.md) y `.cursor/rules/modules-gating.mdc`.
 
 ---
 

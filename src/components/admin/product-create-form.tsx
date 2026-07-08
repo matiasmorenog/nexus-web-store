@@ -11,7 +11,6 @@ import {
   AdminTextarea,
 } from "@/components/admin/admin-form";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
-import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
@@ -23,16 +22,18 @@ import { Label } from "@/components/ui/label";
 type ProductCreateFormProps = {
   onClose: () => void;
   blockedHint?: number;
+  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
+  promo2x1Selectable?: boolean;
 };
 
 export function ProductCreateForm({
   onClose,
   blockedHint = 0,
+  promo2x1Selectable = false,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
-  const storefrontConfig = getClientStorefrontConfig();
   const variantLabels = getClientVariantLabels();
-  const showPromo2x1 = storefrontConfig.features.promo2x1;
+  const showPromo2x1 = promo2x1Selectable;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

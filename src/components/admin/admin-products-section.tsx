@@ -51,6 +51,8 @@ type AdminProductsSectionProps = {
   filters: AdminProductsFilterParams;
   /** Sin filtros activos: no se cargó el listado desde la DB. */
   awaitingFilters?: boolean;
+  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
+  promo2x1Selectable?: boolean;
 };
 
 export function AdminProductsSection({
@@ -59,6 +61,7 @@ export function AdminProductsSection({
   hasMore: initialHasMore,
   filters,
   awaitingFilters = false,
+  promo2x1Selectable = false,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
@@ -125,6 +128,7 @@ export function AdminProductsSection({
           <ProductCreateForm
             onClose={() => setCreateOpen(false)}
             blockedHint={blockedHint}
+            promo2x1Selectable={promo2x1Selectable}
           />
         ) : null}
 

@@ -4,11 +4,16 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getBrandPrefix } from "@/lib/brand";
 import { getFeaturedProducts } from "@/lib/featured-products-query";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export async function FeaturedProductsSection() {
   const storeId = await getStoreId();
   const featuredProducts = await getFeaturedProducts(storeId);
+  const promo2x1Active =
+    getStorefrontConfig().features.promo2x1 &&
+    (await isPromo2x1ActiveForStore(storeId));
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
@@ -23,7 +28,7 @@ export async function FeaturedProductsSection() {
           hoverImageUrl={product.hoverImageUrl}
           price={product.price}
           inStock={product.inStock}
-          promo2x1={product.promo2x1}
+          promo2x1={promo2x1Active && product.promo2x1}
         />
       ))}
     </div>

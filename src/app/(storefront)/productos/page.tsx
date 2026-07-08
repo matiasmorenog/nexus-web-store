@@ -7,6 +7,7 @@ import {
 } from "@/components/storefront/storefront-skeleton";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getCatalogIndex } from "@/lib/catalog-index-query";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 import {
   getCatalogPriceTiers,
@@ -46,6 +47,8 @@ export default async function ProductsPage() {
   const storeId = await getStoreId();
   const storeDisplayName = await getStoreDisplayName();
   const index = await getCatalogIndex(storeId);
+  const promo2x1Active =
+    config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
   const priceTiers = getCatalogPriceTiers(config);
   const variantSizeParam = getVariantSizeFacetParam(config);
   const variantColorParam = getVariantColorFacetParam(config);
@@ -56,7 +59,7 @@ export default async function ProductsPage() {
         index={index}
         storeDisplayName={storeDisplayName}
         showAudienceFilter={config.features.showAudienceFilter}
-        showPromo2x1={config.features.promo2x1}
+        showPromo2x1={promo2x1Active}
         showProductSearch={config.features.productSearch}
         catalogVertical={config.id}
         variantSizeParam={variantSizeParam}

@@ -28,7 +28,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 
 | ID | Módulo | Precio sugerido | Descripción |
 |----|--------|-----------------|-------------|
-| `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promos avanzadas |
+| `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promo 2x1 (banner + descuento) |
 | `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
 | `analytics` | Analytics avanzado | +30 | Funnels, cohortes, comparación de períodos, export |
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
@@ -78,6 +78,17 @@ ENABLED_MODULES=none
 ENABLED_MODULES=coupons,homeEditor,analytics
 ```
 
+#### Por deploy (apparel vs vape)
+
+| Proyecto Vercel | Slug | `ENABLED_MODULES` | Rol |
+|-----------------|------|-------------------|-----|
+| `nexus-web-store` | `demo-store` | omitido / vacío | Demo full: todos los módulos activos para mostrar capacidades |
+| `nexus-vape-store` | `vape-demo` | `none` | Beta en plan base; cualquier módulo se activa vía env sin cambiar código |
+
+**Regla:** los módulos Plus no se restringen por vertical (`apparel` / `vape`). El vertical define branding, nav y facets; el gating es siempre `storeHasModule()`.
+
+Ver también: [`multi-store.md`](multi-store.md), rule `.cursor/rules/modules-gating.mdc`.
+
 ### Activación por tienda (Fase C — SaaS)
 
 Migración prevista a tablas Prisma:
@@ -111,6 +122,20 @@ model StoreModule {
 | Admin nav | Ítems de módulos inactivos con badge "Plus" y link a `/admin/plan` |
 | API admin | `assertModule("coupons")` → `403` con `{ code: "MODULE_REQUIRED" }` |
 | Storefront | Solo si el módulo afecta compradores (cupones, wishlist, pixel) |
+
+### Promo 2x1 (dentro de `coupons`)
+
+La promo 2x1 no es un módulo aparte: vive en el addon **Cupones y promociones**.
+
+| Pieza | Comportamiento |
+|-------|----------------|
+| Activación | Módulo `coupons` activo **y** `StorePromotionSettings.promo2x1Enabled` (toggle en `/admin/modulos/coupons`) |
+| Storefront | Banner header, badges, pricing carrito/checkout, filtro catálogo — vía `isPromo2x1ActiveForStore()` |
+| Admin productos | Checkbox «Promoción 2x1» solo si `storeHasModule("coupons")` |
+| Hero home (slide 2x1) | Contenido editorial en `home-hero-slides.ts`; **no** se apaga con el toggle |
+| Vertical | `features.promo2x1` / `promoBanner` habilitan superficies de UI; **no** bloquean el addon. Ambos verticales lo soportan |
+
+Modelo Prisma: `StorePromotionSettings` (`promo2x1Enabled`). Lib: `src/lib/promotions/`, `src/lib/promo-2x1.ts`. Cliente: `src/stores/promo-config-store.ts` + `PromoConfigSync`.
 
 ### Pantalla Plan (`/admin/plan`)
 
@@ -167,6 +192,7 @@ Funcionalidad que debe existir siempre en plan base:
 | Catálogo | `src/lib/modules/catalog.ts` |
 | Acceso / gating | `src/lib/modules/access.ts` |
 | Cupones | `src/lib/coupons/`, `/admin/modulos/coupons` |
+| Promo 2x1 | `src/lib/promotions/`, `src/lib/promo-2x1.ts`, toggle en `/admin/modulos/coupons` |
 | Home editable | `src/lib/home-content/`, `/admin/modulos/homeEditor` |
 | Export CSV | `src/lib/exports/`, `/admin/modulos/exports` |
 | CRM lite | `src/lib/crm/`, `/admin/modulos/crm` |

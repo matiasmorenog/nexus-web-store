@@ -24,6 +24,8 @@ import {
   adminListLayoutRowClass,
   adminListMainColumnClass,
 } from "@/lib/admin-list-layout";
+import { storeHasModule } from "@/lib/modules";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +59,9 @@ export default async function AdminProductsPage({
   const summary = await getAdminProductsSummary(storeId);
   const listQueryActive = hasAdminProductListQuery(filters);
   const page = await getAdminProductsPage(storeId, 1, filters);
+  const promo2x1Selectable =
+    getStorefrontConfig().features.promo2x1 &&
+    (await storeHasModule(storeId, "coupons"));
 
   const hasFilters = listQueryActive;
 
@@ -118,6 +123,7 @@ export default async function AdminProductsPage({
               total={0}
               hasMore={false}
               filters={filters}
+              promo2x1Selectable={promo2x1Selectable}
             />
           ) : page.total === 0 ? (
             <AdminCard>
@@ -132,6 +138,7 @@ export default async function AdminProductsPage({
               total={page.total}
               hasMore={page.hasMore}
               filters={filters}
+              promo2x1Selectable={promo2x1Selectable}
             />
           )}
         </div>

@@ -1,6 +1,8 @@
-/** Promo sticky del header. Desactivar con `enabled: false`. */
+/**
+ * Contenido del banner sticky del header. La activación 2x1 se controla
+ * desde el módulo "Cupones y promociones" (StorePromotionSettings), no acá.
+ */
 export const promoBanner = {
-  enabled: true,
   /** Identificador de la promo (por si hay varias en el futuro). */
   id: "2x1-productos",
   badge: "2x1",

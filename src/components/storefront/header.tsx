@@ -6,7 +6,6 @@ import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { PromoBanner } from "@/themes/apparel/components/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
-import { promoBanner } from "@/lib/promo-banner";
 import {
   isStorefrontNavActive,
   type HeaderNavLink,
@@ -34,6 +33,8 @@ type HeaderProps = {
   uiVariant?: "apparel" | "vape";
   wishlistEnabled?: boolean;
   showVapeThemeToggle?: boolean;
+  /** 2x1 activo (módulo coupons + toggle). Controla banner y links promo. */
+  promo2x1Active?: boolean;
 };
 
 export function Header({
@@ -45,12 +46,18 @@ export function Header({
   uiVariant = "apparel",
   wishlistEnabled = false,
   showVapeThemeToggle = true,
+  promo2x1Active = false,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
   const bannerWrapRef = useRef<HTMLDivElement>(null);
-  const [promoActive, setPromoActive] = useState<boolean>(
-    features.promoBanner && promoBanner.enabled,
-  );
+  const bannerEnabled = features.promoBanner && promo2x1Active;
+  const [promoActive, setPromoActive] = useState<boolean>(bannerEnabled);
+  const visibleNavDesktop = promo2x1Active
+    ? navDesktop
+    : navDesktop.filter((link) => link.accent !== "promo2x1");
+  const visibleNavMobile = promo2x1Active
+    ? navMobile
+    : navMobile.filter((link) => link.accent !== "promo2x1");
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
@@ -237,9 +244,9 @@ export function Header({
       <div ref={stickyRef} className="sticky top-0 z-40">
         <div
           ref={bannerWrapRef}
-          className={cn(features.promoBanner && promoActive && "bg-[var(--brand-primary)]")}
+          className={cn(bannerEnabled && promoActive && "bg-[var(--brand-primary)]")}
         >
-          {features.promoBanner ? (
+          {bannerEnabled ? (
             <PromoBanner onActiveChange={setPromoActive} />
           ) : null}
           <HeaderProgressLine />
@@ -275,7 +282,7 @@ export function Header({
           </div>
 
           <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
-            {navDesktop.map((link) => (
+            {visibleNavDesktop.map((link) => (
               <Link
                 key={`${link.href}-${link.label}`}
                 href={link.href}
@@ -353,7 +360,7 @@ export function Header({
           )}
         >
           <nav className="max-h-[min(70vh,28rem)] space-y-1 overflow-y-auto px-4 py-3">
-            {navMobile.map((link) => (
+            {visibleNavMobile.map((link) => (
               <Link
                 key={`${link.href}-${link.label}`}
                 href={link.href}

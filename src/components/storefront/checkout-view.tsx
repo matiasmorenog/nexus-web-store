@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { useCartStore } from "@/stores/cart-store";
+import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { formatPrice } from "@/lib/utils";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 
@@ -42,9 +43,10 @@ export function CheckoutView({
   const rawSubtotal = useCartStore((s) => s.rawSubtotal());
   const promoDiscount = useCartStore((s) => s.promoDiscount());
   const subtotal = useCartStore((s) => s.subtotal());
+  const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
   const couponDiscount = appliedCoupon?.discount ?? 0;
   const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
-  const promoByVariant = getCartPromoPricing(items).byVariantId;
+  const promoByVariant = getCartPromoPricing(items, promo2x1Active).byVariantId;
 
   if (items.length === 0) {
     return (

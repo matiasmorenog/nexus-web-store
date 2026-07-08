@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
+import { useEffect, useState } from "react";
 import { promoBanner, promoBannerDismissKey } from "@/lib/promo-banner";
 import { cn } from "@/lib/utils";
 
@@ -34,30 +36,26 @@ type PromoBannerProps = {
 };
 
 export function PromoBanner({ onActiveChange }: PromoBannerProps) {
+  const hydrated = useHydrated();
+  const reduceMotion = usePrefersReducedMotion();
   const [dismissed, setDismissed] = useState(false);
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
-  const [reduceMotion, setReduceMotion] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [dismissSynced, setDismissSynced] = useState(false);
 
-  useLayoutEffect(() => {
+  if (hydrated && !dismissSynced) {
     const wasDismissed = readDismissed();
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
+    setDismissSynced(true);
     setDismissed(wasDismissed);
-    setReduceMotion(prefersReducedMotion);
-    setHydrated(true);
     onActiveChange?.(!wasDismissed);
-  }, [onActiveChange]);
+  }
 
   useEffect(() => {
     if (!hydrated || dismissed) return;
 
     if (reduceMotion) {
-      setEntered(true);
-      return;
+      const frame = requestAnimationFrame(() => setEntered(true));
+      return () => cancelAnimationFrame(frame);
     }
 
     let enterTimeout: number | undefined;

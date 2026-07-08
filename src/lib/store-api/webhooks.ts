@@ -56,7 +56,7 @@ export async function saveStoreWebhookSettings(
 ): Promise<void> {
   const enabled = Boolean(input.enabled);
   let url: string | null = input.url?.trim() || null;
-  let secret: string | null = input.secret?.trim() || null;
+  const secret: string | null = input.secret?.trim() || null;
 
   if (enabled) {
     if (!url || !isValidWebhookUrl(url)) {

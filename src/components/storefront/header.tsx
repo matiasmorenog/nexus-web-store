@@ -13,6 +13,7 @@ import {
 import type { VerticalFeatures } from "@/lib/store-verticals/types";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import { useEffect, useRef, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { HeaderAccountLink } from "@/components/storefront/header-account-link";
@@ -61,7 +62,7 @@ export function Header({
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
-  const [cartReady, setCartReady] = useState(false);
+  const cartReady = useHydrated();
   const [locationHash, setLocationHash] = useState("");
   const [activeNavKey, setActiveNavKey] = useState<string | null>(null);
   const totalItems = useCartStore((s) => s.totalItems());
@@ -77,10 +78,6 @@ export function Header({
     promo: searchParams.get("promo"),
     destacados: searchParams.get("destacados"),
   };
-
-  useEffect(() => {
-    setCartReady(true);
-  }, []);
 
   useEffect(() => {
     const syncHashNav = () => {
@@ -168,9 +165,16 @@ export function Header({
   useEffect(() => {
     if (!cartReady || !lastAddedAt) return;
 
-    setBadgePulse(true);
-    const timeout = window.setTimeout(() => setBadgePulse(false), 500);
-    return () => window.clearTimeout(timeout);
+    let timeout: number | undefined;
+    const frame = requestAnimationFrame(() => {
+      setBadgePulse(true);
+      timeout = window.setTimeout(() => setBadgePulse(false), 500);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timeout) window.clearTimeout(timeout);
+    };
   }, [lastAddedAt, cartReady]);
 
   const isDarkChrome = chrome === "dark";

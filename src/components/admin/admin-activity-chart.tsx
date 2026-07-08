@@ -318,24 +318,31 @@ export function AdminActivityChart({
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    setChartPhase("waiting");
+    let startAnim: number | undefined;
+    let finish: number | undefined;
+    let waitingFrame = 0;
 
-    if (reducedMotion) {
-      const frame = requestAnimationFrame(() => setChartPhase("complete"));
-      return () => cancelAnimationFrame(frame);
-    }
+    waitingFrame = requestAnimationFrame(() => {
+      setChartPhase("waiting");
 
-    const startAnim = window.setTimeout(() => {
-      setChartPhase("animating");
-    }, CHART_WAIT_MS);
+      if (reducedMotion) {
+        requestAnimationFrame(() => setChartPhase("complete"));
+        return;
+      }
 
-    const finish = window.setTimeout(() => {
-      setChartPhase("complete");
-    }, CHART_WAIT_MS + CHART_LINE_DRAW_MS);
+      startAnim = window.setTimeout(() => {
+        setChartPhase("animating");
+      }, CHART_WAIT_MS);
+
+      finish = window.setTimeout(() => {
+        setChartPhase("complete");
+      }, CHART_WAIT_MS + CHART_LINE_DRAW_MS);
+    });
 
     return () => {
-      window.clearTimeout(startAnim);
-      window.clearTimeout(finish);
+      cancelAnimationFrame(waitingFrame);
+      if (startAnim) window.clearTimeout(startAnim);
+      if (finish) window.clearTimeout(finish);
     };
   }, [chartData, period, showMonthAsWeeks]);
 

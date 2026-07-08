@@ -11,15 +11,15 @@ type AdminModulePlaceholderProps = {
 };
 
 export function AdminModulePlaceholder({ moduleId }: AdminModulePlaceholderProps) {
-  const module = getModuleDefinition(moduleId);
-  const plannedRoutes = module.adminRoutes.join(", ");
+  const moduleDef = getModuleDefinition(moduleId);
+  const plannedRoutes = moduleDef.adminRoutes.join(", ");
 
   return (
     <div>
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
-          title={module.name}
-          description={module.description}
+          title={moduleDef.name}
+          description={moduleDef.description}
         />
       </AdminDashboardReveal>
 

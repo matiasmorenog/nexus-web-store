@@ -43,12 +43,13 @@ export function useCountUp(
       return () => cancelAnimationFrame(frame);
     }
 
-    setIsComplete(false);
-
     let startTime: number | null = null;
 
     const timeout = window.setTimeout(() => {
       setDisplayValue(0);
+      frame = requestAnimationFrame(() => {
+        setIsComplete(false);
+      });
 
       const step = (timestamp: number) => {
         if (startTime === null) startTime = timestamp;

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 import { useCallback, useEffect, useState } from "react";
 import { HomeHeroContent } from "@/themes/apparel/components/home-hero-content";
 import { Button } from "@/components/ui/button";
@@ -52,17 +53,11 @@ export function HomeHeroCarousel({
 }: HomeHeroCarouselProps) {
   const slides = slidesProp ?? getHomeHeroSlides(storeDisplayName);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
   const [hoverPaused, setHoverPaused] = useState(false);
   const [hiddenPaused, setHiddenPaused] = useState(false);
 
   const autoplayPaused = hoverPaused || hiddenPaused;
-
-  useEffect(() => {
-    setReduceMotion(
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    );
-  }, []);
 
   useEffect(() => {
     const handleVisibility = () => setHiddenPaused(document.hidden);

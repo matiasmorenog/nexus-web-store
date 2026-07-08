@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
@@ -25,11 +25,16 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prevStore, setPrevStore] = useState(store);
 
-  useEffect(() => {
+  if (
+    store.allowPickup !== prevStore.allowPickup ||
+    store.shippingFlatRate !== prevStore.shippingFlatRate
+  ) {
+    setPrevStore(store);
     setShippingFlatRate(String(store.shippingFlatRate));
     setAllowPickup(store.allowPickup);
-  }, [store.allowPickup, store.shippingFlatRate]);
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

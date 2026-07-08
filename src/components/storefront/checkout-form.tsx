@@ -107,7 +107,13 @@ export function CheckoutForm({
     };
   }, [syncZipFromInput, deliveryMethod]);
 
-  const quotedShipping = shippingQuote?.cost ?? shippingCost;
+  const normalizedZip = zip.replace(/\D/g, "");
+  const canQuoteShipping =
+    dynamicShippingEnabled &&
+    deliveryMethod === "shipping" &&
+    normalizedZip.length >= 4;
+  const activeShippingQuote = canQuoteShipping ? shippingQuote : null;
+  const quotedShipping = activeShippingQuote?.cost ?? shippingCost;
   const effectiveShipping =
     deliveryMethod === "pickup" ? 0 : quotedShipping;
   const orderSubtotal = subtotal();
@@ -116,14 +122,7 @@ export function CheckoutForm({
   const total = subtotalAfterCoupon + effectiveShipping;
 
   useEffect(() => {
-    if (!dynamicShippingEnabled || deliveryMethod !== "shipping") {
-      setShippingQuote(null);
-      return;
-    }
-
-    const normalizedZip = zip.replace(/\D/g, "");
-    if (normalizedZip.length < 4) {
-      setShippingQuote(null);
+    if (!canQuoteShipping) {
       return;
     }
 
@@ -159,7 +158,7 @@ export function CheckoutForm({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [deliveryMethod, dynamicShippingEnabled, zip]);
+  }, [canQuoteShipping, normalizedZip]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -276,10 +275,10 @@ export function CheckoutForm({
                       : "Ingresá tu CP para cotizar"
                   : formatPrice(effectiveShipping)}
               </span>
-              {dynamicShippingEnabled && shippingQuote && deliveryMethod === "shipping" ? (
+              {dynamicShippingEnabled && activeShippingQuote && deliveryMethod === "shipping" ? (
                 <span className="mt-1 text-xs text-neutral-500">
-                  Llega en {shippingQuote.deliveryWindow}
-                  {shippingQuote.demoMode ? " · demo" : ""}
+                  Llega en {activeShippingQuote.deliveryWindow}
+                  {activeShippingQuote.demoMode ? " · demo" : ""}
                 </span>
               ) : null}
             </label>
@@ -322,8 +321,8 @@ export function CheckoutForm({
             {dynamicShippingEnabled
               ? quoteLoading
                 ? "Calculando costo y plazo..."
-                : shippingQuote
-                  ? `${formatPrice(effectiveShipping)} · llega en ${shippingQuote.deliveryWindow}`
+                : activeShippingQuote
+                  ? `${formatPrice(effectiveShipping)} · llega en ${activeShippingQuote.deliveryWindow}`
                   : "Ingresá tu código postal para cotizar el envío."
               : `Costo fijo: ${formatPrice(effectiveShipping)}`}
           </p>

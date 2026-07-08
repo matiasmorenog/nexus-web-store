@@ -148,10 +148,10 @@ export function getModuleDefinition(moduleId: ModuleId) {
 export function listModulesByCategory() {
   const groups = new Map<ModuleCategory, (typeof MODULE_LIST)[number][]>();
 
-  for (const module of MODULE_LIST) {
-    const list = groups.get(module.category) ?? [];
-    list.push(module);
-    groups.set(module.category, list);
+  for (const moduleEntry of MODULE_LIST) {
+    const list = groups.get(moduleEntry.category) ?? [];
+    list.push(moduleEntry);
+    groups.set(moduleEntry.category, list);
   }
 
   return Array.from(groups.entries()).map(([category, modules]) => ({

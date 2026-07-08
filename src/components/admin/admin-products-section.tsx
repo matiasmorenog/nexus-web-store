@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
@@ -69,22 +69,31 @@ export function AdminProductsSection({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
+  const [prevListSeed, setPrevListSeed] = useState({
+    initialProducts,
+    initialHasMore,
+  });
 
-  useEffect(() => {
+  if (
+    initialProducts !== prevListSeed.initialProducts ||
+    initialHasMore !== prevListSeed.initialHasMore
+  ) {
+    setPrevListSeed({ initialProducts, initialHasMore });
     setProducts(initialProducts);
     setPage(1);
     setHasMore(initialHasMore);
-  }, [initialProducts, initialHasMore]);
+  }
 
   const signalBlockedCreate = useCallback(() => {
     setBlockedHint((count) => count + 1);
   }, []);
 
-  useEffect(() => {
-    if (!createOpen) {
+  const handleCreateOpenChange = (open: boolean) => {
+    setCreateOpen(open);
+    if (!open) {
       setBlockedHint(0);
     }
-  }, [createOpen]);
+  };
 
   const loadMore = async () => {
     if (loading || !hasMore || awaitingFilters) return;
@@ -126,7 +135,7 @@ export function AdminProductsSection({
       <AdminDashboardReveal index={0} className="space-y-6">
         {createOpen ? (
           <ProductCreateForm
-            onClose={() => setCreateOpen(false)}
+            onClose={() => handleCreateOpenChange(false)}
             blockedHint={blockedHint}
             promo2x1Selectable={promo2x1Selectable}
           />
@@ -163,7 +172,7 @@ export function AdminProductsSection({
                 <Button
                   size="sm"
                   className="w-full whitespace-nowrap sm:w-auto"
-                  onClick={() => setCreateOpen(true)}
+                  onClick={() => handleCreateOpenChange(true)}
                 >
                   Nuevo producto
                 </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminTextarea } from "@/components/admin/admin-form";
@@ -23,10 +23,12 @@ export function AdminSeoSettingsForm({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [prevSettings, setPrevSettings] = useState(initialSettings);
 
-  useEffect(() => {
+  if (initialSettings !== prevSettings) {
+    setPrevSettings(initialSettings);
     setSettings(initialSettings);
-  }, [initialSettings]);
+  }
 
   const siteUrl = getStoreSiteUrl();
 

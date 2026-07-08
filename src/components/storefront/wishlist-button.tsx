@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { syncWishlistToggle } from "@/components/storefront/wishlist-sync";
@@ -27,13 +27,9 @@ export function WishlistButton({
   compact = false,
 }: WishlistButtonProps) {
   const { data: session } = useSession();
-  const [ready, setReady] = useState(false);
+  const ready = useHydrated();
   const hasItem = useWishlistStore((state) => state.hasItem(productId));
   const toggleItem = useWishlistStore((state) => state.toggleItem);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
 
   const handleToggle = () => {
     const added = toggleItem({

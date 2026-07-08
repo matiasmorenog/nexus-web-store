@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
@@ -17,10 +17,13 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
 
   const activeSort = searchParams.get("orden") ?? "recientes";
+  const qFromUrl = searchParams.get("q") ?? "";
+  const [prevQFromUrl, setPrevQFromUrl] = useState(qFromUrl);
 
-  useEffect(() => {
-    setQuery(searchParams.get("q") ?? "");
-  }, [searchParams]);
+  if (qFromUrl !== prevQFromUrl) {
+    setPrevQFromUrl(qFromUrl);
+    setQuery(qFromUrl);
+  }
 
   const navigate = (updates: { q?: string; orden?: string }) => {
     const params = new URLSearchParams(searchParams.toString());

@@ -13,7 +13,7 @@ import {
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -113,7 +113,7 @@ export function ProductEditForm({
             />
           </div>
           <div className="flex items-center gap-2.5 sm:col-span-2">
-            <Checkbox
+            <Switch
               id="featured"
               name="featured"
               defaultChecked={product.featured}
@@ -124,7 +124,7 @@ export function ProductEditForm({
           </div>
           {promo2x1Selectable ? (
             <div className="flex items-center gap-2.5 sm:col-span-2">
-              <Checkbox
+              <Switch
                 id="promo2x1"
                 name="promo2x1"
                 defaultChecked={product.promo2x1}

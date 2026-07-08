@@ -10,6 +10,7 @@ import {
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   SHIPPING_CARRIER_OPTIONS,
   type StoreShippingSettingsData,
@@ -68,9 +69,8 @@ export function AdminShippingSettingsForm({
         title="Cotización en checkout"
         description="Con carriers activos, el envío se calcula por código postal. Sin este módulo, el checkout usa solo el costo fijo de Configuración."
       >
-        <label className="mb-4 flex items-center gap-2 text-sm text-neutral-700">
-          <input
-            type="checkbox"
+        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
             checked={settings.carriersEnabled}
             onChange={(event) =>
               setSettings((current) => ({

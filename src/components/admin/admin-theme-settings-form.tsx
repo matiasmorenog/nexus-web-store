@@ -10,6 +10,7 @@ import {
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { StoreThemeSettingsData } from "@/lib/premium-themes";
 import {
   getVapeTheme,
@@ -109,9 +110,8 @@ export function AdminThemeSettingsForm({
         )}
 
         {vertical === "vape" ? (
-          <label className="mt-4 flex items-center gap-2 text-sm text-neutral-700">
-            <input
-              type="checkbox"
+          <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
               checked={settings.allowCustomerThemeToggle}
               onChange={(event) =>
                 setSettings((current) => ({

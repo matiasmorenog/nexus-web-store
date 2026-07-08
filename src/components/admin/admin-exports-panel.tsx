@@ -5,7 +5,7 @@ import { Download } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormGrid, adminSelectClass } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ORDER_STATUSES, getOrderStatusLabel } from "@/lib/order-status";
@@ -60,7 +60,7 @@ export function AdminExportsPanel({
           }}
         >
           <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-            <Checkbox
+            <Switch
               checked={todos}
               onChange={(event) => setTodos(event.target.checked)}
             />

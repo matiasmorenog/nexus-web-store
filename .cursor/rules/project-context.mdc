@@ -13,6 +13,7 @@ alwaysApply: true
 |------|--------|
 | `git-workflow.mdc` | Siempre — branches y PRs |
 | `roadmap.mdc` | Siempre — qué está hecho vs pendiente |
+| `modules-gating.mdc` | Siempre — módulos Plus por tienda, promo 2x1, no gatear por vertical |
 | `performance-todo.mdc` | Al tocar cache, catálogo, queries admin o costo Neon |
 
 ## Stack
@@ -27,6 +28,7 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 - Env cliente: `NEXT_PUBLIC_DEFAULT_STORE_SLUG` (mismo valor que `DEFAULT_STORE_SLUG`).
 - **No usar** `STORE_VERTICAL` ni `VAPE_STOREFRONT_MODE` (obsoletos).
 - Dev local: `npm run dev:apparel` / `dev:vape` / `dev:both` (`scripts/dev-store.sh`).
+- **Módulos Plus:** gating por `ENABLED_MODULES` por deploy; apparel demo = todos activos, vape = plan base (`none`). Ver `modules-gating.mdc`.
 
 ## Archivos clave
 

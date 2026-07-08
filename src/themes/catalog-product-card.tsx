@@ -8,11 +8,15 @@ import type { StoreVertical } from "@/lib/store-verticals/types";
 export function renderCatalogProductCard(
   vertical: StoreVertical,
   product: CatalogProductRow,
+  promo2x1Active = false,
 ): ReactNode {
+  const showPromo2x1 = promo2x1Active && product.promo2x1;
+
   if (vertical === "vape") {
     return (
       <VapeProductCard
         {...product}
+        promo2x1={showPromo2x1}
         categoryLabel={getProductTaxonomyLabel(
           product.category,
           product.audience,
@@ -31,7 +35,7 @@ export function renderCatalogProductCard(
       hoverImageUrl={product.hoverImageUrl}
       price={product.price}
       inStock={product.inStock}
-      promo2x1={product.promo2x1}
+      promo2x1={showPromo2x1}
     />
   );
 }

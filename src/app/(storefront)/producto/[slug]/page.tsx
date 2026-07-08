@@ -20,6 +20,7 @@ import {
 import { truncateMetaDescription } from "@/lib/seo/format";
 import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
 import { storeHasModule } from "@/lib/modules";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getVariantLabels } from "@/lib/variant-labels";
@@ -99,6 +100,8 @@ export default async function ProductPage({ params }: PageProps) {
   const catalogLabel = config.features.catalog ? "Catálogo" : "Inicio";
   const showSizeGuide =
     config.features.sizeGuide && product.category !== "accesorios";
+  const promo2x1Active =
+    config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
   const seoSettings = await getResolvedStoreSeoSettings(storeId);
   const seoContext = buildSeoContext(displayName, config.metadata.description);
   const { minPrice, inStock, image } = getProductSeoOffer(product);
@@ -164,7 +167,7 @@ export default async function ProductPage({ params }: PageProps) {
               productId={product.id}
               productName={product.name}
               productSlug={product.slug}
-              promo2x1={config.features.promo2x1 ? product.promo2x1 : false}
+              promo2x1={promo2x1Active && product.promo2x1}
               showSizeGuideLink={showSizeGuide}
               variantLabels={variantLabels}
               variants={product.variants.map((v) => ({

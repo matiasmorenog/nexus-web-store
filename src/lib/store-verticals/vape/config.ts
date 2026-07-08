@@ -68,8 +68,10 @@ export const vapeConfig: VerticalConfig = {
     catalog: true,
     catalogFilters: true,
     productSearch: true,
-    promo2x1: false,
-    promoBanner: false,
+    // 2x1 disponible como addon (módulo coupons). Off hoy porque vape está en
+    // plan base; se activa al habilitar el módulo + toggle en admin.
+    promo2x1: true,
+    promoBanner: true,
     categoryTilesOnHome: false,
     showAudienceFilter: false,
     sizeGuide: false,

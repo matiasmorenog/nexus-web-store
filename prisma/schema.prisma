@@ -81,6 +81,15 @@ model Store {
   themeSettings     StoreThemeSettings?
   apiKeys           StoreApiKey[]
   webhookSettings   StoreWebhookSettings?
+  promotionSettings StorePromotionSettings?
+}
+
+model StorePromotionSettings {
+  storeId         String   @id
+  promo2x1Enabled Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model StoreThemeSettings {

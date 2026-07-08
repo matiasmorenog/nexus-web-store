@@ -6,7 +6,6 @@ import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
-import { isProductPromo2x1Eligible } from "@/lib/promo-2x1";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import type { VariantLabels } from "@/lib/store-verticals/types";
 
@@ -100,7 +99,7 @@ export function AddToCart({
 
   return (
     <div className="space-y-6">
-      {isProductPromo2x1Eligible(promo2x1) && (
+      {promo2x1 && (
         <div className="flex items-start gap-3 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
           <Promo2x1Badge size="md" className="shrink-0" />
           <p className="text-sm text-neutral-700">

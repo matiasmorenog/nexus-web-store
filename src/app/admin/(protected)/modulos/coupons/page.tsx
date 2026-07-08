@@ -2,10 +2,12 @@ import { AdminCouponCreateForm } from "@/components/admin/admin-coupon-create-fo
 import { AdminCouponsList } from "@/components/admin/admin-coupons-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPromotionSettingsForm } from "@/components/admin/admin-promotion-settings-form";
 import { requireAdminSession } from "@/lib/admin-session";
 import { serializeCoupon } from "@/lib/coupons/admin";
 import { db } from "@/lib/db";
 import { requireModule } from "@/lib/modules";
+import { getStorePromotionSettingsForAdmin } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
@@ -15,10 +17,13 @@ export default async function AdminCouponsPage() {
   await requireModule("coupons");
 
   const storeId = await getStoreId();
-  const coupons = await db.coupon.findMany({
-    where: { storeId },
-    orderBy: { createdAt: "desc" },
-  });
+  const [coupons, promotionSettings] = await Promise.all([
+    db.coupon.findMany({
+      where: { storeId },
+      orderBy: { createdAt: "desc" },
+    }),
+    getStorePromotionSettingsForAdmin(storeId),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -30,10 +35,14 @@ export default async function AdminCouponsPage() {
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={1}>
-        <AdminCouponCreateForm />
+        <AdminPromotionSettingsForm initialSettings={promotionSettings} />
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={2}>
+        <AdminCouponCreateForm />
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal index={3}>
         <AdminCouponsList coupons={coupons.map(serializeCoupon)} />
       </AdminDashboardReveal>
     </div>

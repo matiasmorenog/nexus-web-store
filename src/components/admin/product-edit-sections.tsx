@@ -20,9 +20,13 @@ type ProductEditSectionsProps = {
     featured: boolean;
     promo2x1: boolean;
   };
+  promo2x1Selectable?: boolean;
 };
 
-export function ProductEditSections({ product }: ProductEditSectionsProps) {
+export function ProductEditSections({
+  product,
+  promo2x1Selectable = false,
+}: ProductEditSectionsProps) {
   const [activeSection, setActiveSection] =
     useState<ProductEditSection | null>("product");
   const [colorBusy, setColorBusy] = useState(false);
@@ -115,6 +119,7 @@ export function ProductEditSections({ product }: ProductEditSectionsProps) {
         onToggle={() => handleSectionToggle("product")}
         disabled={sectionBusy}
         onBlockedToggle={sectionBusy ? signalBlockedEdit : undefined}
+        promo2x1Selectable={promo2x1Selectable}
       />
 
       <ProductColorsCard

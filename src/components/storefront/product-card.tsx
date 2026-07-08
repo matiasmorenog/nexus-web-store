@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getProductTaxonomyLabel } from "@/lib/categories";
-import { isProductPromo2x1Eligible } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
@@ -31,7 +30,7 @@ export function ProductCard({
   promo2x1 = false,
   className,
 }: ProductCardProps) {
-  const showPromoBadge = isProductPromo2x1Eligible(promo2x1);
+  const showPromoBadge = promo2x1;
   const hasHoverImage = Boolean(
     inStock && hoverImageUrl && hoverImageUrl !== imageUrl,
   );

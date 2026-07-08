@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 type CatalogGridSectionProps = {
   products: CatalogProductRow[];
   catalogVertical?: "apparel" | "vape";
+  promo2x1Active?: boolean;
   initialPage: {
     products: CatalogProductRow[];
     total: number;
@@ -21,6 +22,7 @@ type CatalogGridSectionProps = {
 export function CatalogGridSection({
   products,
   catalogVertical = "apparel",
+  promo2x1Active = false,
   initialPage,
 }: CatalogGridSectionProps) {
   const [visibleCount, setVisibleCount] = useState(
@@ -95,7 +97,7 @@ export function CatalogGridSection({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {visibleProducts.map((product, index) => (
           <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
-            {renderCatalogProductCard(catalogVertical, product)}
+            {renderCatalogProductCard(catalogVertical, product, promo2x1Active)}
           </StorefrontReveal>
         ))}
 

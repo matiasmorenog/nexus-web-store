@@ -82,8 +82,7 @@ export function PromoBanner({ onActiveChange }: PromoBannerProps) {
     };
   }, [hydrated, dismissed, reduceMotion]);
 
-  const isPromoInChrome =
-    promoBanner.enabled && hydrated && !dismissed;
+  const isPromoInChrome = hydrated && !dismissed;
 
   useEffect(() => {
     onActiveChange?.(isPromoInChrome);
@@ -122,7 +121,7 @@ export function PromoBanner({ onActiveChange }: PromoBannerProps) {
     setClosing(true);
   };
 
-  if (!promoBanner.enabled || (hydrated && dismissed)) return null;
+  if (hydrated && dismissed) return null;
 
   return (
     <div

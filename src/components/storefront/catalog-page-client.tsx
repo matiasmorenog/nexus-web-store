@@ -171,6 +171,7 @@ export function CatalogPageClient({
             ].join("|")}
             products={filteredProducts}
             catalogVertical={catalogVertical}
+            promo2x1Active={showPromo2x1}
             initialPage={page}
           />
         </div>

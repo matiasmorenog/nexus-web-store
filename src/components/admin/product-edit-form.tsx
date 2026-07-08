@@ -31,6 +31,8 @@ type ProductEditFormProps = {
   onToggle: () => void;
   disabled?: boolean;
   onBlockedToggle?: () => void;
+  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
+  promo2x1Selectable?: boolean;
 };
 
 export function ProductEditForm({
@@ -39,6 +41,7 @@ export function ProductEditForm({
   onToggle,
   disabled = false,
   onBlockedToggle,
+  promo2x1Selectable = false,
 }: ProductEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,16 +122,20 @@ export function ProductEditForm({
               Destacado en home
             </Label>
           </div>
-          <div className="flex items-center gap-2.5 sm:col-span-2">
-            <Checkbox
-              id="promo2x1"
-              name="promo2x1"
-              defaultChecked={product.promo2x1}
-            />
-            <Label htmlFor="promo2x1" className="cursor-pointer">
-              Promoción 2x1
-            </Label>
-          </div>
+          {promo2x1Selectable ? (
+            <div className="flex items-center gap-2.5 sm:col-span-2">
+              <Checkbox
+                id="promo2x1"
+                name="promo2x1"
+                defaultChecked={product.promo2x1}
+              />
+              <Label htmlFor="promo2x1" className="cursor-pointer">
+                Promoción 2x1
+              </Label>
+            </div>
+          ) : product.promo2x1 ? (
+            <input type="hidden" name="promo2x1" value="on" />
+          ) : null}
         </AdminFormGrid>
 
         <AdminFormActions>

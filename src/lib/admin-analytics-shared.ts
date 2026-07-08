@@ -20,6 +20,7 @@ export type TopProduct = {
 export type DashboardAttention = {
   paidAwaitingShipment: number;
   outOfStockVariants: number;
+  mercadopagoConfigured: boolean;
 };
 
 export type DashboardRecentOrder = {
@@ -94,6 +95,10 @@ export function buildAdminPaidOrdersHref() {
 
 export function buildAdminOutOfStockVariantsHref() {
   return "/admin/productos?stock=sin-stock";
+}
+
+export function buildAdminPaymentSettingsHref() {
+  return "/admin/configuracion";
 }
 
 export function buildAdminOrderHref(orderId: string) {

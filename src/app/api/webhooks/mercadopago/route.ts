@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { db } from "@/lib/db";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
+import { resolveMercadoPagoAccessToken } from "@/lib/payments";
+import { getStoreId } from "@/lib/store-context";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +14,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const storeId = await getStoreId();
+    const accessToken = await resolveMercadoPagoAccessToken(storeId);
     if (!accessToken) {
       return NextResponse.json({ error: "MP not configured" }, { status: 500 });
     }
@@ -40,7 +43,6 @@ export async function POST(request: NextRequest) {
         where: { id: orderId },
         data: { mpPaymentId: String(payment.id) },
       });
-      // Idempotente: marca PAID, descuenta stock y envía emails una sola vez
       await fulfillPaidOrder(orderId);
     } else if (payment.status === "rejected" || payment.status === "cancelled") {
       await db.order.update({

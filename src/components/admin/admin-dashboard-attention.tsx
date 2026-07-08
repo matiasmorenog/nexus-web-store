@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { AlertCircle, PackageX, Truck } from "lucide-react";
+import { AlertCircle, CreditCard, PackageX, Truck } from "lucide-react";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import {
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
+  buildAdminPaymentSettingsHref,
   type DashboardAttention,
 } from "@/lib/admin-analytics-shared";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,17 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
       icon: PackageX,
       label: `${count} variante${count !== 1 ? "s" : ""} sin stock`,
       detail: "Revisá talles o colores agotados",
+      tone: "rose",
+    });
+  }
+
+  if (!attention.mercadopagoConfigured) {
+    items.push({
+      key: "mercadopago",
+      href: buildAdminPaymentSettingsHref(),
+      icon: CreditCard,
+      label: "Mercado Pago sin configurar",
+      detail: "El checkout corre en modo demo (sin cobros reales)",
       tone: "rose",
     });
   }

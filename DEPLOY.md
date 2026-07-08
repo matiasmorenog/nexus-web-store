@@ -38,7 +38,7 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `DIRECT_URL` | Neon direct (misma DB) | Neon direct (misma DB) |
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
-| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel | cuenta MP vape |
+| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel (opcional si se configura en admin) | cuenta MP vape (opcional si se configura en admin) |
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 

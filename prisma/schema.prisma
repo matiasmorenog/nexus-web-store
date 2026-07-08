@@ -82,6 +82,16 @@ model Store {
   apiKeys           StoreApiKey[]
   webhookSettings   StoreWebhookSettings?
   promotionSettings StorePromotionSettings?
+  paymentSettings   StorePaymentSettings?
+}
+
+model StorePaymentSettings {
+  storeId                   String   @id
+  mercadopagoAccessTokenEnc String?
+  mercadopagoTokenHint      String?
+  updatedAt                 DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model StorePromotionSettings {

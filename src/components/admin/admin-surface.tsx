@@ -95,8 +95,8 @@ export function AdminEmptyState({
   className?: string;
 }) {
   return (
-    <p className={cn("py-8 text-center text-neutral-500", className)}>
+    <div className={cn("py-8 text-center text-neutral-500", className)}>
       {children}
-    </p>
+    </div>
   );
 }

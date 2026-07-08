@@ -7,6 +7,7 @@ import { validateCouponForCheckout } from "@/lib/coupons/validate";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { storeHasModule } from "@/lib/modules";
+import { resolveMercadoPagoAccessToken } from "@/lib/payments";
 import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
@@ -245,11 +246,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const hasMpToken =
-      process.env.MERCADOPAGO_ACCESS_TOKEN &&
-      !process.env.MERCADOPAGO_ACCESS_TOKEN.includes("your-access-token");
+    const accessToken = await resolveMercadoPagoAccessToken(storeId);
 
-    if (!hasMpToken) {
+    if (!accessToken) {
       let fulfillment;
       try {
         fulfillment = await fulfillPaidOrder(order.id);
@@ -272,6 +271,7 @@ export async function POST(request: NextRequest) {
     }
 
     const preference = await createPaymentPreference({
+      accessToken,
       orderId: order.id,
       items: mpItems,
       payerEmail: customer.email,

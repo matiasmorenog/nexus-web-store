@@ -12,6 +12,7 @@ import {
   adminDashboardCacheTag,
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
+import { hasMercadoPagoConfigured } from "@/lib/payments";
 
 export type {
   ActivityPeriod,
@@ -28,6 +29,7 @@ export {
   buildAdminOrdersHrefFromActivityPoint,
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
+  buildAdminPaymentSettingsHref,
   parseActivityPeriod,
 } from "@/lib/admin-analytics-shared";
 
@@ -229,10 +231,12 @@ async function fetchAdminDashboardAttention(storeId: string) {
       stock: { lte: 0 },
     },
   });
+  const mercadopagoConfigured = await hasMercadoPagoConfigured(storeId);
 
   return {
     paidAwaitingShipment,
     outOfStockVariants,
+    mercadopagoConfigured,
   };
 }
 

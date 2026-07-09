@@ -45,10 +45,20 @@ Referencia: `docs/ci.md`
 
 - GitHub → Settings → Branches → `development` → **Require status checks** → `lint-and-typecheck`.
 - Depende de **Fase 1.5** cerrada.
-- Vercel preview sigue siendo complementario (puede omitirse por Ignored Build Step).
+- **No** exigir checks Vercel en branch protection (Ignored Build Step puede omitir previews).
+
+## Prioridad de previews Vercel (día a día)
+
+Hoy app1 (`nexus-web-store` / `demo-store`) es la tienda demo más completa; app2 (`nexus-vape-store` / `vape-demo`) corre plan base.
+
+| Prioridad | Check | Rol |
+|-----------|-------|-----|
+| 1 | `lint-and-typecheck` | Gate de código (Actions) |
+| 2 | `Vercel – nexus-web-store` | Preview de build **principal** |
+| 3 | `Vercel – nexus-vape-store` | Preview **complementario** (o obligatorio si el PR toca app2) |
 
 ## Referencias
 
-- `docs/ci.md` — detalle operativo
+- `docs/ci.md` — detalle operativo + prioridad de checks
 - `.cursor/rules/git-workflow.mdc` — merge y autonomía del agente
 - `DEPLOY.md` — checklist Vercel/GitHub

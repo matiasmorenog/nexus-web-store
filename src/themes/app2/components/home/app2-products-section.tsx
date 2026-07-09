@@ -34,7 +34,7 @@ export function App2ProductsSection({
   }, [activeTab, products]);
 
   return (
-    <section id="productos-vape" className="mx-auto max-w-7xl scroll-mt-28 px-4 pb-20 sm:px-6">
+    <section id="productos-app2" className="mx-auto max-w-7xl scroll-mt-28 px-4 pb-20 sm:px-6">
       <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <App2SectionHeading eyebrow="Selección" title={title} />
         <div className="flex gap-1 rounded-lg border border-app2 bg-[color-mix(in_srgb,var(--brand-primary-dark)_40%,transparent)] p-1">

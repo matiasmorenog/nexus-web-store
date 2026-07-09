@@ -87,7 +87,7 @@ export function Header({
       const id = hash.replace(/^#/, "");
       if (id === "ofertas") {
         setActiveNavKey("ofertas");
-      } else if (id === "productos-vape") {
+      } else if (id === "productos-app2") {
         setActiveNavKey("productos");
       } else if (id === "categorias") {
         setActiveNavKey((prev) =>

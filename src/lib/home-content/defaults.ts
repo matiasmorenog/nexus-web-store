@@ -139,7 +139,7 @@ export function buildDefaultApp2HomeContent(): HomeContentPayload {
           couponHint: "al comprar",
           backgroundImageUrl:
             "https://source.unsplash.com/1400x400/?vape,device,dark",
-          cta: { label: "Canjear oferta", href: "#productos-vape" },
+          cta: { label: "Canjear oferta", href: "#productos-app2" },
         },
       },
       {

@@ -9,6 +9,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import {
+  buildAdminRecentOrdersListHref,
   getAdminDashboardAnalytics,
   getAdminDashboardAttention,
   getAdminDashboardPageData,
@@ -90,10 +91,10 @@ export async function AdminDashboardRecentOrdersSection({
         padding={false}
         action={
           <Link
-            href="/admin/pedidos?todos=1"
+            href={buildAdminRecentOrdersListHref(recentOrders)}
             className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
           >
-            Ver todos
+            Ver más
           </Link>
         }
       >
@@ -160,10 +161,10 @@ export async function AdminDashboardSections({
           padding={false}
           action={
             <Link
-              href="/admin/pedidos?todos=1"
+              href={buildAdminRecentOrdersListHref(recentOrders)}
               className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
             >
-              Ver todos
+              Ver más
             </Link>
           }
         >

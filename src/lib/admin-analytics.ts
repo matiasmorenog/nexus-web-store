@@ -32,6 +32,7 @@ export {
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
   buildAdminPaymentSettingsHref,
+  buildAdminRecentOrdersListHref,
   getDashboardMonthPeriodMeta,
   parseActivityPeriod,
   parseDashboardMonthPeriod,

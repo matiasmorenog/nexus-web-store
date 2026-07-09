@@ -9,7 +9,7 @@ import {
   AdminSkeletonDashboardAttention,
   AdminSkeletonDashboardRecentOrders,
 } from "@/components/admin/admin-skeleton";
-import { parseActivityPeriod } from "@/lib/admin-analytics";
+import { parseDashboardMonthPeriod } from "@/lib/admin-analytics";
 import { requireAdminSession } from "@/lib/admin-session";
 import { getStoreDisplayName } from "@/lib/store-context";
 
@@ -24,7 +24,7 @@ export default async function AdminDashboardPage({
   const storeId = session.user.storeId;
 
   const params = await searchParams;
-  const period = parseActivityPeriod(params.period);
+  const period = parseDashboardMonthPeriod(params.period);
   const storeDisplayName = await getStoreDisplayName();
 
   return (

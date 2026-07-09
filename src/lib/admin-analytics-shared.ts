@@ -1,5 +1,8 @@
 export type ActivityPeriod = "week" | "month" | "year";
 
+/** Dashboard chart/top: calendar month (current MTD or previous full month). */
+export type DashboardMonthPeriod = "current" | "previous";
+
 export type ActivityPoint = {
   key: string;
   label: string;
@@ -55,22 +58,70 @@ export const ACTIVITY_PERIOD_LABELS: Record<
   },
 };
 
-const MONTH_WEEK_CHUNK_SIZES = [7, 7, 8, 8] as const;
-
 export function parseActivityPeriod(value?: string): ActivityPeriod {
   if (value === "month" || value === "year") return value;
   return "week";
 }
 
-/** Agrupa los 30 días del período mensual en 4 semanas (vista mobile). */
+export function parseDashboardMonthPeriod(
+  value?: string,
+): DashboardMonthPeriod {
+  if (value === "previous") return "previous";
+  return "current";
+}
+
+export function getDashboardMonthPeriodMeta(
+  period: DashboardMonthPeriod,
+  now = new Date(),
+): {
+  short: string;
+  summary: string;
+  description: string;
+  empty: string;
+  monthLabel: string;
+} {
+  const ref =
+    period === "current"
+      ? now
+      : new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const monthLabel = ref.toLocaleDateString("es-AR", {
+    month: "long",
+    year: "numeric",
+  });
+  const capitalized =
+    monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+
+  if (period === "current") {
+    return {
+      short: "Este mes",
+      summary: capitalized,
+      description: `Ingresos de pedidos pagados y enviados por día (${capitalized}, mes en curso)`,
+      empty: `Sin ventas en ${capitalized}.`,
+      monthLabel: capitalized,
+    };
+  }
+
+  return {
+    short: "Mes anterior",
+    summary: capitalized,
+    description: `Ingresos de pedidos pagados y enviados por día (${capitalized}, mes completo)`,
+    empty: `Sin ventas en ${capitalized}.`,
+    monthLabel: capitalized,
+  };
+}
+
+/** Agrupa un mes (28–31 días o rolling 30) en ~4 semanas (vista mobile). */
 export function aggregateActivityIntoWeeks(points: ActivityPoint[]): ActivityPoint[] {
   if (points.length === 0) return [];
 
+  const weekCount = Math.min(4, points.length);
+  const baseSize = Math.floor(points.length / weekCount);
+  const remainder = points.length % weekCount;
   const weeks: ActivityPoint[] = [];
   let start = 0;
 
-  for (let index = 0; index < MONTH_WEEK_CHUNK_SIZES.length; index++) {
-    const size = MONTH_WEEK_CHUNK_SIZES[index];
+  for (let index = 0; index < weekCount; index++) {
+    const size = baseSize + (index < remainder ? 1 : 0);
     const slice = points.slice(start, start + size);
     if (slice.length === 0) break;
 

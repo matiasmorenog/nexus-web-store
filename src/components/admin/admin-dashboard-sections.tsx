@@ -9,12 +9,12 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import {
-  ACTIVITY_PERIOD_LABELS,
   getAdminDashboardAnalytics,
   getAdminDashboardAttention,
   getAdminDashboardPageData,
   getAdminDashboardRecentOrders,
-  type ActivityPeriod,
+  getDashboardMonthPeriodMeta,
+  type DashboardMonthPeriod,
 } from "@/lib/admin-analytics";
 
 export async function AdminDashboardAttentionSection({
@@ -36,15 +36,15 @@ export async function AdminDashboardAnalyticsSection({
   period,
 }: {
   storeId: string;
-  period: ActivityPeriod;
+  period: DashboardMonthPeriod;
 }) {
-  const periodLabels = ACTIVITY_PERIOD_LABELS[period];
+  const periodLabels = getDashboardMonthPeriodMeta(period);
   const analytics = await getAdminDashboardAnalytics(storeId, period);
 
   return (
     <AdminDashboardReveal
       index={2}
-      className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+      className="mb-8 grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
     >
       <AdminCard
         title="Actividad de ventas"
@@ -61,6 +61,8 @@ export async function AdminDashboardAnalyticsSection({
           data={analytics.salesActivity.points}
           totalOrders={analytics.salesActivity.totalOrders}
           totalRevenue={analytics.salesActivity.totalRevenue}
+          summaryLabel={periodLabels.summary}
+          emptyLabel={periodLabels.empty}
         />
       </AdminCard>
 
@@ -106,13 +108,13 @@ export async function AdminDashboardSections({
   period,
 }: {
   storeId: string;
-  period: ActivityPeriod;
+  period: DashboardMonthPeriod;
 }) {
   const { attention, analytics, recentOrders } = await getAdminDashboardPageData(
     storeId,
     period,
   );
-  const periodLabels = ACTIVITY_PERIOD_LABELS[period];
+  const periodLabels = getDashboardMonthPeriodMeta(period);
 
   return (
     <>
@@ -122,7 +124,7 @@ export async function AdminDashboardSections({
 
       <AdminDashboardReveal
         index={2}
-        className="mb-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+        className="mb-8 grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <AdminCard
           title="Actividad de ventas"
@@ -139,6 +141,8 @@ export async function AdminDashboardSections({
             data={analytics.salesActivity.points}
             totalOrders={analytics.salesActivity.totalOrders}
             totalRevenue={analytics.salesActivity.totalRevenue}
+            summaryLabel={periodLabels.summary}
+            emptyLabel={periodLabels.empty}
           />
         </AdminCard>
 

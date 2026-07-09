@@ -12,7 +12,7 @@ import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
 import {
   ACTIVITY_PERIOD_LABELS,
-  getAdminDashboardAnalytics,
+  getActivityPeriodAnalytics,
   type ActivityPeriod,
 } from "@/lib/admin-analytics";
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
@@ -27,9 +27,9 @@ export async function AdminAdvancedAnalyticsSections({
   period,
 }: AdminAdvancedAnalyticsSectionsProps) {
   const periodLabels = ACTIVITY_PERIOD_LABELS[period];
-  const [report, dashboardAnalytics] = await Promise.all([
+  const [report, periodAnalytics] = await Promise.all([
     getAdvancedAnalyticsReport(storeId, period),
-    getAdminDashboardAnalytics(storeId, period),
+    getActivityPeriodAnalytics(storeId, period),
   ]);
 
   return (
@@ -67,10 +67,10 @@ export async function AdminAdvancedAnalyticsSections({
             className="overflow-visible"
           >
             <AdminActivityChart
-              period={dashboardAnalytics.salesActivity.period}
-              data={dashboardAnalytics.salesActivity.points}
-              totalOrders={dashboardAnalytics.salesActivity.totalOrders}
-              totalRevenue={dashboardAnalytics.salesActivity.totalRevenue}
+              period={periodAnalytics.salesActivity.period}
+              data={periodAnalytics.salesActivity.points}
+              totalOrders={periodAnalytics.salesActivity.totalOrders}
+              totalRevenue={periodAnalytics.salesActivity.totalRevenue}
             />
           </AdminCard>
           <AdminAnalyticsLoyalCustomers
@@ -84,7 +84,7 @@ export async function AdminAdvancedAnalyticsSections({
             title="Top productos"
             description={`Ranking extendido (${periodLabels.summary})`}
           >
-            <AdminTopProducts products={dashboardAnalytics.topProducts} />
+            <AdminTopProducts products={periodAnalytics.topProducts} />
           </AdminCard>
           <AdminAnalyticsTopCategories categories={report.topCategories} />
         </div>

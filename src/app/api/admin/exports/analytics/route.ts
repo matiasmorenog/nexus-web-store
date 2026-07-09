@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseActivityPeriod } from "@/lib/admin-analytics";
-import { getAdminDashboardAnalytics } from "@/lib/admin-analytics";
+import {
+  getActivityPeriodAnalytics,
+  parseActivityPeriod,
+} from "@/lib/admin-analytics";
 import { buildAnalyticsReportCsv } from "@/lib/advanced-analytics/analytics-csv";
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
 import { auth } from "@/lib/auth";
@@ -22,15 +24,12 @@ export async function GET(request: NextRequest) {
       request.nextUrl.searchParams.get("period") ?? undefined,
     );
 
-    const [report, dashboardAnalytics] = await Promise.all([
+    const [report, periodAnalytics] = await Promise.all([
       getAdvancedAnalyticsReport(storeId, period),
-      getAdminDashboardAnalytics(storeId, period),
+      getActivityPeriodAnalytics(storeId, period),
     ]);
 
-    const csv = buildAnalyticsReportCsv(
-      report,
-      dashboardAnalytics.topProducts,
-    );
+    const csv = buildAnalyticsReportCsv(report, periodAnalytics.topProducts);
 
     return new NextResponse(csv, {
       status: 200,

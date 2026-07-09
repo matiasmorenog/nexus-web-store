@@ -3,23 +3,23 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
-  ACTIVITY_PERIOD_LABELS,
-  type ActivityPeriod,
+  getDashboardMonthPeriodMeta,
+  type DashboardMonthPeriod,
 } from "@/lib/admin-analytics-shared";
 import { cn } from "@/lib/utils";
 
-const PERIODS: ActivityPeriod[] = ["week", "month", "year"];
+const PERIODS: DashboardMonthPeriod[] = ["current", "previous"];
 
 type AdminActivityPeriodTabsProps = {
-  period: ActivityPeriod;
+  period: DashboardMonthPeriod;
 };
 
 function buildPeriodHref(
-  next: ActivityPeriod,
+  next: DashboardMonthPeriod,
   searchParams: URLSearchParams,
 ): string {
   const params = new URLSearchParams(searchParams.toString());
-  if (next === "week") params.delete("period");
+  if (next === "current") params.delete("period");
   else params.set("period", next);
   const qs = params.toString();
   return qs ? `/admin?${qs}` : "/admin";
@@ -43,7 +43,7 @@ export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps
               : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
           )}
         >
-          {ACTIVITY_PERIOD_LABELS[value].short}
+          {getDashboardMonthPeriodMeta(value).short}
         </Link>
       ))}
     </div>

@@ -58,20 +58,26 @@ export async function AdminAdvancedAnalyticsSections({
 
       <AdminDashboardReveal
         index={3}
-        className="grid gap-6 lg:grid-cols-[1.4fr_1fr]"
+        className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
-        <AdminCard
-          title="Actividad de ventas"
-          description={periodLabels.description}
-          className="overflow-visible"
-        >
-          <AdminActivityChart
-            period={dashboardAnalytics.salesActivity.period}
-            data={dashboardAnalytics.salesActivity.points}
-            totalOrders={dashboardAnalytics.salesActivity.totalOrders}
-            totalRevenue={dashboardAnalytics.salesActivity.totalRevenue}
+        <div className="space-y-6">
+          <AdminCard
+            title="Actividad de ventas"
+            description={periodLabels.description}
+            className="overflow-visible"
+          >
+            <AdminActivityChart
+              period={dashboardAnalytics.salesActivity.period}
+              data={dashboardAnalytics.salesActivity.points}
+              totalOrders={dashboardAnalytics.salesActivity.totalOrders}
+              totalRevenue={dashboardAnalytics.salesActivity.totalRevenue}
+            />
+          </AdminCard>
+          <AdminAnalyticsLoyalCustomers
+            storeId={storeId}
+            customers={report.loyalCustomers}
           />
-        </AdminCard>
+        </div>
 
         <div className="space-y-6">
           <AdminCard
@@ -82,13 +88,6 @@ export async function AdminAdvancedAnalyticsSections({
           </AdminCard>
           <AdminAnalyticsTopCategories categories={report.topCategories} />
         </div>
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={4}>
-        <AdminAnalyticsLoyalCustomers
-          storeId={storeId}
-          customers={report.loyalCustomers}
-        />
       </AdminDashboardReveal>
     </div>
   );

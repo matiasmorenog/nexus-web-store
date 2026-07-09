@@ -1,16 +1,16 @@
 import { getHomeHeroSlides, HOME_HERO_AUTOPLAY_MS } from "@/lib/home-hero-slides";
-import { apparelConfig } from "@/lib/store-verticals/apparel/config";
+import { app1Config } from "@/lib/store-verticals/app1/config";
 import {
-  VAPE_HOME_CATEGORIES,
-  VAPE_HOME_FEATURES,
-  VAPE_HERO_STATS,
-  VAPE_PROMO,
-} from "@/lib/store-verticals/vape/home-content";
-import { vapeCatalogHref } from "@/lib/store-verticals/vape/config";
+  APP2_HOME_CATEGORIES,
+  APP2_HOME_FEATURES,
+  APP2_HERO_STATS,
+  APP2_PROMO,
+} from "@/lib/store-verticals/app2/home-content";
+import { app2CatalogHref } from "@/lib/store-verticals/app2/config";
 import type { HomeContentPayload, HomeSection } from "@/lib/home-content/types";
 import { HOME_CONTENT_VERSION } from "@/lib/home-content/types";
 
-const APPAREL_CATEGORY_IMAGES: Record<string, string> = {
+const APP1_CATEGORY_IMAGES: Record<string, string> = {
   mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
   hombre: "https://images.unsplash.com/photo-1647438174616-7bc61ca38455?w=600&q=80",
   remeras:
@@ -28,11 +28,11 @@ const APPAREL_CATEGORY_IMAGES: Record<string, string> = {
     "https://images.unsplash.com/photo-1532382708467-d720b918f0da?w=600&q=80",
 };
 
-function buildApparelCategoryTiles(): HomeSection {
+function buildApp1CategoryTiles(): HomeSection {
   const tiles = [
     { slug: "hombre", label: "Hombre", href: "/productos?genero=hombre" },
     { slug: "mujer", label: "Mujer", href: "/productos?genero=mujer" },
-    ...apparelConfig.productCategories.map((category) => ({
+    ...app1Config.productCategories.map((category) => ({
       slug: category.slug,
       label: category.label,
       href: `/productos?categoria=${category.slug}`,
@@ -51,7 +51,7 @@ function buildApparelCategoryTiles(): HomeSection {
       items: tiles.map((tile) => ({
         slug: tile.slug,
         label: tile.label,
-        imageUrl: APPAREL_CATEGORY_IMAGES[tile.slug] ?? APPAREL_CATEGORY_IMAGES.mujer,
+        imageUrl: APP1_CATEGORY_IMAGES[tile.slug] ?? APP1_CATEGORY_IMAGES.mujer,
         gradientClass: "from-black/60",
         href: tile.href,
       })),
@@ -59,7 +59,7 @@ function buildApparelCategoryTiles(): HomeSection {
   };
 }
 
-export function buildDefaultVapeHomeContent(): HomeContentPayload {
+export function buildDefaultApp2HomeContent(): HomeContentPayload {
   return {
     version: HOME_CONTENT_VERSION,
     sections: [
@@ -80,7 +80,7 @@ export function buildDefaultVapeHomeContent(): HomeContentPayload {
             "Los mejores dispositivos, e-líquidos y accesorios. Envío gratis en pedidos mayores a $50. Calidad certificada, sabores únicos.",
           primaryCta: { label: "Comprar ahora", href: "/productos" },
           secondaryCta: { label: "Ver catálogo", href: "/productos" },
-          stats: VAPE_HERO_STATS.map((stat) => ({
+          stats: APP2_HERO_STATS.map((stat) => ({
             value: stat.value,
             label: stat.label,
           })),
@@ -92,7 +92,7 @@ export function buildDefaultVapeHomeContent(): HomeContentPayload {
         enabled: true,
         order: 20,
         content: {
-          items: VAPE_HOME_FEATURES.map((feature) => ({
+          items: APP2_HOME_FEATURES.map((feature) => ({
             title: feature.title,
             description: feature.description,
           })),
@@ -107,12 +107,12 @@ export function buildDefaultVapeHomeContent(): HomeContentPayload {
           eyebrow: "Catálogo",
           title: "CATEGORÍAS",
           viewAllHref: "/productos",
-          items: VAPE_HOME_CATEGORIES.map((cat) => ({
+          items: APP2_HOME_CATEGORIES.map((cat) => ({
             slug: cat.slug,
             label: cat.label,
             imageUrl: cat.image,
             gradientClass: cat.gradient,
-            href: vapeCatalogHref(cat.slug),
+            href: app2CatalogHref(cat.slug),
           })),
         },
       },
@@ -133,9 +133,9 @@ export function buildDefaultVapeHomeContent(): HomeContentPayload {
         order: 50,
         content: {
           eyebrow: "Oferta limitada",
-          title: VAPE_PROMO.title,
-          titleHighlight: VAPE_PROMO.highlight,
-          couponCode: VAPE_PROMO.code,
+          title: APP2_PROMO.title,
+          titleHighlight: APP2_PROMO.highlight,
+          couponCode: APP2_PROMO.code,
           couponHint: "al comprar",
           backgroundImageUrl:
             "https://source.unsplash.com/1400x400/?vape,device,dark",
@@ -160,7 +160,7 @@ export function buildDefaultVapeHomeContent(): HomeContentPayload {
   };
 }
 
-export function buildDefaultApparelHomeContent(
+export function buildDefaultApp1HomeContent(
   storeDisplayName: string,
 ): HomeContentPayload {
   const slides = getHomeHeroSlides(storeDisplayName);
@@ -199,18 +199,18 @@ export function buildDefaultApparelHomeContent(
           viewAllHref: "/productos?destacados=1",
         },
       },
-      buildApparelCategoryTiles(),
+      buildApp1CategoryTiles(),
     ],
   };
 }
 
 export function buildDefaultHomeContent(
-  vertical: "apparel" | "vape",
+  vertical: "app1" | "app2",
   storeDisplayName: string,
 ): HomeContentPayload {
-  return vertical === "vape"
-    ? buildDefaultVapeHomeContent()
-    : buildDefaultApparelHomeContent(storeDisplayName);
+  return vertical === "app2"
+    ? buildDefaultApp2HomeContent()
+    : buildDefaultApp1HomeContent(storeDisplayName);
 }
 
 export function sortHomeSections(sections: HomeSection[]): HomeSection[] {

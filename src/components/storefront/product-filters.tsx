@@ -9,7 +9,7 @@ import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
 
-const APPAREL_SIZES = ["XS", "S", "M", "L", "XL"];
+const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 
 const fieldClass =
   "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
@@ -59,7 +59,7 @@ type ProductFiltersProps = {
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
   showProductSearch: boolean;
-  catalogVertical: "apparel" | "vape";
+  catalogVertical: "app1" | "app2";
   variantSizeOptions: string[];
   variantSizeParam: "talle" | "nicotina";
   variantSizeLabel: string;
@@ -81,10 +81,10 @@ export function ProductFilters({
 }: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useCatalogNavigation();
-  const isVape = catalogVertical === "vape";
+  const isApp2 = catalogVertical === "app2";
   const sizeParam = variantSizeParam;
-  const sizeCounts = isVape ? counts.nicotina : counts.talle;
-  const sizeOptions = isVape ? variantSizeOptions : APPAREL_SIZES;
+  const sizeCounts = isApp2 ? counts.nicotina : counts.talle;
+  const sizeOptions = isApp2 ? variantSizeOptions : APP1_SIZES;
   const sizeLabel = variantSizeLabel;
 
   const update = (updates: Record<string, string>) => {
@@ -148,12 +148,12 @@ export function ProductFilters({
 
   const asideClass = cn(
     "h-fit w-full self-start space-y-6 rounded-xl border p-5 shadow-md lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain",
-    isVape
-      ? "border-vape bg-vape-card"
+    isApp2
+      ? "border-app2 bg-app2-card"
       : "border-neutral-200/90 bg-white ring-1 ring-neutral-900/[0.04]",
   );
 
-  const labelClass = cn("mb-2 block", isVape ? "text-vape-muted" : "text-neutral-700");
+  const labelClass = cn("mb-2 block", isApp2 ? "text-app2-muted" : "text-neutral-700");
 
   return (
     <aside className={asideClass}>
@@ -283,7 +283,7 @@ export function ProductFilters({
         </div>
       ) : null}
 
-      {isVape && variantColorLabel && saborOptions.length > 0 ? (
+      {isApp2 && variantColorLabel && saborOptions.length > 0 ? (
         <div>
           <Label className={labelClass}>{variantColorLabel}</Label>
           <div className="flex flex-wrap gap-2">

@@ -1,8 +1,8 @@
 /** Client-safe exports (defaults + types). Server: use query.ts / admin-persist.ts */
 export {
-  buildDefaultApparelHomeContent,
+  buildDefaultApp1HomeContent,
   buildDefaultHomeContent,
-  buildDefaultVapeHomeContent,
+  buildDefaultApp2HomeContent,
   getHomeSection,
   sortHomeSections,
 } from "@/lib/home-content/defaults";

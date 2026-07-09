@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ProductCard } from "@/components/storefront/product-card";
-import { VapeProductCard } from "@/themes/vape/components/home/vape-product-card";
+import { App2ProductCard } from "@/themes/app2/components/home/app2-product-card";
 import type { CatalogProductRow } from "@/lib/catalog-index";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import type { StoreVertical } from "@/lib/store-verticals/types";
@@ -12,9 +12,9 @@ export function renderCatalogProductCard(
 ): ReactNode {
   const showPromo2x1 = promo2x1Active && product.promo2x1;
 
-  if (vertical === "vape") {
+  if (vertical === "app2") {
     return (
-      <VapeProductCard
+      <App2ProductCard
         {...product}
         promo2x1={showPromo2x1}
         categoryLabel={getProductTaxonomyLabel(

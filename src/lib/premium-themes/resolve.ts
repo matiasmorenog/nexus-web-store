@@ -1,16 +1,16 @@
 import {
-  DEFAULT_VAPE_COLOR_THEME,
-  VAPE_COLOR_THEME_IDS,
-  type VapeColorThemeId,
-} from "@/lib/store-verticals/vape/themes";
+  DEFAULT_APP2_COLOR_THEME,
+  APP2_COLOR_THEME_IDS,
+  type App2ColorThemeId,
+} from "@/lib/store-verticals/app2/themes";
 import type { StoreVertical } from "@/lib/store-verticals/types";
 import type { StoreThemeSettingsData } from "@/lib/premium-themes/types";
 
 export function getDefaultThemeIdForVertical(
   vertical: StoreVertical,
-): VapeColorThemeId | "default" {
-  if (vertical === "vape") {
-    return DEFAULT_VAPE_COLOR_THEME;
+): App2ColorThemeId | "default" {
+  if (vertical === "app2") {
+    return DEFAULT_APP2_COLOR_THEME;
   }
   return "default";
 }
@@ -18,23 +18,23 @@ export function getDefaultThemeIdForVertical(
 export function normalizeThemeIdForVertical(
   vertical: StoreVertical,
   themeId: string,
-): VapeColorThemeId | "default" {
-  if (vertical === "vape") {
-    if (VAPE_COLOR_THEME_IDS.includes(themeId as VapeColorThemeId)) {
-      return themeId as VapeColorThemeId;
+): App2ColorThemeId | "default" {
+  if (vertical === "app2") {
+    if (APP2_COLOR_THEME_IDS.includes(themeId as App2ColorThemeId)) {
+      return themeId as App2ColorThemeId;
     }
-    return DEFAULT_VAPE_COLOR_THEME;
+    return DEFAULT_APP2_COLOR_THEME;
   }
 
   return "default";
 }
 
 export function listThemeOptionsForVertical(vertical: StoreVertical) {
-  if (vertical === "vape") {
-    return VAPE_COLOR_THEME_IDS.map((id) => ({ id, vertical: "vape" as const }));
+  if (vertical === "app2") {
+    return APP2_COLOR_THEME_IDS.map((id) => ({ id, vertical: "app2" as const }));
   }
 
-  return [{ id: "default" as const, vertical: "apparel" as const }];
+  return [{ id: "default" as const, vertical: "app1" as const }];
 }
 
 export function validateThemeSettingsForVertical(

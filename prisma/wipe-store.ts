@@ -4,17 +4,17 @@ import {
   wipeStore,
   type StoreProfile,
 } from "./seed-store-lib";
-import { DEFAULT_STORE_SLUG, VAPE_STORE_SLUG } from "./seed-env";
+import { DEFAULT_STORE_SLUG, APP2_STORE_SLUG } from "./seed-env";
 
 function usage() {
-  console.error(`Uso: npm run db:wipe:apparel | npm run db:wipe:vape
-     tsx prisma/wipe-store.ts <apparel|vape>
+  console.error(`Uso: npm run db:wipe:app1 | npm run db:wipe:app2
+     tsx prisma/wipe-store.ts <app1|app2>
 
 Elimina solo la tienda indicada (pedidos, productos, owner huérfano).
 No toca la otra tienda en la misma base.
 
-  apparel  → slug ${DEFAULT_STORE_SLUG}
-  vape     → slug ${VAPE_STORE_SLUG}`);
+  app1  → slug ${DEFAULT_STORE_SLUG}
+  app2     → slug ${APP2_STORE_SLUG}`);
 }
 
 async function main() {

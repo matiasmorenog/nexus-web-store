@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Levanta apparel (:3000) y vape (:3001) en paralelo. Ctrl+C detiene ambas.
+# Levanta app1 (:3000) y app2 (:3001) en paralelo. Ctrl+C detiene ambas.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -19,15 +19,15 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "→ Levantando ambas tiendas"
-echo "  apparel  http://localhost:3000  (demo-store)"
-echo "  vape     http://localhost:3001  (vape-demo)"
+echo "  app1  http://localhost:3000  (demo-store)"
+echo "  app2     http://localhost:3001  (vape-demo)"
 echo "  Ctrl+C para detener ambas"
 echo ""
 
 npx prisma generate
 
 export SKIP_PRISMA_GENERATE=1
-bash "$ROOT/scripts/dev-store.sh" apparel &
-bash "$ROOT/scripts/dev-store.sh" vape &
+bash "$ROOT/scripts/dev-store.sh" app1 &
+bash "$ROOT/scripts/dev-store.sh" app2 &
 
 wait

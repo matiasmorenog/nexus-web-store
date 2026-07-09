@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
-import { PromoBanner } from "@/themes/apparel/components/promo-banner";
+import { PromoBanner } from "@/themes/app1/components/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
 import {
   isStorefrontNavActive,
@@ -18,11 +18,11 @@ import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { HeaderAccountLink } from "@/components/storefront/header-account-link";
 import { WishlistHeaderLink } from "@/components/storefront/wishlist-header-link";
-import { VapeStoreLogo } from "@/themes/vape/components/home/vape-store-logo";
-import { VapeThemeToggle } from "@/themes/vape/components/vape-theme-toggle";
+import { App2StoreLogo } from "@/themes/app2/components/home/app2-store-logo";
+import { App2ThemeToggle } from "@/themes/app2/components/app2-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
 import { Button } from "@/components/ui/button";
-import { VapeButton } from "@/themes/vape/components/vape-button";
+import { App2Button } from "@/themes/app2/components/app2-button";
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {
@@ -31,9 +31,9 @@ type HeaderProps = {
   navMobile: HeaderNavLink[];
   features: VerticalFeatures;
   chrome?: "light" | "dark";
-  uiVariant?: "apparel" | "vape";
+  uiVariant?: "app1" | "app2";
   wishlistEnabled?: boolean;
-  showVapeThemeToggle?: boolean;
+  showApp2ThemeToggle?: boolean;
   /** 2x1 activo (módulo coupons + toggle). Controla banner y links promo. */
   promo2x1Active?: boolean;
 };
@@ -44,9 +44,9 @@ export function Header({
   navMobile,
   features,
   chrome = "light",
-  uiVariant = "apparel",
+  uiVariant = "app1",
   wishlistEnabled = false,
-  showVapeThemeToggle = true,
+  showApp2ThemeToggle = true,
   promo2x1Active = false,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -178,7 +178,7 @@ export function Header({
   }, [lastAddedAt, cartReady]);
 
   const isDarkChrome = chrome === "dark";
-  const isVapeUi = uiVariant === "vape";
+  const isApp2Ui = uiVariant === "app2";
 
   const navLinkClass = (link: HeaderNavLink, mobile = false) => {
     const active = isStorefrontNavActive(link.match, pathname, navParams, {
@@ -209,13 +209,13 @@ export function Header({
             : "border-[var(--brand-primary)] text-[var(--brand-primary)]"
         : mobile
           ? isDarkChrome
-            ? isVapeUi
-              ? "text-vape-muted hover:bg-white/5 hover:text-[var(--brand-primary-light)]"
+            ? isApp2Ui
+              ? "text-app2-muted hover:bg-white/5 hover:text-[var(--brand-primary-light)]"
               : "text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
           : isDarkChrome
-            ? isVapeUi
-              ? "border-transparent text-vape-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary-light)]"
+            ? isApp2Ui
+              ? "border-transparent text-app2-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary-light)]"
               : "border-transparent text-neutral-400 hover:border-white/20 hover:text-neutral-100"
             : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-900",
     );
@@ -278,8 +278,8 @@ export function Header({
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            {isVapeUi ? (
-              <VapeStoreLogo storeName={storeName} />
+            {isApp2Ui ? (
+              <App2StoreLogo storeName={storeName} />
             ) : (
               <StoreLogo storeName={storeName} />
             )}
@@ -299,10 +299,10 @@ export function Header({
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {isVapeUi && showVapeThemeToggle ? (
+            {isApp2Ui && showApp2ThemeToggle ? (
               <>
-                <VapeThemeToggle compact className="flex sm:hidden" />
-                <VapeThemeToggle className="hidden sm:flex" />
+                <App2ThemeToggle compact className="flex sm:hidden" />
+                <App2ThemeToggle className="hidden sm:flex" />
               </>
             ) : null}
             {features.productSearch ? <ProductSearch compact /> : null}
@@ -310,8 +310,8 @@ export function Header({
               <WishlistHeaderLink chrome={chrome} uiVariant={uiVariant} />
             ) : null}
             <HeaderAccountLink chrome={chrome} uiVariant={uiVariant} />
-            {isVapeUi ? (
-              <VapeButton
+            {isApp2Ui ? (
+              <App2Button
                 type="button"
                 variant="ghost"
                 size="md"
@@ -330,7 +330,7 @@ export function Header({
                     {totalItems}
                   </span>
                 )}
-              </VapeButton>
+              </App2Button>
             ) : (
               <Button
                 type="button"

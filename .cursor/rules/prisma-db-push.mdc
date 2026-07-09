@@ -18,8 +18,8 @@ Cuando un cambio incluya `prisma/schema.prisma` (o requiera sincronizar la DB):
 ## Reinicio del dev server
 
 - Matar procesos `next dev` del proyecto antes de levantar de nuevo.
-- Preferir el mismo script que use el entorno actual (`npm run dev:apparel`, `dev:vape` o `dev:both`).
-- Si no hay contexto claro, usar `npm run dev:apparel` en background.
+- Preferir el mismo script que use el entorno actual (`npm run dev:app1`, `dev:app2` o `dev:both`).
+- Si no hay contexto claro, usar `npm run dev:app1` en background.
 
 ## No delegar al usuario
 

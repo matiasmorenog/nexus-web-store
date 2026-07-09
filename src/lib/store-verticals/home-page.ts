@@ -1,5 +1,5 @@
-import { ApparelHome } from "@/themes/apparel/components/apparel-home";
-import { VapeHome } from "@/themes/vape/components/vape-home";
+import { App1Home } from "@/themes/app1/components/app1-home";
+import { App2Home } from "@/themes/app2/components/app2-home";
 import type { StoreVertical } from "@/lib/store-verticals/types";
 
 type HomePageProps = {
@@ -8,8 +8,8 @@ type HomePageProps = {
 
 export function resolveHomePage(vertical: StoreVertical) {
   const pages = {
-    apparel: ApparelHome,
-    vape: VapeHome,
+    app1: App1Home,
+    app2: App2Home,
   } as const;
 
   return pages[vertical] as React.ComponentType<HomePageProps>;

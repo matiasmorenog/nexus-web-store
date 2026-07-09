@@ -1,4 +1,4 @@
-import type { VapeColorThemeId } from "@/lib/store-verticals/vape/themes";
+import type { App2ColorThemeId } from "@/lib/store-verticals/app2/themes";
 
 export type StoreThemeSettingsData = {
   themeId: string;
@@ -11,7 +11,7 @@ export const DEFAULT_THEME_SETTINGS: StoreThemeSettingsData = {
 };
 
 export type ResolvedStoreTheme = {
-  themeId: VapeColorThemeId | "default";
+  themeId: App2ColorThemeId | "default";
   allowCustomerThemeToggle: boolean;
   moduleActive: boolean;
 };

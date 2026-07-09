@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## Principio
 
-**Todos los módulos Plus están disponibles para ambas tiendas** (`demo-store` apparel y `vape-demo` vape). La activación es **por tienda/deploy**, no por vertical.
+**Todos los módulos Plus están disponibles para ambas tiendas** (`demo-store` app1 y `vape-demo` app2). La activación es **por tienda/deploy**, no por vertical.
 
 | Capa | Qué controla |
 |------|----------------|
@@ -21,10 +21,10 @@ alwaysApply: true
 
 | Proyecto | Slug | `ENABLED_MODULES` esperado |
 |----------|------|----------------------------|
-| `nexus-web-store` (apparel demo) | `demo-store` | omitido / vacío → **todos** los módulos |
+| `nexus-web-store` (app1 demo) | `demo-store` | omitido / vacío → **todos** los módulos |
 | `nexus-vape-store` (beta) | `vape-demo` | `none` → **solo plan base** |
 
-Vape puede activar cualquier módulo cambiando env; no requiere cambios de código por vertical.
+App2 puede activar cualquier módulo cambiando env; no requiere cambios de código por vertical.
 
 ## Promo 2x1 (módulo `coupons`)
 

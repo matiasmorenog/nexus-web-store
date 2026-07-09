@@ -1,6 +1,6 @@
 import type { HeaderNavLink } from "@/lib/store-verticals/nav";
 
-export type StoreVertical = "apparel" | "vape";
+export type StoreVertical = "app1" | "app2";
 
 export type StorefrontMode = "full" | "home-only";
 

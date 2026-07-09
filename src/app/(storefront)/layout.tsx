@@ -13,8 +13,8 @@ import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { storeHasModule } from "@/lib/modules";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
-import { ApparelStorefrontLayout } from "@/themes/apparel/components/storefront-layout";
-import { VapeStorefrontLayout } from "@/themes/vape/components/storefront-layout";
+import { App1StorefrontLayout } from "@/themes/app1/components/storefront-layout";
+import { App2StorefrontLayout } from "@/themes/app2/components/storefront-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
@@ -63,11 +63,11 @@ export default async function StorefrontLayout({
   const promo2x1Active =
     config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
 
-  if (config.ui.id === "vape") {
+  if (config.ui.id === "app2") {
     return (
       <StorefrontMarketingShell settings={marketing}>
         {structuredData}
-        <VapeStorefrontLayout
+        <App2StorefrontLayout
           storeDisplayName={displayName}
           config={config}
           wishlistEnabled={wishlistEnabled}
@@ -75,7 +75,7 @@ export default async function StorefrontLayout({
           promo2x1Active={promo2x1Active}
         >
           {children}
-        </VapeStorefrontLayout>
+        </App2StorefrontLayout>
       </StorefrontMarketingShell>
     );
   }
@@ -83,7 +83,7 @@ export default async function StorefrontLayout({
   return (
     <StorefrontMarketingShell settings={marketing}>
       {structuredData}
-      <ApparelStorefrontLayout
+      <App1StorefrontLayout
         storeDisplayName={displayName}
         config={config}
         brandPrimary={brandPrimary}
@@ -91,7 +91,7 @@ export default async function StorefrontLayout({
         promo2x1Active={promo2x1Active}
       >
         {children}
-      </ApparelStorefrontLayout>
+      </App1StorefrontLayout>
     </StorefrontMarketingShell>
   );
 }

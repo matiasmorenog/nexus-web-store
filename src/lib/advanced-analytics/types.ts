@@ -31,19 +31,19 @@ export type AnalyticsCategoryRank = {
   revenue: number;
 };
 
-export type AnalyticsRetentionWeek = {
-  /** ISO date (YYYY-MM-DD) of the cohort week start (Monday). */
-  cohortWeek: string;
-  cohortSize: number;
-  /** Retention % for W0..Wn (null when week not yet elapsed). */
-  weeks: (number | null)[];
+export type AnalyticsLoyalCustomer = {
+  email: string;
+  name: string;
+  orderCount: number;
+  revenue: number;
+  lastOrderAt: string;
 };
 
 export type AdvancedAnalyticsReport = {
   period: ActivityPeriod;
   comparison: AnalyticsPeriodComparison;
   cohort: AnalyticsCustomerCohort;
-  retention: AnalyticsRetentionWeek[];
+  loyalCustomers: AnalyticsLoyalCustomer[];
   topCategories: AnalyticsCategoryRank[];
 };
 

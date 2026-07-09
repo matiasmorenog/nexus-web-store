@@ -8,7 +8,7 @@ export type {
   AdvancedAnalyticsReport,
   AnalyticsCategoryRank,
   AnalyticsCustomerCohort,
+  AnalyticsLoyalCustomer,
   AnalyticsPeriodComparison,
   AnalyticsPeriodMetrics,
-  AnalyticsRetentionWeek,
 } from "@/lib/advanced-analytics/types";

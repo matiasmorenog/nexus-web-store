@@ -30,7 +30,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 |----|--------|-----------------|-------------|
 | `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promo 2x1 (banner + descuento) |
 | `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
-| `analytics` | Analytics avanzado | +30 | Comparación de períodos, embudo, retention semanal, top categorías/productos, export CSV del reporte |
+| `analytics` | Analytics avanzado | +30 | Comparación de períodos, embudo, clientes más fieles, top categorías/productos, export CSV del reporte |
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
 | `shippingCarriers` | Envíos carrier | +40 | Cotización y etiquetas con operadores logísticos |
 | `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |

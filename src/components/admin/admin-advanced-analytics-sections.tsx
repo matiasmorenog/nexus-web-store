@@ -4,7 +4,7 @@ import { AdminAnalyticsComparisonCards } from "@/components/admin/admin-analytic
 import { AdminAnalyticsExportButton } from "@/components/admin/admin-analytics-export-button";
 import { AdminAnalyticsInsightsGrid } from "@/components/admin/admin-analytics-insights-grid";
 import { AdminAnalyticsPeriodTabs } from "@/components/admin/admin-analytics-period-tabs";
-import { AdminAnalyticsRetentionTable } from "@/components/admin/admin-analytics-retention-table";
+import { AdminAnalyticsLoyalCustomers } from "@/components/admin/admin-analytics-loyal-customers";
 import { AdminAnalyticsTopCategories } from "@/components/admin/admin-analytics-top-categories";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
@@ -56,12 +56,8 @@ export async function AdminAdvancedAnalyticsSections({
         />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={3}>
-        <AdminAnalyticsRetentionTable retention={report.retention} />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal
-        index={4}
+        index={3}
         className="grid gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <AdminCard
@@ -86,6 +82,13 @@ export async function AdminAdvancedAnalyticsSections({
           </AdminCard>
           <AdminAnalyticsTopCategories categories={report.topCategories} />
         </div>
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal index={4}>
+        <AdminAnalyticsLoyalCustomers
+          storeId={storeId}
+          customers={report.loyalCustomers}
+        />
       </AdminDashboardReveal>
     </div>
   );

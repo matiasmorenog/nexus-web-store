@@ -14,7 +14,7 @@ export function buildAnalyticsReportCsv(
   report: AdvancedAnalyticsReport,
   topProducts: TopProduct[],
 ): string {
-  const { comparison, cohort, retention, topCategories, period } = report;
+  const { comparison, cohort, loyalCustomers, topCategories, period } = report;
   const { current, previous } = comparison;
   const rows: string[] = [];
 
@@ -74,24 +74,21 @@ export function buildAnalyticsReportCsv(
   rows.push("");
   rows.push(
     toCsvRow([
-      "retention_cohort_week",
-      "cohort_size",
-      "W0",
-      "W1",
-      "W2",
-      "W3",
-      "W4",
-      "W5",
+      "cliente_fiel_email",
+      "nombre",
+      "pedidos",
+      "ingresos",
+      "ultima_compra",
     ]),
   );
-  for (const row of retention) {
+  for (const customer of loyalCustomers) {
     rows.push(
       toCsvRow([
-        row.cohortWeek,
-        row.cohortSize,
-        ...row.weeks.map((value) =>
-          value == null ? "" : formatRate(value),
-        ),
+        customer.email,
+        customer.name,
+        customer.orderCount,
+        customer.revenue,
+        customer.lastOrderAt,
       ]),
     );
   }

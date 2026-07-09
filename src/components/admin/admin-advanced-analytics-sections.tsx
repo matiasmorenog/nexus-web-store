@@ -65,6 +65,11 @@ export async function AdminAdvancedAnalyticsSections({
             title="Actividad de ventas"
             description={periodLabels.description}
             className="overflow-visible"
+            action={
+              <Suspense fallback={<AdminSkeletonTabs />}>
+                <AdminAnalyticsPeriodTabs period={period} />
+              </Suspense>
+            }
           >
             <AdminActivityChart
               period={periodAnalytics.salesActivity.period}

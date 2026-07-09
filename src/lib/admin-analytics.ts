@@ -217,7 +217,7 @@ async function fetchTopProductsAggregates(
       AND o."createdAt" >= ${rangeStart}
     GROUP BY p.id, p.name
     ORDER BY quantity DESC
-    LIMIT 5
+    LIMIT 10
   `;
 }
 

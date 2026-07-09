@@ -11,9 +11,14 @@ import {
 } from "@/lib/advanced-analytics/format";
 import type {
   AdvancedAnalyticsReport,
+  AnalyticsCategoryRank,
   AnalyticsCustomerCohort,
   AnalyticsPeriodMetrics,
+  AnalyticsRetentionWeek,
 } from "@/lib/advanced-analytics/types";
+
+const RETENTION_WEEKS = 6;
+const TOP_CATEGORIES_LIMIT = 8;
 
 async function fetchPeriodMetrics(
   storeId: string,
@@ -76,7 +81,7 @@ async function fetchCustomerCohort(
             AND prev."customerEmail" = o."customerEmail"
             AND prev."createdAt" < ${range.start}
             AND prev.status IN ('PAID', 'SHIPPED')
-        ) THEN o."customerEmail"
+          ) THEN o."customerEmail"
       END)::int AS "returningCustomers"
     FROM "Order" o
     WHERE o."storeId" = ${storeId}
@@ -99,17 +104,13 @@ async function fetchCustomerCohort(
   };
 }
 
-async function fetchTopProductsForRange(
+async function fetchTopCategories(
   storeId: string,
-  rangeStart: Date,
-  limit = 10,
-) {
-  return db.$queryRaw<
-    { productId: string; name: string; quantity: number; revenue: number }[]
-  >`
+  range: { start: Date; end: Date },
+): Promise<AnalyticsCategoryRank[]> {
+  return db.$queryRaw<AnalyticsCategoryRank[]>`
     SELECT
-      p.id AS "productId",
-      p.name,
+      p.category AS category,
       SUM(oi.quantity)::int AS quantity,
       COALESCE(SUM(oi.quantity * oi."unitPrice"), 0)::float AS revenue
     FROM "OrderItem" oi
@@ -118,11 +119,113 @@ async function fetchTopProductsForRange(
     INNER JOIN "Product" p ON pv."productId" = p.id
     WHERE o."storeId" = ${storeId}
       AND o.status IN ('PAID', 'SHIPPED')
-      AND o."createdAt" >= ${rangeStart}
-    GROUP BY p.id, p.name
+      AND o."createdAt" >= ${range.start}
+      AND o."createdAt" <= ${range.end}
+    GROUP BY p.category
     ORDER BY quantity DESC
-    LIMIT ${limit}
+    LIMIT ${TOP_CATEGORIES_LIMIT}
   `;
+}
+
+/**
+ * Weekly retention: rows = first paid-order week (cohort), columns = W0..W5
+ * % of cohort customers with a paid order in that offset week.
+ */
+async function fetchWeeklyRetention(
+  storeId: string,
+  range: { start: Date; end: Date },
+): Promise<AnalyticsRetentionWeek[]> {
+  const rows = await db.$queryRaw<
+    {
+      cohortWeek: Date;
+      weekOffset: number;
+      cohortSize: number;
+      retained: number;
+    }[]
+  >`
+    WITH first_paid AS (
+      SELECT
+        o."customerEmail" AS email,
+        date_trunc('week', MIN(o."createdAt")) AS "cohortWeek"
+      FROM "Order" o
+      WHERE o."storeId" = ${storeId}
+        AND o.status IN ('PAID', 'SHIPPED')
+        AND o."createdAt" >= ${range.start}
+        AND o."createdAt" <= ${range.end}
+      GROUP BY o."customerEmail"
+    ),
+    cohort_sizes AS (
+      SELECT "cohortWeek", COUNT(*)::int AS "cohortSize"
+      FROM first_paid
+      GROUP BY "cohortWeek"
+    ),
+    activity AS (
+      SELECT
+        fp."cohortWeek",
+        FLOOR(
+          EXTRACT(EPOCH FROM (date_trunc('week', o."createdAt") - fp."cohortWeek"))
+          / (7 * 24 * 60 * 60)
+        )::int AS "weekOffset",
+        COUNT(DISTINCT o."customerEmail")::int AS retained
+      FROM first_paid fp
+      INNER JOIN "Order" o
+        ON o."customerEmail" = fp.email
+       AND o."storeId" = ${storeId}
+       AND o.status IN ('PAID', 'SHIPPED')
+       AND o."createdAt" >= fp."cohortWeek"
+       AND o."createdAt" <= ${range.end}
+      GROUP BY fp."cohortWeek", 2
+    )
+    SELECT
+      cs."cohortWeek",
+      a."weekOffset",
+      cs."cohortSize",
+      a.retained
+    FROM cohort_sizes cs
+    INNER JOIN activity a ON a."cohortWeek" = cs."cohortWeek"
+    WHERE a."weekOffset" >= 0
+      AND a."weekOffset" < ${RETENTION_WEEKS}
+    ORDER BY cs."cohortWeek" ASC, a."weekOffset" ASC
+  `;
+
+  const byWeek = new Map<string, AnalyticsRetentionWeek>();
+  const now = new Date();
+
+  for (const row of rows) {
+    const key = row.cohortWeek.toISOString().slice(0, 10);
+    let entry = byWeek.get(key);
+    if (!entry) {
+      entry = {
+        cohortWeek: key,
+        cohortSize: row.cohortSize,
+        weeks: Array.from({ length: RETENTION_WEEKS }, () => null),
+      };
+      byWeek.set(key, entry);
+    }
+
+    const cohortStart = new Date(row.cohortWeek);
+    const weekEnd = new Date(cohortStart);
+    weekEnd.setDate(weekEnd.getDate() + (row.weekOffset + 1) * 7 - 1);
+
+    if (weekEnd > now) {
+      entry.weeks[row.weekOffset] = null;
+      continue;
+    }
+
+    entry.weeks[row.weekOffset] =
+      row.cohortSize > 0 ? (row.retained / row.cohortSize) * 100 : 0;
+  }
+
+  // W0 = first-purchase week; if missing from activity join, treat as 100%.
+  for (const entry of byWeek.values()) {
+    if (entry.cohortSize > 0 && entry.weeks[0] == null) {
+      entry.weeks[0] = 100;
+    }
+  }
+
+  return Array.from(byWeek.values()).sort((a, b) =>
+    a.cohortWeek.localeCompare(b.cohortWeek),
+  );
 }
 
 async function fetchAdvancedAnalyticsReport(
@@ -130,12 +233,14 @@ async function fetchAdvancedAnalyticsReport(
   period: ActivityPeriod,
 ): Promise<AdvancedAnalyticsReport> {
   const ranges = getAnalyticsPeriodRanges(period);
-  const [current, previous, cohort, topProducts] = await Promise.all([
-    fetchPeriodMetrics(storeId, ranges.current),
-    fetchPeriodMetrics(storeId, ranges.previous),
-    fetchCustomerCohort(storeId, ranges.current),
-    fetchTopProductsForRange(storeId, ranges.current.start, 10),
-  ]);
+  const [current, previous, cohort, retention, topCategories] =
+    await Promise.all([
+      fetchPeriodMetrics(storeId, ranges.current),
+      fetchPeriodMetrics(storeId, ranges.previous),
+      fetchCustomerCohort(storeId, ranges.current),
+      fetchWeeklyRetention(storeId, ranges.current),
+      fetchTopCategories(storeId, ranges.current),
+    ]);
 
   return {
     period,
@@ -151,7 +256,8 @@ async function fetchAdvancedAnalyticsReport(
       ),
     },
     cohort,
-    topProducts,
+    retention,
+    topCategories,
   };
 }
 
@@ -161,7 +267,7 @@ export async function getAdvancedAnalyticsReport(
 ): Promise<AdvancedAnalyticsReport> {
   return unstable_cache(
     () => fetchAdvancedAnalyticsReport(storeId, period),
-    ["advanced-analytics-report", storeId, period],
+    ["advanced-analytics-report", storeId, period, "v2"],
     {
       revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
       tags: [adminDashboardCacheTag(storeId), `advanced-analytics:${storeId}`],

@@ -1,5 +1,4 @@
 import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
-import type { TopProduct } from "@/lib/admin-analytics-shared";
 
 export type AnalyticsPeriodMetrics = {
   orders: number;
@@ -26,11 +25,26 @@ export type AnalyticsCustomerCohort = {
   repeatRate: number;
 };
 
+export type AnalyticsCategoryRank = {
+  category: string;
+  quantity: number;
+  revenue: number;
+};
+
+export type AnalyticsRetentionWeek = {
+  /** ISO date (YYYY-MM-DD) of the cohort week start (Monday). */
+  cohortWeek: string;
+  cohortSize: number;
+  /** Retention % for W0..Wn (null when week not yet elapsed). */
+  weeks: (number | null)[];
+};
+
 export type AdvancedAnalyticsReport = {
   period: ActivityPeriod;
   comparison: AnalyticsPeriodComparison;
   cohort: AnalyticsCustomerCohort;
-  topProducts: TopProduct[];
+  retention: AnalyticsRetentionWeek[];
+  topCategories: AnalyticsCategoryRank[];
 };
 
 export type AnalyticsDateRange = {

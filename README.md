@@ -174,7 +174,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] CRM lite (módulo Plus — clientes, tags y notas)
 - [x] SEO avanzado (módulo Plus — sitemap, meta, JSON-LD)
 - [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
-- [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
+- [x] Analytics avanzado (módulo Plus — comparación, embudo, retention, categorías, export CSV)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
 - [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
 - [x] Temas premium (módulo Plus — paletas app2 + toggle visitante)

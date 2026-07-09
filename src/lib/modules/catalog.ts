@@ -32,7 +32,7 @@ const MODULE_LIST = [
     id: "analytics",
     name: "Analytics avanzado",
     description:
-      "Funnels, cohortes, comparación de períodos y métricas de conversión.",
+      "Comparación de períodos, embudo de pedidos, retention semanal, top categorías/productos y export CSV del reporte.",
     monthlyPriceUsd: 30,
     category: "operations",
     adminRoutes: ["/admin/analytics"],

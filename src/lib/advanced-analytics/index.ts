@@ -6,7 +6,9 @@ export {
 export { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics/query";
 export type {
   AdvancedAnalyticsReport,
+  AnalyticsCategoryRank,
   AnalyticsCustomerCohort,
   AnalyticsPeriodComparison,
   AnalyticsPeriodMetrics,
+  AnalyticsRetentionWeek,
 } from "@/lib/advanced-analytics/types";

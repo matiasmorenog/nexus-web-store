@@ -68,7 +68,7 @@ export async function AdminDashboardAnalyticsSection({
         title="Productos más vendidos"
         description={`Ranking por unidades vendidas (${periodLabels.summary})`}
       >
-        <AdminTopProducts products={analytics.topProducts} />
+        <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
       </AdminCard>
     </AdminDashboardReveal>
   );
@@ -146,7 +146,7 @@ export async function AdminDashboardSections({
           title="Productos más vendidos"
           description={`Ranking por unidades vendidas (${periodLabels.summary})`}
         >
-          <AdminTopProducts products={analytics.topProducts} />
+          <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
         </AdminCard>
       </AdminDashboardReveal>
 

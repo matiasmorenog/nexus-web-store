@@ -1,8 +1,8 @@
-import { APPAREL_STORE_SLUG } from "@/lib/store-slugs";
+import { APP1_STORE_SLUG } from "@/lib/store-slugs";
 
 /** Slug de la tienda activa (una por deploy). Override con env en producción. */
 export const DEFAULT_STORE_SLUG =
-  process.env.DEFAULT_STORE_SLUG ?? APPAREL_STORE_SLUG;
+  process.env.DEFAULT_STORE_SLUG ?? APP1_STORE_SLUG;
 
 export function getActiveStoreSlug(): string {
   return DEFAULT_STORE_SLUG;
@@ -13,6 +13,6 @@ export function getPublicStoreSlug(): string {
   return (
     process.env.NEXT_PUBLIC_DEFAULT_STORE_SLUG ??
     process.env.DEFAULT_STORE_SLUG ??
-    APPAREL_STORE_SLUG
+    APP1_STORE_SLUG
   );
 }

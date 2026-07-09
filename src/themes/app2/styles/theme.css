@@ -1,0 +1,32 @@
+[data-storefront-ui="app2"] {
+  --font-display: var(--font-rajdhani);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  color: var(--brand-primary-light, #f0f0f5);
+}
+
+[data-storefront-ui="app2"] .font-app2-display {
+  font-family: var(--font-rajdhani), sans-serif;
+}
+
+[data-storefront-ui="app2"] .text-app2-muted {
+  color: var(
+    --app2-muted-foreground,
+    color-mix(in srgb, var(--brand-primary-light, #f0f0f5) 72%, transparent)
+  );
+}
+
+[data-storefront-ui="app2"] .border-app2 {
+  border-color: var(--app2-theme-border);
+}
+
+[data-storefront-ui="app2"] .bg-app2-card {
+  background-color: var(--app2-card-bg);
+}
+
+[data-storefront-ui="app2"] .shadow-app2-glow {
+  box-shadow: 0 0 40px var(--app2-glow-primary);
+}
+
+[data-storefront-ui="app2"] .text-glow-primary {
+  text-shadow: 0 0 40px var(--app2-text-glow);
+}

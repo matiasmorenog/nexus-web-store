@@ -35,10 +35,10 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    ".next-apparel/types/**/*.ts",
-    ".next-apparel/dev/types/**/*.ts",
-    ".next-vape/types/**/*.ts",
-    ".next-vape/dev/types/**/*.ts"
+    ".next-app1/types/**/*.ts",
+    ".next-app1/dev/types/**/*.ts",
+    ".next-app2/types/**/*.ts",
+    ".next-app2/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

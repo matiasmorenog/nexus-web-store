@@ -5,21 +5,21 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { cn } from "@/lib/utils";
-import { vapeButtonClassName } from "@/themes/vape/components/vape-button";
+import { app2ButtonClassName } from "@/themes/app2/components/app2-button";
 
 type WishlistHeaderLinkProps = {
   chrome?: "light" | "dark";
-  uiVariant?: "apparel" | "vape";
+  uiVariant?: "app1" | "app2";
 };
 
 export function WishlistHeaderLink({
   chrome = "light",
-  uiVariant = "apparel",
+  uiVariant = "app1",
 }: WishlistHeaderLinkProps) {
   const ready = useHydrated();
   const totalItems = useWishlistStore((state) => state.totalItems());
 
-  const vapeClass = vapeButtonClassName({
+  const app2Class = app2ButtonClassName({
     variant: "ghost",
     size: "md",
     className: "relative h-10 w-10 px-0",
@@ -36,8 +36,8 @@ export function WishlistHeaderLink({
       href="/favoritos"
       aria-label="Ver favoritos"
       className={cn(
-        uiVariant === "vape"
-          ? vapeClass
+        uiVariant === "app2"
+          ? app2Class
           : chrome === "dark"
             ? darkClass
             : lightClass,

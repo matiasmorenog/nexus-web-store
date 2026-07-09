@@ -25,7 +25,7 @@ async function loadHomeContentRow(storeId: string) {
 
 function parsePayload(
   raw: unknown,
-  vertical: "apparel" | "vape",
+  vertical: "app1" | "app2",
   storeDisplayName: string,
 ): HomeContentPayload {
   const parsed = homeContentPayloadSchema.safeParse(raw);
@@ -41,7 +41,7 @@ function parsePayload(
 
 export async function getStoreHomeContent(
   storeId: string,
-  options?: { storeDisplayName?: string; vertical?: "apparel" | "vape" },
+  options?: { storeDisplayName?: string; vertical?: "app1" | "app2" },
 ): Promise<HomeContentPayload> {
   const vertical = options?.vertical ?? getStorefrontKind();
   const store = options?.storeDisplayName

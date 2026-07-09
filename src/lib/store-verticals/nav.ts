@@ -12,7 +12,7 @@ export type HeaderNavLink = {
   href: string;
   label: string;
   match: HeaderNavMatch;
-  /** Distingue tabs que comparten el mismo hash (ej. categorías en home vape). */
+  /** Distingue tabs que comparten el mismo hash (ej. categorías en home app2). */
   navKey?: string;
   accent?: "promo2x1";
 };

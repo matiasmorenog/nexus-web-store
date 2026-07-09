@@ -13,13 +13,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { StoreThemeSettingsData } from "@/lib/premium-themes";
 import {
-  getVapeTheme,
-  VAPE_COLOR_THEME_IDS,
-} from "@/lib/store-verticals/vape/themes";
+  getApp2Theme,
+  APP2_COLOR_THEME_IDS,
+} from "@/lib/store-verticals/app2/themes";
 
 type AdminThemeSettingsFormProps = {
   initialSettings: StoreThemeSettingsData;
-  vertical: "apparel" | "vape";
+  vertical: "app1" | "app2";
 };
 
 export function AdminThemeSettingsForm({
@@ -70,12 +70,12 @@ export function AdminThemeSettingsForm({
         title="Tema del storefront"
         description="Elegí la paleta de color que verán tus clientes al entrar a la tienda."
       >
-        {vertical === "vape" ? (
+        {vertical === "app2" ? (
           <div className="space-y-3">
             <Label>Tema de color</Label>
             <div className="flex flex-wrap gap-2">
-              {VAPE_COLOR_THEME_IDS.map((themeId) => {
-                const theme = getVapeTheme(themeId);
+              {APP2_COLOR_THEME_IDS.map((themeId) => {
+                const theme = getApp2Theme(themeId);
                 const active = settings.themeId === themeId;
 
                 return (
@@ -104,12 +104,12 @@ export function AdminThemeSettingsForm({
           </div>
         ) : (
           <p className="text-sm text-neutral-600">
-            La tienda apparel usa el tema base del deploy. Más variantes visuales
+            La tienda app1 usa el tema base del deploy. Más variantes visuales
             se agregarán en futuras versiones.
           </p>
         )}
 
-        {vertical === "vape" ? (
+        {vertical === "app2" ? (
           <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
             <Switch
               checked={settings.allowCustomerThemeToggle}

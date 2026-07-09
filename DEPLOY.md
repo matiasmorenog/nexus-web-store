@@ -6,8 +6,8 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB,
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-apparel.sh`
-- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
+- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-app1.sh`
+- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-app2.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -22,8 +22,8 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 | Proyecto Vercel | Tienda | URL | `DEFAULT_STORE_SLUG` |
 |-----------------|--------|-----|----------------------|
-| `nexus-web-store` | Goat (apparel) | https://nexus-web-store.vercel.app | `demo-store` |
-| `nexus-vape-store` | VAPORX (vape) | https://nexus-vape-store.vercel.app | `vape-demo` |
+| `nexus-web-store` | Goat (app1) | https://nexus-web-store.vercel.app | `demo-store` |
+| `nexus-vape-store` | VAPORX (app2) | https://nexus-vape-store.vercel.app | `vape-demo` |
 
 Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 
@@ -31,7 +31,7 @@ Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 
 Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo donde se indica.
 
-| Variable | Apparel | Vape |
+| Variable | App1 | App2 |
 |----------|---------|------|
 | `DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
 | `NEXT_PUBLIC_DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
@@ -42,7 +42,7 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `DIRECT_URL` | Neon direct (misma DB) | Neon direct (misma DB) |
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
-| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel (opcional si se configura en admin) | cuenta MP vape (opcional si se configura en admin) |
+| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP app1 (opcional si se configura en admin) | cuenta MP app2 (opcional si se configura en admin) |
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 
@@ -112,12 +112,12 @@ Doc Neon: [Neon-Managed](https://neon.com/docs/guides/neon-managed-vercel-integr
 Desde tu máquina (una vez o cuando resetees demo):
 
 ```bash
-npm run db:setup          # schema + ambas tiendas + pedidos demo apparel
+npm run db:setup          # schema + ambas tiendas + pedidos demo app1
 npm run db:seed:all       # solo re-seed ambas tiendas
-npm run db:seed:apparel   # solo demo-store
-npm run db:seed:vape      # solo vape-demo
-npm run db:wipe:apparel   # borra solo apparel (sin re-seed)
-npm run db:wipe:vape      # borra solo vape
+npm run db:seed:app1   # solo demo-store
+npm run db:seed:app2      # solo vape-demo
+npm run db:wipe:app1   # borra solo app1 (sin re-seed)
+npm run db:wipe:app2      # borra solo app2
 ```
 
 Owners y slugs: `prisma/seed-env.ts` → `SEED_STORES`.
@@ -132,16 +132,16 @@ Tras cambiar env en Vercel → **Redeploy**.
 
 **Mercado Pago — webhooks (uno por dominio):**
 
-- Apparel: `https://nexus-web-store.vercel.app/api/webhooks/mercadopago`
-- Vape: `https://nexus-vape-store.vercel.app/api/webhooks/mercadopago`
+- App1: `https://nexus-web-store.vercel.app/api/webhooks/mercadopago`
+- App2: `https://nexus-vape-store.vercel.app/api/webhooks/mercadopago`
 
 ## Desarrollo local
 
 ```bash
 cp .env.example .env   # completar DATABASE_URL, etc.
 npm run db:setup
-npm run dev:apparel    # :3000
-npm run dev:vape       # :3001
+npm run dev:app1    # :3000
+npm run dev:app2       # :3001
 npm run dev:both       # ambas a la vez
 ```
 
@@ -153,12 +153,12 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 | Proyecto | Comando |
 |----------|---------|
-| apparel | `bash scripts/vercel-should-build-apparel.sh` |
-| vape | `bash scripts/vercel-should-build-vape.sh` |
+| app1 | `bash scripts/vercel-should-build-app1.sh` |
+| app2 | `bash scripts/vercel-should-build-app2.sh` |
 
-Exit 0 = omitir build. Ej.: PR solo vape → apparel no builda; PR solo docs → ninguno.
+Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
 
-Preview en vape es opcional; podés probar vape con `npm run dev:vape` y dejar preview solo en apparel.
+Preview en app2 es opcional; podés probar app2 con `npm run dev:app2` y dejar preview solo en app1.
 
 ## Git: branches y PRs
 
@@ -193,7 +193,7 @@ Cuando `development` esté estable:
 gh pr create --base main --head development --title "release: development → main"
 ```
 
-Merge → deploy de producción en apparel + vape (salvo Ignored Build Step).
+Merge → deploy de producción en app1 + app2 (salvo Ignored Build Step).
 
 | Evento | Producción (`main`) | Preview |
 |--------|---------------------|---------|
@@ -216,6 +216,6 @@ Antes de vender: plan Pro, `AUTH_SECRET` distinto por proyecto, webhooks MP, own
 
 ## Segundo proyecto Vercel (referencia)
 
-Si hay que recrear vape: [vercel.com/new](https://vercel.com/new) → mismo repo → env de la tabla con fila **Vape** → `AUTH_URL` / `NEXT_PUBLIC_APP_URL` con la URL final del proyecto.
+Si hay que recrear app2: [vercel.com/new](https://vercel.com/new) → mismo repo → env de la tabla con fila **App2** → `AUTH_URL` / `NEXT_PUBLIC_APP_URL` con la URL final del proyecto.
 
 Aislamiento total de datos (opcional): 2 proyectos Neon en lugar de 1. Para pocas tiendas, **1 Neon + 2 Store** alcanza.

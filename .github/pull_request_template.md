@@ -13,13 +13,13 @@
 
 ## Tienda(s) afectada(s)
 
-- [ ] Apparel (`demo-store`)
-- [ ] Vape (`vape-demo`)
+- [ ] App1 (`demo-store`)
+- [ ] App2 (`vape-demo`)
 - [ ] Compartido (ambas)
 
 ## Cómo probar
 
-- [ ] Local: `npm run dev:apparel` y/o `npm run dev:vape`
+- [ ] Local: `npm run dev:app1` y/o `npm run dev:app2`
 - [ ] Preview Vercel (links en checks del PR)
 
 ## Deploy

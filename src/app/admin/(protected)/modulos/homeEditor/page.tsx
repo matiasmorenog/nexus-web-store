@@ -23,7 +23,7 @@ export default async function AdminHomeEditorPage() {
         <AdminPageHeader
           title="Home editable"
           description={
-            vertical === "vape"
+            vertical === "app2"
               ? "Hero estático, beneficios, categorías, promo y newsletter sin tocar código."
               : "Carrusel hero, destacados y categorías sin tocar código."
           }

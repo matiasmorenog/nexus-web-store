@@ -36,7 +36,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 | `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |
 | `multiUser` | Multi-usuario | +18/usuario | Roles vendedor, depósito, solo lectura |
 | `api` | API y webhooks | +50 | REST para productos/pedidos, webhooks de eventos |
-| `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (vape, apparel, futuros) |
+| `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (app2, app1, futuros) |
 | `seo` | SEO avanzado | +15 | Sitemap dinámico, meta por página, structured data |
 | `exports` | Export y reportes | +12 | CSV de pedidos/productos, reportes contables |
 | `wishlist` | Wishlist | +10 | Lista de deseos en storefront y cuenta cliente |
@@ -78,14 +78,14 @@ ENABLED_MODULES=none
 ENABLED_MODULES=coupons,homeEditor,analytics
 ```
 
-#### Por deploy (apparel vs vape)
+#### Por deploy (app1 vs app2)
 
 | Proyecto Vercel | Slug | `ENABLED_MODULES` | Rol |
 |-----------------|------|-------------------|-----|
 | `nexus-web-store` | `demo-store` | omitido / vacío | Demo full: todos los módulos activos para mostrar capacidades |
 | `nexus-vape-store` | `vape-demo` | `none` | Beta en plan base; cualquier módulo se activa vía env sin cambiar código |
 
-**Regla:** los módulos Plus no se restringen por vertical (`apparel` / `vape`). El vertical define branding, nav y facets; el gating es siempre `storeHasModule()`.
+**Regla:** los módulos Plus no se restringen por vertical (`app1` / `app2`). El vertical define branding, nav y facets; el gating es siempre `storeHasModule()`.
 
 Ver también: [`multi-store.md`](multi-store.md), rule `.cursor/rules/modules-gating.mdc`.
 
@@ -170,7 +170,7 @@ Funcionalidad que debe existir siempre en plan base:
 
 1. **Infra** — catálogo, `storeHasModule`, pantalla Plan, nav condicional ✅
 2. **Cupones** — CRUD admin, validación checkout, descuento en pedido ✅
-3. **Home editable** — bloques por tienda (hero estático vape, carrusel apparel) ✅
+3. **Home editable** — bloques por tienda (hero estático app2, carrusel app1) ✅
 4. **Export CSV** — pedidos y productos en admin ✅
 5. **CRM lite** — clientes desde pedidos, tags y notas ✅
 6. **SEO avanzado** — sitemap, robots, meta y JSON-LD ✅
@@ -178,7 +178,7 @@ Funcionalidad que debe existir siempre en plan base:
 8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
 9. **Marketing** — WhatsApp y Meta Pixel ✅
 10. **Envíos carrier** — cotización por CP, operador preferido y etiquetas demo ✅
-11. **Temas premium** — paletas vape, tema por tienda y toggle visitante ✅
+11. **Temas premium** — paletas app2, tema por tienda y toggle visitante ✅
 12. **Multi-usuario** — staff admin con invitación por email ✅
 13. **API y webhooks** — REST v1 (productos/pedidos) y webhook `order.paid` ✅
 14. **Billing** — al cerrar el segundo cliente SaaS (Fase C)

@@ -45,7 +45,7 @@ Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
 
 **Neon + serverless** — Pooler con `connection_limit=1`; queries admin en `$transaction` secuencial para evitar timeouts del pool.
 
-**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (apparel + vape) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
+**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (app1 + app2) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
 
 **Sin middleware Edge** — Auth del admin en layout server-side (límite de Vercel en middleware + DB).
 
@@ -177,7 +177,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Analytics avanzado (módulo Plus — comparación, embudo y cohortes)
 - [x] WhatsApp y Meta Pixel (módulo Plus)
 - [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
-- [x] Temas premium (módulo Plus — paletas vape + toggle visitante)
+- [x] Temas premium (módulo Plus — paletas app2 + toggle visitante)
 
 </details>
 
@@ -212,7 +212,7 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 </details>
 
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
-- [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
+- [x] Dos tiendas en producción (app1 + app2, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
 - [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
 - [x] GitHub Actions CI (lint + typecheck en PRs) — ver [`docs/ci.md`](docs/ci.md)
 - [ ] CI Fase 1.5: corregir lint preexistente + branch protection en `development`

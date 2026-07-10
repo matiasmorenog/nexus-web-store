@@ -11,9 +11,14 @@ import {
 } from "@/lib/advanced-analytics/format";
 import type {
   AdvancedAnalyticsReport,
+  AnalyticsCategoryRank,
   AnalyticsCustomerCohort,
+  AnalyticsLoyalCustomer,
   AnalyticsPeriodMetrics,
 } from "@/lib/advanced-analytics/types";
+
+const TOP_CATEGORIES_LIMIT = 8;
+const LOYAL_CUSTOMERS_LIMIT = 10;
 
 async function fetchPeriodMetrics(
   storeId: string,
@@ -76,7 +81,7 @@ async function fetchCustomerCohort(
             AND prev."customerEmail" = o."customerEmail"
             AND prev."createdAt" < ${range.start}
             AND prev.status IN ('PAID', 'SHIPPED')
-        ) THEN o."customerEmail"
+          ) THEN o."customerEmail"
       END)::int AS "returningCustomers"
     FROM "Order" o
     WHERE o."storeId" = ${storeId}
@@ -99,17 +104,13 @@ async function fetchCustomerCohort(
   };
 }
 
-async function fetchTopProductsForRange(
+async function fetchTopCategories(
   storeId: string,
-  rangeStart: Date,
-  limit = 10,
-) {
-  return db.$queryRaw<
-    { productId: string; name: string; quantity: number; revenue: number }[]
-  >`
+  range: { start: Date; end: Date },
+): Promise<AnalyticsCategoryRank[]> {
+  return db.$queryRaw<AnalyticsCategoryRank[]>`
     SELECT
-      p.id AS "productId",
-      p.name,
+      p.category AS category,
       SUM(oi.quantity)::int AS quantity,
       COALESCE(SUM(oi.quantity * oi."unitPrice"), 0)::float AS revenue
     FROM "OrderItem" oi
@@ -118,11 +119,54 @@ async function fetchTopProductsForRange(
     INNER JOIN "Product" p ON pv."productId" = p.id
     WHERE o."storeId" = ${storeId}
       AND o.status IN ('PAID', 'SHIPPED')
-      AND o."createdAt" >= ${rangeStart}
-    GROUP BY p.id, p.name
+      AND o."createdAt" >= ${range.start}
+      AND o."createdAt" <= ${range.end}
+    GROUP BY p.category
     ORDER BY quantity DESC
-    LIMIT ${limit}
+    LIMIT ${TOP_CATEGORIES_LIMIT}
   `;
+}
+
+/**
+ * Top customers in the period by paid order count, then revenue.
+ * Actionable for small apparel shops (contact / reward repeat buyers).
+ */
+async function fetchLoyalCustomers(
+  storeId: string,
+  range: { start: Date; end: Date },
+): Promise<AnalyticsLoyalCustomer[]> {
+  const rows = await db.$queryRaw<
+    {
+      email: string;
+      name: string;
+      orderCount: number;
+      revenue: number;
+      lastOrderAt: Date;
+    }[]
+  >`
+    SELECT
+      o."customerEmail" AS email,
+      (ARRAY_AGG(o."customerName" ORDER BY o."createdAt" DESC))[1] AS name,
+      COUNT(*)::int AS "orderCount",
+      COALESCE(SUM(o.total), 0)::float AS revenue,
+      MAX(o."createdAt") AS "lastOrderAt"
+    FROM "Order" o
+    WHERE o."storeId" = ${storeId}
+      AND o.status IN ('PAID', 'SHIPPED')
+      AND o."createdAt" >= ${range.start}
+      AND o."createdAt" <= ${range.end}
+    GROUP BY o."customerEmail"
+    ORDER BY "orderCount" DESC, revenue DESC
+    LIMIT ${LOYAL_CUSTOMERS_LIMIT}
+  `;
+
+  return rows.map((row) => ({
+    email: row.email,
+    name: row.name,
+    orderCount: row.orderCount,
+    revenue: row.revenue,
+    lastOrderAt: row.lastOrderAt.toISOString(),
+  }));
 }
 
 async function fetchAdvancedAnalyticsReport(
@@ -130,12 +174,14 @@ async function fetchAdvancedAnalyticsReport(
   period: ActivityPeriod,
 ): Promise<AdvancedAnalyticsReport> {
   const ranges = getAnalyticsPeriodRanges(period);
-  const [current, previous, cohort, topProducts] = await Promise.all([
-    fetchPeriodMetrics(storeId, ranges.current),
-    fetchPeriodMetrics(storeId, ranges.previous),
-    fetchCustomerCohort(storeId, ranges.current),
-    fetchTopProductsForRange(storeId, ranges.current.start, 10),
-  ]);
+  const [current, previous, cohort, loyalCustomers, topCategories] =
+    await Promise.all([
+      fetchPeriodMetrics(storeId, ranges.current),
+      fetchPeriodMetrics(storeId, ranges.previous),
+      fetchCustomerCohort(storeId, ranges.current),
+      fetchLoyalCustomers(storeId, ranges.current),
+      fetchTopCategories(storeId, ranges.current),
+    ]);
 
   return {
     period,
@@ -151,7 +197,8 @@ async function fetchAdvancedAnalyticsReport(
       ),
     },
     cohort,
-    topProducts,
+    loyalCustomers,
+    topCategories,
   };
 }
 
@@ -161,7 +208,7 @@ export async function getAdvancedAnalyticsReport(
 ): Promise<AdvancedAnalyticsReport> {
   return unstable_cache(
     () => fetchAdvancedAnalyticsReport(storeId, period),
-    ["advanced-analytics-report", storeId, period],
+    ["advanced-analytics-report", storeId, period, "v3"],
     {
       revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
       tags: [adminDashboardCacheTag(storeId), `advanced-analytics:${storeId}`],

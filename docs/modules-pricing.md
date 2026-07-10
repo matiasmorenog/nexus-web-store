@@ -30,7 +30,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 |----|--------|-----------------|-------------|
 | `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promo 2x1 (banner + descuento) |
 | `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
-| `analytics` | Analytics avanzado | +30 | Funnels, cohortes, comparación de períodos, export |
+| `analytics` | Analytics avanzado | +30 | Comparación de períodos, embudo, clientes más fieles, top categorías/productos, export CSV del reporte |
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
 | `shippingCarriers` | Envíos carrier | +40 | Cotización y etiquetas con operadores logísticos |
 | `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |
@@ -198,7 +198,7 @@ Funcionalidad que debe existir siempre en plan base:
 | CRM lite | `src/lib/crm/`, `/admin/modulos/crm` |
 | SEO avanzado | `src/lib/seo/`, `/admin/modulos/seo`, `/sitemap.xml`, `/robots.txt` |
 | Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
-| Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics` |
+| Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics`, `/api/admin/exports/analytics` |
 | Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
 | Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
 | Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |

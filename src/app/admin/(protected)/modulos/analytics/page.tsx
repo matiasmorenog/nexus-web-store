@@ -29,7 +29,7 @@ export default async function AdminAnalyticsPage({
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="Analytics avanzado"
-          description="Comparación de períodos, embudo de pedidos, cohortes de clientes y ranking extendido."
+          description="Comparación vs período anterior, embudo, clientes más fieles, top productos/categorías y export CSV."
         />
       </AdminDashboardReveal>
 

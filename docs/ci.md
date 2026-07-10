@@ -32,6 +32,16 @@ npm run lint
 
 No se duplican: Actions valida el código rápido; Vercel valida que compile y despliegue. El *Ignored Build Step* puede omitir preview en algunos PRs; por eso Actions no depende de Vercel para types/lint.
 
+### Prioridad de checks en un PR
+
+Orden práctico (app1 es hoy la tienda más completa / demo full):
+
+1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
+2. **`Vercel – nexus-web-store`** (app1 / Goat) — **preview de build principal**
+3. **`Vercel – nexus-vape-store`** (app2 / VAPORX) — **complementario** (plan base, Ignored Build puede omitirlo; revisar si el PR toca `src/themes/app2/` o vertical app2)
+
+No marcar ambos Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
+
 ## Roadmap / tech debt
 
 ### Fase 1.5 — Lint en verde (antes de branch protection)
@@ -55,4 +65,5 @@ Solo después de Fase 1.5.
 ## Merge (agente / flujo ágil)
 
 - **Hoy:** mergear cuando `typecheck` pase; lint en CI puede fallar hasta Fase 1.5.
+- Preferir verde en **`Vercel – nexus-web-store`** antes del merge; **`nexus-vape-store`** no bloquea salvo cambios específicos de app2.
 - **Tras Fase 3:** `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.

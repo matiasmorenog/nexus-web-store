@@ -1,5 +1,4 @@
 import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
-import type { TopProduct } from "@/lib/admin-analytics-shared";
 
 export type AnalyticsPeriodMetrics = {
   orders: number;
@@ -26,11 +25,26 @@ export type AnalyticsCustomerCohort = {
   repeatRate: number;
 };
 
+export type AnalyticsCategoryRank = {
+  category: string;
+  quantity: number;
+  revenue: number;
+};
+
+export type AnalyticsLoyalCustomer = {
+  email: string;
+  name: string;
+  orderCount: number;
+  revenue: number;
+  lastOrderAt: string;
+};
+
 export type AdvancedAnalyticsReport = {
   period: ActivityPeriod;
   comparison: AnalyticsPeriodComparison;
   cohort: AnalyticsCustomerCohort;
-  topProducts: TopProduct[];
+  loyalCustomers: AnalyticsLoyalCustomer[];
+  topCategories: AnalyticsCategoryRank[];
 };
 
 export type AnalyticsDateRange = {

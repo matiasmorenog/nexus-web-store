@@ -1,3 +1,4 @@
+import { AdminAnalyticsFunnel } from "@/components/admin/admin-analytics-funnel";
 import { AdminCard } from "@/components/admin/admin-card";
 import {
   AdminCardSection,
@@ -24,27 +25,7 @@ export function AdminAnalyticsInsightsGrid({
 }: AdminAnalyticsInsightsGridProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <AdminCard
-        title="Embudo de pedidos"
-        description="Del pedido creado al cobro efectivo en el período actual."
-      >
-        <AdminCardSection>
-          <AdminDetailGrid>
-            <AdminDetailField label="Pedidos creados">
-              {metrics.orders}
-            </AdminDetailField>
-            <AdminDetailField label="Pagados / enviados">
-              {metrics.paidOrders}
-            </AdminDetailField>
-            <AdminDetailField label="Cancelados">
-              {metrics.cancelledOrders}
-            </AdminDetailField>
-            <AdminDetailField label="Conversión a cobro">
-              {formatRate(metrics.conversionRate)}
-            </AdminDetailField>
-          </AdminDetailGrid>
-        </AdminCardSection>
-      </AdminCard>
+      <AdminAnalyticsFunnel metrics={metrics} />
 
       <AdminCard
         title="Clientes del período"

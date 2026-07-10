@@ -17,6 +17,9 @@ type AdminActivityChartProps = {
   data: ActivityPoint[];
   totalOrders: number;
   totalRevenue: number;
+  /** Overrides ACTIVITY_PERIOD_LABELS summary (e.g. calendar month name). */
+  summaryLabel?: string;
+  emptyLabel?: string;
 };
 
 const MOBILE_MEDIA_QUERY = "(max-width: 639px)";
@@ -296,12 +299,16 @@ export function AdminActivityChart({
   data,
   totalOrders,
   totalRevenue,
+  summaryLabel,
+  emptyLabel,
 }: AdminActivityChartProps) {
   const router = useRouter();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [chartPhase, setChartPhase] = useState<ChartPhase>("waiting");
   const isMobile = useIsMobile();
   const labels = ACTIVITY_PERIOD_LABELS[period];
+  const summary = summaryLabel ?? labels.summary;
+  const empty = emptyLabel ?? labels.empty;
   const showMonthAsWeeks = period === "month" && isMobile;
   const { displayValue: animatedOrders, isComplete: ordersComplete } =
     useCountUp(totalOrders, { delay: 180 });
@@ -361,7 +368,7 @@ export function AdminActivityChart({
     <div>
       <div className="mb-6 flex flex-wrap gap-6 text-sm">
         <div>
-          <p className="text-neutral-500">Pedidos ({labels.summary})</p>
+          <p className="text-neutral-500">Pedidos ({summary})</p>
           <p
             className={cn(
               "mt-0.5 text-xl font-bold tabular-nums text-neutral-900",
@@ -372,7 +379,7 @@ export function AdminActivityChart({
           </p>
         </div>
         <div>
-          <p className="text-neutral-500">Ingresos ({labels.summary})</p>
+          <p className="text-neutral-500">Ingresos ({summary})</p>
           <p
             className={cn(
               "mt-0.5 text-xl font-bold tabular-nums text-neutral-900",
@@ -385,7 +392,7 @@ export function AdminActivityChart({
       </div>
 
       {!hasData ? (
-        <p className="py-10 text-center text-sm text-neutral-500">{labels.empty}</p>
+        <p className="py-10 text-center text-sm text-neutral-500">{empty}</p>
       ) : (
         <div>
           <p className="mb-2 text-xs text-neutral-400">

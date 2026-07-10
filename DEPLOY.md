@@ -158,7 +158,7 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
 
-Preview en app2 es opcional; podés probar app2 con `npm run dev:app2` y dejar preview solo en app1.
+**Prioridad de preview en PRs:** `nexus-web-store` (app1) es el build principal (demo más completa hoy); `nexus-vape-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 

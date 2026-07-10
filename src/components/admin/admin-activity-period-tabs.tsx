@@ -8,7 +8,7 @@ import {
 } from "@/lib/admin-analytics-shared";
 import { cn } from "@/lib/utils";
 
-const PERIODS: DashboardMonthPeriod[] = ["current", "previous"];
+const PERIODS: DashboardMonthPeriod[] = ["previous", "current"];
 
 type AdminActivityPeriodTabsProps = {
   period: DashboardMonthPeriod;

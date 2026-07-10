@@ -6,7 +6,7 @@ import {
   getProductTaxonomyLabel as taxonomyLabel,
 } from "@/lib/store-verticals/taxonomy";
 import { getStorefrontConfig } from "@/lib/store-verticals";
-import { APPAREL_PRODUCT_CATEGORIES } from "@/lib/store-verticals/apparel/config";
+import { APP1_PRODUCT_CATEGORIES } from "@/lib/store-verticals/app1/config";
 
 export const STORE_AUDIENCES = [
   { slug: "hombre", label: "Hombre" },
@@ -16,7 +16,7 @@ export const STORE_AUDIENCES = [
 
 export type StoreAudience = (typeof STORE_AUDIENCES)[number]["slug"];
 
-export const PRODUCT_CATEGORIES = APPAREL_PRODUCT_CATEGORIES;
+export const PRODUCT_CATEGORIES = APP1_PRODUCT_CATEGORIES;
 
 export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number]["slug"];
 

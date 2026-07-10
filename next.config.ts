@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Permite dos `next dev` en paralelo (apparel + vape) con NEXT_DIST_DIR distinto.
+  // Permite dos `next dev` en paralelo (app1 + app2) con NEXT_DIST_DIR distinto.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   images: {
     formats: ["image/avif", "image/webp"],

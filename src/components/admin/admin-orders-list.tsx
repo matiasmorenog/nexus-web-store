@@ -40,13 +40,21 @@ export function AdminOrdersList({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const [prevListSeed, setPrevListSeed] = useState({
+    initialOrders,
+    initialHasMore,
+  });
 
-  useEffect(() => {
+  if (
+    initialOrders !== prevListSeed.initialOrders ||
+    initialHasMore !== prevListSeed.initialHasMore
+  ) {
+    setPrevListSeed({ initialOrders, initialHasMore });
     setOrders(initialOrders);
     setPage(1);
     setHasMore(initialHasMore);
     setLoading(false);
-  }, [initialOrders, initialHasMore]);
+  }
 
   useEffect(() => {
     const hash = window.location.hash;

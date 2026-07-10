@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ProductEditForm } from "@/components/admin/product-edit-form";
 import {
   ProductColorsCard,
@@ -20,15 +20,27 @@ type ProductEditSectionsProps = {
     featured: boolean;
     promo2x1: boolean;
   };
+  promo2x1Selectable?: boolean;
 };
 
-export function ProductEditSections({ product }: ProductEditSectionsProps) {
+export function ProductEditSections({
+  product,
+  promo2x1Selectable = false,
+}: ProductEditSectionsProps) {
   const [activeSection, setActiveSection] =
     useState<ProductEditSection | null>("product");
   const [colorBusy, setColorBusy] = useState(false);
   const [variantBusy, setVariantBusy] = useState(false);
   const sectionBusy = colorBusy || variantBusy;
   const [blockedHint, setBlockedHint] = useState(0);
+  const [prevSectionBusy, setPrevSectionBusy] = useState(sectionBusy);
+
+  if (sectionBusy !== prevSectionBusy) {
+    setPrevSectionBusy(sectionBusy);
+    if (!sectionBusy) {
+      setBlockedHint(0);
+    }
+  }
   const [variants, setVariants] = useState<VariantRow[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);
   const [variantsFetched, setVariantsFetched] = useState(false);
@@ -78,12 +90,6 @@ export function ProductEditSections({ product }: ProductEditSectionsProps) {
     setBlockedHint((count) => count + 1);
   }, []);
 
-  useEffect(() => {
-    if (!sectionBusy) {
-      setBlockedHint(0);
-    }
-  }, [sectionBusy]);
-
   const handleSectionToggle = (section: ProductEditSection) => {
     if (sectionBusy) {
       signalBlockedEdit();
@@ -115,6 +121,7 @@ export function ProductEditSections({ product }: ProductEditSectionsProps) {
         onToggle={() => handleSectionToggle("product")}
         disabled={sectionBusy}
         onBlockedToggle={sectionBusy ? signalBlockedEdit : undefined}
+        promo2x1Selectable={promo2x1Selectable}
       />
 
       <ProductColorsCard

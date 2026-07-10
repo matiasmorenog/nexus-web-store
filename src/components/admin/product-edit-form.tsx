@@ -13,6 +13,7 @@ import {
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -30,6 +31,8 @@ type ProductEditFormProps = {
   onToggle: () => void;
   disabled?: boolean;
   onBlockedToggle?: () => void;
+  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
+  promo2x1Selectable?: boolean;
 };
 
 export function ProductEditForm({
@@ -38,6 +41,7 @@ export function ProductEditForm({
   onToggle,
   disabled = false,
   onBlockedToggle,
+  promo2x1Selectable = false,
 }: ProductEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,24 +112,30 @@ export function ProductEditForm({
               required
             />
           </div>
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2.5 sm:col-span-2">
+            <Switch
               id="featured"
               name="featured"
               defaultChecked={product.featured}
             />
-            <Label htmlFor="featured">Destacado en home</Label>
+            <Label htmlFor="featured" className="cursor-pointer">
+              Destacado en home
+            </Label>
           </div>
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <input
-              type="checkbox"
-              id="promo2x1"
-              name="promo2x1"
-              defaultChecked={product.promo2x1}
-            />
-            <Label htmlFor="promo2x1">Promoción 2x1</Label>
-          </div>
+          {promo2x1Selectable ? (
+            <div className="flex items-center gap-2.5 sm:col-span-2">
+              <Switch
+                id="promo2x1"
+                name="promo2x1"
+                defaultChecked={product.promo2x1}
+              />
+              <Label htmlFor="promo2x1" className="cursor-pointer">
+                Promoción 2x1
+              </Label>
+            </div>
+          ) : product.promo2x1 ? (
+            <input type="hidden" name="promo2x1" value="on" />
+          ) : null}
         </AdminFormGrid>
 
         <AdminFormActions>

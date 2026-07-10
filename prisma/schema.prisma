@@ -11,6 +11,7 @@ datasource db {
 enum UserRole {
   PLATFORM_ADMIN
   STORE_OWNER
+  STORE_STAFF
   CUSTOMER
 }
 
@@ -27,6 +28,34 @@ enum MercadoEnviosStatus {
   DELIVERED
 }
 
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Coupon {
+  id             String     @id @default(cuid())
+  storeId        String
+  code           String
+  type           CouponType
+  value          Decimal
+  minOrderAmount Decimal    @default(0)
+  maxDiscount    Decimal?
+  usageLimit     Int?
+  usedCount      Int        @default(0)
+  startsAt       DateTime?
+  expiresAt      DateTime?
+  active         Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  store  Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@unique([storeId, code])
+  @@index([storeId, active])
+}
+
 model Store {
   id               String   @id @default(cuid())
   name             String
@@ -34,7 +63,6 @@ model Store {
   logo             String?
   primaryColor     String   @default("#171717")
   secondaryColor   String   @default("#f5f5f5")
-  domain           String?
   shippingFlatRate Decimal  @default(0)
   allowPickup      Boolean  @default(true)
   createdAt        DateTime @default(now())
@@ -42,7 +70,142 @@ model Store {
 
   users    UserStore[]
   products Product[]
-  orders   Order[]
+  orders            Order[]
+  coupons           Coupon[]
+  homeContent       StoreHomeContent?
+  customers         StoreCustomer[]
+  seoSettings       StoreSeoSettings?
+  wishlistItems     WishlistItem[]
+  marketingSettings StoreMarketingSettings?
+  shippingSettings  StoreShippingSettings?
+  themeSettings     StoreThemeSettings?
+  apiKeys           StoreApiKey[]
+  webhookSettings   StoreWebhookSettings?
+  promotionSettings StorePromotionSettings?
+  paymentSettings   StorePaymentSettings?
+}
+
+model StorePaymentSettings {
+  storeId                   String   @id
+  mercadopagoAccessTokenEnc String?
+  mercadopagoTokenHint      String?
+  updatedAt                 DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StorePromotionSettings {
+  storeId         String   @id
+  promo2x1Enabled Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreThemeSettings {
+  storeId                  String   @id
+  themeId                  String   @default("default")
+  allowCustomerThemeToggle Boolean  @default(true)
+  updatedAt                DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreApiKey {
+  id         String    @id @default(cuid())
+  storeId    String
+  name       String
+  keyPrefix  String
+  keyHash    String
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([keyHash])
+}
+
+model StoreWebhookSettings {
+  storeId   String   @id
+  enabled   Boolean  @default(false)
+  url       String?
+  secret    String?
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreMarketingSettings {
+  storeId          String   @id
+  whatsappEnabled  Boolean  @default(false)
+  whatsappPhone    String?
+  whatsappMessage  String?
+  metaPixelEnabled Boolean  @default(false)
+  metaPixelId      String?
+  updatedAt        DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreShippingSettings {
+  storeId            String   @id
+  carriersEnabled    Boolean  @default(true)
+  preferredCarrierId String   @default("mercado_envios")
+  updatedAt          DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreHomeContent {
+  id        String   @id @default(cuid())
+  storeId   String   @unique
+  version   Int      @default(1)
+  payload   Json
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model StoreCustomer {
+  id        String   @id @default(cuid())
+  storeId   String
+  email     String
+  tags      String[] @default([])
+  notes     String   @default("")
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, email])
+  @@index([storeId])
+}
+
+model StoreSeoSettings {
+  storeId                 String   @id
+  metaDescription         String?
+  ogImageUrl              String?
+  robotsIndex             Boolean  @default(true)
+  structuredDataEnabled   Boolean  @default(true)
+  updatedAt               DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  storeId   String
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, userId, productId])
+  @@index([storeId, productId])
+  @@index([storeId, userId])
 }
 
 model User {
@@ -56,6 +219,7 @@ model User {
 
   stores UserStore[]
   orders Order[]
+  wishlistItems WishlistItem[]
 }
 
 model UserStore {
@@ -81,8 +245,9 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  variants ProductVariant[]
+  store         Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variants      ProductVariant[]
+  wishlistItems WishlistItem[]
 
   @@unique([storeId, slug])
   @@index([storeId, createdAt(sort: Desc)])
@@ -114,6 +279,9 @@ model Order {
   status          OrderStatus @default(PENDING)
   total           Decimal
   promoDiscount   Decimal     @default(0)
+  couponId        String?
+  couponCode      String?
+  couponDiscount  Decimal     @default(0)
   shippingCost    Decimal     @default(0)
   customerName    String
   customerEmail   String
@@ -134,9 +302,10 @@ model Order {
   createdAt                 DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  store Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  user  User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  items OrderItem[]
+  store  Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user   User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  coupon Coupon?     @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  items  OrderItem[]
 
   @@index([storeId, createdAt(sort: Desc)])
   @@index([storeId, status, createdAt])

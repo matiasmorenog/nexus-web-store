@@ -4,9 +4,8 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { ProductSearch } from "@/components/storefront/product-search";
-import { PromoBanner } from "@/components/storefront/promo-banner";
+import { PromoBanner } from "@/themes/app1/components/promo-banner";
 import { HeaderProgressLine } from "@/components/storefront/header-progress-line";
-import { promoBanner } from "@/lib/promo-banner";
 import {
   isStorefrontNavActive,
   type HeaderNavLink,
@@ -14,14 +13,16 @@ import {
 import type { VerticalFeatures } from "@/lib/store-verticals/types";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import { useEffect, useRef, useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useCartStore } from "@/stores/cart-store";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { HeaderAccountLink } from "@/components/storefront/header-account-link";
-import { VapeStoreLogo } from "@/components/storefront/home/vape/vape-store-logo";
-import { VapeThemeToggle } from "@/components/storefront/vape-theme-toggle";
+import { WishlistHeaderLink } from "@/components/storefront/wishlist-header-link";
+import { App2StoreLogo } from "@/themes/app2/components/home/app2-store-logo";
+import { App2ThemeToggle } from "@/themes/app2/components/app2-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
 import { Button } from "@/components/ui/button";
-import { VapeButton } from "@/components/storefront/vape/vape-button";
+import { App2Button } from "@/themes/app2/components/app2-button";
 import { cn } from "@/lib/utils";
 
 type HeaderProps = {
@@ -30,7 +31,11 @@ type HeaderProps = {
   navMobile: HeaderNavLink[];
   features: VerticalFeatures;
   chrome?: "light" | "dark";
-  uiVariant?: "apparel" | "vape";
+  uiVariant?: "app1" | "app2";
+  wishlistEnabled?: boolean;
+  showApp2ThemeToggle?: boolean;
+  /** 2x1 activo (módulo coupons + toggle). Controla banner y links promo. */
+  promo2x1Active?: boolean;
 };
 
 export function Header({
@@ -39,17 +44,25 @@ export function Header({
   navMobile,
   features,
   chrome = "light",
-  uiVariant = "apparel",
+  uiVariant = "app1",
+  wishlistEnabled = false,
+  showApp2ThemeToggle = true,
+  promo2x1Active = false,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
   const bannerWrapRef = useRef<HTMLDivElement>(null);
-  const [promoActive, setPromoActive] = useState<boolean>(
-    features.promoBanner && promoBanner.enabled,
-  );
+  const bannerEnabled = features.promoBanner && promo2x1Active;
+  const [promoActive, setPromoActive] = useState<boolean>(bannerEnabled);
+  const visibleNavDesktop = promo2x1Active
+    ? navDesktop
+    : navDesktop.filter((link) => link.accent !== "promo2x1");
+  const visibleNavMobile = promo2x1Active
+    ? navMobile
+    : navMobile.filter((link) => link.accent !== "promo2x1");
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [badgePulse, setBadgePulse] = useState(false);
-  const [cartReady, setCartReady] = useState(false);
+  const cartReady = useHydrated();
   const [locationHash, setLocationHash] = useState("");
   const [activeNavKey, setActiveNavKey] = useState<string | null>(null);
   const totalItems = useCartStore((s) => s.totalItems());
@@ -67,10 +80,6 @@ export function Header({
   };
 
   useEffect(() => {
-    setCartReady(true);
-  }, []);
-
-  useEffect(() => {
     const syncHashNav = () => {
       const hash = window.location.hash;
       setLocationHash(hash);
@@ -78,7 +87,7 @@ export function Header({
       const id = hash.replace(/^#/, "");
       if (id === "ofertas") {
         setActiveNavKey("ofertas");
-      } else if (id === "productos-vape") {
+      } else if (id === "productos-app2") {
         setActiveNavKey("productos");
       } else if (id === "categorias") {
         setActiveNavKey((prev) =>
@@ -156,13 +165,20 @@ export function Header({
   useEffect(() => {
     if (!cartReady || !lastAddedAt) return;
 
-    setBadgePulse(true);
-    const timeout = window.setTimeout(() => setBadgePulse(false), 500);
-    return () => window.clearTimeout(timeout);
+    let timeout: number | undefined;
+    const frame = requestAnimationFrame(() => {
+      setBadgePulse(true);
+      timeout = window.setTimeout(() => setBadgePulse(false), 500);
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (timeout) window.clearTimeout(timeout);
+    };
   }, [lastAddedAt, cartReady]);
 
   const isDarkChrome = chrome === "dark";
-  const isVapeUi = uiVariant === "vape";
+  const isApp2Ui = uiVariant === "app2";
 
   const navLinkClass = (link: HeaderNavLink, mobile = false) => {
     const active = isStorefrontNavActive(link.match, pathname, navParams, {
@@ -193,13 +209,13 @@ export function Header({
             : "border-[var(--brand-primary)] text-[var(--brand-primary)]"
         : mobile
           ? isDarkChrome
-            ? isVapeUi
-              ? "text-vape-muted hover:bg-white/5 hover:text-[var(--brand-primary-light)]"
+            ? isApp2Ui
+              ? "text-app2-muted hover:bg-white/5 hover:text-[var(--brand-primary-light)]"
               : "text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
           : isDarkChrome
-            ? isVapeUi
-              ? "border-transparent text-vape-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary-light)]"
+            ? isApp2Ui
+              ? "border-transparent text-app2-muted hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)] hover:text-[var(--brand-primary-light)]"
               : "border-transparent text-neutral-400 hover:border-white/20 hover:text-neutral-100"
             : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-900",
     );
@@ -232,9 +248,9 @@ export function Header({
       <div ref={stickyRef} className="sticky top-0 z-40">
         <div
           ref={bannerWrapRef}
-          className={cn(features.promoBanner && promoActive && "bg-[var(--brand-primary)]")}
+          className={cn(bannerEnabled && promoActive && "bg-[var(--brand-primary)]")}
         >
-          {features.promoBanner ? (
+          {bannerEnabled ? (
             <PromoBanner onActiveChange={setPromoActive} />
           ) : null}
           <HeaderProgressLine />
@@ -262,15 +278,15 @@ export function Header({
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            {isVapeUi ? (
-              <VapeStoreLogo storeName={storeName} />
+            {isApp2Ui ? (
+              <App2StoreLogo storeName={storeName} />
             ) : (
               <StoreLogo storeName={storeName} />
             )}
           </div>
 
           <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
-            {navDesktop.map((link) => (
+            {visibleNavDesktop.map((link) => (
               <Link
                 key={`${link.href}-${link.label}`}
                 href={link.href}
@@ -283,16 +299,19 @@ export function Header({
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {isVapeUi ? (
+            {isApp2Ui && showApp2ThemeToggle ? (
               <>
-                <VapeThemeToggle compact className="flex sm:hidden" />
-                <VapeThemeToggle className="hidden sm:flex" />
+                <App2ThemeToggle compact className="flex sm:hidden" />
+                <App2ThemeToggle className="hidden sm:flex" />
               </>
             ) : null}
             {features.productSearch ? <ProductSearch compact /> : null}
+            {wishlistEnabled ? (
+              <WishlistHeaderLink chrome={chrome} uiVariant={uiVariant} />
+            ) : null}
             <HeaderAccountLink chrome={chrome} uiVariant={uiVariant} />
-            {isVapeUi ? (
-              <VapeButton
+            {isApp2Ui ? (
+              <App2Button
                 type="button"
                 variant="ghost"
                 size="md"
@@ -311,7 +330,7 @@ export function Header({
                     {totalItems}
                   </span>
                 )}
-              </VapeButton>
+              </App2Button>
             ) : (
               <Button
                 type="button"
@@ -345,7 +364,7 @@ export function Header({
           )}
         >
           <nav className="max-h-[min(70vh,28rem)] space-y-1 overflow-y-auto px-4 py-3">
-            {navMobile.map((link) => (
+            {visibleNavMobile.map((link) => (
               <Link
                 key={`${link.href}-${link.label}`}
                 href={link.href}

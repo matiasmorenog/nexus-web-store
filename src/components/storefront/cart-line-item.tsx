@@ -9,6 +9,7 @@ import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/stores/cart-store";
 import { useCartStore } from "@/stores/cart-store";
+import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { cn } from "@/lib/utils";
 
@@ -34,18 +35,26 @@ export function CartLineItem({
   const variantLabels = getClientVariantLabels();
   const isPage = variant === "page";
   const cartItems = useCartStore((state) => state.items);
+  const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
   const pricing = useMemo(() => {
-    const priced = getCartPromoPricing(cartItems);
+    const priced = getCartPromoPricing(cartItems, promo2x1Active);
     return (
       priced.byVariantId.get(item.variantId) ?? {
         rawTotal: item.price * item.quantity,
         lineTotal: item.price * item.quantity,
         discount: 0,
         freeUnits: 0,
-        eligible: item.promo2x1 ?? false,
+        eligible: promo2x1Active && (item.promo2x1 ?? false),
       }
     );
-  }, [cartItems, item.variantId, item.price, item.quantity, item.promo2x1]);
+  }, [
+    cartItems,
+    promo2x1Active,
+    item.variantId,
+    item.price,
+    item.quantity,
+    item.promo2x1,
+  ]);
 
   return (
     <li

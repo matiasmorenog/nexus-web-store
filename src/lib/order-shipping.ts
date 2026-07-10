@@ -1,6 +1,7 @@
 import type { MercadoEnviosStatus } from "@prisma/client";
 import {
   getMercadoEnviosCarrier,
+  resolveMercadoEnviosCarrierId,
   resolveMercadoEnviosTrackingUrl,
   formatMercadoEnviosDate,
 } from "@/lib/mercado-envios";
@@ -46,7 +47,8 @@ export function getOrderShippingInfo(
   }
 
   const provider = "Mercado Envíos";
-  const carrierMeta = getMercadoEnviosCarrier();
+  const carrierId = resolveMercadoEnviosCarrierId(order.meCarrier);
+  const carrierMeta = getMercadoEnviosCarrier(carrierId);
 
   if (order.meTrackingNumber && order.meStatus) {
     return {
@@ -56,6 +58,7 @@ export function getOrderShippingInfo(
       trackingNumber: order.meTrackingNumber,
       trackingUrl: resolveMercadoEnviosTrackingUrl({
         trackingUrl: order.meTrackingUrl,
+        carrierId,
       }),
       trackingPortalLabel: carrierMeta.trackingPortalLabel,
       trackingHint: carrierMeta.trackingHint,

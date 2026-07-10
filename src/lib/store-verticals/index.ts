@@ -1,22 +1,22 @@
 import { cache } from "react";
 import { getActiveStoreSlug } from "@/lib/store-env";
 import {
-  APPAREL_STORE_SLUG,
+  APP1_STORE_SLUG,
   isKnownStoreSlug,
-  VAPE_STORE_SLUG,
+  APP2_STORE_SLUG,
 } from "@/lib/store-slugs";
-import { apparelConfig } from "@/lib/store-verticals/apparel/config";
-import { vapeConfig } from "@/lib/store-verticals/vape/config";
+import { app1Config } from "@/lib/store-verticals/app1/config";
+import { app2Config } from "@/lib/store-verticals/app2/config";
 import type { StoreVertical, VerticalConfig } from "@/lib/store-verticals/types";
 
 const STOREFRONT_CONFIG_BY_SLUG: Record<string, VerticalConfig> = {
-  [APPAREL_STORE_SLUG]: apparelConfig,
-  [VAPE_STORE_SLUG]: vapeConfig,
+  [APP1_STORE_SLUG]: app1Config,
+  [APP2_STORE_SLUG]: app2Config,
 };
 
 const STOREFRONT_CONFIG_BY_KIND: Record<StoreVertical, VerticalConfig> = {
-  apparel: apparelConfig,
-  vape: vapeConfig,
+  app1: app1Config,
+  app2: app2Config,
 };
 
 function resolveStorefrontConfig(slug: string): VerticalConfig {
@@ -25,7 +25,7 @@ function resolveStorefrontConfig(slug: string): VerticalConfig {
   }
 
   throw new Error(
-    `No hay storefront config para slug "${slug}". Slugs conocidos: ${APPAREL_STORE_SLUG}, ${VAPE_STORE_SLUG}.`,
+    `No hay storefront config para slug "${slug}". Slugs conocidos: ${APP1_STORE_SLUG}, ${APP2_STORE_SLUG}.`,
   );
 }
 
@@ -34,7 +34,7 @@ export const getStorefrontConfig = cache((): VerticalConfig => {
   return resolveStorefrontConfig(getActiveStoreSlug());
 });
 
-/** Plantilla interna (apparel | vape) derivada del slug activo. */
+/** Plantilla interna (app1 | app2) derivada del slug activo. */
 export function getStorefrontKind(): StoreVertical {
   return getStorefrontConfig().id;
 }

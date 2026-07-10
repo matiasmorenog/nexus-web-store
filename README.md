@@ -45,7 +45,7 @@ Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
 
 **Neon + serverless** — Pooler con `connection_limit=1`; queries admin en `$transaction` secuencial para evitar timeouts del pool.
 
-**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (apparel + vape) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
+**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (app1 + app2) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
 
 **Sin middleware Edge** — Auth del admin en layout server-side (límite de Vercel en middleware + DB).
 
@@ -168,7 +168,16 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] Retiro en local
 - [x] Páginas legales, FAQ, contacto
 - [x] Cuenta cliente + mis pedidos
-- [ ] Cupones, wishlist, SEO avanzado, WhatsApp
+- [x] Cupones (módulo Plus — admin + checkout)
+- [x] Home editable (módulo Plus — bloques por tienda)
+- [x] Export CSV (módulo Plus — pedidos y productos)
+- [x] CRM lite (módulo Plus — clientes, tags y notas)
+- [x] SEO avanzado (módulo Plus — sitemap, meta, JSON-LD)
+- [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
+- [x] Analytics avanzado (módulo Plus — comparación, embudo, clientes fieles, categorías, export CSV)
+- [x] WhatsApp y Meta Pixel (módulo Plus)
+- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
+- [x] Temas premium (módulo Plus — paletas app2 + toggle visitante)
 
 </details>
 
@@ -188,17 +197,28 @@ Estado del producto. Marcá `[x]` al implementar cada ítem.
 - [x] CRUD productos, variantes, imágenes
 - [x] Pedidos con filtros y estados
 - [x] Configuración de tienda
-- [ ] CRM lite, export CSV, home editable
+- [x] Home editable (módulo Plus — bloques por tienda)
+- [x] Export CSV (módulo Plus)
+- [x] CRM lite (módulo Plus)
+- [x] SEO avanzado (módulo Plus)
+- [x] Wishlist (módulo Plus)
+- [x] Analytics avanzado (módulo Plus)
+- [x] WhatsApp y Meta Pixel (módulo Plus)
+- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
+- [x] Temas premium (módulo Plus)
+- [x] Multi-usuario (módulo Plus)
+- [x] API y webhooks (módulo Plus)
 
 </details>
 
-<details>
-<summary><strong>Infra y SaaS</strong></summary>
-
 - [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
-- [x] Dos tiendas en producción (apparel + vape, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
+- [x] Dos tiendas en producción (app1 + app2, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
+- [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
+- [x] GitHub Actions CI (lint + typecheck en PRs) — ver [`docs/ci.md`](docs/ci.md)
+- [ ] CI Fase 1.5: corregir lint preexistente + branch protection en `development`
+- [ ] CI Fase 2 (opcional, futuro): `build` en GitHub Actions — cuando la app esté en producción activa; hoy Vercel builda en preview/deploy
 - [ ] Separar Vercel Blob por tienda antes de salir a producción
-- [ ] Dominio custom, onboarding, planes, API pública
+- [ ] Onboarding, billing automático
 
 </details>
 

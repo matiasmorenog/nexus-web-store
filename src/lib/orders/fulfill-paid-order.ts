@@ -4,6 +4,7 @@ import { buildOrderEmailData } from "@/lib/emails/order-email-data";
 import { sendOrderEmails } from "@/lib/emails/send-order-emails";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { createOrderShipment } from "@/lib/orders/create-order-shipment";
+import { dispatchStoreWebhook } from "@/lib/store-api/dispatch-webhook";
 import { revalidateAdminDashboardCache } from "@/lib/revalidate-admin-cache";
 import { revalidateStorefrontStockSurfaces } from "@/lib/revalidate-storefront-products";
 
@@ -66,6 +67,13 @@ export async function fulfillPaidOrder(orderId: string) {
           data: { stock: { decrement: item.quantity } },
         });
       }
+
+      if (order.couponId) {
+        await tx.coupon.update({
+          where: { id: order.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
     });
 
     const productSlugs = [
@@ -75,8 +83,20 @@ export async function fulfillPaidOrder(orderId: string) {
     revalidateAdminDashboardCache(order.storeId);
   }
 
+  if (!wasAlreadyPaid) {
+    void dispatchStoreWebhook(order.storeId, "order.paid", {
+      orderId: order.id,
+      status: "PAID",
+      total: Number(order.total),
+      customerEmail: order.customerEmail,
+      customerName: order.customerName,
+      createdAt: order.createdAt.toISOString(),
+    });
+  }
+
   await createOrderShipment({
     id: order.id,
+    storeId: order.storeId,
     isPickup: order.isPickup,
     shippingZip: order.shippingZip,
     meShipmentId: order.meShipmentId,

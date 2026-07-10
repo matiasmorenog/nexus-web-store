@@ -3,15 +3,15 @@
  * Runtime: tienda activa y owner se leen desde DB según DEFAULT_STORE_SLUG del deploy.
  */
 
-/** Tienda apparel (deploy 1). */
+/** Tienda app1 (deploy 1). */
 export const DEFAULT_STORE_SLUG = "demo-store";
 export const SEED_STORE_NAME = "Goat Indumentaria";
 export const STORE_OWNER_EMAIL = "matiasmorenog+nexus-web-store@gmail.com";
 
-/** Tienda vape (deploy 2). */
-export const VAPE_STORE_SLUG = "vape-demo";
-export const VAPE_STORE_NAME = "VAPORX";
-export const VAPE_STORE_OWNER_EMAIL = "matiasmorenog+vape-nexus@gmail.com";
+/** Tienda app2 (deploy 2). */
+export const APP2_STORE_SLUG = "vape-demo";
+export const APP2_STORE_NAME = "VAPORX";
+export const APP2_STORE_OWNER_EMAIL = "matiasmorenog+vape-nexus@gmail.com";
 
 export const SEED_ADMIN_PASSWORD = "admin123";
 export const SEED_ADMIN_NAME = "Admin";
@@ -37,9 +37,9 @@ export const SEED_STORES: SeedStoreConfig[] = [
     shippingFlatRate: 2500,
   },
   {
-    slug: VAPE_STORE_SLUG,
-    name: VAPE_STORE_NAME,
-    adminEmail: VAPE_STORE_OWNER_EMAIL,
+    slug: APP2_STORE_SLUG,
+    name: APP2_STORE_NAME,
+    adminEmail: APP2_STORE_OWNER_EMAIL,
     adminPassword: SEED_ADMIN_PASSWORD,
     adminDisplayName: SEED_ADMIN_NAME,
     primaryColor: "#00e5ff",

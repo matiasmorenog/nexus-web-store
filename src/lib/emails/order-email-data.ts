@@ -2,6 +2,7 @@ import { formatStoreName } from "@/lib/brand";
 import { getVariantLabels } from "@/lib/variant-labels";
 import {
   getMercadoEnviosCarrier,
+  resolveMercadoEnviosCarrierId,
   resolveMercadoEnviosTrackingUrl,
   formatMercadoEnviosDate,
 } from "@/lib/mercado-envios";
@@ -28,6 +29,8 @@ export type OrderEmailData = {
   items: OrderEmailItem[];
   subtotal: number;
   promoDiscount: number;
+  couponCode?: string;
+  couponDiscount: number;
   shippingCost: number;
   total: number;
   adminOrdersUrl: string;
@@ -50,10 +53,13 @@ export function buildOrderEmailData(order: {
   shippingZip: string;
   shippingCost: { toString(): string } | number;
   promoDiscount?: { toString(): string } | number;
+  couponCode?: string | null;
+  couponDiscount?: { toString(): string } | number;
   total: { toString(): string } | number;
   store: { name: string };
   meTrackingNumber: string | null;
   meTrackingUrl?: string | null;
+  meCarrier?: string | null;
   meEstimatedDelivery?: Date | null;
   items: Array<{
     quantity: number;
@@ -81,7 +87,8 @@ export function buildOrderEmailData(order: {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   const trackingNumber = order.meTrackingNumber ?? undefined;
-  const carrierMeta = getMercadoEnviosCarrier();
+  const carrierId = resolveMercadoEnviosCarrierId(order.meCarrier);
+  const carrierMeta = getMercadoEnviosCarrier(carrierId);
 
   return {
     orderId: order.id,
@@ -96,14 +103,17 @@ export function buildOrderEmailData(order: {
     items,
     subtotal,
     promoDiscount: Number(order.promoDiscount ?? 0),
+    couponCode: order.couponCode ?? undefined,
+    couponDiscount: Number(order.couponDiscount ?? 0),
     shippingCost: Number(order.shippingCost),
     total: Number(order.total),
     adminOrdersUrl: `${appUrl}/admin/pedidos`,
-    shippingProvider: order.isPickup ? undefined : "Mercado Envíos",
+    shippingProvider: order.isPickup ? undefined : order.meCarrier ?? "Mercado Envíos",
     trackingNumber,
     trackingUrl: trackingNumber
       ? resolveMercadoEnviosTrackingUrl({
           trackingUrl: order.meTrackingUrl,
+          carrierId,
         })
       : undefined,
     trackingPortalLabel: carrierMeta.trackingPortalLabel,
@@ -150,10 +160,15 @@ function renderTotals(data: OrderEmailData) {
     data.promoDiscount > 0
       ? `<p style="margin:4px 0;color:#db2777;"><strong>Promo 2x1:</strong> -${formatPrice(data.promoDiscount)}</p>`
       : "";
+  const couponLine =
+    data.couponDiscount > 0
+      ? `<p style="margin:4px 0;color:#db2777;"><strong>Cupón ${data.couponCode ?? ""}:</strong> -${formatPrice(data.couponDiscount)}</p>`
+      : "";
 
   return `
     <p style="margin:4px 0;"><strong>Subtotal:</strong> ${formatPrice(data.subtotal)}</p>
     ${promoLine}
+    ${couponLine}
     <p style="margin:4px 0;"><strong>${data.isPickup ? "Entrega" : "Envío"}:</strong> ${data.isPickup ? "Sin costo (retiro en local)" : formatPrice(data.shippingCost)}</p>
     <p style="margin:8px 0 0;font-size:18px;"><strong>Total:</strong> ${formatPrice(data.total)}</p>
   `;
@@ -237,6 +252,9 @@ export function buildCustomerConfirmationEmail(data: OrderEmailData) {
     `Subtotal: ${formatPrice(data.subtotal)}`,
     ...(data.promoDiscount > 0
       ? [`Promo 2x1: -${formatPrice(data.promoDiscount)}`]
+      : []),
+    ...(data.couponDiscount > 0
+      ? [`Cupón ${data.couponCode ?? ""}: -${formatPrice(data.couponDiscount)}`]
       : []),
     data.isPickup
       ? "Retiro en local: sin costo"

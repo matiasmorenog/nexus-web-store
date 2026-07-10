@@ -25,7 +25,7 @@ type CatalogPageClientProps = {
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
   showProductSearch: boolean;
-  catalogVertical: "apparel" | "vape";
+  catalogVertical: "app1" | "app2";
   variantSizeParam: "talle" | "nicotina";
   variantSizeLabel: string;
   variantColorLabel?: string;
@@ -115,14 +115,14 @@ export function CatalogPageClient({
     [params, showPromo2x1],
   );
 
-  const isVape = catalogVertical === "vape";
+  const isApp2 = catalogVertical === "app2";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <StorefrontPageHeader
         title="Productos"
         description={catalogDescription(params, storeDisplayName)}
-        className={isVape ? "[&_h1]:text-[var(--brand-primary-light)] [&_p]:text-vape-muted" : undefined}
+        className={isApp2 ? "[&_h1]:text-[var(--brand-primary-light)] [&_p]:text-app2-muted" : undefined}
       />
 
       <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
@@ -142,13 +142,13 @@ export function CatalogPageClient({
           <div
             className={cn(
               "mb-4 flex flex-wrap items-center justify-between gap-3 border-b pb-3",
-              isVape ? "border-vape" : "border-neutral-200/80",
+              isApp2 ? "border-app2" : "border-neutral-200/80",
             )}
           >
             <p
               className={cn(
                 "text-sm font-medium",
-                isVape ? "text-[var(--brand-primary-light)]" : "text-neutral-700",
+                isApp2 ? "text-[var(--brand-primary-light)]" : "text-neutral-700",
               )}
             >
               {page.total} producto{page.total !== 1 ? "s" : ""}
@@ -171,6 +171,7 @@ export function CatalogPageClient({
             ].join("|")}
             products={filteredProducts}
             catalogVertical={catalogVertical}
+            promo2x1Active={showPromo2x1}
             initialPage={page}
           />
         </div>

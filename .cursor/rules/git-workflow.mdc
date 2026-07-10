@@ -1,5 +1,5 @@
 ---
-description: Flujo Git y PRs — branches, naming y buenas prácticas
+description: Flujo Git y PRs — branches, naming, autonomía y buenas prácticas
 alwaysApply: true
 ---
 
@@ -17,13 +17,39 @@ feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──�
 | `main` | Producción. Solo entra vía release PR. |
 | `feat/*`, `fix/*`, … | Una tarea = un branch. Vida corta. |
 
+## Autonomía del agente (flujo ágil)
+
+Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesarias; frenar solo en las irreversibles o de producción.
+
+### Hacer sin preguntar
+- Comandos de rutina: `npm install` (deps del pedido), `prisma generate`, reiniciar dev server, `tsc`, `lint`, `build`.
+- `prisma db push` **aditivo/seguro** (nueva tabla/columna, índices) — ver `prisma-db-push.mdc`.
+- Al terminar una tarea: `git add` + commit (inglés) + `git push` del branch + `gh pr create --base development`.
+- Mergear el PR a `development` cuando los checks del preview estén verdes: `gh pr merge --squash --delete-branch`.
+- Validar antes de cerrar: `npx tsc --noEmit` + `npm run lint` (y `build` si el cambio lo amerita).
+- Crear/`pop`/limpiar stashes según la sección de stashes.
+
+### Pedir confirmación explícita
+- **Release a producción**: PR/merge `development → main` (deploy Vercel ×2). Solo cuando el usuario lo pida.
+- `prisma db push` con **pérdida de datos** (`--accept-data-loss`, drop/rename de columnas con datos).
+- `git push --force`, reescritura de historial, borrar branches remotos ajenos a la tarea.
+- Cambiar env vars de producción, secrets o config de Vercel/Neon.
+- Cualquier acción destructiva o irreversible sobre datos/infra reales.
+
+### CI y merge
+- GitHub Actions: job **`lint-and-typecheck`** en cada PR/push a `development` y `main` (ver `.github/workflows/ci.yml`, backlog en `ci-todo.mdc`).
+- **`next build` no corre en Actions** (Fase 2 opcional/futuro); lo hace **Vercel** en preview y producción.
+- Mergear a `development` cuando el check esté verde (`gh pr checks`). Si lint falla por deuda previa (Fase 1.5 en `ci-todo.mdc`), mergear solo con **typecheck** en verde hasta cerrar esa deuda.
+- Previews Vercel: **`nexus-web-store` (app1) = principal**; **`nexus-vape-store` (app2) = complementario** (hoy app1 es la demo más completa). No exigir ambos en branch protection — Ignored Build Step puede omitir builds. Detalle en `docs/ci.md` / `ci-todo.mdc`.
+- Merge estándar a `development`: **squash** + borrado de branch (local y remoto).
+
 ## Buenas prácticas (obligatorio)
 
 ### Antes de codear
 
 1. `git fetch origin development`
 2. `git checkout development && git pull origin development`
-3. Working tree limpio (sin cambios de otra tarea). Si hay restos → stash o descartar con cuidado.
+3. Working tree limpio (sin cambios de otra tarea). Si hay restos de **otra** feature → llevarlos a su branch `feat/*`, o stashear si hace falta para sincronizar (ver gestión de stashes abajo).
 4. `git checkout -b <prefijo>/<nombre-corto>` — **branch nuevo por implementación**
 5. Avisar al usuario el nombre del branch elegido.
 
@@ -46,8 +72,20 @@ Formato: `kebab-case`, corto y descriptivo. Ej: `feat/cupones-checkout`, `fix/le
 - **Un PR = un objetivo.** Si aparece scope distinto → branch nuevo.
 - Commits **solo cuando el usuario lo pida** (salvo que pida cerrar tarea con commit).
 - Mensajes: imperativo, enfocados en el *por qué* (`feat: …`, `fix: …`, `chore: …`).
+- **Idioma:** títulos y cuerpos de commits en **inglés** (imperativo, conciso).
 - No incluir archivos no relacionados (`.env`, secrets, cambios de otra feature).
 - Mantener el diff pequeño y revisable.
+
+### Gestión de stashes (obligatorio)
+
+Stashear está permitido y el agente **puede hacerlo sin preguntar** cuando sea necesario (ej. sincronizar `development` con cambios sin commitear). La regla es **no dejar stashes olvidados**.
+
+- **Al iniciar cada tarea/chat:** correr `git stash list`. Si hay stashes, revisarlos y limpiar los que ya no sirvan (ver criterio abajo). Informar al usuario qué había y qué se borró.
+- **Al crear un stash:** usar mensaje descriptivo (`git stash push -m "wip: <qué>"`) y recuperarlo (`pop`) apenas termine la operación que lo motivó. No dejarlo colgado para "después".
+- **Borrar un stash cuando ya no sirve** (sin preguntar), tras confirmar que su contenido está a salvo:
+  - Verificar integración: `git diff origin/development stash@{N} -- <archivos-del-stash>`. Diff **vacío** = el contenido ya está en `development` → `git stash drop stash@{N}`.
+  - Si el stash ya se aplicó (`pop`/`apply`) y su trabajo quedó en un branch/commit → borrarlo.
+- **No acumular:** nunca dejar más de lo estrictamente en uso. Si quedan stashes de tareas viejas ya mergeadas, borrarlos.
 
 ### Antes del PR
 
@@ -56,10 +94,13 @@ git fetch origin development
 git merge origin/development   # o rebase si el usuario prefiere historial lineal
 # validar: npx tsc --noEmit (si aplica)
 git push -u origin HEAD
-gh pr create --base development
+gh pr create --base development --head "$(git branch --show-current)"
 ```
 
-- Base del PR: **siempre `development`** (features/fixes/refactors).
+- Base del PR: **siempre `development`** (features/fixes/refactors/chore/docs).
+- **Obligatorio:** `gh pr create` debe incluir `--base development`. Sin excepción salvo release.
+- Si un PR quedó con base `main` por error → `gh pr edit <número> --base development`.
+- **Idioma:** título y descripción del PR en **inglés** (seguir `.github/pull_request_template.md`).
 - Usar `.github/pull_request_template.md`.
 - Un branch → un PR abierto. No duplicar PRs al mismo destino.
 
@@ -70,6 +111,7 @@ gh pr create --base development
 
 ## Prohibido
 
+- PR de feature/fix/refactor/chore/docs con **`--base main`** (solo release usa `main` como base)
 - PR de feature/fix **directo a `main`**
 - Push directo a `main` o `development` en el día a día
 - `git push --force` a `main` / `master`
@@ -90,6 +132,7 @@ gh pr create --base main --head development --title "release: development → ma
 - [ ] ¿Partí de `development` actualizado?
 - [ ] ¿Nombre de branch con prefijo correcto?
 - [ ] ¿PR irá a `development`?
+- [ ] ¿Commits y PR en **inglés**?
 
 ## Referencias
 

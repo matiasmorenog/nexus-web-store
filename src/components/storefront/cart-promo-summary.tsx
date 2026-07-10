@@ -6,6 +6,9 @@ type CartPromoSummaryProps = {
   rawSubtotal: number;
   promoDiscount: number;
   subtotal: number;
+  couponCode?: string;
+  couponDiscount?: number;
+  totalAfterDiscounts?: number;
   compact?: boolean;
 };
 
@@ -13,9 +16,16 @@ export function CartPromoSummary({
   rawSubtotal,
   promoDiscount,
   subtotal,
+  couponCode,
+  couponDiscount = 0,
+  totalAfterDiscounts,
   compact = false,
 }: CartPromoSummaryProps) {
-  if (promoDiscount <= 0) {
+  const finalSubtotal = totalAfterDiscounts ?? subtotal - couponDiscount;
+  const hasPromo = promoDiscount > 0;
+  const hasCoupon = couponDiscount > 0;
+
+  if (!hasPromo && !hasCoupon) {
     return (
       <div
         className={
@@ -34,7 +44,7 @@ export function CartPromoSummary({
               : undefined
           }
         >
-          {formatPrice(subtotal)}
+          {formatPrice(finalSubtotal)}
         </span>
       </div>
     );
@@ -52,16 +62,30 @@ export function CartPromoSummary({
           {formatPrice(rawSubtotal)}
         </span>
       </div>
-      <div
-        className={
-          compact
-            ? "flex justify-between text-sm text-[var(--brand-primary)]"
-            : "flex justify-between text-[var(--brand-primary)]"
-        }
-      >
-        <span>Promo 2x1</span>
-        <span>-{formatPrice(promoDiscount)}</span>
-      </div>
+      {hasPromo ? (
+        <div
+          className={
+            compact
+              ? "flex justify-between text-sm text-[var(--brand-primary)]"
+              : "flex justify-between text-[var(--brand-primary)]"
+          }
+        >
+          <span>Promo 2x1</span>
+          <span>-{formatPrice(promoDiscount)}</span>
+        </div>
+      ) : null}
+      {hasCoupon ? (
+        <div
+          className={
+            compact
+              ? "flex justify-between text-sm text-[var(--brand-primary)]"
+              : "flex justify-between text-[var(--brand-primary)]"
+          }
+        >
+          <span>Cupón {couponCode}</span>
+          <span>-{formatPrice(couponDiscount)}</span>
+        </div>
+      ) : null}
       <div
         className={
           compact
@@ -70,7 +94,7 @@ export function CartPromoSummary({
         }
       >
         <span className={compact ? "text-sm text-neutral-600" : undefined}>
-          {compact ? "Subtotal" : "Subtotal con promo"}
+          {compact ? "Subtotal" : hasCoupon ? "Subtotal con descuentos" : "Subtotal con promo"}
         </span>
         <span
           className={
@@ -79,7 +103,7 @@ export function CartPromoSummary({
               : undefined
           }
         >
-          {formatPrice(subtotal)}
+          {formatPrice(finalSubtotal)}
         </span>
       </div>
     </div>

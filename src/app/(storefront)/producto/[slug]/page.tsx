@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/storefront/add-to-cart";
 import { InfoSections } from "@/components/storefront/info-sections";
 import { ProductImage } from "@/components/storefront/product-image";
+import { ProductJsonLd } from "@/components/storefront/product-json-ld";
+import { WishlistButton } from "@/components/storefront/wishlist-button";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { INFO_PAGES, resolvePageContent } from "@/lib/info-pages";
@@ -10,6 +13,14 @@ import {
   getStorefrontProduct,
   getStorefrontProductSlugs,
 } from "@/lib/product-page-query";
+import {
+  buildSeoContext,
+  buildStorefrontMetadata,
+} from "@/lib/seo/build-metadata";
+import { truncateMetaDescription } from "@/lib/seo/format";
+import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
+import { storeHasModule } from "@/lib/modules";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getVariantLabels } from "@/lib/variant-labels";
@@ -31,6 +42,46 @@ export async function generateStaticParams() {
   }
 }
 
+function getProductSeoOffer(product: Awaited<ReturnType<typeof getStorefrontProduct>>) {
+  if (!product) {
+    return { minPrice: 0, inStock: false, image: undefined as string | undefined };
+  }
+
+  const prices = product.variants
+    .map((variant) => Number(variant.price))
+    .filter((price) => price > 0);
+  const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+  const inStock = product.variants.some((variant) => variant.stock > 0);
+  const image = product.variants.find((variant) => variant.imageUrl)?.imageUrl;
+
+  return { minPrice, inStock, image };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await getStore();
+  const storeId = store.id;
+  const config = getStorefrontConfig();
+  const displayName = formatStoreName(store.name);
+  const product = await getStorefrontProduct(storeId, slug);
+
+  if (!product) {
+    return {};
+  }
+
+  const seoSettings = await getResolvedStoreSeoSettings(storeId);
+  const context = buildSeoContext(displayName, config.metadata.description);
+  const { image } = getProductSeoOffer(product);
+
+  return buildStorefrontMetadata(seoSettings, context, {
+    title: product.name,
+    description: product.description,
+    path: `/producto/${product.slug}`,
+    image,
+    type: "product",
+  });
+}
+
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
   const store = await getStore();
@@ -49,9 +100,26 @@ export default async function ProductPage({ params }: PageProps) {
   const catalogLabel = config.features.catalog ? "Catálogo" : "Inicio";
   const showSizeGuide =
     config.features.sizeGuide && product.category !== "accesorios";
+  const promo2x1Active =
+    config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
+  const seoSettings = await getResolvedStoreSeoSettings(storeId);
+  const seoContext = buildSeoContext(displayName, config.metadata.description);
+  const { minPrice, inStock, image } = getProductSeoOffer(product);
+  const productUrl = `${seoContext.siteUrl}/producto/${product.slug}`;
+  const wishlistEnabled = await storeHasModule(storeId, "wishlist");
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      {seoSettings?.structuredDataEnabled ? (
+        <ProductJsonLd
+          name={product.name}
+          description={truncateMetaDescription(product.description, 300)}
+          image={image}
+          url={productUrl}
+          price={minPrice}
+          inStock={inStock}
+        />
+      ) : null}
       <StorefrontReveal index={0}>
         <nav className="mb-6 text-sm text-neutral-500">
           <Link href={catalogHref} className="transition-colors hover:text-[var(--brand-primary)]">
@@ -76,9 +144,21 @@ export default async function ProductPage({ params }: PageProps) {
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-[var(--brand-primary)]">
             {getProductTaxonomyLabel(product.category, product.audience)}
           </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
-            {product.name}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+              {product.name}
+            </h1>
+            {wishlistEnabled ? (
+              <WishlistButton
+                compact
+                productId={product.id}
+                productSlug={product.slug}
+                productName={product.name}
+                imageUrl={mainImage}
+                minPrice={minPrice}
+              />
+            ) : null}
+          </div>
           <p className="mt-4 leading-relaxed text-neutral-600">
             {product.description}
           </p>
@@ -87,7 +167,7 @@ export default async function ProductPage({ params }: PageProps) {
               productId={product.id}
               productName={product.name}
               productSlug={product.slug}
-              promo2x1={config.features.promo2x1 ? product.promo2x1 : false}
+              promo2x1={promo2x1Active && product.promo2x1}
               showSizeGuideLink={showSizeGuide}
               variantLabels={variantLabels}
               variants={product.variants.map((v) => ({

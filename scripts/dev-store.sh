@@ -9,12 +9,12 @@ PROFILE="${1:-}"
 
 usage() {
   cat <<'EOF'
-Uso: npm run dev:apparel | npm run dev:vape
-     ./scripts/dev-store.sh <apparel|vape>
+Uso: npm run dev:app1 | npm run dev:app2
+     ./scripts/dev-store.sh <app1|app2>
 
 Perfiles:
-  apparel   slug demo-store   puerto 3000   catálogo ropa (Goat)
-  vape      slug vape-demo    puerto 3001   catálogo vape (VAPORX)
+  app1   slug demo-store   puerto 3000   catálogo ropa (Goat)
+  app2      slug vape-demo    puerto 3001   catálogo app2 (VAPORX)
 
 Requiere .env con DATABASE_URL (y el resto de vars compartidas).
 Este script sobrescribe DEFAULT_STORE_SLUG y URLs por perfil.
@@ -22,19 +22,19 @@ EOF
 }
 
 case "$PROFILE" in
-  apparel)
+  app1)
     export DEFAULT_STORE_SLUG=demo-store
     export NEXT_PUBLIC_DEFAULT_STORE_SLUG=demo-store
-    export NEXT_DIST_DIR=".next-apparel"
+    export NEXT_DIST_DIR=".next-app1"
     PORT=3000
-    LABEL="Goat (apparel)"
+    LABEL="Goat (app1)"
     ;;
-  vape)
+  app2)
     export DEFAULT_STORE_SLUG=vape-demo
     export NEXT_PUBLIC_DEFAULT_STORE_SLUG=vape-demo
-    export NEXT_DIST_DIR=".next-vape"
+    export NEXT_DIST_DIR=".next-app2"
     PORT=3001
-    LABEL="VAPORX (vape)"
+    LABEL="VAPORX (app2)"
     ;;
   *)
     usage

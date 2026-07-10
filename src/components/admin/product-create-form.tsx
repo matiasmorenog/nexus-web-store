@@ -11,27 +11,29 @@ import {
   AdminTextarea,
 } from "@/components/admin/admin-form";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
-import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 type ProductCreateFormProps = {
   onClose: () => void;
   blockedHint?: number;
+  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
+  promo2x1Selectable?: boolean;
 };
 
 export function ProductCreateForm({
   onClose,
   blockedHint = 0,
+  promo2x1Selectable = false,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
-  const storefrontConfig = getClientStorefrontConfig();
   const variantLabels = getClientVariantLabels();
-  const showPromo2x1 = storefrontConfig.features.promo2x1;
+  const showPromo2x1 = promo2x1Selectable;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -101,14 +103,18 @@ export function ProductCreateForm({
                   id="imageUrl"
                   label={`Imagen del ${variantLabels.primary.toLowerCase()}`}
                 />
-                <div className="flex items-center gap-2 sm:col-span-2">
-                  <input type="checkbox" id="featured" name="featured" />
-                  <Label htmlFor="featured">Destacado</Label>
+                <div className="flex items-center gap-2.5 sm:col-span-2">
+                  <Switch id="featured" name="featured" />
+                  <Label htmlFor="featured" className="cursor-pointer">
+                    Destacado
+                  </Label>
                 </div>
                 {showPromo2x1 ? (
-                  <div className="flex items-center gap-2 sm:col-span-2">
-                    <input type="checkbox" id="promo2x1" name="promo2x1" />
-                    <Label htmlFor="promo2x1">Promoción 2x1</Label>
+                  <div className="flex items-center gap-2.5 sm:col-span-2">
+                    <Switch id="promo2x1" name="promo2x1" />
+                    <Label htmlFor="promo2x1" className="cursor-pointer">
+                      Promoción 2x1
+                    </Label>
                   </div>
                 ) : null}
               </AdminFormGrid>

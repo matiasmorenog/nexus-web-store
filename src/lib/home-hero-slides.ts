@@ -27,19 +27,19 @@ export type HomeHeroSlide = {
 export function getHomeHeroSlides(storeDisplayName: string): HomeHeroSlide[] {
   const slides: HomeHeroSlide[] = [];
 
-  if (promoBanner.enabled) {
-    slides.push({
-      id: promoBanner.id,
-      label: promoBanner.badge,
-      image: PROMO_HERO_IMAGE,
-      imageAlt: `Promoción ${promoBanner.badge} ${promoBanner.headline}`,
-      eyebrow: "Promoción",
-      title: promoBanner.headline,
-      titleEmphasis: promoBanner.badge,
-      description: promoBanner.detail,
-      cta: { label: promoBanner.cta, href: promoBanner.href },
-    });
-  }
+  // Slide promocional del hero: es contenido editorial del slider, independiente
+  // de la activación 2x1 (módulo coupons). No se desactiva con la promo.
+  slides.push({
+    id: promoBanner.id,
+    label: promoBanner.badge,
+    image: PROMO_HERO_IMAGE,
+    imageAlt: `Promoción ${promoBanner.badge} ${promoBanner.headline}`,
+    eyebrow: "Promoción",
+    title: promoBanner.headline,
+    titleEmphasis: promoBanner.badge,
+    description: promoBanner.detail,
+    cta: { label: promoBanner.cta, href: promoBanner.href },
+  });
 
   slides.push({
     id: "coleccion-invierno",

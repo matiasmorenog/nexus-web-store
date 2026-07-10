@@ -6,10 +6,14 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB,
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-apparel.sh`
-- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-vape.sh`
+- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-app1.sh`
+- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-app2.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
+- [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
+- [ ] CI Fase 1.5: corregir errores ESLint preexistentes (~31) para check verde
+- [ ] CI Fase 2 (opcional, futuro): `npm run build` en Actions — cuando producción esté activa; hoy build lo hace Vercel
+- [ ] CI Fase 3: branch protection → require check `lint-and-typecheck`
 - [ ] Release `development` → `main` cuando haya cambios listos para producción
 
 Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → pegar el comando de la fila correspondiente.
@@ -18,8 +22,8 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 | Proyecto Vercel | Tienda | URL | `DEFAULT_STORE_SLUG` |
 |-----------------|--------|-----|----------------------|
-| `nexus-web-store` | Goat (apparel) | https://nexus-web-store.vercel.app | `demo-store` |
-| `nexus-vape-store` | VAPORX (vape) | https://nexus-vape-store.vercel.app | `vape-demo` |
+| `nexus-web-store` | Goat (app1) | https://nexus-web-store.vercel.app | `demo-store` |
+| `nexus-vape-store` | VAPORX (app2) | https://nexus-vape-store.vercel.app | `vape-demo` |
 
 Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 
@@ -27,7 +31,7 @@ Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 
 Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo donde se indica.
 
-| Variable | Apparel | Vape |
+| Variable | App1 | App2 |
 |----------|---------|------|
 | `DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
 | `NEXT_PUBLIC_DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
@@ -38,7 +42,7 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `DIRECT_URL` | Neon direct (misma DB) | Neon direct (misma DB) |
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
-| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP apparel | cuenta MP vape |
+| `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP app1 (opcional si se configura en admin) | cuenta MP app2 (opcional si se configura en admin) |
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 
@@ -57,17 +61,63 @@ DIRECT_URL="postgresql://USER:PASSWORD@ep-xxx.region.aws.neon.tech/neondb?sslmod
 
 No uses la URL direct como `DATABASE_URL` en Vercel.
 
+### Integración Neon ↔ Vercel (preview branching)
+
+Si conectaste Neon con la integración de Vercel, puede crearse **un branch de Neon por cada preview deploy** (cada PR). Eso no viene del código del repo.
+
+**Para este proyecto** (un Neon, dos tiendas, datos demo compartidos) conviene **una sola DB** para Production y Preview.
+
+#### ¿Qué integración tenés?
+
+| Dónde ves Neon | Tipo | Cómo cortar branches por preview |
+|----------------|------|----------------------------------|
+| Vercel → **Storage** → aparece Neon Postgres | Vercel-Managed | Desactivar **Preview** en Deployments Configuration (abajo) |
+| Vercel → **Storage** solo muestra Blob (tu caso habitual) | **Neon-Managed** | **Disconnect** en Neon Console (no hay toggle) |
+
+Si en Storage solo ves Blob, Neon está enlazado desde **Neon Console → Integrations → Vercel** o desde **Vercel → Integrations** (Connectable Account), no desde Storage.
+
+#### Neon-Managed — desactivar branching (recomendado acá)
+
+No se puede apagar el branching por preview sin desconectar la integración. Pasos:
+
+1. **Neon Console** → [console.neon.tech](https://console.neon.tech) → tu proyecto.
+2. Menú **Integrations** → Vercel → **Manage** → **Disconnect**.
+3. En **Vercel** (cada proyecto: `nexus-web-store` y `nexus-vape-store`):
+   - **Settings → Environment Variables**
+   - Confirmá que existen `DATABASE_URL` y `DIRECT_URL` para **Production** y **Preview** (copiá las URLs desde Neon → Connection details del branch `main` / production).
+   - Si la integración había inyectado vars con prefijo o duplicadas (`POSTGRES_URL`, `PGHOST`, etc.), dejalas solo si las usás; este repo usa `DATABASE_URL` + `DIRECT_URL`.
+4. Opcional: **Vercel → Team/Project → Integrations** → Neon → **Remove** si sigue instalada.
+5. **Redeploy** un preview para verificar que ya no aparecen branches `preview/*` nuevos.
+
+La DB en Neon no se borra; solo dejás de crear branches automáticos.
+
+#### Vercel-Managed — solo si Neon aparece en Storage
+
+Repetí en **cada** proyecto Vercel:
+
+1. Vercel → proyecto → **Storage** → base Neon.
+2. **Projects** → tu proyecto → **Settings**.
+3. **Advanced Options** → **Deployments Configuration**.
+4. **Desactivá Preview**.
+5. Guardá.
+
+#### Limpiar branches viejos
+
+Neon Console → proyecto → **Branches** (o Integrations → Vercel → Manage → Branches) → eliminá `preview/*`. No borres `main` / `production`.
+
+Doc Neon: [Neon-Managed](https://neon.com/docs/guides/neon-managed-vercel-integration), [Vercel-Managed](https://neon.com/docs/guides/vercel-managed-integration), [preview branch cleanup](https://neon.com/docs/guides/vercel-branch-cleanup).
+
 ## Base de datos (seed)
 
 Desde tu máquina (una vez o cuando resetees demo):
 
 ```bash
-npm run db:setup          # schema + ambas tiendas + pedidos demo apparel
+npm run db:setup          # schema + ambas tiendas + pedidos demo app1
 npm run db:seed:all       # solo re-seed ambas tiendas
-npm run db:seed:apparel   # solo demo-store
-npm run db:seed:vape      # solo vape-demo
-npm run db:wipe:apparel   # borra solo apparel (sin re-seed)
-npm run db:wipe:vape      # borra solo vape
+npm run db:seed:app1   # solo demo-store
+npm run db:seed:app2      # solo vape-demo
+npm run db:wipe:app1   # borra solo app1 (sin re-seed)
+npm run db:wipe:app2      # borra solo app2
 ```
 
 Owners y slugs: `prisma/seed-env.ts` → `SEED_STORES`.
@@ -82,16 +132,16 @@ Tras cambiar env en Vercel → **Redeploy**.
 
 **Mercado Pago — webhooks (uno por dominio):**
 
-- Apparel: `https://nexus-web-store.vercel.app/api/webhooks/mercadopago`
-- Vape: `https://nexus-vape-store.vercel.app/api/webhooks/mercadopago`
+- App1: `https://nexus-web-store.vercel.app/api/webhooks/mercadopago`
+- App2: `https://nexus-vape-store.vercel.app/api/webhooks/mercadopago`
 
 ## Desarrollo local
 
 ```bash
 cp .env.example .env   # completar DATABASE_URL, etc.
 npm run db:setup
-npm run dev:apparel    # :3000
-npm run dev:vape       # :3001
+npm run dev:app1    # :3000
+npm run dev:app2       # :3001
 npm run dev:both       # ambas a la vez
 ```
 
@@ -103,12 +153,12 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 | Proyecto | Comando |
 |----------|---------|
-| apparel | `bash scripts/vercel-should-build-apparel.sh` |
-| vape | `bash scripts/vercel-should-build-vape.sh` |
+| app1 | `bash scripts/vercel-should-build-app1.sh` |
+| app2 | `bash scripts/vercel-should-build-app2.sh` |
 
-Exit 0 = omitir build. Ej.: PR solo vape → apparel no builda; PR solo docs → ninguno.
+Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
 
-Preview en vape es opcional; podés probar vape con `npm run dev:vape` y dejar preview solo en apparel.
+**Prioridad de preview en PRs:** `nexus-web-store` (app1) es el build principal (demo más completa hoy); `nexus-vape-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 
@@ -143,7 +193,7 @@ Cuando `development` esté estable:
 gh pr create --base main --head development --title "release: development → main"
 ```
 
-Merge → deploy de producción en apparel + vape (salvo Ignored Build Step).
+Merge → deploy de producción en app1 + app2 (salvo Ignored Build Step).
 
 | Evento | Producción (`main`) | Preview |
 |--------|---------------------|---------|
@@ -166,6 +216,6 @@ Antes de vender: plan Pro, `AUTH_SECRET` distinto por proyecto, webhooks MP, own
 
 ## Segundo proyecto Vercel (referencia)
 
-Si hay que recrear vape: [vercel.com/new](https://vercel.com/new) → mismo repo → env de la tabla con fila **Vape** → `AUTH_URL` / `NEXT_PUBLIC_APP_URL` con la URL final del proyecto.
+Si hay que recrear app2: [vercel.com/new](https://vercel.com/new) → mismo repo → env de la tabla con fila **App2** → `AUTH_URL` / `NEXT_PUBLIC_APP_URL` con la URL final del proyecto.
 
 Aislamiento total de datos (opcional): 2 proyectos Neon en lugar de 1. Para pocas tiendas, **1 Neon + 2 Store** alcanza.

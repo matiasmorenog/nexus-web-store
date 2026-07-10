@@ -22,7 +22,7 @@ export function AdminDashboardRecentOrders({
         <AdminTableEmpty colSpan={5}>No hay pedidos aún</AdminTableEmpty>
       ) : (
         orders.map((order) => {
-          const href = buildAdminOrderHref(order.id);
+          const href = buildAdminOrderHref(order.id, order.createdAt);
 
           return (
             <AdminTableRow key={order.id} className="relative">

@@ -12,7 +12,9 @@ alwaysApply: true
 | Rule | Cuándo |
 |------|--------|
 | `git-workflow.mdc` | Siempre — branches y PRs |
+| `ci-todo.mdc` | Siempre — CI/CD backlog y merge gates |
 | `roadmap.mdc` | Siempre — qué está hecho vs pendiente |
+| `modules-gating.mdc` | Siempre — módulos Plus por tienda, promo 2x1, no gatear por vertical |
 | `performance-todo.mdc` | Al tocar cache, catálogo, queries admin o costo Neon |
 
 ## Stack
@@ -23,10 +25,11 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 
 - Una fila `Store` por proyecto Vercel → `DEFAULT_STORE_SLUG` (`src/lib/store-env.ts`, `src/lib/store-context.ts`).
 - Layout y UI por slug → `src/lib/store-slugs.ts`, `src/lib/store-verticals/` (`getStorefrontConfig()`).
-- Slugs seed: `demo-store` (apparel/Goat), `vape-demo` (vape/VAPORX) en `prisma/seed-env.ts`.
+- Slugs seed: `demo-store` (app1/Goat), `vape-demo` (app2/VAPORX) en `prisma/seed-env.ts`.
 - Env cliente: `NEXT_PUBLIC_DEFAULT_STORE_SLUG` (mismo valor que `DEFAULT_STORE_SLUG`).
-- **No usar** `STORE_VERTICAL` ni `VAPE_STOREFRONT_MODE` (obsoletos).
-- Dev local: `npm run dev:apparel` / `dev:vape` / `dev:both` (`scripts/dev-store.sh`).
+- **No usar** `STORE_VERTICAL` ni `APP2_STOREFRONT_MODE` (obsoletos).
+- Dev local: `npm run dev:app1` / `dev:app2` / `dev:both` (`scripts/dev-store.sh`).
+- **Módulos Plus:** gating por `ENABLED_MODULES` por deploy; app1 demo = todos activos, app2 = plan base (`none`). Ver `modules-gating.mdc`.
 
 ## Archivos clave
 
@@ -39,6 +42,7 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 | Auth | `src/lib/auth.ts` |
 | Schema / seed | `prisma/schema.prisma`, `prisma/seed-env.ts` |
 | Deploy | `DEPLOY.md`, `docs/multi-store.md` |
+| Módulos admin / pricing | `docs/modules-pricing.md`, `src/lib/modules/` |
 | Roadmap producto | `README.md` → **Roadmap de features** |
 | Cache por ruta | `docs/caching-and-routes.md` |
 

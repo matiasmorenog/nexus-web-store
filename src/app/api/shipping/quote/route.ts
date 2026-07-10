@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import {
-  formatMercadoEnviosDeliveryWindow,
-  quoteMercadoEnvios,
-} from "@/lib/mercado-envios";
+import { formatMercadoEnviosDeliveryWindow } from "@/lib/mercado-envios";
+import { quoteCheckoutShipping } from "@/lib/shipping-carriers/resolve-shipping";
 import { getStoreId } from "@/lib/store-context";
 
 const quoteSchema = z.object({
@@ -22,10 +20,18 @@ export async function POST(request: NextRequest) {
 
     const storeId = await getStoreId();
     const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
-    const quote = quoteMercadoEnvios({
+    const quote = await quoteCheckoutShipping({
+      storeId,
       zip: parsed.data.zip.trim(),
-      baseRate: Number(store.shippingFlatRate),
+      flatRate: Number(store.shippingFlatRate),
     });
+
+    if (!quote) {
+      return NextResponse.json(
+        { error: "La cotización carrier no está disponible en esta tienda." },
+        { status: 403 },
+      );
+    }
 
     return NextResponse.json({
       cost: quote.cost,

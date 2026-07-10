@@ -1,0 +1,49 @@
+---
+description: Gating de módulos Plus por tienda (no por vertical) y promo 2x1
+alwaysApply: true
+---
+
+# Módulos Plus y gating
+
+## Principio
+
+**Todos los módulos Plus están disponibles para ambas tiendas** (`demo-store` app1 y `vape-demo` app2). La activación es **por tienda/deploy**, no por vertical.
+
+| Capa | Qué controla |
+|------|----------------|
+| `ENABLED_MODULES` (env por deploy) | Qué módulos tiene activos cada tienda hoy |
+| `storeHasModule()` / `requireModule()` / `assertModule()` | Gating en admin, API y storefront |
+| `getStorefrontConfig().features.*` | Presentación del vertical (nav, facets, badges de UI), **no** bloquear addons |
+
+**No gatear addons con flags de vertical** (`features.promo2x1`, etc.). Si un vertical no muestra un link de nav o facet, es presentación; la funcionalidad sigue disponible al activar el módulo.
+
+## Deploys actuales
+
+| Proyecto | Slug | `ENABLED_MODULES` esperado |
+|----------|------|----------------------------|
+| `nexus-web-store` (app1 demo) | `demo-store` | omitido / vacío → **todos** los módulos |
+| `nexus-vape-store` (beta) | `vape-demo` | `none` → **solo plan base** |
+
+App2 puede activar cualquier módulo cambiando env; no requiere cambios de código por vertical.
+
+## Promo 2x1 (módulo `coupons`)
+
+- Toggle admin: `/admin/modulos/coupons` → `StorePromotionSettings.promo2x1Enabled`
+- Activo en storefront/checkout: `isPromo2x1ActiveForStore(storeId)` = módulo `coupons` **y** toggle on
+- Lib: `src/lib/promotions/`, pricing en `src/lib/promo-2x1.ts` (parámetro `active`, no constante build-time)
+- Cliente: `usePromoConfigStore` + `PromoConfigSync` en layouts storefront
+- Checkbox producto admin: visible si `storeHasModule("coupons")` (no gatear por vertical)
+- **Hero slider 2x1** (`home-hero-slides.ts`): contenido editorial; **no** depende del toggle ni del módulo
+
+## Al implementar un módulo nuevo
+
+1. Catálogo en `src/lib/modules/catalog.ts`
+2. `requireModule` en página admin + `assertModule` en API
+3. Storefront: condicionar UI con `storeHasModule()` si afecta compradores
+4. Documentar en `docs/modules-pricing.md`
+5. **No** restringir por `StoreVertical` salvo presentación opcional (nav, facets)
+
+## Referencias
+
+- `docs/modules-pricing.md`, `docs/multi-store.md`
+- `src/lib/modules/access.ts`, `src/lib/modules/catalog.ts`

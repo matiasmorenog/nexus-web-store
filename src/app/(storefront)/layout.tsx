@@ -1,24 +1,35 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
-import { Suspense } from "react";
-import { Footer } from "@/components/storefront/footer";
-import { VapeFooter } from "@/components/storefront/vape-footer";
-import { VapeThemeShell } from "@/components/storefront/vape-theme-shell";
-import { Header } from "@/components/storefront/header";
-import { formatStoreName, getStore } from "@/lib/store-context";
+import { StorefrontMarketingShell } from "@/components/storefront/storefront-marketing-shell";
+import { StorefrontWebsiteJsonLd } from "@/components/storefront/seo-website-json-ld";
+import { truncateMetaDescription } from "@/lib/seo/format";
+import {
+  buildSeoContext,
+  buildStorefrontMetadata,
+} from "@/lib/seo/build-metadata";
+import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
+import { getStoreMarketingSettings } from "@/lib/marketing/query";
+import { getResolvedStoreTheme } from "@/lib/premium-themes";
+import { isPromo2x1ActiveForStore } from "@/lib/promotions";
+import { storeHasModule } from "@/lib/modules";
+import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
+import { App1StorefrontLayout } from "@/themes/app1/components/storefront-layout";
+import { App2StorefrontLayout } from "@/themes/app2/components/storefront-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
   const config = getStorefrontConfig();
   const displayName = formatStoreName(store.name);
+  const seoSettings = await getResolvedStoreSeoSettings(store.id);
+  const context = buildSeoContext(displayName, config.metadata.description);
+  const metadata = buildStorefrontMetadata(seoSettings, context, { path: "/" });
 
   return {
+    ...metadata,
     title: {
       default: displayName,
       template: `%s | ${displayName}`,
     },
-    description: config.metadata.description,
   };
 }
 
@@ -28,67 +39,59 @@ export default async function StorefrontLayout({
   children: React.ReactNode;
 }) {
   const store = await getStore();
+  const storeId = await getStoreId();
   const config = getStorefrontConfig();
   const displayName = formatStoreName(store.name);
   const brandPrimary =
     store.primaryColor?.trim() || config.ui.cssVars["--brand-primary"];
-  const isVape = config.ui.id === "vape";
+  const seoSettings = await getResolvedStoreSeoSettings(store.id);
+  const seoContext = buildSeoContext(displayName, config.metadata.description);
+  const description = truncateMetaDescription(
+    seoSettings?.metaDescription.trim() || config.metadata.description,
+  );
+  const structuredData =
+    seoSettings?.structuredDataEnabled ? (
+      <StorefrontWebsiteJsonLd
+        name={displayName}
+        url={seoContext.siteUrl}
+        description={description}
+      />
+    ) : null;
+  const wishlistEnabled = await storeHasModule(store.id, "wishlist");
+  const marketing = await getStoreMarketingSettings(storeId);
+  const storeTheme = await getResolvedStoreTheme(storeId);
+  const promo2x1Active =
+    config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
 
-  const apparelThemeStyle = {
-    ...config.ui.cssVars,
-    "--brand-primary": brandPrimary,
-  } as CSSProperties;
-
-  if (isVape) {
+  if (config.ui.id === "app2") {
     return (
-      <VapeThemeShell initialCssVars={config.ui.cssVars}>
-        <Suspense
-          fallback={
-            <div className="h-[4.625rem] border-b border-white/10 bg-black/80" />
-          }
+      <StorefrontMarketingShell settings={marketing}>
+        {structuredData}
+        <App2StorefrontLayout
+          storeDisplayName={displayName}
+          config={config}
+          wishlistEnabled={wishlistEnabled}
+          storeTheme={storeTheme}
+          promo2x1Active={promo2x1Active}
         >
-          <Header
-            storeName={displayName}
-            navDesktop={config.headerNavDesktop}
-            navMobile={config.headerNavMobile}
-            features={config.features}
-            chrome="dark"
-            uiVariant="vape"
-          />
-        </Suspense>
-        <main className="storefront-content-bottom flex-1">{children}</main>
-        <VapeFooter storeName={displayName} tagline={config.metadata.description} />
-      </VapeThemeShell>
+          {children}
+        </App2StorefrontLayout>
+      </StorefrontMarketingShell>
     );
   }
 
   return (
-    <div
-      data-storefront-ui={config.ui.id}
-      style={apparelThemeStyle}
-      className="storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
-    >
-      <Suspense
-        fallback={
-          <div className="h-[4.625rem] border-b border-neutral-100 bg-white/90 shadow-sm" />
-        }
+    <StorefrontMarketingShell settings={marketing}>
+      {structuredData}
+      <App1StorefrontLayout
+        storeDisplayName={displayName}
+        config={config}
+        brandPrimary={brandPrimary}
+        wishlistEnabled={wishlistEnabled}
+        promo2x1Active={promo2x1Active}
       >
-        <Header
-          storeName={displayName}
-          navDesktop={config.headerNavDesktop}
-          navMobile={config.headerNavMobile}
-          features={config.features}
-          chrome="light"
-          uiVariant="apparel"
-        />
-      </Suspense>
-      <main className="storefront-content-bottom flex-1">{children}</main>
-      <Footer
-        storeName={displayName}
-        tagline={config.metadata.description}
-        features={config.features}
-        chrome="light"
-      />
-    </div>
+        {children}
+      </App1StorefrontLayout>
+    </StorefrontMarketingShell>
   );
 }

@@ -1,28 +1,24 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 
-function getClient() {
-  const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
-
-  if (!accessToken) {
-    throw new Error("MERCADOPAGO_ACCESS_TOKEN is not configured");
-  }
-
+export function createMercadoPagoClient(accessToken: string) {
   return new MercadoPagoConfig({ accessToken });
 }
 
 export async function createPaymentPreference({
+  accessToken,
   orderId,
   items,
   payerEmail,
   payerName,
 }: {
+  accessToken: string;
   orderId: string;
   items: Array<{ id: string; title: string; quantity: number; unit_price: number }>;
   payerEmail: string;
   payerName: string;
 }) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const preference = new Preference(getClient());
+  const preference = new Preference(createMercadoPagoClient(accessToken));
 
   const result = await preference.create({
     body: {

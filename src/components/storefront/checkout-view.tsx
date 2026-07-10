@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { CheckoutForm } from "@/components/storefront/checkout-form";
+import type { AppliedCheckoutCoupon } from "@/components/storefront/checkout-coupon-field";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { Button } from "@/components/ui/button";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { getCartPromoPricing } from "@/lib/promo-2x1";
 import { useCartStore } from "@/stores/cart-store";
+import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { formatPrice } from "@/lib/utils";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 
@@ -16,6 +19,8 @@ type CheckoutViewProps = {
   shippingCost: number;
   allowPickup: boolean;
   storeName: string;
+  couponsEnabled?: boolean;
+  dynamicShippingEnabled?: boolean;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -26,14 +31,22 @@ export function CheckoutView({
   shippingCost,
   allowPickup,
   storeName,
+  couponsEnabled = false,
+  dynamicShippingEnabled = false,
   defaultCustomer,
 }: CheckoutViewProps) {
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(
+    null,
+  );
   const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
   const rawSubtotal = useCartStore((s) => s.rawSubtotal());
   const promoDiscount = useCartStore((s) => s.promoDiscount());
   const subtotal = useCartStore((s) => s.subtotal());
-  const promoByVariant = getCartPromoPricing(items).byVariantId;
+  const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+  const promoByVariant = getCartPromoPricing(items, promo2x1Active).byVariantId;
 
   if (items.length === 0) {
     return (
@@ -73,6 +86,10 @@ export function CheckoutView({
             storeName={storeName}
             showSummary={false}
             defaultCustomer={defaultCustomer}
+            couponsEnabled={couponsEnabled}
+            dynamicShippingEnabled={dynamicShippingEnabled}
+            appliedCoupon={appliedCoupon}
+            onCouponChange={setAppliedCoupon}
           />
         </div>
 
@@ -118,6 +135,9 @@ export function CheckoutView({
               rawSubtotal={rawSubtotal}
               promoDiscount={promoDiscount}
               subtotal={subtotal}
+              couponCode={appliedCoupon?.code}
+              couponDiscount={couponDiscount}
+              totalAfterDiscounts={subtotalAfterCoupon}
             />
           </div>
           <p className="mt-2 text-xs text-neutral-400">

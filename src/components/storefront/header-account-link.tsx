@@ -5,9 +5,9 @@ import { useSession } from "next-auth/react";
 import { User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { vapeButtonClassName } from "@/components/storefront/vape/vape-button";
+import { app2ButtonClassName } from "@/themes/app2/components/app2-button";
 
-const vapeLinkClass = vapeButtonClassName({
+const app2LinkClass = app2ButtonClassName({
   variant: "secondary",
   size: "md",
   className: "h-10 px-2.5 sm:px-3",
@@ -21,10 +21,10 @@ const darkLinkClass =
 
 export function HeaderAccountLink({
   chrome = "light",
-  uiVariant = "apparel",
+  uiVariant = "app1",
 }: {
   chrome?: "light" | "dark";
-  uiVariant?: "apparel" | "vape";
+  uiVariant?: "app1" | "app2";
 }) {
   const { data: session, status } = useSession();
 
@@ -47,8 +47,8 @@ export function HeaderAccountLink({
     <Link
       href={href}
       className={cn(
-        uiVariant === "vape"
-          ? vapeLinkClass
+        uiVariant === "app2"
+          ? app2LinkClass
           : chrome === "dark"
             ? darkLinkClass
             : lightLinkClass,

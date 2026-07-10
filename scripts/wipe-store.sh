@@ -7,19 +7,19 @@ PROFILE="${1:-}"
 
 usage() {
   cat <<'EOF'
-Uso: npm run db:wipe:apparel | npm run db:wipe:vape
-     ./scripts/wipe-store.sh <apparel|vape>
+Uso: npm run db:wipe:app1 | npm run db:wipe:app2
+     ./scripts/wipe-store.sh <app1|app2>
 
 Elimina pedidos, productos y la fila Store de la tienda indicada.
 El owner se borra solo si no tiene otras tiendas.
 
-  apparel  → demo-store (Goat)
-  vape     → vape-demo (Cloud)
+  app1  → demo-store (Goat)
+  app2     → vape-demo (Cloud)
 EOF
 }
 
 case "$PROFILE" in
-  apparel|vape) ;;
+  app1|app2) ;;
   *)
     usage
     exit 1

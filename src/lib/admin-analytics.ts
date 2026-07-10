@@ -4,6 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 import type {
   ActivityPeriod,
   ActivityPoint,
+  DashboardMonthPeriod,
   DashboardRecentOrder,
   TopProduct,
 } from "@/lib/admin-analytics-shared";
@@ -12,11 +13,13 @@ import {
   adminDashboardCacheTag,
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
+import { hasMercadoPagoConfigured } from "@/lib/payments";
 
 export type {
   ActivityPeriod,
   ActivityPoint,
   DashboardAttention,
+  DashboardMonthPeriod,
   DashboardRecentOrder,
   TopProduct,
 } from "@/lib/admin-analytics-shared";
@@ -28,7 +31,11 @@ export {
   buildAdminOrdersHrefFromActivityPoint,
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
+  buildAdminPaymentSettingsHref,
+  buildAdminRecentOrdersListHref,
+  getDashboardMonthPeriodMeta,
   parseActivityPeriod,
+  parseDashboardMonthPeriod,
 } from "@/lib/admin-analytics-shared";
 
 function startOfDay(date: Date): Date {
@@ -37,8 +44,17 @@ function startOfDay(date: Date): Date {
   return d;
 }
 
+function endOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
 function isoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function monthRangeFromKey(key: string): { desde: string; hasta: string } {
@@ -49,6 +65,53 @@ function monthRangeFromKey(key: string): { desde: string; hasta: string } {
     desde: `${key}-01`,
     hasta: `${key}-${String(lastDay).padStart(2, "0")}`,
   };
+}
+
+function buildCalendarMonthRange(period: DashboardMonthPeriod): {
+  rangeStart: Date;
+  rangeEnd: Date;
+} {
+  const today = startOfDay(new Date());
+
+  if (period === "current") {
+    return {
+      rangeStart: new Date(today.getFullYear(), today.getMonth(), 1),
+      rangeEnd: endOfDay(today),
+    };
+  }
+
+  const previousMonthStart = new Date(
+    today.getFullYear(),
+    today.getMonth() - 1,
+    1,
+  );
+  const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+
+  return {
+    rangeStart: previousMonthStart,
+    rangeEnd: endOfDay(previousMonthEnd),
+  };
+}
+
+function buildDayBuckets(rangeStart: Date, rangeEnd: Date): ActivityPoint[] {
+  const endDay = startOfDay(rangeEnd);
+  const buckets: ActivityPoint[] = [];
+  const cursor = new Date(rangeStart);
+
+  while (cursor <= endDay) {
+    const dayKey = isoDate(cursor);
+    buckets.push({
+      key: dayKey,
+      label: String(cursor.getDate()),
+      orders: 0,
+      revenue: 0,
+      desde: dayKey,
+      hasta: dayKey,
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return buckets;
 }
 
 function buildBuckets(period: ActivityPeriod): {
@@ -87,7 +150,6 @@ function buildBuckets(period: ActivityPeriod): {
     const buckets = Array.from({ length: 30 }, (_, index) => {
       const date = new Date(rangeStart);
       date.setDate(rangeStart.getDate() + index);
-
       const dayKey = isoDate(date);
 
       return {
@@ -106,7 +168,11 @@ function buildBuckets(period: ActivityPeriod): {
   const rangeStart = new Date(today.getFullYear(), today.getMonth() - 11, 1);
 
   const buckets = Array.from({ length: 12 }, (_, index) => {
-    const date = new Date(rangeStart.getFullYear(), rangeStart.getMonth() + index, 1);
+    const date = new Date(
+      rangeStart.getFullYear(),
+      rangeStart.getMonth() + index,
+      1,
+    );
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
     const range = monthRangeFromKey(key);
 
@@ -129,7 +195,7 @@ function bucketKeyForOrder(date: Date, period: ActivityPeriod): string {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
   }
 
-  return startOfDay(date).toISOString().slice(0, 10);
+  return isoDate(startOfDay(date));
 }
 
 function aggregateSalesActivityFromRows(
@@ -165,8 +231,26 @@ async function fetchSalesActivityAggregates(
   storeId: string,
   rangeStart: Date,
   period: ActivityPeriod,
+  rangeEnd?: Date,
 ) {
   if (period === "year") {
+    if (rangeEnd) {
+      return client.$queryRaw<
+        { bucketDate: Date; orders: number; revenue: number }[]
+      >`
+        SELECT
+          date_trunc('month', o."createdAt") AS "bucketDate",
+          COUNT(*)::int AS orders,
+          COALESCE(SUM(o.total), 0)::float AS revenue
+        FROM "Order" o
+        WHERE o."storeId" = ${storeId}
+          AND o.status IN ('PAID', 'SHIPPED')
+          AND o."createdAt" >= ${rangeStart}
+          AND o."createdAt" <= ${rangeEnd}
+        GROUP BY 1
+      `;
+    }
+
     return client.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
       SELECT
         date_trunc('month', o."createdAt") AS "bucketDate",
@@ -176,6 +260,21 @@ async function fetchSalesActivityAggregates(
       WHERE o."storeId" = ${storeId}
         AND o.status IN ('PAID', 'SHIPPED')
         AND o."createdAt" >= ${rangeStart}
+      GROUP BY 1
+    `;
+  }
+
+  if (rangeEnd) {
+    return client.$queryRaw<{ bucketDate: Date; orders: number; revenue: number }[]>`
+      SELECT
+        date_trunc('day', o."createdAt") AS "bucketDate",
+        COUNT(*)::int AS orders,
+        COALESCE(SUM(o.total), 0)::float AS revenue
+      FROM "Order" o
+      WHERE o."storeId" = ${storeId}
+        AND o.status IN ('PAID', 'SHIPPED')
+        AND o."createdAt" >= ${rangeStart}
+        AND o."createdAt" <= ${rangeEnd}
       GROUP BY 1
     `;
   }
@@ -197,7 +296,31 @@ async function fetchTopProductsAggregates(
   client: AnalyticsQueryClient,
   storeId: string,
   rangeStart: Date,
+  rangeEnd?: Date,
 ) {
+  if (rangeEnd) {
+    return client.$queryRaw<
+      { productId: string; name: string; quantity: number; revenue: number }[]
+    >`
+      SELECT
+        p.id AS "productId",
+        p.name,
+        SUM(oi.quantity)::int AS quantity,
+        COALESCE(SUM(oi.quantity * oi."unitPrice"), 0)::float AS revenue
+      FROM "OrderItem" oi
+      INNER JOIN "Order" o ON oi."orderId" = o.id
+      INNER JOIN "ProductVariant" pv ON oi."variantId" = pv.id
+      INNER JOIN "Product" p ON pv."productId" = p.id
+      WHERE o."storeId" = ${storeId}
+        AND o.status IN ('PAID', 'SHIPPED')
+        AND o."createdAt" >= ${rangeStart}
+        AND o."createdAt" <= ${rangeEnd}
+      GROUP BY p.id, p.name
+      ORDER BY quantity DESC
+      LIMIT 10
+    `;
+  }
+
   return client.$queryRaw<
     { productId: string; name: string; quantity: number; revenue: number }[]
   >`
@@ -215,7 +338,7 @@ async function fetchTopProductsAggregates(
       AND o."createdAt" >= ${rangeStart}
     GROUP BY p.id, p.name
     ORDER BY quantity DESC
-    LIMIT 5
+    LIMIT 10
   `;
 }
 
@@ -229,14 +352,49 @@ async function fetchAdminDashboardAttention(storeId: string) {
       stock: { lte: 0 },
     },
   });
+  const mercadopagoConfigured = await hasMercadoPagoConfigured(storeId);
 
   return {
     paidAwaitingShipment,
     outOfStockVariants,
+    mercadopagoConfigured,
   };
 }
 
 async function fetchAdminDashboardAnalytics(
+  storeId: string,
+  monthPeriod: DashboardMonthPeriod,
+) {
+  const { rangeStart, rangeEnd } = buildCalendarMonthRange(monthPeriod);
+  const buckets = buildDayBuckets(rangeStart, rangeEnd);
+  const chartPeriod: ActivityPeriod = "month";
+
+  const salesRows = await fetchSalesActivityAggregates(
+    db,
+    storeId,
+    rangeStart,
+    chartPeriod,
+    rangeEnd,
+  );
+  const topProducts = await fetchTopProductsAggregates(
+    db,
+    storeId,
+    rangeStart,
+    rangeEnd,
+  );
+
+  return {
+    salesActivity: aggregateSalesActivityFromRows(
+      salesRows,
+      buckets,
+      chartPeriod,
+    ),
+    topProducts,
+  };
+}
+
+/** Rolling week/month/year windows used by Analytics Plus (and CSV export). */
+async function fetchActivityPeriodAnalytics(
   storeId: string,
   period: ActivityPeriod,
 ) {
@@ -294,11 +452,25 @@ function getCachedAdminDashboardAttention(storeId: string) {
 
 function getCachedAdminDashboardAnalytics(
   storeId: string,
+  monthPeriod: DashboardMonthPeriod,
+) {
+  return unstable_cache(
+    () => fetchAdminDashboardAnalytics(storeId, monthPeriod),
+    ["admin-dashboard-analytics", storeId, "calendar-month", monthPeriod],
+    {
+      revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
+      tags: [adminDashboardCacheTag(storeId)],
+    },
+  )();
+}
+
+function getCachedActivityPeriodAnalytics(
+  storeId: string,
   period: ActivityPeriod,
 ) {
   return unstable_cache(
-    () => fetchAdminDashboardAnalytics(storeId, period),
-    ["admin-dashboard-analytics", storeId, period],
+    () => fetchActivityPeriodAnalytics(storeId, period),
+    ["admin-activity-period-analytics", storeId, period],
     {
       revalidate: ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,
       tags: [adminDashboardCacheTag(storeId)],
@@ -322,8 +494,15 @@ export const getAdminDashboardAttention = cache(async (storeId: string) => {
 });
 
 export const getAdminDashboardAnalytics = cache(
+  async (storeId: string, monthPeriod: DashboardMonthPeriod = "current") => {
+    return getCachedAdminDashboardAnalytics(storeId, monthPeriod);
+  },
+);
+
+/** Rolling windows for Analytics Plus chart/top (week / month / year). */
+export const getActivityPeriodAnalytics = cache(
   async (storeId: string, period: ActivityPeriod = "week") => {
-    return getCachedAdminDashboardAnalytics(storeId, period);
+    return getCachedActivityPeriodAnalytics(storeId, period);
   },
 );
 
@@ -332,9 +511,9 @@ export const getAdminDashboardRecentOrders = cache(async (storeId: string) => {
 });
 
 export const getAdminDashboardPageData = cache(
-  async (storeId: string, period: ActivityPeriod = "week") => {
+  async (storeId: string, monthPeriod: DashboardMonthPeriod = "current") => {
     const attention = await getAdminDashboardAttention(storeId);
-    const analytics = await getAdminDashboardAnalytics(storeId, period);
+    const analytics = await getAdminDashboardAnalytics(storeId, monthPeriod);
     const recentOrders = await getAdminDashboardRecentOrders(storeId);
 
     return {
@@ -345,14 +524,17 @@ export const getAdminDashboardPageData = cache(
   },
 );
 
-export async function getSalesActivity(storeId: string, period: ActivityPeriod) {
-  const analytics = await getAdminDashboardAnalytics(storeId, period);
+export async function getSalesActivity(
+  storeId: string,
+  period: ActivityPeriod,
+) {
+  const analytics = await getActivityPeriodAnalytics(storeId, period);
   return analytics.salesActivity;
 }
 
 export async function getDashboardAnalytics(
   storeId: string,
-  period: ActivityPeriod = "week",
+  monthPeriod: DashboardMonthPeriod = "current",
 ) {
-  return getAdminDashboardAnalytics(storeId, period);
+  return getAdminDashboardAnalytics(storeId, monthPeriod);
 }

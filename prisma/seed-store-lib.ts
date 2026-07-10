@@ -1,14 +1,14 @@
 import { PrismaClient, UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import {
-  APPAREL_PRODUCTS,
-  APPAREL_SIZES,
-  type ApparelSeedProduct,
-} from "./seed-data-apparel";
-import { VAPE_PRODUCTS } from "./seed-data-vape";
+  APP1_PRODUCTS,
+  APP1_SIZES,
+  type App1SeedProduct,
+} from "./seed-data-app1";
+import { APP2_PRODUCTS } from "./seed-data-app2";
 import {
   DEFAULT_STORE_SLUG,
-  VAPE_STORE_SLUG,
+  APP2_STORE_SLUG,
   SEED_STORES,
   type SeedStoreConfig,
 } from "./seed-env";
@@ -16,20 +16,20 @@ import {
 export const prisma = new PrismaClient();
 
 export const STORE_SLUG_BY_PROFILE = {
-  apparel: DEFAULT_STORE_SLUG,
-  vape: VAPE_STORE_SLUG,
+  app1: DEFAULT_STORE_SLUG,
+  app2: APP2_STORE_SLUG,
 } as const;
 
 export type StoreProfile = keyof typeof STORE_SLUG_BY_PROFILE;
 
 export function resolveStoreProfile(value: string): StoreProfile | null {
-  if (value === "apparel" || value === "vape") return value;
+  if (value === "app1" || value === "app2") return value;
   return null;
 }
 
 export function slugToProfile(slug: string): StoreProfile | null {
-  if (slug === DEFAULT_STORE_SLUG) return "apparel";
-  if (slug === VAPE_STORE_SLUG) return "vape";
+  if (slug === DEFAULT_STORE_SLUG) return "app1";
+  if (slug === APP2_STORE_SLUG) return "app2";
   return null;
 }
 
@@ -43,7 +43,7 @@ export function slugify(text: string) {
 }
 
 function seedVariantStock(
-  product: ApparelSeedProduct,
+  product: App1SeedProduct,
   colorIndex: number,
   sizeIndex: number,
 ): number {
@@ -133,8 +133,8 @@ async function createStoreWithAdmin(config: SeedStoreConfig) {
   return { store, admin, config };
 }
 
-async function seedApparelProducts(storeId: string) {
-  for (const product of APPAREL_PRODUCTS) {
+async function seedApp1Products(storeId: string) {
+  for (const product of APP1_PRODUCTS) {
     const slug = slugify(product.name);
     await prisma.product.create({
       data: {
@@ -148,7 +148,7 @@ async function seedApparelProducts(storeId: string) {
         promo2x1: product.promo2x1 ?? false,
         variants: {
           create: product.colors.flatMap((color, colorIndex) =>
-            APPAREL_SIZES.map((size, sizeIndex) => ({
+            APP1_SIZES.map((size, sizeIndex) => ({
               size,
               color,
               sku: `${slug}-${color.slice(0, 3).toUpperCase()}-${size}`,
@@ -162,11 +162,11 @@ async function seedApparelProducts(storeId: string) {
     });
   }
 
-  return APPAREL_PRODUCTS.length;
+  return APP1_PRODUCTS.length;
 }
 
-async function seedVapeProducts(storeId: string) {
-  for (const product of VAPE_PRODUCTS) {
+async function seedApp2Products(storeId: string) {
+  for (const product of APP2_PRODUCTS) {
     const slug = slugify(product.name);
     await prisma.product.create({
       data: {
@@ -192,7 +192,7 @@ async function seedVapeProducts(storeId: string) {
     });
   }
 
-  return VAPE_PRODUCTS.length;
+  return APP2_PRODUCTS.length;
 }
 
 type SeedStoreOptions = {
@@ -200,7 +200,7 @@ type SeedStoreOptions = {
   wipeFirst?: boolean;
 };
 
-export async function seedApparelStore(options: SeedStoreOptions = {}) {
+export async function seedApp1Store(options: SeedStoreOptions = {}) {
   const { wipeFirst = true } = options;
   const slug = DEFAULT_STORE_SLUG;
 
@@ -210,14 +210,14 @@ export async function seedApparelStore(options: SeedStoreOptions = {}) {
 
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
-  const productCount = await seedApparelProducts(store.id);
+  const productCount = await seedApp1Products(store.id);
 
   return { store, admin, config, productCount };
 }
 
-export async function seedVapeStore(options: SeedStoreOptions = {}) {
+export async function seedApp2Store(options: SeedStoreOptions = {}) {
   const { wipeFirst = true } = options;
-  const slug = VAPE_STORE_SLUG;
+  const slug = APP2_STORE_SLUG;
 
   if (wipeFirst) {
     await wipeStoreBySlug(slug);
@@ -225,25 +225,25 @@ export async function seedVapeStore(options: SeedStoreOptions = {}) {
 
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
-  const productCount = await seedVapeProducts(store.id);
+  const productCount = await seedApp2Products(store.id);
 
   return { store, admin, config, productCount };
 }
 
 export async function seedAllStores(options: SeedStoreOptions = {}) {
-  const apparel = await seedApparelStore(options);
-  const vape = await seedVapeStore(options);
-  return { apparel, vape };
+  const app1 = await seedApp1Store(options);
+  const app2 = await seedApp2Store(options);
+  return { app1, app2 };
 }
 
-export function summarizeApparelSeed() {
-  const promo2x1Count = APPAREL_PRODUCTS.filter((product) => product.promo2x1).length;
-  const outOfStockProducts = APPAREL_PRODUCTS.filter((product) => product.outOfStock);
+export function summarizeApp1Seed() {
+  const promo2x1Count = APP1_PRODUCTS.filter((product) => product.promo2x1).length;
+  const outOfStockProducts = APP1_PRODUCTS.filter((product) => product.outOfStock);
   const outOfStockVariants = outOfStockProducts.reduce(
-    (sum, product) => sum + product.colors.length * APPAREL_SIZES.length,
+    (sum, product) => sum + product.colors.length * APP1_SIZES.length,
     0,
   );
-  const byCategory = APPAREL_PRODUCTS.reduce<Record<string, number>>((acc, product) => {
+  const byCategory = APP1_PRODUCTS.reduce<Record<string, number>>((acc, product) => {
     acc[product.category] = (acc[product.category] ?? 0) + 1;
     return acc;
   }, {});

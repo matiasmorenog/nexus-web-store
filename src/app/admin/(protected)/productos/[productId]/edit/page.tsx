@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { ProductEditSections } from "@/components/admin/product-edit-sections";
 import { requireAdminSession } from "@/lib/admin-session";
 import { db } from "@/lib/db";
+import { storeHasModule } from "@/lib/modules";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,10 @@ export default async function AdminProductEditPage({
   });
 
   if (!product) notFound();
+
+  const promo2x1Selectable =
+    getStorefrontConfig().features.promo2x1 &&
+    (await storeHasModule(storeId, "coupons"));
 
   return (
     <div className="space-y-6 pb-8">
@@ -56,6 +62,7 @@ export default async function AdminProductEditPage({
           featured: product.featured,
           promo2x1: product.promo2x1,
         }}
+        promo2x1Selectable={promo2x1Selectable}
       />
     </div>
   );

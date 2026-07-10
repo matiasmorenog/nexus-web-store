@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -24,11 +25,16 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prevStore, setPrevStore] = useState(store);
 
-  useEffect(() => {
+  if (
+    store.allowPickup !== prevStore.allowPickup ||
+    store.shippingFlatRate !== prevStore.shippingFlatRate
+  ) {
+    setPrevStore(store);
     setShippingFlatRate(String(store.shippingFlatRate));
     setAllowPickup(store.allowPickup);
-  }, [store.allowPickup, store.shippingFlatRate]);
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -86,16 +92,16 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
             className="text-base sm:text-sm"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+        <div className="flex items-center gap-2.5">
+          <Switch
             id="allowPickup"
             name="allowPickup"
             checked={allowPickup}
             onChange={(event) => setAllowPickup(event.target.checked)}
-            className="size-4 shrink-0"
           />
-          <Label htmlFor="allowPickup">Permitir retiro en local</Label>
+          <Label htmlFor="allowPickup" className="cursor-pointer">
+            Permitir retiro en local
+          </Label>
         </div>
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (

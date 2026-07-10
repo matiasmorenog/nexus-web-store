@@ -43,7 +43,7 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 | Schema / seed | `prisma/schema.prisma`, `prisma/seed-env.ts` |
 | Deploy | `DEPLOY.md`, `docs/multi-store.md` |
 | Módulos admin / pricing | `docs/modules-pricing.md`, `src/lib/modules/` |
-| Roadmap producto | `README.md` → **Roadmap de features** |
+| Roadmap producto | Linear [nexus-store](https://linear.app/nexus-development/project/nexus-store-f605d6fc70b0) — ver `roadmap.mdc` |
 | Cache por ruta | `docs/caching-and-routes.md` |
 
 ## Convenciones agente

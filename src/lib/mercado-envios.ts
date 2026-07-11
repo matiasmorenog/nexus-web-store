@@ -165,5 +165,3 @@ export function formatMercadoEnviosDate(date: Date) {
     month: "short",
   });
 }
-
-export { isMercadoEnviosConfigured } from "@/lib/mercado-envios/server";

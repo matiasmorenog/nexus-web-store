@@ -5,7 +5,7 @@ import {
   adminCanManageModule,
   requireAdminModuleView,
 } from "@/lib/admin-session";
-import { isMercadoEnviosConfigured } from "@/lib/mercado-envios";
+import { isMercadoEnviosConfigured } from "@/lib/mercado-envios/server";
 import { requireModule } from "@/lib/modules";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
 import { getStoreId } from "@/lib/store-context";

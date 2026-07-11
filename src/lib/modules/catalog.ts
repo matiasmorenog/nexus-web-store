@@ -30,12 +30,12 @@ const MODULE_LIST = [
   },
   {
     id: "analytics",
-    name: "Analytics avanzado",
+    name: "Analytics y reportes",
     description:
-      "Comparación de períodos, embudo de pedidos, clientes más fieles, top categorías/productos y export CSV del reporte.",
+      "Comparación de períodos, embudo, clientes fieles, tops y export CSV (reporte, pedidos y catálogo).",
     monthlyPriceUsd: 30,
     category: "operations",
-    adminRoutes: ["/admin/analytics"],
+    adminRoutes: ["/admin/modulos/analytics"],
   },
   {
     id: "crm",
@@ -102,14 +102,6 @@ const MODULE_LIST = [
     category: "marketing",
     adminRoutes: ["/admin/seo"],
     storefrontSurfaces: ["layout"],
-  },
-  {
-    id: "exports",
-    name: "Export y reportes",
-    description: "Export CSV de pedidos y productos, reportes para contabilidad.",
-    monthlyPriceUsd: 12,
-    category: "operations",
-    adminRoutes: ["/admin/exportaciones"],
   },
   {
     id: "wishlist",

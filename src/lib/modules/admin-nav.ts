@@ -1,7 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
-  Download,
   Gift,
   Heart,
   Home,
@@ -64,7 +63,6 @@ const MODULE_NAV_ICONS: Record<ModuleId, LucideIcon> = {
   api: Webhook,
   premiumThemes: Palette,
   seo: Search,
-  exports: Download,
   wishlist: Heart,
 };
 

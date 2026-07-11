@@ -30,7 +30,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 |----|--------|-----------------|-------------|
 | `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promo 2x1 (banner + descuento) |
 | `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
-| `analytics` | Analytics avanzado | +30 | Comparación de períodos, embudo, clientes más fieles, top categorías/productos, export CSV del reporte |
+| `analytics` | Analytics y reportes | +30 | Comparación de períodos, embudo, tops, CSV de reporte/pedidos/catálogo |
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
 | `shippingCarriers` | Envíos carrier | +40 | Cotización y etiquetas con operadores logísticos |
 | `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |
@@ -38,7 +38,6 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 | `api` | API y webhooks | +50 | REST para productos/pedidos, webhooks de eventos |
 | `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (app2, app1, futuros) |
 | `seo` | SEO avanzado | +15 | Sitemap dinámico, meta por página, structured data |
-| `exports` | Export y reportes | +12 | CSV de pedidos/productos, reportes contables |
 | `wishlist` | Wishlist | +10 | Lista de deseos en storefront y cuenta cliente |
 
 ---
@@ -49,7 +48,7 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 |--------|---------|--------------|
 | Tienda chica | Solo base | USD 100 |
 | Tienda en crecimiento | base + cupones + home editable | USD 145 |
-| Marca establecida | base + cupones + analytics + CRM + exports | USD 192 |
+| Marca establecida | base + cupones + analytics + CRM | USD 180 |
 | Integrador | base + API + webhooks + multi-usuario (3) | USD 204 |
 
 ---
@@ -194,11 +193,10 @@ Funcionalidad que debe existir siempre en plan base:
 | Cupones | `src/lib/coupons/`, `/admin/modulos/coupons` |
 | Promo 2x1 | `src/lib/promotions/`, `src/lib/promo-2x1.ts`, toggle en `/admin/modulos/coupons` |
 | Home editable | `src/lib/home-content/`, `/admin/modulos/homeEditor` |
-| Export CSV | `src/lib/exports/`, `/admin/modulos/exports` |
+| Analytics y reportes | `src/lib/advanced-analytics/`, `src/lib/exports/`, `/admin/modulos/analytics`, `/api/admin/exports/*` |
 | CRM lite | `src/lib/crm/`, `/admin/modulos/crm` |
 | SEO avanzado | `src/lib/seo/`, `/admin/modulos/seo`, `/sitemap.xml`, `/robots.txt` |
 | Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
-| Analytics avanzado | `src/lib/advanced-analytics/`, `/admin/modulos/analytics`, `/api/admin/exports/analytics` |
 | Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
 | Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
 | Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |

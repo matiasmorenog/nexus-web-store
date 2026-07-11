@@ -48,7 +48,14 @@ export function AdminExportsPanel({
   const ordersUrl = buildOrdersExportUrl({ desde, hasta, estado, q, todos });
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold text-neutral-900">Exportar datos</h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          CSV de pedidos y catálogo para contabilidad o análisis externo.
+        </p>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
       <AdminCard
         title="Exportar pedidos"
         description="CSV con resumen de pedidos. Compatible con Excel (UTF-8)."
@@ -139,6 +146,7 @@ export function AdminExportsPanel({
           Descargar productos.csv
         </a>
       </AdminCard>
+      </div>
     </div>
   );
 }

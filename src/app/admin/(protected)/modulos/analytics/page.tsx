@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { AdminAdvancedAnalyticsSections } from "@/components/admin/admin-advanced-analytics-sections";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
+import { AdminExportsPanel } from "@/components/admin/admin-exports-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSkeletonDashboardAnalytics } from "@/components/admin/admin-skeleton";
 import { parseActivityPeriod } from "@/lib/admin-analytics";
+import { getDefaultAdminOrdersDateRange } from "@/lib/admin-orders-query";
 import { requireAdminSession } from "@/lib/admin-session";
 import { requireModule } from "@/lib/modules";
 
@@ -23,13 +25,14 @@ export default async function AdminAnalyticsPage({
 
   const params = await searchParams;
   const period = parseActivityPeriod(params.period);
+  const { desde, hasta } = getDefaultAdminOrdersDateRange();
 
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
-          title="Analytics avanzado"
-          description="Comparación vs período anterior, embudo, clientes más fieles, top productos/categorías y export CSV."
+          title="Analytics y reportes"
+          description="Insights de ventas, comparación de períodos y export CSV de reportes, pedidos y catálogo."
         />
       </AdminDashboardReveal>
 
@@ -39,6 +42,10 @@ export default async function AdminAnalyticsPage({
           period={period}
         />
       </Suspense>
+
+      <AdminDashboardReveal index={4}>
+        <AdminExportsPanel defaultDesde={desde} defaultHasta={hasta} />
+      </AdminDashboardReveal>
     </div>
   );
 }

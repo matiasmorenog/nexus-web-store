@@ -1,30 +1,20 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  BarChart3,
-  Gift,
-  Heart,
-  Home,
-  LayoutTemplate,
-  Megaphone,
-  Package,
-  Palette,
-  Search,
-  Settings,
-  ShoppingCart,
-  Sparkles,
-  Truck,
-  Users,
-  Webhook,
-} from "lucide-react";
 import { ADMIN_PLAN_PATH, moduleAdminPath } from "@/lib/modules/access";
 import { MODULE_CATALOG, MODULE_IDS, type ModuleId } from "@/lib/modules/catalog";
+
+export type AdminNavIconKey =
+  | "dashboard"
+  | "products"
+  | "orders"
+  | "config"
+  | "plan"
+  | ModuleId;
 
 export type AdminCoreNavItem = {
   kind: "core";
   href: string;
   label: string;
   shortLabel: string;
-  icon: LucideIcon;
+  iconKey: AdminNavIconKey;
   exact?: boolean;
 };
 
@@ -34,7 +24,7 @@ export type AdminModuleNavItem = {
   href: string;
   label: string;
   shortLabel: string;
-  icon: LucideIcon;
+  iconKey: AdminNavIconKey;
   exact?: boolean;
 };
 
@@ -43,7 +33,7 @@ export type AdminPlanNavItem = {
   href: typeof ADMIN_PLAN_PATH;
   label: string;
   shortLabel: string;
-  icon: LucideIcon;
+  iconKey: AdminNavIconKey;
   exact?: boolean;
 };
 
@@ -52,27 +42,13 @@ export type AdminNavItem =
   | AdminModuleNavItem
   | AdminPlanNavItem;
 
-const MODULE_NAV_ICONS: Record<ModuleId, LucideIcon> = {
-  coupons: Gift,
-  homeEditor: Home,
-  analytics: BarChart3,
-  crm: Users,
-  shippingCarriers: Truck,
-  marketing: Megaphone,
-  multiUser: Users,
-  api: Webhook,
-  premiumThemes: Palette,
-  seo: Search,
-  wishlist: Heart,
-};
-
 export const ADMIN_CORE_NAV_ITEMS: AdminCoreNavItem[] = [
   {
     kind: "core",
     href: "/admin",
     label: "Dashboard",
     shortLabel: "Inicio",
-    icon: LayoutTemplate,
+    iconKey: "dashboard",
     exact: true,
   },
   {
@@ -80,21 +56,21 @@ export const ADMIN_CORE_NAV_ITEMS: AdminCoreNavItem[] = [
     href: "/admin/productos",
     label: "Productos",
     shortLabel: "Productos",
-    icon: Package,
+    iconKey: "products",
   },
   {
     kind: "core",
     href: "/admin/pedidos",
     label: "Pedidos",
     shortLabel: "Pedidos",
-    icon: ShoppingCart,
+    iconKey: "orders",
   },
   {
     kind: "core",
     href: "/admin/configuracion",
     label: "Configuración",
     shortLabel: "Config",
-    icon: Settings,
+    iconKey: "config",
   },
 ];
 
@@ -103,7 +79,7 @@ export const ADMIN_PLAN_NAV_ITEM: AdminPlanNavItem = {
   href: ADMIN_PLAN_PATH,
   label: "Plan y módulos",
   shortLabel: "Plan",
-  icon: Sparkles,
+  iconKey: "plan",
 };
 
 /** Ítems de nav para módulos que declaran al menos una ruta admin. */
@@ -119,7 +95,7 @@ export const ADMIN_MODULE_NAV_ITEMS: AdminModuleNavItem[] = MODULE_IDS.flatMap(
         href,
         label: moduleDef.name,
         shortLabel: moduleDef.name.split(" ")[0] ?? moduleDef.name,
-        icon: MODULE_NAV_ICONS[moduleId],
+        iconKey: moduleId,
       },
     ];
   },

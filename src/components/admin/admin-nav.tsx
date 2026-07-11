@@ -2,15 +2,53 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ExternalLink } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  ExternalLink,
+  Gift,
+  Heart,
+  Home,
+  LayoutTemplate,
+  Megaphone,
+  Package,
+  Palette,
+  Search,
+  Settings,
+  ShoppingCart,
+  Sparkles,
+  Truck,
+  Users,
+  Webhook,
+} from "lucide-react";
 import { SignOutButton } from "@/components/admin/sign-out-button";
 import {
   isModuleNavItemEnabled,
+  type AdminNavIconKey,
   type AdminNavItem,
   type ModuleId,
 } from "@/lib/modules";
 import { moduleUpgradeHref } from "@/lib/modules/access";
 import { cn } from "@/lib/utils";
+
+const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
+  dashboard: LayoutTemplate,
+  products: Package,
+  orders: ShoppingCart,
+  config: Settings,
+  plan: Sparkles,
+  coupons: Gift,
+  homeEditor: Home,
+  analytics: BarChart3,
+  crm: Users,
+  shippingCarriers: Truck,
+  marketing: Megaphone,
+  multiUser: Users,
+  api: Webhook,
+  premiumThemes: Palette,
+  seo: Search,
+  wishlist: Heart,
+};
 
 type AdminNavProps = {
   brandPrefix: string;
@@ -19,6 +57,17 @@ type AdminNavProps = {
   enabledModuleIds: ModuleId[];
   navItems: AdminNavItem[];
 };
+
+function AdminNavIcon({
+  iconKey,
+  className,
+}: {
+  iconKey: AdminNavIconKey;
+  className?: string;
+}) {
+  const Icon = ADMIN_NAV_ICONS[iconKey];
+  return <Icon className={className} />;
+}
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (exact) return pathname === href;
@@ -56,7 +105,7 @@ function DesktopNavLink({
           : "text-neutral-400 hover:bg-white/5 hover:text-white",
       )}
     >
-      <item.icon className="h-4 w-4 shrink-0" />
+      <AdminNavIcon iconKey={item.iconKey} className="h-4 w-4 shrink-0" />
       <span className="flex min-w-0 items-center gap-2">
         <span className="truncate">{item.label}</span>
         {item.kind === "plan" ? (
@@ -213,7 +262,7 @@ export function AdminNav({
                 "flex-col justify-center gap-1 px-1 py-2.5 text-center text-[11px] leading-tight sm:flex-row sm:justify-start sm:gap-3 sm:px-3 sm:py-2.5 sm:text-left sm:text-sm",
               )}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <AdminNavIcon iconKey={item.iconKey} className="h-4 w-4 shrink-0" />
               <span className="truncate sm:hidden">{item.shortLabel}</span>
               <span className="hidden truncate sm:inline">{item.label}</span>
             </Link>

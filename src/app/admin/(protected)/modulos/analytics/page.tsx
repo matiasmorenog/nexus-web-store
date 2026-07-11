@@ -3,7 +3,7 @@ import { AdminAdvancedAnalyticsSections } from "@/components/admin/admin-advance
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminExportsPanel } from "@/components/admin/admin-exports-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSkeletonDashboardAnalytics } from "@/components/admin/admin-skeleton";
+import { AdminSkeletonAdvancedAnalytics } from "@/components/admin/admin-skeleton";
 import { parseActivityPeriod } from "@/lib/admin-analytics";
 import { getDefaultAdminOrdersDateRange } from "@/lib/admin-orders-query";
 import { requireAdminModuleView } from "@/lib/admin-session";
@@ -36,7 +36,7 @@ export default async function AdminAnalyticsPage({
         />
       </AdminDashboardReveal>
 
-      <Suspense fallback={<AdminSkeletonDashboardAnalytics />}>
+      <Suspense fallback={<AdminSkeletonAdvancedAnalytics />}>
         <AdminAdvancedAnalyticsSections
           storeId={session.user.storeId}
           period={period}

@@ -24,12 +24,13 @@ export function AdminAnalyticsInsightsGrid({
   cohort,
 }: AdminAnalyticsInsightsGridProps) {
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <AdminAnalyticsFunnel metrics={metrics} />
+    <div className="grid items-stretch gap-6 lg:grid-cols-2">
+      <AdminAnalyticsFunnel metrics={metrics} className="h-full" />
 
       <AdminCard
         title="Clientes del período"
         description="Compradores únicos con al menos un pedido pagado."
+        className="h-full"
       >
         <AdminCardSection>
           <AdminDetailGrid>

@@ -5,7 +5,6 @@ import {
   adminCanManageModule,
   requireAdminModuleView,
 } from "@/lib/admin-session";
-import { isMercadoEnviosConfigured } from "@/lib/mercado-envios/server";
 import { requireModule } from "@/lib/modules";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
 import { getStoreId } from "@/lib/store-context";
@@ -18,7 +17,6 @@ export default async function AdminShippingCarriersPage() {
 
   const storeId = await getStoreId();
   const settings = await getStoreShippingSettingsForAdmin(storeId);
-  const mercadoEnviosConfigured = isMercadoEnviosConfigured();
   const canManageShipping = adminCanManageModule(session, "shippingCarriers");
 
   return (
@@ -26,14 +24,13 @@ export default async function AdminShippingCarriersPage() {
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="Envíos carrier"
-          description="Cotización por código postal y etiquetas de seguimiento en checkout."
+          description="Cotización Mercado Envíos por CP, retiro en local y seguimiento de pedidos."
         />
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={1}>
         <AdminShippingSettingsForm
           initialSettings={settings}
-          mercadoEnviosConfigured={mercadoEnviosConfigured}
           readOnly={!canManageShipping}
         />
       </AdminDashboardReveal>

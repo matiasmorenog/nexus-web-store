@@ -60,7 +60,7 @@ const MODULE_LIST = [
     name: "Envíos carrier",
     description:
       "Cotización y etiquetas con operadores logísticos (Andreani, OCA, etc.).",
-    monthlyPriceUsd: 40,
+    monthlyPriceUsd: 20,
     category: "operations",
     adminRoutes: ["/admin/envios"],
     storefrontSurfaces: ["checkout"],
@@ -70,7 +70,7 @@ const MODULE_LIST = [
     name: "WhatsApp y Meta Pixel",
     description:
       "Botón de WhatsApp, pixel de conversión y eventos de checkout.",
-    monthlyPriceUsd: 20,
+    monthlyPriceUsd: 15,
     category: "marketing",
     adminRoutes: ["/admin/marketing"],
     storefrontSurfaces: ["layout"],
@@ -80,7 +80,7 @@ const MODULE_LIST = [
     name: "Multi-usuario",
     description:
       "Usuarios adicionales con roles (administrador, vendedor, depósito, solo lectura).",
-    monthlyPriceUsd: 18,
+    monthlyPriceUsd: 20,
     category: "operations",
     adminRoutes: ["/admin/usuarios"],
   },
@@ -107,7 +107,7 @@ const MODULE_LIST = [
     name: "SEO avanzado",
     description:
       "Sitemap dinámico, meta por página y structured data para buscadores.",
-    monthlyPriceUsd: 15,
+    monthlyPriceUsd: 10,
     category: "marketing",
     adminRoutes: ["/admin/seo"],
     storefrontSurfaces: ["layout"],
@@ -115,7 +115,7 @@ const MODULE_LIST = [
   {
     id: "wishlist",
     name: "Wishlist",
-    description: "Lista de deseos en storefront y cuenta del cliente.",
+    description: "Lista de deseos en la tienda y cuenta del cliente.",
     monthlyPriceUsd: 10,
     category: "storefront",
     adminRoutes: ["/admin/wishlist"],

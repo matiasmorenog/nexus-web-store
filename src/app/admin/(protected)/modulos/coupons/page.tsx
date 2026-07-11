@@ -36,14 +36,17 @@ export default async function AdminCouponsPage() {
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={1}>
-        <AdminPromotionSettingsForm initialSettings={promotionSettings} />
+        <div className="space-y-6">
+          <div className="max-w-3xl">
+            <AdminCouponCreateForm />
+          </div>
+          <div className="max-w-lg">
+            <AdminPromotionSettingsForm initialSettings={promotionSettings} />
+          </div>
+        </div>
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={2}>
-        <AdminCouponCreateForm />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={3}>
         <AdminCouponsList coupons={coupons.map(serializeCoupon)} />
       </AdminDashboardReveal>
     </div>

@@ -15,9 +15,10 @@ Incluido sin costo adicional. Sin estos ítems la tienda no opera.
 | Dashboard | KPIs, gráficos, alertas de stock, pedidos recientes |
 | Productos | CRUD, variantes, stock, imágenes (Vercel Blob) |
 | Pedidos | Listado, filtros, cambio de estado |
-| Configuración | Nombre, envío fijo, retiro en local |
+| Cobros | Mercado Pago, transferencia bancaria con 10% off en productos |
+| Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
-| Integraciones base | Mercado Pago, emails transaccionales |
+| Integraciones base | Emails transaccionales |
 | Usuarios | 1 owner por tienda |
 
 ---
@@ -32,12 +33,12 @@ Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
 | `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
 | `analytics` | Analytics y reportes | +30 | Comparación de períodos, embudo, tops, CSV de reporte/pedidos/catálogo |
 | `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
-| `shippingCarriers` | Envíos carrier | +40 | Cotización y etiquetas con operadores logísticos |
-| `marketing` | WhatsApp y Meta Pixel | +20 | Botón WhatsApp, pixel de conversión, eventos checkout |
-| `multiUser` | Multi-usuario | +18/usuario | Roles vendedor, depósito, solo lectura |
+| `shippingCarriers` | Envíos carrier | +20 | Cotización y etiquetas con operadores logísticos |
+| `marketing` | WhatsApp y Meta Pixel | +15 | Botón WhatsApp, pixel de conversión, eventos checkout |
+| `multiUser` | Multi-usuario | +20/usuario | Roles vendedor, depósito, solo lectura |
 | `api` | API y webhooks | +50 | REST para productos/pedidos, webhooks de eventos |
 | `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (app2, app1, futuros) |
-| `seo` | SEO avanzado | +15 | Sitemap dinámico, meta por página, structured data |
+| `seo` | SEO avanzado | +10 | Sitemap dinámico, meta por página, structured data |
 | `wishlist` | Wishlist | +10 | Lista de deseos en storefront y cuenta cliente |
 
 ---
@@ -199,6 +200,7 @@ Funcionalidad que debe existir siempre en plan base:
 | Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
 | Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
 | Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
+| Cobros (plan base) | `src/lib/payments/`, `/admin/modulos/cobros`, `/api/admin/payment-settings` |
 | Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |
 | Multi-usuario | `src/lib/store-users/`, `/admin/modulos/multiUser` |
 | API y webhooks | `src/lib/store-api/`, `/admin/modulos/api`, `/api/v1/*` |

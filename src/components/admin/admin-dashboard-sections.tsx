@@ -45,12 +45,12 @@ export async function AdminDashboardAnalyticsSection({
   return (
     <AdminDashboardReveal
       index={2}
-      className="mb-8 grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
+      className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]"
     >
       <AdminCard
         title="Actividad de ventas"
         description={periodLabels.description}
-        className="overflow-visible"
+        className="h-full overflow-visible"
         action={
           <Suspense fallback={<AdminSkeletonTabs />}>
             <AdminActivityPeriodTabs period={period} />
@@ -70,6 +70,7 @@ export async function AdminDashboardAnalyticsSection({
       <AdminCard
         title="Productos más vendidos"
         description={`Ranking por unidades vendidas (${periodLabels.summary})`}
+        className="h-full"
       >
         <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
       </AdminCard>
@@ -125,12 +126,12 @@ export async function AdminDashboardSections({
 
       <AdminDashboardReveal
         index={2}
-        className="mb-8 grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
+        className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <AdminCard
           title="Actividad de ventas"
           description={periodLabels.description}
-          className="overflow-visible"
+          className="h-full overflow-visible"
           action={
             <Suspense fallback={<AdminSkeletonTabs />}>
               <AdminActivityPeriodTabs period={period} />
@@ -150,6 +151,7 @@ export async function AdminDashboardSections({
         <AdminCard
           title="Productos más vendidos"
           description={`Ranking por unidades vendidas (${periodLabels.summary})`}
+          className="h-full"
         >
           <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
         </AdminCard>

@@ -1,14 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { assertAdminPermission } from "@/lib/admin-session";
 import {
   revalidateAdminDashboardCache,
   revalidateAdminProductDataCaches,
 } from "@/lib/revalidate-admin-cache";
-import { getStoreId } from "@/lib/store-context";
 import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
-import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
 import {
   cleanupProductImages,
@@ -22,18 +20,15 @@ import {
   syncProductColorImage,
 } from "@/lib/variant-images";
 import { slugify } from "@/lib/utils";
+import type { AdminPermission } from "@/lib/store-users/permissions";
 
-async function getAdminStoreId() {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("No autorizado");
-  }
-
-  return getStoreId();
+async function requireAdminStoreId(permission: AdminPermission) {
+  const session = await assertAdminPermission(permission);
+  return session.user.storeId;
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("orders:manage");
 
   await db.order.updateMany({
     where: { id: orderId, storeId },
@@ -44,13 +39,8 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath("/admin/pedidos");
 }
 
-export async function updateStoreSettings(formData: FormData) {
-  const storeId = await getAdminStoreId();
-  await saveStoreSettingsFromForm(storeId, formData);
-}
-
 export async function createProduct(formData: FormData) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
   const name = formData.get("name") as string;
   const slug = slugify(name);
 
@@ -84,7 +74,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
 
   const existing = await db.product.findFirst({
     where: { id: productId, storeId },
@@ -119,7 +109,7 @@ async function assertProductOwnership(productId: string, storeId: string) {
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
   await assertProductOwnership(productId, storeId);
 
   const name = formData.get("name") as string;
@@ -152,7 +142,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 }
 
 export async function upsertProductColor(productId: string, formData: FormData) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
   const color = (formData.get("color") as string)?.trim();
@@ -243,7 +233,7 @@ export async function upsertProductColor(productId: string, formData: FormData) 
 }
 
 export async function deleteProductColor(productId: string, color: string) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
   const trimmedColor = color.trim();
@@ -295,7 +285,7 @@ export async function deleteProductColor(productId: string, color: string) {
 }
 
 export async function createVariant(productId: string, formData: FormData) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
   const size = formData.get("size") as string;
@@ -336,7 +326,7 @@ export async function createVariant(productId: string, formData: FormData) {
 }
 
 export async function updateVariant(variantId: string, formData: FormData) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
 
   const variant = await db.productVariant.findFirst({
     where: { id: variantId, product: { storeId } },
@@ -387,7 +377,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
 }
 
 export async function deleteVariant(variantId: string) {
-  const storeId = await getAdminStoreId();
+  const storeId = await requireAdminStoreId("products:manage");
 
   const variant = await db.productVariant.findFirst({
     where: { id: variantId, product: { storeId } },

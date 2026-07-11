@@ -4,13 +4,17 @@ import { cn } from "@/lib/utils";
 
 type AdminAnalyticsFunnelProps = {
   metrics: AnalyticsPeriodMetrics;
+  className?: string;
 };
 
 function formatRate(value: number): string {
   return `${Math.round(value * 10) / 10}%`;
 }
 
-export function AdminAnalyticsFunnel({ metrics }: AdminAnalyticsFunnelProps) {
+export function AdminAnalyticsFunnel({
+  metrics,
+  className,
+}: AdminAnalyticsFunnelProps) {
   const created = metrics.orders;
   const paid = metrics.paidOrders;
   const cancelled = metrics.cancelledOrders;
@@ -42,6 +46,7 @@ export function AdminAnalyticsFunnel({ metrics }: AdminAnalyticsFunnelProps) {
     <AdminCard
       title="Embudo de pedidos"
       description="Del pedido creado al cobro efectivo en el período actual."
+      className={className}
     >
       <div className="space-y-4">
         {steps.map((step) => {

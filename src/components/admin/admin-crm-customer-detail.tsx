@@ -19,6 +19,7 @@ import { formatPrice } from "@/lib/utils";
 
 type AdminCrmCustomerDetailProps = {
   customer: CrmCustomerDetail;
+  readOnly?: boolean;
 };
 
 function formatDate(value: string | null) {
@@ -29,7 +30,10 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-export function AdminCrmCustomerDetail({ customer }: AdminCrmCustomerDetailProps) {
+export function AdminCrmCustomerDetail({
+  customer,
+  readOnly = false,
+}: AdminCrmCustomerDetailProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -79,6 +83,7 @@ export function AdminCrmCustomerDetail({ customer }: AdminCrmCustomerDetailProps
       <AdminCrmCustomerProfileForm
         email={customer.email}
         profile={customer.profile}
+        readOnly={readOnly}
       />
 
       <AdminCard

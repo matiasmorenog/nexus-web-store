@@ -1,7 +1,10 @@
 import { AdminApiSettingsPanel } from "@/components/admin/admin-api-settings-panel";
+import { AdminAfipSettingsPanel } from "@/components/admin/admin-afip-settings-panel";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
+
+import { getStoreAfipSettingsForAdmin } from "@/lib/afip/settings";
 import { requireModule } from "@/lib/modules";
 import {
   getStoreWebhookSettingsForAdmin,
@@ -12,13 +15,14 @@ import { getStoreId } from "@/lib/store-context";
 export const dynamic = "force-dynamic";
 
 export default async function AdminApiPage() {
-  await requireAdminSession();
+  await requireAdminModuleView("api");
   await requireModule("api");
 
   const storeId = await getStoreId();
-  const [apiKeys, webhookSettings] = await Promise.all([
+  const [apiKeys, webhookSettings, afipSettings] = await Promise.all([
     listStoreApiKeys(storeId),
     getStoreWebhookSettingsForAdmin(storeId),
+    getStoreAfipSettingsForAdmin(storeId),
   ]);
 
   return (
@@ -35,6 +39,10 @@ export default async function AdminApiPage() {
           apiKeys={apiKeys}
           webhookSettings={webhookSettings}
         />
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal index={2}>
+        <AdminAfipSettingsPanel settings={afipSettings} />
       </AdminDashboardReveal>
     </div>
   );

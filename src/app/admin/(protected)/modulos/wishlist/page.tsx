@@ -1,14 +1,15 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminWishlistInsights } from "@/components/admin/admin-wishlist-insights";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
+
 import { requireModule } from "@/lib/modules";
 import { getWishlistAdminInsights } from "@/lib/wishlist/query";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminWishlistPage() {
-  const session = await requireAdminSession();
+  const session = await requireAdminModuleView("wishlist");
   await requireModule("wishlist");
 
   const insights = await getWishlistAdminInsights(session.user.storeId);

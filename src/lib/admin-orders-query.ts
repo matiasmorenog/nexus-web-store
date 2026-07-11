@@ -180,6 +180,8 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     status: order.status,
     mpPaymentId: order.mpPaymentId,
     mpPreferenceId: order.mpPreferenceId,
+    paymentMethod: order.paymentMethod,
+    transferDiscount: order.transferDiscount,
   });
 
   const shipping = getOrderShippingInfo({
@@ -200,6 +202,12 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
+    customerTaxId: order.customerTaxId,
+    invoiceStatus: order.invoiceStatus,
+    invoiceNumber: order.invoiceNumber,
+    invoiceCae: order.invoiceCae,
+    invoicedAt: order.invoicedAt,
+    invoiceError: order.invoiceError,
     isPickup: order.isPickup,
     shippingAddress: order.shippingAddress,
     shippingCity: order.shippingCity,

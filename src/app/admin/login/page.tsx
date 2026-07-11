@@ -9,6 +9,7 @@ import {
   SEED_ADMIN_EMAIL,
   SEED_ADMIN_PASSWORD,
 } from "@/lib/demo-admin-credentials";
+import { isGoogleAuthEnabled } from "@/lib/auth-session";
 
 async function getLoginDefaultEmail(storeId: string) {
   const fromDb = await getMerchantEmailOptional(storeId);
@@ -21,7 +22,12 @@ async function getLoginDefaultEmail(storeId: string) {
   return "";
 }
 
-export default async function AdminLoginPage() {
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reset?: string; error?: string }>;
+}) {
+  const { reset, error } = await searchParams;
   const session = await auth();
 
   if (session?.user?.role === "CUSTOMER") {
@@ -36,6 +42,12 @@ export default async function AdminLoginPage() {
   const displayName = formatStoreName(store.name);
   const ownerEmail = await getLoginDefaultEmail(store.id);
   const brandPrefix = getBrandPrefix(store.name);
+  const loginError =
+    error === "google_not_admin"
+      ? "Google solo funciona con cuentas de administración ya registradas."
+      : error === "OAuthAccountNotLinked"
+        ? "No se pudo vincular tu cuenta de Google."
+        : null;
 
   return (
     <div className="flex min-h-screen">
@@ -69,9 +81,20 @@ export default async function AdminLoginPage() {
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 Iniciar sesión
               </h2>
+              {reset === "1" ? (
+                <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
+                  Contraseña actualizada. Podés ingresar con tu nueva contraseña.
+                </p>
+              ) : null}
+              {loginError ? (
+                <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {loginError}
+                </p>
+              ) : null}
               <LoginForm
                 defaultEmail={ownerEmail}
                 defaultPassword={SEED_ADMIN_PASSWORD}
+                googleAuthEnabled={isGoogleAuthEnabled()}
               />
             </div>
 

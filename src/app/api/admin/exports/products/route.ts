@@ -14,7 +14,7 @@ export async function GET() {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    await assertModule("exports");
+    await assertModule("analytics");
 
     const storeId = await getStoreId();
 

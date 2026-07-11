@@ -6,6 +6,7 @@ type CartPromoSummaryProps = {
   rawSubtotal: number;
   promoDiscount: number;
   subtotal: number;
+  transferDiscount?: number;
   couponCode?: string;
   couponDiscount?: number;
   totalAfterDiscounts?: number;
@@ -16,16 +17,19 @@ export function CartPromoSummary({
   rawSubtotal,
   promoDiscount,
   subtotal,
+  transferDiscount = 0,
   couponCode,
   couponDiscount = 0,
   totalAfterDiscounts,
   compact = false,
 }: CartPromoSummaryProps) {
-  const finalSubtotal = totalAfterDiscounts ?? subtotal - couponDiscount;
+  const finalSubtotal =
+    totalAfterDiscounts ?? Math.max(0, subtotal - transferDiscount - couponDiscount);
   const hasPromo = promoDiscount > 0;
+  const hasTransfer = transferDiscount > 0;
   const hasCoupon = couponDiscount > 0;
 
-  if (!hasPromo && !hasCoupon) {
+  if (!hasPromo && !hasTransfer && !hasCoupon) {
     return (
       <div
         className={
@@ -72,6 +76,18 @@ export function CartPromoSummary({
         >
           <span>Promo 2x1</span>
           <span>-{formatPrice(promoDiscount)}</span>
+        </div>
+      ) : null}
+      {hasTransfer ? (
+        <div
+          className={
+            compact
+              ? "flex justify-between text-sm text-[var(--brand-primary)]"
+              : "flex justify-between text-[var(--brand-primary)]"
+          }
+        >
+          <span>Transferencia (10% off)</span>
+          <span>-{formatPrice(transferDiscount)}</span>
         </div>
       ) : null}
       {hasCoupon ? (

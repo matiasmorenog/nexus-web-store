@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 import {
   getStorePaymentSettingsForAdmin,
   saveStorePaymentSettings,
-} from "@/lib/payments";
-import type { StorePaymentSettingsSaveInput } from "@/lib/payments";
+} from "@/lib/payments/server";
+import type { StorePaymentSettingsSaveInput } from "@/lib/payments/types";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireAdminStore() {

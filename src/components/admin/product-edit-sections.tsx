@@ -21,17 +21,20 @@ type ProductEditSectionsProps = {
     promo2x1: boolean;
   };
   promo2x1Selectable?: boolean;
+  canManage?: boolean;
 };
 
 export function ProductEditSections({
   product,
   promo2x1Selectable = false,
+  canManage = true,
 }: ProductEditSectionsProps) {
   const [activeSection, setActiveSection] =
     useState<ProductEditSection | null>("product");
   const [colorBusy, setColorBusy] = useState(false);
   const [variantBusy, setVariantBusy] = useState(false);
   const sectionBusy = colorBusy || variantBusy;
+  const sectionLocked = sectionBusy || !canManage;
   const [blockedHint, setBlockedHint] = useState(0);
   const [prevSectionBusy, setPrevSectionBusy] = useState(sectionBusy);
 
@@ -119,8 +122,8 @@ export function ProductEditSections({
         product={product}
         open={activeSection === "product"}
         onToggle={() => handleSectionToggle("product")}
-        disabled={sectionBusy}
-        onBlockedToggle={sectionBusy ? signalBlockedEdit : undefined}
+        disabled={sectionLocked}
+        onBlockedToggle={sectionLocked ? signalBlockedEdit : undefined}
         promo2x1Selectable={promo2x1Selectable}
       />
 
@@ -134,9 +137,9 @@ export function ProductEditSections({
         open={activeSection === "colors"}
         onToggle={() => handleSectionToggle("colors")}
         onOpen={() => openSection("colors")}
-        disabled={sectionBusy}
+        disabled={sectionLocked}
         onBusyChange={setColorBusy}
-        onBlockedToggle={sectionBusy ? signalBlockedEdit : undefined}
+        onBlockedToggle={sectionLocked ? signalBlockedEdit : undefined}
         blockedHint={colorBusy ? blockedHint : 0}
       />
 
@@ -150,9 +153,9 @@ export function ProductEditSections({
         open={activeSection === "variants"}
         onToggle={() => handleSectionToggle("variants")}
         onOpen={() => openSection("variants")}
-        accordionLocked={sectionBusy}
+        accordionLocked={sectionLocked}
         onBusyChange={setVariantBusy}
-        onBlockedToggle={sectionBusy ? signalBlockedEdit : undefined}
+        onBlockedToggle={sectionLocked ? signalBlockedEdit : undefined}
         blockedHint={variantBusy ? blockedHint : 0}
       />
     </div>

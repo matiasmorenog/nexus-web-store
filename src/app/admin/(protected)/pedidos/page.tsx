@@ -4,7 +4,10 @@ import { AdminOrdersUrlDefaults } from "@/components/admin/admin-orders-url-defa
 import { AdminSkeletonOrdersPage } from "@/components/admin/admin-skeleton";
 import { getActiveAdminOrderFilterChips } from "@/lib/admin-order-filters";
 import { resolveAdminOrdersFilters } from "@/lib/admin-orders-query";
-import { requireAdminSession } from "@/lib/admin-session";
+import {
+  adminCanManage,
+  requireAdminPermission,
+} from "@/lib/admin-session";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +24,9 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminPermission("orders:view");
   const storeId = session.user.storeId;
+  const canManageOrders = adminCanManage(session, "orders:manage");
 
   const params = await searchParams;
   const filters = resolveAdminOrdersFilters(params);
@@ -47,6 +51,7 @@ export default async function AdminOrdersPage({
           filters={filters}
           params={params}
           filterChips={filterChips}
+          canManageOrders={canManageOrders}
         />
       </Suspense>
     </div>

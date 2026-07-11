@@ -156,79 +156,23 @@ Guía completa en [`DEPLOY.md`](DEPLOY.md): Neon pooler, env vars en Vercel, `db
 
 ## Roadmap
 
-Estado del producto. Marcá `[x]` al implementar cada ítem.
+**Fuente de verdad:** [Linear — proyecto nexus-store](https://linear.app/nexus-development/project/nexus-store-f605d6fc70b0)
 
-<details>
-<summary><strong>Storefront</strong></summary>
+| Recurso | Link |
+|---------|------|
+| Proyecto | [nexus-store](https://linear.app/nexus-development/project/nexus-store-f605d6fc70b0) |
+| Documento roadmap | [Roadmap — Nexus Web Store](https://linear.app/nexus-development/document/roadmap-nexus-web-store-d97cb2b6d115) |
+| Backlog activo | Issues abiertas en el proyecto (NEX-6 … NEX-11) |
 
-- [x] Home, catálogo, filtros URL, PDP variantes
-- [x] Carrito Zustand + drawer
-- [x] Checkout y páginas post-pago
-- [x] Búsqueda por texto
-- [x] Retiro en local
-- [x] Páginas legales, FAQ, contacto
-- [x] Cuenta cliente + mis pedidos
-- [x] Cupones (módulo Plus — admin + checkout)
-- [x] Home editable (módulo Plus — bloques por tienda)
-- [x] Export CSV (módulo Plus — pedidos y productos)
-- [x] CRM lite (módulo Plus — clientes, tags y notas)
-- [x] SEO avanzado (módulo Plus — sitemap, meta, JSON-LD)
-- [x] Wishlist (módulo Plus — favoritos en storefront y cuenta)
-- [x] Analytics avanzado (módulo Plus — comparación, embudo, clientes fieles, categorías, export CSV)
-- [x] WhatsApp y Meta Pixel (módulo Plus)
-- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
-- [x] Temas premium (módulo Plus — paletas app2 + toggle visitante)
+### Fases (resumen)
 
-</details>
+| Fase | Objetivo | Estado |
+|------|----------|--------|
+| **A** | Un negocio real (1 tienda) | Casi completa — pendiente MP prod/AFIP |
+| **B** | Tienda Nube lite | Mayoría hecha — pendiente categorías dinámicas |
+| **C** | SaaS multi-tienda | Onboarding + billing |
 
-<details>
-<summary><strong>Pagos y pedidos</strong></summary>
-
-- [x] Mercado Pago + webhook + descuento de stock
-- [x] Emails transaccionales (Resend)
-- [ ] MP producción, AFIP
-
-</details>
-
-<details>
-<summary><strong>Admin</strong></summary>
-
-- [x] Dashboard con gráficos y períodos
-- [x] CRUD productos, variantes, imágenes
-- [x] Pedidos con filtros y estados
-- [x] Configuración de tienda
-- [x] Home editable (módulo Plus — bloques por tienda)
-- [x] Export CSV (módulo Plus)
-- [x] CRM lite (módulo Plus)
-- [x] SEO avanzado (módulo Plus)
-- [x] Wishlist (módulo Plus)
-- [x] Analytics avanzado (módulo Plus)
-- [x] WhatsApp y Meta Pixel (módulo Plus)
-- [x] Envíos carrier (módulo Plus — cotización por CP y seguimiento)
-- [x] Temas premium (módulo Plus)
-- [x] Multi-usuario (módulo Plus)
-- [x] API y webhooks (módulo Plus)
-
-</details>
-
-- [x] Multi-tenant schema, seed demo, deploy Vercel + Neon
-- [x] Dos tiendas en producción (app1 + app2, 2 proyectos Vercel, 1 Neon) — ver [`docs/multi-store.md`](docs/multi-store.md)
-- [x] Catálogo de módulos admin + plan base / Plus — ver [`docs/modules-pricing.md`](docs/modules-pricing.md)
-- [x] GitHub Actions CI (lint + typecheck en PRs) — ver [`docs/ci.md`](docs/ci.md)
-- [ ] CI Fase 1.5: corregir lint preexistente + branch protection en `development`
-- [ ] CI Fase 2 (opcional, futuro): `build` en GitHub Actions — cuando la app esté en producción activa; hoy Vercel builda en preview/deploy
-- [ ] Separar Vercel Blob por tienda antes de salir a producción
-- [ ] Onboarding, billing automático
-
-</details>
-
-### Fases
-
-| Fase | Objetivo |
-|------|----------|
-| **A** | Un negocio real (1 tienda) — casi completa |
-| **B** | Competir con Tienda Nube lite (cupones, banners, carriers) |
-| **C** | SaaS multi-tienda (onboarding, billing, temas) |
+Al cerrar una tarea: marcar la issue en **Linear** como Done (no editar listas aquí).
 
 Reglas de desarrollo para agentes: `.cursor/rules/`
 

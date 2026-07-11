@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminForm, AdminFormGrid, adminSelectClass } from "@/components/admin/admin-form";
+import { AdminForm, AdminFormGrid, AdminSelect } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -48,10 +48,18 @@ export function AdminExportsPanel({
   const ordersUrl = buildOrdersExportUrl({ desde, hasta, estado, q, todos });
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <section className="space-y-6 border-t border-neutral-200 pt-8">
+      <div>
+        <h2 className="text-lg font-semibold text-neutral-900">Exportar datos</h2>
+        <p className="mt-1 max-w-2xl text-sm text-neutral-500">
+          CSV de pedidos y catálogo para contabilidad o análisis externo.
+        </p>
+      </div>
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
       <AdminCard
         title="Exportar pedidos"
         description="CSV con resumen de pedidos. Compatible con Excel (UTF-8)."
+        className="h-full"
       >
         <AdminForm
           onSubmit={(event) => {
@@ -90,9 +98,8 @@ export function AdminExportsPanel({
             </div>
             <div>
               <Label htmlFor="export-estado">Estado</Label>
-              <select
+              <AdminSelect
                 id="export-estado"
-                className={adminSelectClass}
                 value={estado}
                 onChange={(event) => setEstado(event.target.value)}
               >
@@ -102,7 +109,7 @@ export function AdminExportsPanel({
                     {getOrderStatusLabel(status)}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </div>
             <div>
               <Label htmlFor="export-q">Buscar cliente / ID</Label>
@@ -125,20 +132,26 @@ export function AdminExportsPanel({
       <AdminCard
         title="Exportar productos"
         description="CSV con una fila por variante (SKU, precio, stock)."
+        className="flex h-full flex-col"
       >
-        <p className="mb-4 text-sm text-neutral-600">
-          Incluye todo el catálogo de la tienda activa, ordenado por fecha de alta.
-        </p>
-        {/* File download — <a> is intentional (not a Next.js page route). */}
-        <a
-          href="/api/admin/exports/products"
-          download
-          className="inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] bg-[var(--brand-primary)] px-4 text-sm font-[var(--ui-button-font-weight,500)] text-[var(--ui-button-primary-foreground,white)] shadow-[var(--ui-button-primary-shadow,none)] transition-colors hover:brightness-95 active:brightness-90"
-        >
-          <Download className="mr-2 h-4 w-4" />
-          Descargar productos.csv
-        </a>
+        <div className="flex flex-1 flex-col">
+          <p className="text-sm text-neutral-600">
+            Incluye todo el catálogo de la tienda activa, ordenado por fecha de alta.
+          </p>
+          <div className="mt-auto pt-4">
+            {/* File download — <a> is intentional (not a Next.js page route). */}
+            <a
+              href="/api/admin/exports/products"
+              download
+              className="inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] bg-[var(--brand-primary)] px-4 text-sm font-[var(--ui-button-font-weight,500)] text-[var(--ui-button-primary-foreground,white)] shadow-[var(--ui-button-primary-shadow,none)] transition-colors hover:brightness-95 active:brightness-90"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Descargar productos.csv
+            </a>
+          </div>
+        </div>
       </AdminCard>
-    </div>
+      </div>
+    </section>
   );
 }

@@ -56,3 +56,9 @@ export async function getMercadoPagoTokenSource(
 
   return "none";
 }
+
+export function isMercadoPagoAdminConfigured(
+  source: MercadoPagoTokenSource,
+): boolean {
+  return source === "admin";
+}

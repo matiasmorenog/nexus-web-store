@@ -316,14 +316,14 @@ export function Header({
                 variant="ghost"
                 size="md"
                 aria-label="Abrir carrito"
-                className="relative h-10 w-10 px-0"
+                className="relative h-10 px-3"
                 onClick={() => setCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
                 {cartReady && totalItems > 0 && (
                   <span
                     className={cn(
-                      "absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-[var(--ui-button-primary-foreground,#08080e)]",
+                      "absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-[var(--ui-button-primary-foreground,white)]",
                       badgePulse && "cart-badge-pop",
                     )}
                   >
@@ -336,15 +336,14 @@ export function Header({
                 type="button"
                 variant="secondary"
                 aria-label="Abrir carrito"
-                className="relative gap-2 px-2.5 sm:px-3"
+                className="relative px-3"
                 onClick={() => setCartOpen(true)}
               >
                 <ShoppingBag className="h-5 w-5" />
-                <span className="hidden sm:inline">Carrito</span>
                 {cartReady && totalItems > 0 && (
                   <span
                     className={cn(
-                      "absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-[var(--ui-button-primary-foreground,#08080e)]",
+                      "absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--brand-primary)] px-1 text-[10px] font-bold text-[var(--ui-button-primary-foreground,white)]",
                       badgePulse && "cart-badge-pop",
                     )}
                   >

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { db } from "@/lib/db";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
-import { resolveMercadoPagoAccessToken } from "@/lib/payments";
+import { resolveMercadoPagoAccessToken } from "@/lib/payments/server";
 import { getStoreId } from "@/lib/store-context";
 
 export async function POST(request: NextRequest) {

@@ -4,7 +4,16 @@ export const BASE_PLAN = {
   name: "Plan Base",
   monthlyPriceUsd: 100,
   description:
-    "Dashboard, productos, pedidos, configuración, checkout y emails transaccionales.",
+    "Dashboard, productos, pedidos, cobros, configuración, checkout y emails transaccionales.",
+  features: [
+    "Dashboard y KPIs",
+    "Catálogo y gestión de productos",
+    "Gestión de pedidos",
+    "Cobros (Mercado Pago y transferencia)",
+    "Configuración de la tienda",
+    "Checkout para tus clientes",
+    "Emails transaccionales",
+  ],
 } as const;
 
 const MODULE_LIST = [
@@ -30,12 +39,12 @@ const MODULE_LIST = [
   },
   {
     id: "analytics",
-    name: "Analytics avanzado",
+    name: "Analytics y reportes",
     description:
-      "Comparación de períodos, embudo de pedidos, clientes más fieles, top categorías/productos y export CSV del reporte.",
+      "Comparación de períodos, embudo, clientes fieles, tops y export CSV (reporte, pedidos y catálogo).",
     monthlyPriceUsd: 30,
     category: "operations",
-    adminRoutes: ["/admin/analytics"],
+    adminRoutes: ["/admin/modulos/analytics"],
   },
   {
     id: "crm",
@@ -51,7 +60,7 @@ const MODULE_LIST = [
     name: "Envíos carrier",
     description:
       "Cotización y etiquetas con operadores logísticos (Andreani, OCA, etc.).",
-    monthlyPriceUsd: 40,
+    monthlyPriceUsd: 20,
     category: "operations",
     adminRoutes: ["/admin/envios"],
     storefrontSurfaces: ["checkout"],
@@ -61,7 +70,7 @@ const MODULE_LIST = [
     name: "WhatsApp y Meta Pixel",
     description:
       "Botón de WhatsApp, pixel de conversión y eventos de checkout.",
-    monthlyPriceUsd: 20,
+    monthlyPriceUsd: 15,
     category: "marketing",
     adminRoutes: ["/admin/marketing"],
     storefrontSurfaces: ["layout"],
@@ -70,8 +79,8 @@ const MODULE_LIST = [
     id: "multiUser",
     name: "Multi-usuario",
     description:
-      "Usuarios adicionales con roles (vendedor, depósito, solo lectura).",
-    monthlyPriceUsd: 18,
+      "Usuarios adicionales con roles (administrador, vendedor, depósito, solo lectura).",
+    monthlyPriceUsd: 20,
     category: "operations",
     adminRoutes: ["/admin/usuarios"],
   },
@@ -98,23 +107,15 @@ const MODULE_LIST = [
     name: "SEO avanzado",
     description:
       "Sitemap dinámico, meta por página y structured data para buscadores.",
-    monthlyPriceUsd: 15,
+    monthlyPriceUsd: 10,
     category: "marketing",
     adminRoutes: ["/admin/seo"],
     storefrontSurfaces: ["layout"],
   },
   {
-    id: "exports",
-    name: "Export y reportes",
-    description: "Export CSV de pedidos y productos, reportes para contabilidad.",
-    monthlyPriceUsd: 12,
-    category: "operations",
-    adminRoutes: ["/admin/exportaciones"],
-  },
-  {
     id: "wishlist",
     name: "Wishlist",
-    description: "Lista de deseos en storefront y cuenta del cliente.",
+    description: "Lista de deseos en la tienda y cuenta del cliente.",
     monthlyPriceUsd: 10,
     category: "storefront",
     adminRoutes: ["/admin/wishlist"],

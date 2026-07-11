@@ -16,6 +16,7 @@ import type { StorePaymentSettingsAdminData } from "@/lib/payments";
 
 type AdminPaymentSettingsFormProps = {
   initialSettings: StorePaymentSettingsAdminData;
+  readOnly?: boolean;
 };
 
 const SOURCE_LABELS: Record<StorePaymentSettingsAdminData["mercadopagoSource"], string> = {
@@ -26,6 +27,7 @@ const SOURCE_LABELS: Record<StorePaymentSettingsAdminData["mercadopagoSource"], 
 
 export function AdminPaymentSettingsForm({
   initialSettings,
+  readOnly = false,
 }: AdminPaymentSettingsFormProps) {
   const router = useRouter();
   const [settings, setSettings] = useState(initialSettings);
@@ -119,6 +121,7 @@ export function AdminPaymentSettingsForm({
             value={accessToken}
             onChange={(event) => setAccessToken(event.target.value)}
             className="text-base sm:text-sm"
+            disabled={readOnly}
           />
           <p className="mt-1.5 text-xs text-neutral-500">
             Obtenelo en Mercado Pago → Tus integraciones → Credenciales de
@@ -131,6 +134,7 @@ export function AdminPaymentSettingsForm({
             <Switch
               checked={clearToken}
               onChange={(event) => setClearToken(event.target.checked)}
+              disabled={readOnly}
             />
             Quitar token guardado en admin
           </label>
@@ -143,11 +147,15 @@ export function AdminPaymentSettingsForm({
           </AdminFormAlert>
         ) : null}
 
-        <AdminFormActions>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar pagos"}
-          </Button>
-        </AdminFormActions>
+        {readOnly ? (
+          <p className="text-sm text-neutral-500">Solo lectura.</p>
+        ) : (
+          <AdminFormActions>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Guardando..." : "Guardar pagos"}
+            </Button>
+          </AdminFormActions>
+        )}
       </AdminForm>
     </AdminCard>
   );

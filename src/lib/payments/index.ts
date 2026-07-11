@@ -1,11 +1,12 @@
 export type {
+  CheckoutPaymentConfig,
+  CheckoutPaymentMethodOption,
   MercadoPagoTokenSource,
   StorePaymentSettingsAdminData,
   StorePaymentSettingsSaveInput,
 } from "@/lib/payments/types";
 export {
-  getStorePaymentSettingsForAdmin,
-  hasMercadoPagoConfigured,
-  saveStorePaymentSettings,
-} from "@/lib/payments/admin-persist";
-export { resolveMercadoPagoAccessToken } from "@/lib/payments/resolve-token";
+  calculateTransferPaymentDiscount,
+  transferPaymentDiscountLabel,
+  TRANSFER_PAYMENT_DISCOUNT_RATE,
+} from "@/lib/payments/transfer";

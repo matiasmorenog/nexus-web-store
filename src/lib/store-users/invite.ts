@@ -1,9 +1,22 @@
 import bcrypt from "bcryptjs";
-import type { InviteStoreStaffInput } from "@/lib/store-users/types";
+import type { StoreStaffRole } from "@prisma/client";
+import type {
+  InviteStoreStaffInput,
+  UpdateStoreStaffRoleInput,
+} from "@/lib/store-users/types";
+import { isStoreStaffRole } from "@/lib/store-users/permissions";
 import { db } from "@/lib/db";
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
+}
+
+function parseStaffRole(staffRole: StoreStaffRole): StoreStaffRole {
+  if (!isStoreStaffRole(staffRole)) {
+    throw new Error("Seleccioná un rol válido.");
+  }
+
+  return staffRole;
 }
 
 export async function inviteStoreStaffMember(
@@ -13,6 +26,7 @@ export async function inviteStoreStaffMember(
   const email = normalizeEmail(input.email);
   const name = input.name.trim();
   const password = input.password;
+  const staffRole = parseStaffRole(input.staffRole);
 
   if (!email || !email.includes("@")) {
     throw new Error("Ingresá un email válido.");
@@ -55,6 +69,7 @@ export async function inviteStoreStaffMember(
       data: {
         userId: existing.id,
         storeId,
+        staffRole,
       },
     });
 
@@ -70,12 +85,38 @@ export async function inviteStoreStaffMember(
       passwordHash,
       role: "STORE_STAFF",
       stores: {
-        create: { storeId },
+        create: { storeId, staffRole },
       },
     },
   });
 
   return { userId: user.id };
+}
+
+export async function updateStoreStaffRole(
+  storeId: string,
+  userId: string,
+  input: UpdateStoreStaffRoleInput,
+): Promise<void> {
+  const staffRole = parseStaffRole(input.staffRole);
+
+  const membership = await db.userStore.findFirst({
+    where: { storeId, userId },
+    include: { user: { select: { role: true } } },
+  });
+
+  if (!membership) {
+    throw new Error("Usuario no encontrado en esta tienda.");
+  }
+
+  if (membership.user.role !== "STORE_STAFF") {
+    throw new Error("Solo podés cambiar el rol de usuarios staff.");
+  }
+
+  await db.userStore.update({
+    where: { id: membership.id },
+    data: { staffRole },
+  });
 }
 
 export async function removeStoreStaffMember(

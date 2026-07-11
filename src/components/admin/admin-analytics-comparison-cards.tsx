@@ -36,7 +36,7 @@ function MetricCard({
   change: number | null;
 }) {
   return (
-    <AdminCard title={label}>
+    <AdminCard title={label} className="h-full">
       <p className="text-3xl font-bold tracking-tight text-neutral-900">{value}</p>
       <div className="mt-2">
         <ChangeBadge value={change} />
@@ -51,7 +51,7 @@ export function AdminAnalyticsComparisonCards({
   const { current } = comparison;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard
         label="Ingresos"
         value={formatPrice(current.revenue)}

@@ -46,6 +46,13 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 
 Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 
+**Google OAuth (login cliente + admin):** `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` (mismas credenciales en app1 y app2 si compartís login). Sin estas vars el botón «Continuar con Google» no aparece. En [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client ID → **Authorized redirect URIs** (una por deploy):
+
+- App1: `https://nexus-web-store.vercel.app/api/auth/callback/google` (local: `http://localhost:3000/api/auth/callback/google`)
+- App2: `https://nexus-vape-store.vercel.app/api/auth/callback/google` (local app2: `http://localhost:3001/api/auth/callback/google`)
+
+Admin con Google **solo** entra si el email ya existe con rol admin (`STORE_OWNER`, `STORE_STAFF`, `PLATFORM_ADMIN`); no crea admins nuevos. Cliente con Google crea cuenta `CUSTOMER` si el email es nuevo, o vincula OAuth a cuenta existente (también si tenía contraseña).
+
 No uses: `DATABASE_URL_UNPOOLED`, `BLOB_STORE_ID`, `BLOB_WEBHOOK_PUBLIC_KEY`, vars de email en env (salen de DB).
 
 Detalle de slugs y valores: `.env.example` → **TIENDA ACTIVA**.

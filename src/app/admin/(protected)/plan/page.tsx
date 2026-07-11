@@ -4,7 +4,7 @@ import {
   AdminPlanOverview,
   parseHighlightedModule,
 } from "@/components/admin/admin-plan-overview";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminPermission } from "@/lib/admin-session";
 import { getEnabledModuleIds } from "@/lib/modules";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ type AdminPlanPageProps = {
 };
 
 export default async function AdminPlanPage({ searchParams }: AdminPlanPageProps) {
-  await requireAdminSession();
+  await requireAdminPermission("plan:view");
   const enabledModuleIds = await getEnabledModuleIds();
   const { module: moduleParam } = await searchParams;
   const highlightedModuleId = parseHighlightedModule(moduleParam);

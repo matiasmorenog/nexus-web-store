@@ -10,6 +10,10 @@ import {
   DEFAULT_STORE_SLUG,
   APP2_STORE_SLUG,
   SEED_STORES,
+  SEED_CUSTOMER_EMAIL,
+  SEED_CUSTOMER_NAME,
+  SEED_CUSTOMER_PASSWORD,
+  OBSOLETE_SEED_CUSTOMER_EMAILS,
   type SeedStoreConfig,
 } from "./seed-env";
 
@@ -104,6 +108,44 @@ export async function wipeStore(profile: StoreProfile): Promise<boolean> {
   return wipeStoreBySlug(STORE_SLUG_BY_PROFILE[profile]);
 }
 
+const DEMO_TRANSFER_INSTRUCTIONS = `Titular: Demo Store
+Banco: Banco Demo
+CBU: 0000000000000000000000
+Alias: demo.store.mp`;
+
+async function seedDemoPaymentSettings(storeId: string) {
+  await prisma.storePaymentSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      transferEnabled: true,
+      transferInstructions: DEMO_TRANSFER_INSTRUCTIONS,
+    },
+    update: {
+      transferEnabled: true,
+      transferInstructions: DEMO_TRANSFER_INSTRUCTIONS,
+    },
+  });
+}
+
+async function seedDemoShippingSettings(storeId: string) {
+  await prisma.storeShippingSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      carriersEnabled: true,
+      preferredCarrierId: "mercado_envios",
+      originZip: "1425",
+      defaultWeightGrams: 500,
+    },
+    update: {
+      carriersEnabled: true,
+      originZip: "1425",
+      defaultWeightGrams: 500,
+    },
+  });
+}
+
 async function createStoreWithAdmin(config: SeedStoreConfig) {
   const store = await prisma.store.create({
     data: {
@@ -111,7 +153,6 @@ async function createStoreWithAdmin(config: SeedStoreConfig) {
       slug: config.slug,
       primaryColor: config.primaryColor,
       secondaryColor: "#ffffff",
-      shippingFlatRate: config.shippingFlatRate,
       allowPickup: true,
     },
   });
@@ -211,6 +252,8 @@ export async function seedApp1Store(options: SeedStoreOptions = {}) {
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
   const productCount = await seedApp1Products(store.id);
+  await seedDemoPaymentSettings(store.id);
+  await seedDemoShippingSettings(store.id);
 
   return { store, admin, config, productCount };
 }
@@ -230,9 +273,34 @@ export async function seedApp2Store(options: SeedStoreOptions = {}) {
   return { store, admin, config, productCount };
 }
 
+/** Cuenta cliente demo compartida (pedidos demo por email). */
+export async function ensureSeedCustomerUser() {
+  await prisma.user.deleteMany({
+    where: { email: { in: [...OBSOLETE_SEED_CUSTOMER_EMAILS] } },
+  });
+
+  const passwordHash = await bcrypt.hash(SEED_CUSTOMER_PASSWORD, 12);
+
+  return prisma.user.upsert({
+    where: { email: SEED_CUSTOMER_EMAIL },
+    update: {
+      passwordHash,
+      name: SEED_CUSTOMER_NAME,
+      role: UserRole.CUSTOMER,
+    },
+    create: {
+      email: SEED_CUSTOMER_EMAIL,
+      passwordHash,
+      name: SEED_CUSTOMER_NAME,
+      role: UserRole.CUSTOMER,
+    },
+  });
+}
+
 export async function seedAllStores(options: SeedStoreOptions = {}) {
   const app1 = await seedApp1Store(options);
   const app2 = await seedApp2Store(options);
+  await ensureSeedCustomerUser();
   return { app1, app2 };
 }
 

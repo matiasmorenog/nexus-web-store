@@ -57,15 +57,17 @@ function AdminSkeletonCardShell({
   titleWidth = "w-24",
   descriptionWidth,
   padding = true,
+  className,
   children,
 }: {
   titleWidth?: string;
   descriptionWidth?: string;
   padding?: boolean;
+  className?: string;
   children?: ReactNode;
 }) {
   return (
-    <div className={adminCardClass}>
+    <div className={cn(adminCardClass, className)}>
       <div className={adminCardHeaderClass}>
         <AdminSkeleton className={cn("h-4", titleWidth)} />
         {descriptionWidth ? (
@@ -79,7 +81,7 @@ function AdminSkeletonCardShell({
   );
 }
 
-function AdminSkeletonPageHeader({
+export function AdminSkeletonPageHeader({
   titleWidth = "w-36",
   descriptionWidth = "w-64",
 }: {
@@ -139,6 +141,164 @@ function AdminSkeletonTopProducts() {
         </div>
       ))}
     </div>
+  );
+}
+
+function AdminSkeletonRankedList({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: rows }, (_, index) => (
+        <div key={index} className="flex items-start justify-between gap-3 py-0.5">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <AdminSkeleton className="h-4 w-full max-w-48" />
+            <AdminSkeleton className="h-3 w-36 max-w-full" />
+          </div>
+          <AdminSkeleton className="h-4 w-14 shrink-0" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminSkeletonComparisonMetricCard() {
+  return (
+    <div className={cn(adminCardClass, "h-full")}>
+      <div className={adminCardHeaderClass}>
+        <AdminSkeleton className="h-4 w-24" />
+      </div>
+      <div className="p-4 sm:p-6">
+        <AdminSkeleton className="h-9 w-28" />
+        <AdminSkeleton className="mt-2 h-3 w-36" />
+      </div>
+    </div>
+  );
+}
+
+function AdminSkeletonFunnelBars() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }, (_, index) => (
+        <div key={index} className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <AdminSkeleton className="h-4 w-28" />
+            <AdminSkeleton className="h-4 w-8" />
+          </div>
+          <AdminSkeleton className="h-2.5 w-full rounded-full" />
+        </div>
+      ))}
+      <div className="grid grid-cols-2 gap-3 border-t border-neutral-100 pt-4">
+        {Array.from({ length: 2 }, (_, index) => (
+          <div key={index} className="space-y-1.5">
+            <AdminSkeleton className="h-3 w-24" />
+            <AdminSkeleton className="h-6 w-12" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminSkeletonCohortGrid() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {Array.from({ length: 4 }, (_, index) => (
+        <div key={index} className="space-y-1.5">
+          <AdminSkeleton className="h-3 w-24" />
+          <AdminSkeleton className="h-6 w-12" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Skeleton del módulo /admin/modulos/analytics (no confundir con el del dashboard). */
+export function AdminSkeletonAdvancedAnalytics() {
+  return (
+    <AdminSkeletonRegion label="Cargando analytics" className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <AdminSkeleton className="h-4 w-full max-w-md" />
+        <div className="flex flex-wrap items-center gap-2">
+          <AdminSkeleton className="h-9 w-32 rounded-lg" />
+          <AdminSkeletonTabs />
+        </div>
+      </div>
+
+      <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }, (_, index) => (
+          <AdminSkeletonComparisonMetricCard key={index} />
+        ))}
+      </div>
+
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <AdminSkeletonCardShell titleWidth="w-36" descriptionWidth="w-56" className="h-full">
+          <AdminSkeletonFunnelBars />
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell titleWidth="w-40" descriptionWidth="w-64" className="h-full">
+          <AdminSkeletonCohortGrid />
+        </AdminSkeletonCardShell>
+      </div>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-6">
+          <AdminSkeletonCardShell titleWidth="w-36" descriptionWidth="w-56">
+            <div className="mb-4 flex justify-end">
+              <AdminSkeletonTabs />
+            </div>
+            <AdminSkeletonChartArea />
+          </AdminSkeletonCardShell>
+          <AdminSkeletonCardShell titleWidth="w-40" descriptionWidth="w-72">
+            <AdminSkeletonRankedList rows={5} />
+          </AdminSkeletonCardShell>
+        </div>
+
+        <div className="space-y-6">
+          <AdminSkeletonCardShell titleWidth="w-32" descriptionWidth="w-48">
+            <AdminSkeletonTopProducts />
+          </AdminSkeletonCardShell>
+          <AdminSkeletonCardShell titleWidth="w-32" descriptionWidth="w-52">
+            <AdminSkeletonRankedList rows={4} />
+          </AdminSkeletonCardShell>
+        </div>
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+export function AdminSkeletonExportsPanel() {
+  return (
+    <AdminSkeletonRegion
+      label="Cargando exportaciones"
+      className="space-y-6 border-t border-neutral-200 pt-8"
+    >
+      <div>
+        <AdminSkeleton className="h-6 w-36" />
+        <AdminSkeleton className="mt-2 h-4 w-full max-w-2xl" />
+      </div>
+      <div className="grid items-stretch gap-6 lg:grid-cols-2">
+        <AdminSkeletonCardShell titleWidth="w-32" descriptionWidth="w-64" className="h-full">
+          <div className="space-y-4">
+            <AdminSkeleton className="h-4 w-56" />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {Array.from({ length: 4 }, (_, index) => (
+                <div key={index} className="space-y-1.5">
+                  <AdminSkeleton className="h-3 w-16" />
+                  <AdminSkeleton className="h-10 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+            <AdminSkeleton className="h-10 w-44 rounded-lg" />
+          </div>
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell titleWidth="w-36" descriptionWidth="w-56" className="h-full">
+          <div className="flex h-full flex-col">
+            <AdminSkeleton className="h-4 w-full max-w-md" />
+            <div className="mt-auto pt-4">
+              <AdminSkeleton className="h-10 w-48 rounded-lg" />
+            </div>
+          </div>
+        </AdminSkeletonCardShell>
+      </div>
+    </AdminSkeletonRegion>
   );
 }
 
@@ -559,30 +719,337 @@ export function AdminSkeletonSettingsPage() {
         descriptionWidth="w-80"
       />
 
-      <div className={cn(adminCardClass, "max-w-lg")}>
-        <div className={adminCardHeaderClass}>
-          <AdminSkeleton className="h-4 w-32" />
-        </div>
-
-        <div className="space-y-4 p-4 sm:p-6">
-          <div className="space-y-1">
-            <AdminSkeleton className="h-4 w-28" />
-            <div className="flex overflow-hidden rounded-lg border border-neutral-200">
-              <AdminSkeleton className="h-10 min-w-0 flex-1 rounded-none" />
-              <AdminSkeleton className="h-10 w-28 shrink-0 rounded-none border-l border-neutral-200" />
-            </div>
-            <AdminSkeleton className="h-3 w-64" />
+      <div className="space-y-6">
+        <AdminSkeletonCardShell
+          titleWidth="w-20"
+          descriptionWidth="w-64"
+          className="max-w-lg"
+        >
+          <div className="space-y-4">
+            <AdminSkeletonFormField labelWidth="w-32" />
+            <AdminSkeletonFormField labelWidth="w-28" />
+            <AdminSkeletonFormField labelWidth="w-44" hint />
+            <AdminSkeleton className="h-10 w-40 rounded-lg" />
           </div>
+        </AdminSkeletonCardShell>
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
 
-          <AdminSkeletonFormField labelWidth="w-44" />
-
+function AdminSkeletonModuleFormCard({
+  titleWidth = "w-32",
+  descriptionWidth = "w-56",
+  fields = 3,
+  withToggle = false,
+}: {
+  titleWidth?: string;
+  descriptionWidth?: string;
+  fields?: number;
+  withToggle?: boolean;
+}) {
+  return (
+    <AdminSkeletonCardShell
+      titleWidth={titleWidth}
+      descriptionWidth={descriptionWidth}
+    >
+      <div className="space-y-4">
+        {withToggle ? (
           <div className="flex items-center gap-2">
-            <AdminSkeleton className="size-4 shrink-0 rounded-sm" />
-            <AdminSkeleton className="h-4 w-40" />
+            <AdminSkeleton className="size-4 rounded" />
+            <AdminSkeleton className="h-4 w-48" />
           </div>
+        ) : null}
+        {Array.from({ length: fields }, (_, index) => (
+          <AdminSkeletonFormField
+            key={index}
+            labelWidth={index % 2 === 0 ? "w-28" : "w-36"}
+            hint={index === fields - 1}
+          />
+        ))}
+        <AdminSkeleton className="h-10 w-36 rounded-lg" />
+      </div>
+    </AdminSkeletonCardShell>
+  );
+}
 
-          <AdminSkeleton className="h-10 w-36 rounded-lg" />
+/** Fallback genérico para módulos Plus con formulario de settings. */
+export function AdminSkeletonModuleSettingsPage({
+  titleWidth = "w-40",
+  descriptionWidth = "w-full max-w-2xl",
+}: {
+  titleWidth?: string;
+  descriptionWidth?: string;
+} = {}) {
+  return (
+    <AdminSkeletonRegion label="Cargando módulo" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth={titleWidth}
+        descriptionWidth={descriptionWidth}
+      />
+      <AdminSkeletonModuleFormCard />
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/crm */
+export function AdminSkeletonModuleCrmPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando CRM" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-24"
+        descriptionWidth="w-full max-w-2xl"
+      />
+      <AdminSkeleton className="h-10 w-full max-w-md rounded-lg" />
+      <AdminSkeletonCardShell
+        titleWidth="w-20"
+        descriptionWidth="w-44"
+        padding={false}
+      >
+        <AdminSkeletonTable columns={5} rows={6} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/crm/[email] */
+export function AdminSkeletonModuleCrmDetailPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando cliente" className="space-y-6">
+      <AdminSkeleton className="h-8 w-36 rounded-lg" />
+      <AdminSkeletonCardShell titleWidth="w-40" descriptionWidth="w-48">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index} className="space-y-1.5">
+              <AdminSkeleton className="h-3 w-16" />
+              <AdminSkeleton className="h-4 w-full max-w-36" />
+            </div>
+          ))}
         </div>
+      </AdminSkeletonCardShell>
+      <AdminSkeletonCardShell
+        titleWidth="w-28"
+        descriptionWidth="w-52"
+        padding={false}
+      >
+        <AdminSkeletonTable columns={4} rows={3} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/coupons */
+export function AdminSkeletonModuleCouponsPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando cupones" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-48"
+        descriptionWidth="w-full max-w-2xl"
+      />
+      <div className="space-y-6">
+        <div className="max-w-3xl">
+          <AdminSkeletonModuleFormCard
+            titleWidth="w-32"
+            descriptionWidth="w-56"
+            fields={4}
+          />
+        </div>
+        <div className="max-w-lg">
+          <AdminSkeletonModuleFormCard
+            titleWidth="w-36"
+            descriptionWidth="w-48"
+            fields={1}
+            withToggle
+          />
+        </div>
+      </div>
+      <AdminSkeletonCardShell
+        titleWidth="w-24"
+        descriptionWidth="w-40"
+        padding={false}
+      >
+        <AdminSkeletonTable columns={5} rows={4} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/api */
+export function AdminSkeletonModuleApiPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando API" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-36"
+        descriptionWidth="w-full max-w-xl"
+      />
+      <AdminSkeletonModuleFormCard
+        titleWidth="w-28"
+        descriptionWidth="w-64"
+        fields={4}
+      />
+      <AdminSkeletonModuleFormCard
+        titleWidth="w-16"
+        descriptionWidth="w-72"
+        fields={3}
+      />
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/multiUser */
+export function AdminSkeletonModuleMultiUserPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando usuarios" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-36"
+        descriptionWidth="w-full max-w-xl"
+      />
+      <AdminSkeletonCardShell titleWidth="w-28" descriptionWidth="w-64">
+        <div className="space-y-3">
+          {Array.from({ length: 3 }, (_, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3"
+            >
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <AdminSkeleton className="h-4 w-32 max-w-full" />
+                <AdminSkeleton className="h-3 w-44 max-w-full" />
+              </div>
+              <AdminSkeleton className="h-9 w-28 shrink-0 rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </AdminSkeletonCardShell>
+      <AdminSkeletonModuleFormCard
+        titleWidth="w-28"
+        descriptionWidth="w-52"
+        fields={4}
+      />
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/cobros */
+export function AdminSkeletonModuleCobrosPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando cobros" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-24"
+        descriptionWidth="w-full max-w-2xl"
+      />
+      <div className="space-y-6">
+        <AdminSkeletonCardShell
+          titleWidth="w-28"
+          descriptionWidth="w-full max-w-md"
+          className="max-w-lg"
+        >
+          <div className="space-y-4">
+            <AdminSkeleton className="h-[4.5rem] w-full rounded-lg" />
+            <AdminSkeletonFormField labelWidth="w-24" hint />
+            <AdminSkeleton className="h-10 w-32 rounded-lg" />
+          </div>
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell
+          titleWidth="w-40"
+          descriptionWidth="w-full max-w-lg"
+          className="max-w-lg"
+        >
+          <div className="space-y-4">
+            <div className="flex items-center gap-2.5">
+              <AdminSkeleton className="size-4 rounded" />
+              <AdminSkeleton className="h-4 w-48" />
+            </div>
+            <AdminSkeleton className="h-24 w-full rounded-lg" />
+            <AdminSkeleton className="h-10 w-40 rounded-lg" />
+          </div>
+        </AdminSkeletonCardShell>
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/shippingCarriers */
+export function AdminSkeletonModuleShippingPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando envíos" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-36"
+        descriptionWidth="w-full max-w-2xl"
+      />
+      <div className="space-y-6">
+        <AdminSkeletonCardShell
+          titleWidth="w-28"
+          descriptionWidth="w-full max-w-sm"
+          className="max-w-lg"
+        >
+          <div className="space-y-3">
+            <AdminSkeleton className="h-16 w-full rounded-md" />
+            <AdminSkeletonFormField labelWidth="w-24" hint />
+          </div>
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell
+          titleWidth="w-36"
+          descriptionWidth="w-full max-w-sm"
+          className="max-w-lg"
+        >
+          <div className="space-y-4">
+            <div className="flex items-center gap-2.5">
+              <AdminSkeleton className="size-4 rounded" />
+              <AdminSkeleton className="h-4 w-56" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AdminSkeletonFormField labelWidth="w-32" />
+              <AdminSkeletonFormField labelWidth="w-36" />
+            </div>
+          </div>
+        </AdminSkeletonCardShell>
+        <AdminSkeleton className="h-10 w-32 rounded-lg max-w-lg" />
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/wishlist */
+export function AdminSkeletonModuleWishlistPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando wishlist" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-24"
+        descriptionWidth="w-full max-w-2xl"
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {Array.from({ length: 2 }, (_, index) => (
+          <AdminSkeletonComparisonMetricCard key={index} />
+        ))}
+      </div>
+      <AdminSkeletonCardShell
+        titleWidth="w-40"
+        descriptionWidth="w-56"
+        padding={false}
+      >
+        <AdminSkeletonTable columns={3} rows={5} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
+/** /admin/modulos/homeEditor */
+export function AdminSkeletonModuleHomeEditorPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando editor de home" className="space-y-8">
+      <AdminSkeletonPageHeader
+        titleWidth="w-36"
+        descriptionWidth="w-full max-w-xl"
+      />
+      <div className="space-y-6">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div key={index} className={adminCardClass}>
+            <AdminSkeletonCollapsibleCardHeader
+              titleWidth="w-32"
+              descriptionWidth="w-56"
+            />
+          </div>
+        ))}
       </div>
     </AdminSkeletonRegion>
   );

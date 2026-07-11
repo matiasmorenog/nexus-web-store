@@ -17,9 +17,11 @@ export {
   ADMIN_PLAN_NAV_ITEM,
   buildAdminNavItems,
   isModuleNavItemEnabled,
+  listModulesInSidebarOrder,
   splitAdminNavItems,
   type AdminCoreNavItem,
   type AdminModuleNavItem,
+  type AdminNavIconKey,
   type AdminNavItem,
   type AdminPlanNavItem,
 } from "@/lib/modules/admin-nav";

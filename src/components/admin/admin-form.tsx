@@ -1,9 +1,10 @@
 import type { ComponentPropsWithoutRef, FormHTMLAttributes, ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
 export const adminSelectClass =
-  "flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
+  "block h-10 w-full appearance-none rounded-md border border-neutral-300 bg-white py-2 pl-3 pr-10 text-sm text-neutral-900 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-500";
 
 type AdminFormProps = FormHTMLAttributes<HTMLFormElement>;
 
@@ -82,6 +83,34 @@ export function AdminFormActions({
   );
 }
 
+type AdminSelectProps = ComponentPropsWithoutRef<"select"> & {
+  wrapperClassName?: string;
+};
+
+export function AdminSelect({
+  className,
+  wrapperClassName,
+  disabled,
+  ...props
+}: AdminSelectProps) {
+  return (
+    <div className={cn("relative w-full", wrapperClassName)}>
+      <select
+        className={cn(adminSelectClass, className)}
+        disabled={disabled}
+        {...props}
+      />
+      <ChevronDown
+        className={cn(
+          "pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-neutral-500",
+          disabled && "text-neutral-400",
+        )}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 type AdminCategorySelectProps = ComponentPropsWithoutRef<"select">;
 
 export function AdminCategorySelect({
@@ -89,13 +118,13 @@ export function AdminCategorySelect({
   ...props
 }: AdminCategorySelectProps) {
   return (
-    <select className={cn(adminSelectClass, className)} {...props}>
+    <AdminSelect className={className} {...props}>
       {STORE_CATEGORIES.map((category) => (
         <option key={category.slug} value={category.slug}>
           {category.label}
         </option>
       ))}
-    </select>
+    </AdminSelect>
   );
 }
 

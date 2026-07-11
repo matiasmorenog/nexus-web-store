@@ -23,7 +23,10 @@ export type TopProduct = {
 export type DashboardAttention = {
   paidAwaitingShipment: number;
   outOfStockVariants: number;
-  mercadopagoConfigured: boolean;
+  /** Sin Access Token de Mercado Pago guardado en admin (plan base). */
+  cobrosTokenMissing: boolean;
+  /** Módulo shippingCarriers activo sin token en admin (ME ni MP vía Cobros). */
+  shippingCarriersTokenMissing: boolean;
 };
 
 export type DashboardRecentOrder = {
@@ -149,7 +152,11 @@ export function buildAdminOutOfStockVariantsHref() {
 }
 
 export function buildAdminPaymentSettingsHref() {
-  return "/admin/configuracion";
+  return "/admin/modulos/cobros";
+}
+
+export function buildAdminShippingCarriersHref() {
+  return "/admin/modulos/shippingCarriers";
 }
 
 function isoDateLocal(date: Date): string {

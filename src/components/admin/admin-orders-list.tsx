@@ -12,6 +12,7 @@ type AdminOrdersListProps = {
   total: number;
   hasMore: boolean;
   filters: AdminOrdersFilterParams;
+  canManageOrders?: boolean;
 };
 
 function buildAdminOrdersUrl(page: number, filters: AdminOrdersFilterParams) {
@@ -34,6 +35,7 @@ export function AdminOrdersList({
   total,
   hasMore: initialHasMore,
   filters,
+  canManageOrders = true,
 }: AdminOrdersListProps) {
   const [orders, setOrders] = useState(initialOrders);
   const [page, setPage] = useState(1);
@@ -136,7 +138,7 @@ export function AdminOrdersList({
     <div className="space-y-4">
       {orders.map((order) => (
         <div key={order.id} id={`pedido-${order.id}`} className="scroll-mt-6">
-          <AdminOrderCard order={order} />
+          <AdminOrderCard order={order} canManageOrders={canManageOrders} />
         </div>
       ))}
 

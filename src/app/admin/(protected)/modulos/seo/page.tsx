@@ -1,7 +1,8 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSeoSettingsForm } from "@/components/admin/admin-seo-settings-form";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
+
 import { requireModule } from "@/lib/modules";
 import { getStoreSeoSettingsForAdmin } from "@/lib/seo/query";
 import { getStoreId } from "@/lib/store-context";
@@ -9,7 +10,7 @@ import { getStoreId } from "@/lib/store-context";
 export const dynamic = "force-dynamic";
 
 export default async function AdminSeoPage() {
-  await requireAdminSession();
+  await requireAdminModuleView("seo");
   await requireModule("seo");
 
   const storeId = await getStoreId();

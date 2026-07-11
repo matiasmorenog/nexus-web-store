@@ -5,6 +5,7 @@ import {
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
   buildAdminPaymentSettingsHref,
+  buildAdminShippingCarriersHref,
   type DashboardAttention,
 } from "@/lib/admin-analytics-shared";
 import { cn } from "@/lib/utils";
@@ -45,13 +46,26 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
     });
   }
 
-  if (!attention.mercadopagoConfigured) {
+  if (attention.cobrosTokenMissing) {
     items.push({
-      key: "mercadopago",
+      key: "cobros",
       href: buildAdminPaymentSettingsHref(),
       icon: CreditCard,
-      label: "Mercado Pago sin configurar",
-      detail: "El checkout corre en modo demo (sin cobros reales)",
+      label: "Mercado Pago sin configurar en admin",
+      detail:
+        "Módulo Cobros activo: guardá el Access Token en Cobros para esta tienda",
+      tone: "rose",
+    });
+  }
+
+  if (attention.shippingCarriersTokenMissing) {
+    items.push({
+      key: "shipping-carriers",
+      href: buildAdminShippingCarriersHref(),
+      icon: Truck,
+      label: "Mercado Envíos sin configurar en admin",
+      detail:
+        "Módulo Envíos activo: guardá el token en Envíos carrier o configurá Cobros",
       tone: "rose",
     });
   }

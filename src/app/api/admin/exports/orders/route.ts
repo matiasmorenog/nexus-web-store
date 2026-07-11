@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    await assertModule("exports");
+    await assertModule("analytics");
 
     const storeId = await getStoreId();
     const filters = resolveAdminOrdersFilters(

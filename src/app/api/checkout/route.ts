@@ -4,10 +4,15 @@ import { auth } from "@/lib/auth";
 import { formatStoreName } from "@/lib/brand";
 import { normalizeCouponCode } from "@/lib/coupons/format";
 import { validateCouponForCheckout } from "@/lib/coupons/validate";
+import { normalizeTaxId } from "@/lib/afip/tax-id";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { storeHasModule } from "@/lib/modules";
-import { resolveMercadoPagoAccessToken } from "@/lib/payments";
+import {
+  calculateTransferPaymentDiscount,
+  getCheckoutPaymentConfig,
+  resolveMercadoPagoAccessToken,
+} from "@/lib/payments/server";
 import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
@@ -24,6 +29,7 @@ const checkoutSchema = z
       name: z.string().min(1),
       email: z.string().email(),
       phone: z.string().min(1),
+      taxId: z.string().optional(),
       address: z.string().optional(),
       city: z.string().optional(),
       zip: z.string().optional(),
@@ -35,8 +41,17 @@ const checkoutSchema = z
       }),
     ),
     couponCode: z.string().optional(),
+    paymentMethod: z.enum(["mercadopago", "transfer"]).default("mercadopago"),
   })
   .superRefine((data, ctx) => {
+    if (data.customer.taxId?.trim() && !normalizeTaxId(data.customer.taxId)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "CUIT/CUIL/DNI inválido (7 a 11 dígitos)",
+        path: ["customer", "taxId"],
+      });
+    }
+
     if (data.deliveryMethod !== "shipping") return;
 
     const labels: Record<"address" | "city" | "zip", string> = {
@@ -67,8 +82,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const { customer, items, deliveryMethod, couponCode } = parsed.data;
+    const { customer, items, deliveryMethod, couponCode, paymentMethod } = parsed.data;
     const storeId = await getStoreId();
+    const paymentConfig = await getCheckoutPaymentConfig(storeId);
+    const isTransfer = paymentMethod === "transfer";
+
+    if (isTransfer && !paymentConfig.transferAvailable) {
+      return NextResponse.json(
+        { error: "El pago por transferencia no está disponible." },
+        { status: 400 },
+      );
+    }
 
     const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
 
@@ -118,6 +142,11 @@ export async function POST(request: NextRequest) {
     const promoPricing = pricePromo2x1Lines(promoLines, promo2x1Active);
     const { rawSubtotal, promoDiscount, subtotal } = promoPricing;
 
+    const transferDiscount = isTransfer
+      ? calculateTransferPaymentDiscount(subtotal)
+      : 0;
+    const subtotalForCoupon = Math.max(0, subtotal - transferDiscount);
+
     let couponId: string | undefined;
     let resolvedCouponCode: string | undefined;
     let couponDiscount = 0;
@@ -146,7 +175,7 @@ export async function POST(request: NextRequest) {
       const couponResult = validateCouponForCheckout(
         coupon,
         normalizedCouponCode,
-        subtotal,
+        subtotalForCoupon,
       );
 
       if (!couponResult.valid) {
@@ -158,7 +187,7 @@ export async function POST(request: NextRequest) {
       couponDiscount = couponResult.discount;
     }
 
-    const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+    const subtotalAfterCoupon = Math.max(0, subtotalForCoupon - couponDiscount);
     const promoByVariant = new Map(
       promoPricing.lines
         .filter((line) => line.lineKey)
@@ -167,8 +196,9 @@ export async function POST(request: NextRequest) {
     const shippingCost = await resolveCheckoutShippingCost({
       storeId,
       zip: customer.zip!.trim(),
-      flatRate: Number(store.shippingFlatRate),
       isPickup,
+      items,
+      orderSubtotal: subtotalAfterCoupon,
     });
     const total = subtotalAfterCoupon + shippingCost;
 
@@ -182,6 +212,8 @@ export async function POST(request: NextRequest) {
         userId: customerUserId,
         total,
         promoDiscount,
+        transferDiscount,
+        paymentMethod: isTransfer ? "TRANSFER" : "MERCADO_PAGO",
         couponId,
         couponCode: resolvedCouponCode,
         couponDiscount,
@@ -190,6 +222,7 @@ export async function POST(request: NextRequest) {
         customerName: customer.name,
         customerEmail: customer.email,
         customerPhone: customer.phone,
+        customerTaxId: normalizeTaxId(customer.taxId),
         shippingAddress: isPickup
           ? "Retiro en local"
           : customer.address!.trim(),
@@ -235,7 +268,15 @@ export async function POST(request: NextRequest) {
         100;
     }
 
-    void rawSubtotal; // subtotal neto ya incluido en total del pedido
+    void rawSubtotal;
+
+    if (isTransfer) {
+      return NextResponse.json({
+        transferMode: true,
+        orderId: order.id,
+        transferInstructions: paymentConfig.transferInstructions,
+      });
+    }
 
     if (shippingCost > 0) {
       mpItems.push({

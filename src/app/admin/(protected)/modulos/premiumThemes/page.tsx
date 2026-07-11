@@ -1,7 +1,8 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminThemeSettingsForm } from "@/components/admin/admin-theme-settings-form";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
+
 import { getStoreThemeSettingsForAdmin } from "@/lib/premium-themes";
 import { requireModule } from "@/lib/modules";
 import { getStoreId } from "@/lib/store-context";
@@ -10,7 +11,7 @@ import { getStorefrontKind } from "@/lib/store-verticals";
 export const dynamic = "force-dynamic";
 
 export default async function AdminPremiumThemesPage() {
-  await requireAdminSession();
+  await requireAdminModuleView("premiumThemes");
   await requireModule("premiumThemes");
 
   const storeId = await getStoreId();

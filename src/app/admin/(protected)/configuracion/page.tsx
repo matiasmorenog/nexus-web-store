@@ -2,6 +2,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPaymentSettingsForm } from "@/components/admin/admin-payment-settings-form";
 import { StoreSettingsForm } from "@/components/admin/store-settings-form";
+import { ChangePasswordForm } from "@/components/shared/change-password-form";
 import { requireAdminSession } from "@/lib/admin-session";
 import { db } from "@/lib/db";
 import { getStorePaymentSettingsForAdmin } from "@/lib/payments";
@@ -32,6 +33,7 @@ export default async function AdminSettingsPage() {
               allowPickup: store.allowPickup,
             }}
           />
+          <ChangePasswordForm variant="admin" />
         </div>
       </AdminDashboardReveal>
     </div>

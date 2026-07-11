@@ -7,12 +7,20 @@ import { ProductImage } from "@/components/storefront/product-image";
 import { syncWishlistToggle } from "@/components/storefront/wishlist-sync";
 import { Button } from "@/components/ui/button";
 import { useWishlistStore } from "@/stores/wishlist-store";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
-export function WishlistPageClient() {
+type WishlistPageClientProps = {
+  /** Inside CustomerAccountShell — no extra bordered wrapper */
+  layout?: "standalone" | "account";
+};
+
+export function WishlistPageClient({
+  layout = "standalone",
+}: WishlistPageClientProps) {
   const { data: session } = useSession();
   const items = useWishlistStore((state) => state.items);
   const removeItem = useWishlistStore((state) => state.removeItem);
+  const inAccount = layout === "account";
 
   const handleRemove = (productId: string) => {
     removeItem(productId);
@@ -21,7 +29,12 @@ export function WishlistPageClient() {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-neutral-200 bg-white px-6 py-12 text-center shadow-sm">
+      <div
+        className={cn(
+          "text-center",
+          inAccount ? "py-10" : "rounded-xl border border-neutral-200 bg-white px-6 py-12 shadow-sm",
+        )}
+      >
         <Heart className="mx-auto size-10 text-neutral-300" />
         <p className="mt-4 text-lg font-semibold text-neutral-900">
           Tu lista está vacía
@@ -40,11 +53,16 @@ export function WishlistPageClient() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cn(inAccount ? "divide-y divide-neutral-200" : "space-y-4")}>
       {items.map((item) => (
         <article
           key={item.productId}
-          className="flex gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm"
+          className={cn(
+            "flex gap-4",
+            inAccount
+              ? "py-4 first:pt-0 last:pb-0"
+              : "rounded-xl border border-neutral-200 bg-white p-4 shadow-sm",
+          )}
         >
           <Link
             href={`/producto/${item.productSlug}`}

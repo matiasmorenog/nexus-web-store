@@ -1,10 +1,15 @@
+import {
+  SEED_CUSTOMER_EMAIL,
+  SEED_CUSTOMER_NAME,
+} from "./seed-env";
+
 /** Marcador en email para identificar y borrar pedidos de demo. */
 export const DEMO_ORDER_EMAIL_DOMAIN = "@demo.nexus-store.local";
 
 export const DEMO_CUSTOMERS = [
   {
-    name: "Lucía Fernández",
-    email: "lucia.fernandez@demo.nexus-store.local",
+    name: SEED_CUSTOMER_NAME,
+    email: SEED_CUSTOMER_EMAIL,
     phone: "+54 11 4521-8834",
     city: "Palermo, CABA",
     address: "Av. Santa Fe 3200",

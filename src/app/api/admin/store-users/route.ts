@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { inviteStoreStaffMember } from "@/lib/store-users/invite";
 import { listStoreStaffMembers } from "@/lib/store-users/query";
 import type { InviteStoreStaffInput } from "@/lib/store-users/types";
+import { isStoreStaffRole } from "@/lib/store-users/permissions";
 import { requireStoreOwnerSession } from "@/lib/store-users/admin-auth";
 import { assertModule, moduleErrorResponse } from "@/lib/modules";
 import { getStoreId } from "@/lib/store-context";
@@ -49,6 +50,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as InviteStoreStaffInput;
+
+    if (!isStoreStaffRole(body.staffRole)) {
+      return NextResponse.json(
+        { error: "Seleccioná un rol válido." },
+        { status: 400 },
+      );
+    }
+
     const storeId = await getStoreId();
     const result = await inviteStoreStaffMember(storeId, body);
     return NextResponse.json({ ok: true, userId: result.userId });

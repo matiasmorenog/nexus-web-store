@@ -53,6 +53,7 @@ type AdminProductsSectionProps = {
   awaitingFilters?: boolean;
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
+  canManage?: boolean;
 };
 
 export function AdminProductsSection({
@@ -62,6 +63,7 @@ export function AdminProductsSection({
   filters,
   awaitingFilters = false,
   promo2x1Selectable = false,
+  canManage = true,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
@@ -133,7 +135,7 @@ export function AdminProductsSection({
   return (
     <div className="space-y-6 pb-2">
       <AdminDashboardReveal index={0} className="space-y-6">
-        {createOpen ? (
+        {createOpen && canManage ? (
           <ProductCreateForm
             onClose={() => handleCreateOpenChange(false)}
             blockedHint={blockedHint}
@@ -168,7 +170,7 @@ export function AdminProductsSection({
             }
             padding={false}
             action={
-              !createOpen ? (
+              canManage && !createOpen ? (
                 <Button
                   size="sm"
                   className="w-full whitespace-nowrap sm:w-auto"
@@ -231,10 +233,12 @@ export function AdminProductsSection({
                       icon={Pencil}
                       href={`/admin/productos/${product.id}/edit`}
                     />
-                    <DeleteProductButton
-                      productId={product.id}
-                      productName={product.name}
-                    />
+                    {canManage ? (
+                      <DeleteProductButton
+                        productId={product.id}
+                        productName={product.name}
+                      />
+                    ) : null}
                   </AdminTableActions>
                 </AdminTableCell>
               </AdminTableRow>

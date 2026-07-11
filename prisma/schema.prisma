@@ -15,6 +15,13 @@ enum UserRole {
   CUSTOMER
 }
 
+enum StoreStaffRole {
+  ADMIN
+  SELLER
+  WAREHOUSE
+  READ_ONLY
+}
+
 enum OrderStatus {
   PENDING
   PAID
@@ -282,11 +289,12 @@ model PasswordResetToken {
 }
 
 model UserStore {
-  id      String @id @default(cuid())
-  userId  String
-  storeId String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  userId    String
+  storeId   String
+  staffRole StoreStaffRole @default(SELLER)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store     Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, storeId])
 }

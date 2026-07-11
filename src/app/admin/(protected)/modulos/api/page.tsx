@@ -2,7 +2,8 @@ import { AdminApiSettingsPanel } from "@/components/admin/admin-api-settings-pan
 import { AdminAfipSettingsPanel } from "@/components/admin/admin-afip-settings-panel";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
+
 import { getStoreAfipSettingsForAdmin } from "@/lib/afip/settings";
 import { requireModule } from "@/lib/modules";
 import {
@@ -14,7 +15,7 @@ import { getStoreId } from "@/lib/store-context";
 export const dynamic = "force-dynamic";
 
 export default async function AdminApiPage() {
-  await requireAdminSession();
+  await requireAdminModuleView("api");
   await requireModule("api");
 
   const storeId = await getStoreId();

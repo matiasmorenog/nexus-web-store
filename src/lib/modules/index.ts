@@ -20,6 +20,7 @@ export {
   splitAdminNavItems,
   type AdminCoreNavItem,
   type AdminModuleNavItem,
+  type AdminNavIconKey,
   type AdminNavItem,
   type AdminPlanNavItem,
 } from "@/lib/modules/admin-nav";

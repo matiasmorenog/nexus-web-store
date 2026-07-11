@@ -70,7 +70,7 @@ const MODULE_LIST = [
     id: "multiUser",
     name: "Multi-usuario",
     description:
-      "Usuarios adicionales con roles (vendedor, depósito, solo lectura).",
+      "Usuarios adicionales con roles (administrador, vendedor, depósito, solo lectura).",
     monthlyPriceUsd: 18,
     category: "operations",
     adminRoutes: ["/admin/usuarios"],

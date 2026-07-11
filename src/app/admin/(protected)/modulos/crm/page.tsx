@@ -2,7 +2,7 @@ import { AdminCrmCustomersList } from "@/components/admin/admin-crm-customers-li
 import { AdminCrmSearchToolbar } from "@/components/admin/admin-crm-search-toolbar";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
 import { listCrmCustomers } from "@/lib/crm/query";
 import { requireModule } from "@/lib/modules";
 
@@ -17,7 +17,7 @@ export default async function AdminCrmPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminModuleView("crm");
   await requireModule("crm");
 
   const params = await searchParams;

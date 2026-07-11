@@ -16,11 +16,13 @@ import {
 type AdminCrmCustomerProfileFormProps = {
   email: string;
   profile: CrmCustomerProfile;
+  readOnly?: boolean;
 };
 
 export function AdminCrmCustomerProfileForm({
   email,
   profile,
+  readOnly = false,
 }: AdminCrmCustomerProfileFormProps) {
   const router = useRouter();
   const [tagsInput, setTagsInput] = useState(profile.tags.join(", "));
@@ -78,6 +80,7 @@ export function AdminCrmCustomerProfileForm({
             value={tagsInput}
             onChange={(event) => setTagsInput(event.target.value)}
             placeholder="vip, mayorista, instagram"
+            disabled={readOnly}
           />
           <p className="text-xs text-neutral-500">
             Separá con comas. Máximo 12 tags.
@@ -92,6 +95,7 @@ export function AdminCrmCustomerProfileForm({
             onChange={(event) => setNotes(event.target.value)}
             rows={5}
             placeholder="Preferencias, acuerdos comerciales, observaciones de envío..."
+            disabled={readOnly}
           />
         </div>
 
@@ -100,9 +104,13 @@ export function AdminCrmCustomerProfileForm({
           <p className="text-sm text-emerald-600">Perfil guardado.</p>
         ) : null}
 
-        <Button type="submit" disabled={pending}>
-          {pending ? "Guardando..." : "Guardar perfil"}
-        </Button>
+        {readOnly ? (
+          <p className="text-sm text-neutral-500">Solo lectura.</p>
+        ) : (
+          <Button type="submit" disabled={pending}>
+            {pending ? "Guardando..." : "Guardar perfil"}
+          </Button>
+        )}
       </form>
     </AdminCard>
   );

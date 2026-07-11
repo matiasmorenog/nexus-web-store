@@ -15,7 +15,6 @@ export async function listStoreStaffMembers(
           id: true,
           email: true,
           name: true,
-          role: true,
           createdAt: true,
         },
       },
@@ -27,7 +26,7 @@ export async function listStoreStaffMembers(
     id: row.user.id,
     email: row.user.email,
     name: row.user.name,
-    role: "STORE_STAFF",
+    staffRole: row.staffRole,
     joinedAt: row.user.createdAt.toISOString(),
   }));
 }

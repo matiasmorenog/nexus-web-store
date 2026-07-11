@@ -2,7 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { ProductEditSections } from "@/components/admin/product-edit-sections";
-import { requireAdminSession } from "@/lib/admin-session";
+import {
+  adminCanManage,
+  requireAdminPermission,
+} from "@/lib/admin-session";
 import { db } from "@/lib/db";
 import { storeHasModule } from "@/lib/modules";
 import { getStorefrontConfig } from "@/lib/store-verticals";
@@ -15,8 +18,9 @@ export default async function AdminProductEditPage({
   params: Promise<{ productId: string }>;
 }) {
   const { productId } = await params;
-  const session = await requireAdminSession();
+  const session = await requireAdminPermission("products:view");
   const storeId = session.user.storeId;
+  const canManageProducts = adminCanManage(session, "products:manage");
 
   const product = await db.product.findFirst({
     where: { id: productId, storeId },
@@ -63,6 +67,7 @@ export default async function AdminProductEditPage({
           promo2x1: product.promo2x1,
         }}
         promo2x1Selectable={promo2x1Selectable}
+        canManage={canManageProducts}
       />
     </div>
   );

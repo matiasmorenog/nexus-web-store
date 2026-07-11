@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { AdminCrmCustomerDetail } from "@/components/admin/admin-crm-customer-detail";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { requireAdminSession } from "@/lib/admin-session";
+import {
+  adminCanManageModule,
+  requireAdminModuleView,
+} from "@/lib/admin-session";
 import { normalizeCustomerEmail } from "@/lib/crm/format";
 import { getCrmCustomerDetail } from "@/lib/crm/query";
 import { requireModule } from "@/lib/modules";
@@ -17,7 +20,7 @@ export default async function AdminCrmCustomerPage({
 }: {
   params: PageParams;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminModuleView("crm");
   await requireModule("crm");
 
   const { email: rawEmail } = await params;
@@ -28,9 +31,11 @@ export default async function AdminCrmCustomerPage({
     notFound();
   }
 
+  const canManageCrm = adminCanManageModule(session, "crm");
+
   return (
     <AdminDashboardReveal index={0}>
-      <AdminCrmCustomerDetail customer={customer} />
+      <AdminCrmCustomerDetail customer={customer} readOnly={!canManageCrm} />
     </AdminDashboardReveal>
   );
 }

@@ -14,9 +14,13 @@ type StoreSettingsFormProps = {
     shippingFlatRate: number;
     allowPickup: boolean;
   };
+  readOnly?: boolean;
 };
 
-export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
+export function StoreSettingsForm({
+  store,
+  readOnly = false,
+}: StoreSettingsFormProps) {
   const router = useRouter();
   const [shippingFlatRate, setShippingFlatRate] = useState(
     String(store.shippingFlatRate),
@@ -90,6 +94,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
             value={shippingFlatRate}
             onChange={(event) => setShippingFlatRate(event.target.value)}
             className="text-base sm:text-sm"
+            disabled={readOnly}
           />
         </div>
         <div className="flex items-center gap-2.5">
@@ -98,6 +103,7 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
             name="allowPickup"
             checked={allowPickup}
             onChange={(event) => setAllowPickup(event.target.checked)}
+            disabled={readOnly}
           />
           <Label htmlFor="allowPickup" className="cursor-pointer">
             Permitir retiro en local
@@ -107,9 +113,13 @@ export function StoreSettingsForm({ store }: StoreSettingsFormProps) {
         {saved ? (
           <AdminFormAlert variant="success">Configuración guardada</AdminFormAlert>
         ) : null}
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar cambios"}
-        </Button>
+        {readOnly ? (
+          <p className="text-sm text-neutral-500">Solo lectura.</p>
+        ) : (
+          <Button type="submit" disabled={loading}>
+            {loading ? "Guardando..." : "Guardar cambios"}
+          </Button>
+        )}
       </AdminForm>
     </AdminCard>
   );

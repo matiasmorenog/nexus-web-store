@@ -75,6 +75,11 @@ model Coupon {
   @@index([storeId, active])
 }
 
+enum CheckoutPaymentMethod {
+  MERCADO_PAGO
+  TRANSFER
+}
+
 model Store {
   id               String   @id @default(cuid())
   name             String
@@ -120,6 +125,8 @@ model StorePaymentSettings {
   storeId                   String   @id
   mercadopagoAccessTokenEnc String?
   mercadopagoTokenHint      String?
+  transferEnabled           Boolean  @default(false)
+  transferInstructions      String?
   updatedAt                 DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -349,6 +356,8 @@ model Order {
   couponId        String?
   couponCode      String?
   couponDiscount  Decimal     @default(0)
+  transferDiscount Decimal    @default(0)
+  paymentMethod     CheckoutPaymentMethod @default(MERCADO_PAGO)
   shippingCost    Decimal     @default(0)
   customerName    String
   customerEmail   String

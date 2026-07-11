@@ -108,6 +108,26 @@ export async function wipeStore(profile: StoreProfile): Promise<boolean> {
   return wipeStoreBySlug(STORE_SLUG_BY_PROFILE[profile]);
 }
 
+const DEMO_TRANSFER_INSTRUCTIONS = `Titular: Demo Store
+Banco: Banco Demo
+CBU: 0000000000000000000000
+Alias: demo.store.mp`;
+
+async function seedDemoPaymentSettings(storeId: string) {
+  await prisma.storePaymentSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      transferEnabled: true,
+      transferInstructions: DEMO_TRANSFER_INSTRUCTIONS,
+    },
+    update: {
+      transferEnabled: true,
+      transferInstructions: DEMO_TRANSFER_INSTRUCTIONS,
+    },
+  });
+}
+
 async function createStoreWithAdmin(config: SeedStoreConfig) {
   const store = await prisma.store.create({
     data: {
@@ -215,6 +235,7 @@ export async function seedApp1Store(options: SeedStoreOptions = {}) {
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
   const productCount = await seedApp1Products(store.id);
+  await seedDemoPaymentSettings(store.id);
 
   return { store, admin, config, productCount };
 }

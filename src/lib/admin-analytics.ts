@@ -13,7 +13,10 @@ import {
   adminDashboardCacheTag,
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
-import { hasMercadoPagoConfigured } from "@/lib/payments";
+import {
+  getMercadoPagoTokenSource,
+  isMercadoPagoAdminConfigured,
+} from "@/lib/payments/resolve-token";
 
 export type {
   ActivityPeriod,
@@ -343,21 +346,25 @@ async function fetchTopProductsAggregates(
 }
 
 async function fetchAdminDashboardAttention(storeId: string) {
-  const paidAwaitingShipment = await db.order.count({
-    where: { storeId, status: "PAID" },
-  });
-  const outOfStockVariants = await db.productVariant.count({
-    where: {
-      product: { storeId },
-      stock: { lte: 0 },
-    },
-  });
-  const mercadopagoConfigured = await hasMercadoPagoConfigured(storeId);
+  const [paidAwaitingShipment, outOfStockVariants, mercadoPagoSource] =
+    await Promise.all([
+      db.order.count({
+        where: { storeId, status: "PAID" },
+      }),
+      db.productVariant.count({
+        where: {
+          product: { storeId },
+          stock: { lte: 0 },
+        },
+      }),
+      getMercadoPagoTokenSource(storeId),
+    ]);
 
   return {
     paidAwaitingShipment,
     outOfStockVariants,
-    mercadopagoConfigured,
+    cobrosTokenMissing: !isMercadoPagoAdminConfigured(mercadoPagoSource),
+    shippingCarriersTokenMissing: false,
   };
 }
 

@@ -180,6 +180,8 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
     status: order.status,
     mpPaymentId: order.mpPaymentId,
     mpPreferenceId: order.mpPreferenceId,
+    paymentMethod: order.paymentMethod,
+    transferDiscount: order.transferDiscount,
   });
 
   const shipping = getOrderShippingInfo({

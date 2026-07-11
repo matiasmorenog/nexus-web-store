@@ -7,7 +7,6 @@ import {
   revalidateAdminProductDataCaches,
 } from "@/lib/revalidate-admin-cache";
 import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
-import { saveStoreSettingsFromForm } from "@/lib/admin-store-settings";
 import { db } from "@/lib/db";
 import {
   cleanupProductImages,
@@ -38,11 +37,6 @@ export async function updateOrderStatus(orderId: string, status: string) {
 
   revalidateAdminDashboardCache(storeId);
   revalidatePath("/admin/pedidos");
-}
-
-export async function updateStoreSettings(formData: FormData) {
-  const storeId = await requireAdminStoreId("config:manage");
-  await saveStoreSettingsFromForm(storeId, formData);
 }
 
 export async function createProduct(formData: FormData) {

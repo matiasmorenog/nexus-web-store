@@ -4,7 +4,16 @@ export const BASE_PLAN = {
   name: "Plan Base",
   monthlyPriceUsd: 100,
   description:
-    "Dashboard, productos, pedidos, configuración, checkout y emails transaccionales.",
+    "Dashboard, productos, pedidos, cobros, configuración, checkout y emails transaccionales.",
+  features: [
+    "Dashboard y KPIs",
+    "Catálogo y gestión de productos",
+    "Gestión de pedidos",
+    "Cobros (Mercado Pago y transferencia)",
+    "Configuración de la tienda",
+    "Checkout para tus clientes",
+    "Emails transaccionales",
+  ],
 } as const;
 
 const MODULE_LIST = [

@@ -196,8 +196,9 @@ export async function POST(request: NextRequest) {
     const shippingCost = await resolveCheckoutShippingCost({
       storeId,
       zip: customer.zip!.trim(),
-      flatRate: Number(store.shippingFlatRate),
       isPickup,
+      items,
+      orderSubtotal: subtotalAfterCoupon,
     });
     const total = subtotalAfterCoupon + shippingCost;
 

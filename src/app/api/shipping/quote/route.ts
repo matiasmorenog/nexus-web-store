@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { db } from "@/lib/db";
 import { formatMercadoEnviosDeliveryWindow } from "@/lib/mercado-envios";
-import { quoteCheckoutShipping } from "@/lib/shipping-carriers/resolve-shipping";
+import {
+  estimateOrderSubtotalForQuote,
+  quoteCheckoutShipping,
+} from "@/lib/shipping-carriers/resolve-shipping";
 import { getStoreId } from "@/lib/store-context";
 
 const quoteSchema = z.object({
   zip: z.string().min(4),
+  items: z
+    .array(
+      z.object({
+        variantId: z.string().min(1),
+        quantity: z.number().int().positive(),
+      }),
+    )
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -19,11 +29,17 @@ export async function POST(request: NextRequest) {
     }
 
     const storeId = await getStoreId();
-    const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
+    const items = parsed.data.items ?? [];
+    const orderSubtotal =
+      items.length > 0
+        ? await estimateOrderSubtotalForQuote(storeId, items)
+        : undefined;
+
     const quote = await quoteCheckoutShipping({
       storeId,
       zip: parsed.data.zip.trim(),
-      flatRate: Number(store.shippingFlatRate),
+      items,
+      orderSubtotal,
     });
 
     if (!quote) {
@@ -43,6 +59,7 @@ export async function POST(request: NextRequest) {
       ),
       estimatedDelivery: quote.estimatedDelivery.toISOString(),
       demoMode: quote.demoMode,
+      source: quote.source,
     });
   } catch (error) {
     console.error("Shipping quote error:", error);

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { createMercadoEnviosShipment } from "@/lib/mercado-envios";
+import { createMercadoEnviosShipment } from "@/lib/mercado-envios/server";
 import { isCarrierShippingEnabled, getStoreShippingSettings } from "@/lib/shipping-carriers/query";
 
 type OrderForShipment = {

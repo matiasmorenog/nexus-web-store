@@ -87,7 +87,6 @@ model Store {
   logo             String?
   primaryColor     String   @default("#171717")
   secondaryColor   String   @default("#f5f5f5")
-  shippingFlatRate Decimal  @default(0)
   allowPickup      Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -187,10 +186,15 @@ model StoreMarketingSettings {
 }
 
 model StoreShippingSettings {
-  storeId            String   @id
-  carriersEnabled    Boolean  @default(true)
-  preferredCarrierId String   @default("mercado_envios")
-  updatedAt          DateTime @updatedAt
+  storeId                      String   @id
+  carriersEnabled              Boolean  @default(true)
+  preferredCarrierId           String   @default("mercado_envios")
+  originZip                    String?
+  mercadoLibreQuoteItemId      String?
+  defaultWeightGrams           Int      @default(500)
+  mercadoEnviosAccessTokenEnc  String?
+  mercadoEnviosTokenHint       String?
+  updatedAt                    DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }

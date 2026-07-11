@@ -128,6 +128,24 @@ async function seedDemoPaymentSettings(storeId: string) {
   });
 }
 
+async function seedDemoShippingSettings(storeId: string) {
+  await prisma.storeShippingSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      carriersEnabled: true,
+      preferredCarrierId: "mercado_envios",
+      originZip: "1425",
+      defaultWeightGrams: 500,
+    },
+    update: {
+      carriersEnabled: true,
+      originZip: "1425",
+      defaultWeightGrams: 500,
+    },
+  });
+}
+
 async function createStoreWithAdmin(config: SeedStoreConfig) {
   const store = await prisma.store.create({
     data: {
@@ -135,7 +153,6 @@ async function createStoreWithAdmin(config: SeedStoreConfig) {
       slug: config.slug,
       primaryColor: config.primaryColor,
       secondaryColor: "#ffffff",
-      shippingFlatRate: config.shippingFlatRate,
       allowPickup: true,
     },
   });
@@ -236,6 +253,7 @@ export async function seedApp1Store(options: SeedStoreOptions = {}) {
   const { store, admin } = await createStoreWithAdmin(config);
   const productCount = await seedApp1Products(store.id);
   await seedDemoPaymentSettings(store.id);
+  await seedDemoShippingSettings(store.id);
 
   return { store, admin, config, productCount };
 }

@@ -1,7 +1,5 @@
-import {
-  MERCADO_ENVIOS_CARRIERS,
-  type MercadoEnviosCarrierId,
-} from "@/lib/mercado-envios";
+import { MERCADO_ENVIOS_CARRIERS } from "@/lib/mercado-envios";
+import type { MercadoEnviosCarrierId } from "@/lib/mercado-envios/types";
 
 export function isMercadoEnviosCarrierId(
   value: string,

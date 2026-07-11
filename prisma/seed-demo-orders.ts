@@ -11,6 +11,9 @@ import { seedDefaults } from "./seed-env";
 const prisma = new PrismaClient();
 const STORE_SLUG = seedDefaults.storeSlug;
 
+/** Costo demo para pedidos seed con envío a domicilio (sin cotización CP). */
+const DEMO_SEED_SHIPPING_COST = 4500;
+
 type VariantKey = string;
 
 function variantKey(productSlug: string, size: string, color: string): VariantKey {
@@ -86,7 +89,6 @@ async function main() {
 
   const variantMap = await loadVariantMap(store.id);
   const plans = buildDemoOrderPlans();
-  const shippingFlatRate = Number(store.shippingFlatRate);
 
   let created = 0;
 
@@ -97,7 +99,7 @@ async function main() {
       (sum, item) => sum + item.unitPrice * item.quantity,
       0,
     );
-    const shippingCost = plan.pickup ? 0 : shippingFlatRate;
+    const shippingCost = plan.pickup ? 0 : DEMO_SEED_SHIPPING_COST;
     const total = subtotal + shippingCost;
 
     await prisma.order.create({

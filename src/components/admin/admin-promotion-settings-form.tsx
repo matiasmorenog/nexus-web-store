@@ -58,32 +58,36 @@ export function AdminPromotionSettingsForm({
   };
 
   return (
-    <AdminForm onSubmit={handleSubmit} className="space-y-6">
+    <AdminForm onSubmit={handleSubmit}>
       <AdminCard
         title="Promoción 2x1"
-        description="Activa el banner del storefront y el descuento 2x1 en los productos marcados. Con la promoción apagada, el badge y el banner no se muestran y el checkout no aplica el 2x1."
+        description="Banner y descuento 2x1 en productos marcados."
+        action={
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700">
+            <Switch
+              checked={settings.promo2x1Enabled}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  promo2x1Enabled: event.target.checked,
+                }))
+              }
+              aria-label="Activar promoción 2x1"
+            />
+            <span className="hidden sm:inline">
+              {settings.promo2x1Enabled ? "Activa" : "Inactiva"}
+            </span>
+          </label>
+        }
       >
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (
           <AdminFormAlert variant="success">Cambios guardados</AdminFormAlert>
         ) : null}
 
-        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            checked={settings.promo2x1Enabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                promo2x1Enabled: event.target.checked,
-              }))
-            }
-          />
-          Activar promoción 2x1
-        </label>
-
-        <AdminFormActions>
+        <AdminFormActions className="border-t-0 pt-0">
           <Button type="submit" size="sm" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar promoción"}
+            {loading ? "Guardando..." : "Guardar"}
           </Button>
         </AdminFormActions>
       </AdminCard>

@@ -12,7 +12,7 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormGrid,
-  adminSelectClass,
+  AdminSelect,
 } from "@/components/admin/admin-form";
 import {
   AdminDataTable,
@@ -558,10 +558,9 @@ function VariantFormFields({
     <AdminFormGrid columns={4} className="gap-3">
       <div>
         <Label htmlFor={`${formId}-color`}>{variantLabels.primary}</Label>
-        <select
+        <AdminSelect
           id={`${formId}-color`}
           name="color"
-          className={adminSelectClass}
           defaultValue={values?.color ?? ""}
           required
         >
@@ -573,7 +572,7 @@ function VariantFormFields({
               {color}
             </option>
           ))}
-        </select>
+        </AdminSelect>
       </div>
       <div>
         <Label htmlFor={`${formId}-size`}>{variantLabels.secondary}</Label>

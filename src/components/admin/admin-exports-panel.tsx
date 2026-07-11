@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminForm, AdminFormGrid, adminSelectClass } from "@/components/admin/admin-form";
+import { AdminForm, AdminFormGrid, AdminSelect } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -98,9 +98,8 @@ export function AdminExportsPanel({
             </div>
             <div>
               <Label htmlFor="export-estado">Estado</Label>
-              <select
+              <AdminSelect
                 id="export-estado"
-                className={adminSelectClass}
                 value={estado}
                 onChange={(event) => setEstado(event.target.value)}
               >
@@ -110,7 +109,7 @@ export function AdminExportsPanel({
                     {getOrderStatusLabel(status)}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </div>
             <div>
               <Label htmlFor="export-q">Buscar cliente / ID</Label>

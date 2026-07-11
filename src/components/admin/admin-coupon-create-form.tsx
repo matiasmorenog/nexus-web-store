@@ -8,7 +8,7 @@ import {
   AdminFormActions,
   AdminFormAlert,
   AdminFormGrid,
-  adminSelectClass,
+  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -55,7 +55,7 @@ export function AdminCouponCreateForm() {
   };
 
   return (
-    <AdminCard title="Nuevo cupón" className="max-w-3xl">
+    <AdminCard title="Nuevo cupón">
       <AdminForm onSubmit={handleSubmit}>
         <AdminFormGrid>
           <div>
@@ -70,10 +70,9 @@ export function AdminCouponCreateForm() {
           </div>
           <div>
             <Label htmlFor="coupon-type">Tipo</Label>
-            <select
+            <AdminSelect
               id="coupon-type"
               name="type"
-              className={adminSelectClass}
               value={type}
               onChange={(event) =>
                 setType(event.target.value as "PERCENTAGE" | "FIXED_AMOUNT")
@@ -81,7 +80,7 @@ export function AdminCouponCreateForm() {
             >
               <option value="PERCENTAGE">Porcentaje (%)</option>
               <option value="FIXED_AMOUNT">Monto fijo (ARS)</option>
-            </select>
+            </AdminSelect>
           </div>
           <div>
             <Label htmlFor="coupon-value">

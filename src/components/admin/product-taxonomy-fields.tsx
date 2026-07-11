@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { adminSelectClass } from "@/components/admin/admin-form";
+import { AdminSelect } from "@/components/admin/admin-form";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import {
   categoriesForAudienceFilter,
@@ -51,10 +50,10 @@ export function ProductTaxonomyFields({
       {features.showAudienceFilter ? (
         <div>
           <Label htmlFor="audience">Género</Label>
-          <select
+          <AdminSelect
             id="audience"
             name="audience"
-            className={cn(adminSelectClass, "mt-1.5")}
+            wrapperClassName="mt-1.5"
             value={audience}
             onChange={(event) => setAudience(event.target.value)}
             required
@@ -64,17 +63,17 @@ export function ProductTaxonomyFields({
                 {item.label}
               </option>
             ))}
-          </select>
+          </AdminSelect>
         </div>
       ) : (
         <input type="hidden" name="audience" value="unisex" />
       )}
       <div>
         <Label htmlFor="category">Categoría</Label>
-        <select
+        <AdminSelect
           id="category"
           name="category"
-          className={cn(adminSelectClass, "mt-1.5")}
+          wrapperClassName="mt-1.5"
           key={audience}
           defaultValue={resolvedCategory}
           required
@@ -84,7 +83,7 @@ export function ProductTaxonomyFields({
               {getCategoryLabelFromList(productCategories, category.slug)}
             </option>
           ))}
-        </select>
+        </AdminSelect>
       </div>
     </>
   );

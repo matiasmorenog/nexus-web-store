@@ -7,6 +7,7 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
+  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,9 +82,8 @@ export function AdminAfipSettingsPanel({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="afip-environment">Entorno</Label>
-            <select
+            <AdminSelect
               id="afip-environment"
-              className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
               value={settings.environment}
               onChange={(event) =>
                 setSettings((current) => ({
@@ -97,7 +97,7 @@ export function AdminAfipSettingsPanel({
             >
               <option value="HOMOLOGATION">Homologación (pruebas)</option>
               <option value="PRODUCTION">Producción</option>
-            </select>
+            </AdminSelect>
           </div>
           <div className="space-y-2">
             <Label htmlFor="afip-punto-venta">Punto de venta</Label>

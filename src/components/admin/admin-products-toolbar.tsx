@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,7 @@ import { ADMIN_PRODUCT_SORT_OPTIONS } from "@/lib/admin-product-sort";
 import { cn } from "@/lib/utils";
 
 const fieldClass =
-  "h-10 w-full rounded-lg border border-neutral-200 bg-white px-3 text-sm text-neutral-700 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
+  "h-10 rounded-lg border-neutral-200 text-neutral-700";
 
 export function AdminProductsToolbar({ className }: { className?: string }) {
   const searchParams = useSearchParams();
@@ -75,7 +76,7 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
           >
             Ordenar
           </Label>
-          <select
+          <AdminSelect
             id="admin-product-sort-toolbar"
             className={fieldClass}
             value={activeSort}
@@ -86,7 +87,7 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
                 {option.label}
               </option>
             ))}
-          </select>
+          </AdminSelect>
         </div>
       </div>
     </div>

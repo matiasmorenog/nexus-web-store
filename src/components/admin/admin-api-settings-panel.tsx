@@ -221,7 +221,7 @@ export function AdminApiSettingsPanel({
 
       <AdminCard
         title="Webhooks"
-        description="Recibí eventos POST firmados con HMAC (header X-Nexus-Signature)."
+        description="Recibí eventos POST firmados con HMAC (header X-Nexus-Signature). El evento order.paid incluye ítems, montos y datos fiscales del cliente."
       >
         <AdminForm onSubmit={handleSaveWebhook} className="space-y-4">
           <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">

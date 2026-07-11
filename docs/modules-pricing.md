@@ -204,6 +204,7 @@ Funcionalidad que debe existir siempre en plan base:
 | Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |
 | Multi-usuario | `src/lib/store-users/`, `/admin/modulos/multiUser` |
 | API y webhooks | `src/lib/store-api/`, `/admin/modulos/api`, `/api/v1/*` |
+| AFIP (prep) | `src/lib/afip/`, `docs/afip-integration.md` |
 | Errores API | `src/lib/modules/api-error.ts` |
 | Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |

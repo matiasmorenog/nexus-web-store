@@ -22,6 +22,18 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum InvoiceStatus {
+  NONE
+  PENDING
+  ISSUED
+  FAILED
+}
+
+enum AfipEnvironment {
+  HOMOLOGATION
+  PRODUCTION
+}
+
 enum MercadoEnviosStatus {
   READY_TO_SHIP
   IN_TRANSIT
@@ -83,6 +95,18 @@ model Store {
   webhookSettings   StoreWebhookSettings?
   promotionSettings StorePromotionSettings?
   paymentSettings   StorePaymentSettings?
+  afipSettings      StoreAfipSettings?
+}
+
+model StoreAfipSettings {
+  storeId      String          @id
+  enabled      Boolean         @default(false)
+  environment  AfipEnvironment @default(HOMOLOGATION)
+  merchantCuit String?
+  puntoVenta   Int?
+  updatedAt    DateTime        @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 }
 
 model StorePaymentSettings {
@@ -321,6 +345,12 @@ model Order {
   customerName    String
   customerEmail   String
   customerPhone   String
+  customerTaxId   String?
+  invoiceStatus   InvoiceStatus @default(NONE)
+  invoiceNumber   String?
+  invoiceCae      String?
+  invoicedAt      DateTime?
+  invoiceError    String?
   isPickup        Boolean     @default(false)
   shippingAddress String
   shippingCity    String

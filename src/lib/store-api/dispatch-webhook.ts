@@ -1,5 +1,5 @@
-import { createHmac } from "node:crypto";
 import { storeHasModule } from "@/lib/modules";
+import { signStoreWebhookPayload } from "@/lib/store-api/verify-signature";
 import { getActiveStoreWebhookSettings } from "@/lib/store-api/webhooks";
 
 export type StoreWebhookEvent = "order.paid";
@@ -10,11 +10,6 @@ export type StoreWebhookPayload = {
   occurredAt: string;
   data: Record<string, unknown>;
 };
-
-function signWebhookPayload(secret: string, body: string): string {
-  const digest = createHmac("sha256", secret).update(body).digest("hex");
-  return `sha256=${digest}`;
-}
 
 export async function dispatchStoreWebhook(
   storeId: string,
@@ -38,7 +33,7 @@ export async function dispatchStoreWebhook(
   };
 
   const body = JSON.stringify(payload);
-  const signature = signWebhookPayload(settings.secret, body);
+  const signature = signStoreWebhookPayload(settings.secret, body);
 
   try {
     await fetch(settings.url, {

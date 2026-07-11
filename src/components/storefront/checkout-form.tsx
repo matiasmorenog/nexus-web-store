@@ -174,6 +174,7 @@ export function CheckoutForm({
       name: readFormField(form, "name"),
       email: readFormField(form, "email"),
       phone: readFormField(form, "phone"),
+      taxId: readFormField(form, "taxId"),
       address: readFormField(form, "address"),
       city: readFormField(form, "city"),
       zip: readFormField(form, "zip"),
@@ -362,6 +363,19 @@ export function CheckoutForm({
             inputMode="tel"
             required
           />
+        </div>
+        <div className="sm:col-span-2">
+          <Label htmlFor="checkout-tax-id">CUIT / CUIL / DNI (opcional)</Label>
+          <Input
+            id="checkout-tax-id"
+            name="taxId"
+            autoComplete="off"
+            inputMode="numeric"
+            placeholder="Para factura — ej. 20-12345678-9"
+          />
+          <p className="mt-1 text-xs text-neutral-500">
+            Solo si necesitás factura a tu nombre o razón social.
+          </p>
         </div>
       </fieldset>
 

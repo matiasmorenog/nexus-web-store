@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { formatStoreName } from "@/lib/brand";
 import { normalizeCouponCode } from "@/lib/coupons/format";
 import { validateCouponForCheckout } from "@/lib/coupons/validate";
+import { normalizeTaxId } from "@/lib/afip/tax-id";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
 import { storeHasModule } from "@/lib/modules";
@@ -24,6 +25,7 @@ const checkoutSchema = z
       name: z.string().min(1),
       email: z.string().email(),
       phone: z.string().min(1),
+      taxId: z.string().optional(),
       address: z.string().optional(),
       city: z.string().optional(),
       zip: z.string().optional(),
@@ -37,6 +39,14 @@ const checkoutSchema = z
     couponCode: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    if (data.customer.taxId?.trim() && !normalizeTaxId(data.customer.taxId)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "CUIT/CUIL/DNI inválido (7 a 11 dígitos)",
+        path: ["customer", "taxId"],
+      });
+    }
+
     if (data.deliveryMethod !== "shipping") return;
 
     const labels: Record<"address" | "city" | "zip", string> = {
@@ -190,6 +200,7 @@ export async function POST(request: NextRequest) {
         customerName: customer.name,
         customerEmail: customer.email,
         customerPhone: customer.phone,
+        customerTaxId: normalizeTaxId(customer.taxId),
         shippingAddress: isPickup
           ? "Retiro en local"
           : customer.address!.trim(),

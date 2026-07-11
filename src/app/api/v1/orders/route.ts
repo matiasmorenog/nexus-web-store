@@ -29,6 +29,11 @@ function serializeOrder(order: {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerTaxId: string | null;
+  invoiceStatus: string;
+  invoiceNumber: string | null;
+  invoiceCae: string | null;
+  invoicedAt: Date | null;
   isPickup: boolean;
   shippingAddress: string;
   shippingCity: string;
@@ -63,6 +68,11 @@ function serializeOrder(order: {
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
+    customerTaxId: order.customerTaxId,
+    invoiceStatus: order.invoiceStatus,
+    invoiceNumber: order.invoiceNumber,
+    invoiceCae: order.invoiceCae,
+    invoicedAt: order.invoicedAt?.toISOString() ?? null,
     isPickup: order.isPickup,
     shippingAddress: order.shippingAddress,
     shippingCity: order.shippingCity,

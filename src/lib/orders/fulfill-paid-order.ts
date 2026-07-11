@@ -1,4 +1,6 @@
 import type { Prisma } from "@prisma/client";
+import { buildOrderPaidWebhookData } from "@/lib/afip/order-webhook-payload";
+import { queueAfipInvoiceForPaidOrder } from "@/lib/afip/process-paid-order";
 import { db } from "@/lib/db";
 import { buildOrderEmailData } from "@/lib/emails/order-email-data";
 import { sendOrderEmails } from "@/lib/emails/send-order-emails";
@@ -84,14 +86,12 @@ export async function fulfillPaidOrder(orderId: string) {
   }
 
   if (!wasAlreadyPaid) {
-    void dispatchStoreWebhook(order.storeId, "order.paid", {
-      orderId: order.id,
-      status: "PAID",
-      total: Number(order.total),
-      customerEmail: order.customerEmail,
-      customerName: order.customerName,
-      createdAt: order.createdAt.toISOString(),
+    const queuedInvoiceStatus = await queueAfipInvoiceForPaidOrder(order.id);
+    const webhookData = buildOrderPaidWebhookData({
+      ...order,
+      invoiceStatus: queuedInvoiceStatus ?? order.invoiceStatus,
     });
+    void dispatchStoreWebhook(order.storeId, "order.paid", webhookData);
   }
 
   await createOrderShipment({

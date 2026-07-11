@@ -3,6 +3,8 @@ import {
   getOrderStatusLabel,
   getOrderStatusVariant,
 } from "@/lib/order-status";
+import { formatTaxIdDisplay, getInvoiceStatusLabel } from "@/lib/afip";
+import type { InvoiceStatus } from "@prisma/client";
 import type { OrderPaymentInfo } from "@/lib/order-payment";
 import type { OrderShippingInfo } from "@/lib/order-shipping";
 import { formatPrice } from "@/lib/utils";
@@ -39,6 +41,12 @@ export type AdminOrderCardData = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerTaxId: string | null;
+  invoiceStatus: InvoiceStatus;
+  invoiceNumber: string | null;
+  invoiceCae: string | null;
+  invoicedAt: Date | null;
+  invoiceError: string | null;
   isPickup: boolean;
   shippingAddress: string;
   shippingCity: string;
@@ -71,6 +79,11 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
           <AdminDetailField label="Contacto">
             <p>{order.customerEmail}</p>
             <p className="text-neutral-500">{order.customerPhone}</p>
+            {order.customerTaxId ? (
+              <p className="text-neutral-500">
+                CUIT/DNI: {formatTaxIdDisplay(order.customerTaxId)}
+              </p>
+            ) : null}
           </AdminDetailField>
           <AdminDetailField label="Entrega">
             {order.isPickup ? (
@@ -93,6 +106,23 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
             <p className="text-neutral-700">{order.payment.statusLabel}</p>
             {order.payment.detail ? (
               <p className="text-neutral-500">{order.payment.detail}</p>
+            ) : null}
+          </AdminDetailField>
+          <AdminDetailField label="Facturación">
+            <p>{getInvoiceStatusLabel(order.invoiceStatus)}</p>
+            {order.invoiceNumber ? (
+              <p className="text-neutral-600">
+                Nº {order.invoiceNumber}
+                {order.invoiceCae ? ` · CAE ${order.invoiceCae}` : ""}
+              </p>
+            ) : null}
+            {order.invoicedAt ? (
+              <p className="text-neutral-500">
+                {new Date(order.invoicedAt).toLocaleString("es-AR")}
+              </p>
+            ) : null}
+            {order.invoiceError ? (
+              <p className="text-red-600">{order.invoiceError}</p>
             ) : null}
           </AdminDetailField>
           <AdminDetailField label="Envío">

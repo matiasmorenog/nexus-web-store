@@ -15,18 +15,21 @@ export type AdminPermission =
   | "modules:manage";
 
 export const STORE_STAFF_ROLES = [
+  "ADMIN",
   "SELLER",
   "WAREHOUSE",
   "READ_ONLY",
 ] as const satisfies readonly StoreStaffRole[];
 
 export const STORE_STAFF_ROLE_LABELS: Record<StoreStaffRole, string> = {
+  ADMIN: "Administrador",
   SELLER: "Vendedor",
   WAREHOUSE: "Depósito",
   READ_ONLY: "Solo lectura",
 };
 
 export const STORE_STAFF_ROLE_DESCRIPTIONS: Record<StoreStaffRole, string> = {
+  ADMIN: "Acceso completo al panel, igual que el owner.",
   SELLER: "Pedidos y CRM. Sin acceso a productos ni configuración.",
   WAREHOUSE: "Productos, pedidos y envíos carrier.",
   READ_ONLY: "Solo lectura en todo el panel.",
@@ -47,6 +50,7 @@ const ALL_PERMISSIONS: AdminPermission[] = [
 ];
 
 const STAFF_ROLE_PERMISSIONS: Record<StoreStaffRole, AdminPermission[]> = {
+  ADMIN: ALL_PERMISSIONS,
   SELLER: [
     "dashboard:view",
     "orders:view",
@@ -76,8 +80,12 @@ const STAFF_ROLE_PERMISSIONS: Record<StoreStaffRole, AdminPermission[]> = {
 /** Módulos visibles/gestionables por rol staff (además del gating por ENABLED_MODULES). */
 export const STAFF_ROLE_MODULE_ACCESS: Record<
   StoreStaffRole,
-  { view: ModuleId[] | "all"; manage: ModuleId[] }
+  { view: ModuleId[] | "all"; manage: ModuleId[] | "all" }
 > = {
+  ADMIN: {
+    view: "all",
+    manage: "all",
+  },
   SELLER: {
     view: ["crm"],
     manage: ["crm"],
@@ -96,6 +104,10 @@ export type AdminAccessContext = {
   role: string;
   staffRole: StoreStaffRole | null;
 };
+
+export function canManageStoreUsers(context: AdminAccessContext): boolean {
+  return hasAdminPermission(context, "staff:manage");
+}
 
 export function isStoreStaffRole(value: string): value is StoreStaffRole {
   return STORE_STAFF_ROLES.includes(value as StoreStaffRole);
@@ -159,7 +171,8 @@ export function canManageAdminModule(
     return false;
   }
 
-  return STAFF_ROLE_MODULE_ACCESS[context.staffRole].manage.includes(moduleId);
+  const access = STAFF_ROLE_MODULE_ACCESS[context.staffRole];
+  return access.manage === "all" || access.manage.includes(moduleId);
 }
 
 export function canAccessAdminPath(

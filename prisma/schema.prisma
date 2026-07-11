@@ -16,6 +16,7 @@ enum UserRole {
 }
 
 enum StoreStaffRole {
+  ADMIN
   SELLER
   WAREHOUSE
   READ_ONLY

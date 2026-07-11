@@ -12,6 +12,7 @@ export {
   canAccessAdminPath,
   canManageAdminModule,
   canViewAdminModule,
+  canManageStoreUsers,
   getDefaultAdminLandingPath,
   hasAdminPermission,
   isStoreStaffRole,

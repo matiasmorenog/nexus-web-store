@@ -6,6 +6,7 @@ import type { ModuleId } from "@/lib/modules/catalog";
 import {
   canAccessAdminPath,
   canViewAdminModule,
+  hasAdminPermission,
   type AdminAccessContext,
 } from "@/lib/store-users/permissions";
 
@@ -31,9 +32,7 @@ export function filterAdminNavItems(
       }
 
       if (item.moduleId === "multiUser") {
-        return (
-          context.role === "STORE_OWNER" || context.role === "PLATFORM_ADMIN"
-        );
+        return hasAdminPermission(context, "staff:manage");
       }
 
       return canViewAdminModule(context, item.moduleId);

@@ -285,7 +285,7 @@ export function AdminStoreUsersPanel({
         </AdminCard>
       ) : (
         <p className="text-sm text-neutral-600">
-          Solo el owner de la tienda puede invitar o quitar usuarios staff.
+          Solo un administrador puede invitar o quitar usuarios.
         </p>
       )}
     </div>

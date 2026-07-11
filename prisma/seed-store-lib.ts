@@ -10,6 +10,10 @@ import {
   DEFAULT_STORE_SLUG,
   APP2_STORE_SLUG,
   SEED_STORES,
+  SEED_CUSTOMER_EMAIL,
+  SEED_CUSTOMER_NAME,
+  SEED_CUSTOMER_PASSWORD,
+  OBSOLETE_SEED_CUSTOMER_EMAILS,
   type SeedStoreConfig,
 } from "./seed-env";
 
@@ -230,9 +234,34 @@ export async function seedApp2Store(options: SeedStoreOptions = {}) {
   return { store, admin, config, productCount };
 }
 
+/** Cuenta cliente demo compartida (pedidos demo por email). */
+export async function ensureSeedCustomerUser() {
+  await prisma.user.deleteMany({
+    where: { email: { in: [...OBSOLETE_SEED_CUSTOMER_EMAILS] } },
+  });
+
+  const passwordHash = await bcrypt.hash(SEED_CUSTOMER_PASSWORD, 12);
+
+  return prisma.user.upsert({
+    where: { email: SEED_CUSTOMER_EMAIL },
+    update: {
+      passwordHash,
+      name: SEED_CUSTOMER_NAME,
+      role: UserRole.CUSTOMER,
+    },
+    create: {
+      email: SEED_CUSTOMER_EMAIL,
+      passwordHash,
+      name: SEED_CUSTOMER_NAME,
+      role: UserRole.CUSTOMER,
+    },
+  });
+}
+
 export async function seedAllStores(options: SeedStoreOptions = {}) {
   const app1 = await seedApp1Store(options);
   const app2 = await seedApp2Store(options);
+  await ensureSeedCustomerUser();
   return { app1, app2 };
 }
 

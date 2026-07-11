@@ -3,12 +3,33 @@ import { redirect } from "next/navigation";
 import { CustomerRegisterForm } from "@/components/storefront/customer-auth-form";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { auth } from "@/lib/auth";
+import { isAdminRole, isGoogleAuthEnabled } from "@/lib/auth-session";
 
-export default async function CustomerRegisterPage() {
+type PageProps = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+function getRegisterError(error?: string) {
+  if (error === "google_admin") {
+    return "Esta cuenta es de administración. Usá el panel admin.";
+  }
+  if (error === "OAuthAccountNotLinked") {
+    return "No se pudo vincular tu cuenta de Google.";
+  }
+  return null;
+}
+
+export default async function CustomerRegisterPage({ searchParams }: PageProps) {
+  const { error } = await searchParams;
   const session = await auth();
+  const registerError = getRegisterError(error);
 
   if (session?.user?.role === "CUSTOMER") {
     redirect("/cuenta/pedidos");
+  }
+
+  if (session?.user?.role && isAdminRole(session.user.role)) {
+    redirect("/admin");
   }
 
   return (
@@ -20,7 +41,12 @@ export default async function CustomerRegisterPage() {
         backLabel="Ya tengo cuenta"
       />
       <div className="mt-8 rounded-xl border border-neutral-200/90 bg-white p-6 shadow-sm">
-        <CustomerRegisterForm />
+        {registerError ? (
+          <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            {registerError}
+          </p>
+        ) : null}
+        <CustomerRegisterForm googleAuthEnabled={isGoogleAuthEnabled()} />
       </div>
       <p className="mt-6 text-center text-xs text-neutral-500">
         Podés comprar sin cuenta.{" "}

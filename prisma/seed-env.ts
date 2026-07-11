@@ -6,7 +6,7 @@
 /** Tienda app1 (deploy 1). */
 export const DEFAULT_STORE_SLUG = "demo-store";
 export const SEED_STORE_NAME = "Goat Indumentaria";
-export const STORE_OWNER_EMAIL = "matiasmorenog+nexus-web-store@gmail.com";
+export const STORE_OWNER_EMAIL = "matiasmorenog+goat-admin@gmail.com";
 
 /** Tienda app2 (deploy 2). */
 export const APP2_STORE_SLUG = "vape-demo";
@@ -15,6 +15,17 @@ export const APP2_STORE_OWNER_EMAIL = "matiasmorenog+vape-nexus@gmail.com";
 
 export const SEED_ADMIN_PASSWORD = "admin123";
 export const SEED_ADMIN_NAME = "Admin";
+
+/** Cuenta cliente demo (app1) — login en /cuenta/ingresar */
+export const SEED_CUSTOMER_EMAIL = "matiasmorenog+goat-customer@gmail.com";
+export const SEED_CUSTOMER_PASSWORD = "cliente123";
+export const SEED_CUSTOMER_NAME = "Cliente Demo";
+
+/** Cuentas cliente obsoletas; se eliminan en seed */
+export const OBSOLETE_SEED_CUSTOMER_EMAILS = [
+  "cliente.demo@demo.nexus-store.local",
+  "lucia.fernandez@demo.nexus-store.local",
+] as const;
 
 export type SeedStoreConfig = {
   slug: string;

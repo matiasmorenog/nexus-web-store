@@ -25,6 +25,7 @@
     "cache:revalidate": "tsx scripts/revalidate-cache.ts"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.2",
     "@prisma/client": "^6.19.3",
     "@vercel/blob": "^2.4.0",
     "bcryptjs": "^3.0.3",

@@ -22,14 +22,14 @@ export function WishlistHeaderLink({
   const app2Class = app2ButtonClassName({
     variant: "ghost",
     size: "md",
-    className: "relative h-10 w-10 px-0",
+    className: "relative h-10 px-3",
   });
 
   const lightClass =
-    "relative inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white px-2.5 text-neutral-900 transition-colors hover:border-neutral-400 hover:bg-neutral-50 sm:px-3";
+    "relative inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white px-3 text-neutral-900 transition-colors hover:border-neutral-400 hover:bg-neutral-50";
 
   const darkClass =
-    "relative inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-white/15 bg-white/5 px-2.5 text-neutral-100 transition-colors hover:border-white/25 hover:bg-white/10 sm:px-3";
+    "relative inline-flex h-10 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-white/15 bg-white/5 px-3 text-neutral-100 transition-colors hover:border-white/25 hover:bg-white/10";
 
   return (
     <Link

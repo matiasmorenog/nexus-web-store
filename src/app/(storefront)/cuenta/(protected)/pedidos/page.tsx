@@ -17,14 +17,13 @@ export default async function CustomerOrdersPage() {
   return (
     <>
       <StorefrontPageHeader
+        variant="account"
         title="Mis pedidos"
         description="Historial de compras en esta tienda."
-        backHref="/"
-        backLabel="Volver a la tienda"
       />
 
       {orders.length === 0 ? (
-        <div className="mt-8 rounded-xl border border-dashed border-neutral-200 bg-neutral-50/80 px-6 py-12 text-center">
+        <div className="py-10 text-center">
           <p className="font-medium text-neutral-900">Todavía no tenés pedidos</p>
           <p className="mt-2 text-sm text-neutral-500">
             Cuando compres con este email, los vas a ver acá.
@@ -34,7 +33,7 @@ export default async function CustomerOrdersPage() {
           </Link>
         </div>
       ) : (
-        <ul className="mt-8 space-y-4">
+        <ul className="space-y-4">
           {orders.map((order) => (
             <li key={order.id}>
               <CustomerOrderCard order={order} />

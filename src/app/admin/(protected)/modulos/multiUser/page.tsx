@@ -1,7 +1,7 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminStoreUsersPanel } from "@/components/admin/admin-store-users-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminPermission } from "@/lib/admin-session";
 import { requireModule } from "@/lib/modules";
 import { getStoreId } from "@/lib/store-context";
 import { listStoreStaffMembers } from "@/lib/store-users";
@@ -9,7 +9,7 @@ import { listStoreStaffMembers } from "@/lib/store-users";
 export const dynamic = "force-dynamic";
 
 export default async function AdminMultiUserPage() {
-  const session = await requireAdminSession();
+  const session = await requireAdminPermission("staff:manage");
   await requireModule("multiUser");
 
   const storeId = await getStoreId();
@@ -23,7 +23,7 @@ export default async function AdminMultiUserPage() {
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="Multi-usuario"
-          description="Invitá usuarios staff con acceso al panel admin."
+          description="Invitá usuarios staff con roles de vendedor, depósito o solo lectura."
         />
       </AdminDashboardReveal>
 

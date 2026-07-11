@@ -10,7 +10,7 @@ import {
   AdminSkeletonDashboardRecentOrders,
 } from "@/components/admin/admin-skeleton";
 import { parseDashboardMonthPeriod } from "@/lib/admin-analytics";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminPermission } from "@/lib/admin-session";
 import { getStoreDisplayName } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export default async function AdminDashboardPage({
 }: {
   searchParams: Promise<{ period?: string }>;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminPermission("dashboard:view");
   const storeId = session.user.storeId;
 
   const params = await searchParams;

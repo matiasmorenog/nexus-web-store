@@ -57,7 +57,13 @@ export type AdminOrderCardData = {
   items: OrderItem[];
 };
 
-export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
+export function AdminOrderCard({
+  order,
+  canManageOrders = true,
+}: {
+  order: AdminOrderCardData;
+  canManageOrders?: boolean;
+}) {
   return (
     <AdminCard
       padding={false}
@@ -184,10 +190,12 @@ export function AdminOrderCard({ order }: { order: AdminOrderCardData }) {
         ))}
       </AdminDataTable>
 
-      <AdminCardFooter>
-        <p className="text-sm text-neutral-500">Cambiar estado del pedido</p>
-        <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
-      </AdminCardFooter>
+      {canManageOrders ? (
+        <AdminCardFooter>
+          <p className="text-sm text-neutral-500">Cambiar estado del pedido</p>
+          <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+        </AdminCardFooter>
+      ) : null}
     </AdminCard>
   );
 }

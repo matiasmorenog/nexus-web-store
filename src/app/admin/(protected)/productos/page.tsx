@@ -1,5 +1,8 @@
 import { Suspense } from "react";
-import { requireAdminSession } from "@/lib/admin-session";
+import {
+  adminCanManage,
+  requireAdminPermission,
+} from "@/lib/admin-session";
 import {
   adminProductsFilterKey,
   getAdminProductsPage,
@@ -43,8 +46,9 @@ export default async function AdminProductsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminPermission("products:view");
   const storeId = session.user.storeId;
+  const canManageProducts = adminCanManage(session, "products:manage");
 
   const params = await searchParams;
   const filters = {
@@ -124,6 +128,7 @@ export default async function AdminProductsPage({
               hasMore={false}
               filters={filters}
               promo2x1Selectable={promo2x1Selectable}
+              canManage={canManageProducts}
             />
           ) : page.total === 0 ? (
             <AdminCard>
@@ -139,6 +144,7 @@ export default async function AdminProductsPage({
               hasMore={page.hasMore}
               filters={filters}
               promo2x1Selectable={promo2x1Selectable}
+              canManage={canManageProducts}
             />
           )}
         </div>

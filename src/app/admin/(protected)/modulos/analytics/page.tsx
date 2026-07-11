@@ -6,7 +6,7 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSkeletonDashboardAnalytics } from "@/components/admin/admin-skeleton";
 import { parseActivityPeriod } from "@/lib/admin-analytics";
 import { getDefaultAdminOrdersDateRange } from "@/lib/admin-orders-query";
-import { requireAdminSession } from "@/lib/admin-session";
+import { requireAdminModuleView } from "@/lib/admin-session";
 import { requireModule } from "@/lib/modules";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +20,7 @@ export default async function AdminAnalyticsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const session = await requireAdminSession();
+  const session = await requireAdminModuleView("analytics");
   await requireModule("analytics");
 
   const params = await searchParams;

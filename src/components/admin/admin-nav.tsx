@@ -6,7 +6,6 @@ import { ExternalLink } from "lucide-react";
 import { SignOutButton } from "@/components/admin/sign-out-button";
 import {
   isModuleNavItemEnabled,
-  splitAdminNavItems,
   type AdminNavItem,
   type ModuleId,
 } from "@/lib/modules";
@@ -18,6 +17,7 @@ type AdminNavProps = {
   userName?: string | null;
   userEmail?: string | null;
   enabledModuleIds: ModuleId[];
+  navItems: AdminNavItem[];
 };
 
 function isActive(pathname: string, href: string, exact?: boolean) {
@@ -74,10 +74,12 @@ export function AdminNav({
   userName,
   userEmail,
   enabledModuleIds,
+  navItems,
 }: AdminNavProps) {
   const pathname = usePathname();
-  const { coreItems, moduleItems, planItem } = splitAdminNavItems(enabledModuleIds);
-  const navItems = [...coreItems, ...moduleItems, planItem];
+  const coreItems = navItems.filter((item) => item.kind === "core");
+  const moduleItems = navItems.filter((item) => item.kind === "module");
+  const planItem = navItems.find((item) => item.kind === "plan");
 
   const linkClass = (item: AdminNavItem, mobile = false) => {
     const active = isActive(pathname, item.href, item.exact);
@@ -140,16 +142,18 @@ export function AdminNav({
             </nav>
           ) : null}
 
-          <nav
-            aria-label="Plan"
-            className="shrink-0 space-y-1 border-t border-white/10 p-4"
-          >
-            <DesktopNavLink
-              item={planItem}
-              enabledModuleIds={enabledModuleIds}
-              pathname={pathname}
-            />
-          </nav>
+          {planItem ? (
+            <nav
+              aria-label="Plan"
+              className="shrink-0 space-y-1 border-t border-white/10 p-4"
+            >
+              <DesktopNavLink
+                item={planItem}
+                enabledModuleIds={enabledModuleIds}
+                pathname={pathname}
+              />
+            </nav>
+          ) : null}
         </div>
 
         <div className="shrink-0 space-y-3 border-t border-white/10 p-4">

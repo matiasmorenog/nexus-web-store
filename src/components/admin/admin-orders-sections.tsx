@@ -28,6 +28,7 @@ type AdminOrdersPageContentProps = {
   filters: AdminOrdersFilterParams;
   params: AdminOrdersUrlParams;
   filterChips: AdminFilterChip[];
+  canManageOrders?: boolean;
 };
 
 export async function AdminOrdersPageContent({
@@ -35,6 +36,7 @@ export async function AdminOrdersPageContent({
   filters,
   params,
   filterChips,
+  canManageOrders = true,
 }: AdminOrdersPageContentProps) {
   const { summary, page } = await getAdminOrdersPageData(storeId, filters);
   const description = buildAdminOrdersPageDescription(
@@ -74,6 +76,7 @@ export async function AdminOrdersPageContent({
         total={page.total}
         hasMore={page.hasMore}
         filters={filters}
+        canManageOrders={canManageOrders}
       />
     );
   }

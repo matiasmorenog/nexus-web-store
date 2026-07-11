@@ -14,6 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type {
+  CheckoutPaymentConfig,
+  CheckoutPaymentMethodOption,
+} from "@/lib/payments";
+import { calculateTransferPaymentDiscount } from "@/lib/payments";
 
 type DeliveryMethod = "shipping" | "pickup";
 
@@ -58,6 +63,9 @@ type CheckoutFormProps = {
   dynamicShippingEnabled?: boolean;
   appliedCoupon?: AppliedCheckoutCoupon | null;
   onCouponChange?: (coupon: AppliedCheckoutCoupon | null) => void;
+  paymentConfig: CheckoutPaymentConfig;
+  paymentMethod?: CheckoutPaymentMethodOption;
+  onPaymentMethodChange?: (method: CheckoutPaymentMethodOption) => void;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -73,6 +81,9 @@ export function CheckoutForm({
   dynamicShippingEnabled = false,
   appliedCoupon = null,
   onCouponChange,
+  paymentConfig,
+  paymentMethod: paymentMethodProp,
+  onPaymentMethodChange,
   defaultCustomer,
 }: CheckoutFormProps) {
   const router = useRouter();
@@ -82,6 +93,20 @@ export function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("shipping");
+  const [internalPaymentMethod, setInternalPaymentMethod] =
+    useState<CheckoutPaymentMethodOption>(() =>
+      paymentConfig.transferAvailable && !paymentConfig.mercadopagoAvailable
+        ? "transfer"
+        : "mercadopago",
+    );
+  const paymentMethod = paymentMethodProp ?? internalPaymentMethod;
+
+  const setPaymentMethod = (method: CheckoutPaymentMethodOption) => {
+    if (paymentMethodProp === undefined) {
+      setInternalPaymentMethod(method);
+    }
+    onPaymentMethodChange?.(method);
+  };
   const [zip, setZip] = useState("");
   const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -117,9 +142,23 @@ export function CheckoutForm({
   const effectiveShipping =
     deliveryMethod === "pickup" ? 0 : quotedShipping;
   const orderSubtotal = subtotal();
+  const transferDiscount =
+    paymentMethod === "transfer"
+      ? calculateTransferPaymentDiscount(orderSubtotal)
+      : 0;
+  const subtotalForCoupon = Math.max(0, orderSubtotal - transferDiscount);
   const couponDiscount = appliedCoupon?.discount ?? 0;
-  const subtotalAfterCoupon = Math.max(0, orderSubtotal - couponDiscount);
+  const subtotalAfterCoupon = Math.max(0, subtotalForCoupon - couponDiscount);
   const total = subtotalAfterCoupon + effectiveShipping;
+
+  const paymentMethodChangedRef = useRef(false);
+  useEffect(() => {
+    if (!paymentMethodChangedRef.current) {
+      paymentMethodChangedRef.current = true;
+      return;
+    }
+    onCouponChange?.(null);
+  }, [paymentMethod, onCouponChange]);
 
   useEffect(() => {
     if (!canQuoteShipping) {
@@ -133,7 +172,13 @@ export function CheckoutForm({
         const res = await fetch("/api/shipping/quote", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ zip: normalizedZip }),
+          body: JSON.stringify({
+            zip: normalizedZip,
+            items: items.map((item) => ({
+              variantId: item.variantId,
+              quantity: item.quantity,
+            })),
+          }),
           signal: controller.signal,
         });
         const data = await res.json();
@@ -158,7 +203,7 @@ export function CheckoutForm({
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [canQuoteShipping, normalizedZip]);
+  }, [canQuoteShipping, normalizedZip, items]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -206,6 +251,7 @@ export function CheckoutForm({
           deliveryMethod,
           customer,
           couponCode: appliedCoupon?.code,
+          paymentMethod,
           items: items.map((i) => ({
             variantId: i.variantId,
             quantity: i.quantity,
@@ -222,6 +268,9 @@ export function CheckoutForm({
       if (result.initPoint) {
         clearCart();
         window.location.href = result.initPoint;
+      } else if (result.transferMode) {
+        clearCart();
+        router.push(`/checkout/pendiente?order=${result.orderId}`);
       } else if (result.demoMode) {
         clearCart();
         router.push(`/checkout/exito?order=${result.orderId}`);
@@ -274,7 +323,7 @@ export function CheckoutForm({
                     : effectiveShipping > 0
                       ? formatPrice(effectiveShipping)
                       : "Ingresá tu CP para cotizar"
-                  : formatPrice(effectiveShipping)}
+                  : "Sin cotización por CP"}
               </span>
               {dynamicShippingEnabled && activeShippingQuote && deliveryMethod === "shipping" ? (
                 <span className="mt-1 text-xs text-neutral-500">
@@ -325,7 +374,7 @@ export function CheckoutForm({
                 : activeShippingQuote
                   ? `${formatPrice(effectiveShipping)} · llega en ${activeShippingQuote.deliveryWindow}`
                   : "Ingresá tu código postal para cotizar el envío."
-              : `Costo fijo: ${formatPrice(effectiveShipping)}`}
+              : "La cotización por CP no está activa. Podés retirar en local o contactar a la tienda."}
           </p>
         </div>
       ) : null}
@@ -420,9 +469,73 @@ export function CheckoutForm({
         </div>
       </fieldset>
 
+      {paymentConfig.showPaymentMethods ? (
+        <fieldset className="space-y-3 rounded-lg border border-neutral-200 bg-white p-4">
+          <legend className="px-1 text-sm font-medium text-neutral-900">
+            Método de pago
+          </legend>
+          <div
+            className={cn(
+              "grid gap-3",
+              paymentConfig.mercadopagoAvailable && paymentConfig.transferAvailable
+                ? "sm:grid-cols-2"
+                : "sm:grid-cols-1",
+            )}
+          >
+            {paymentConfig.mercadopagoAvailable ? (
+            <label
+              className={cn(
+                "cursor-pointer rounded-lg border p-4 transition-colors",
+                paymentMethod === "mercadopago"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]/40"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="mercadopago"
+                checked={paymentMethod === "mercadopago"}
+                onChange={() => setPaymentMethod("mercadopago")}
+                className="sr-only"
+              />
+              <p className="font-medium text-neutral-900">Mercado Pago</p>
+              <p className="mt-1 text-xs text-neutral-500">
+                Tarjetas, débito y otros medios online.
+              </p>
+            </label>
+            ) : null}
+            {paymentConfig.transferAvailable ? (
+            <label
+              className={cn(
+                "cursor-pointer rounded-lg border p-4 transition-colors",
+                paymentMethod === "transfer"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]/40"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="transfer"
+                checked={paymentMethod === "transfer"}
+                onChange={() => setPaymentMethod("transfer")}
+                className="sr-only"
+              />
+              <p className="font-medium text-neutral-900">Transferencia</p>
+              <p className="mt-1 text-xs text-neutral-500">
+                {paymentConfig.transferDiscountPercent}% off en productos. Pagás por
+                transferencia bancaria.
+              </p>
+            </label>
+            ) : null}
+          </div>
+        </fieldset>
+      ) : null}
+
       {couponsEnabled ? (
         <CheckoutCouponField
-          subtotal={orderSubtotal}
+          subtotal={subtotalForCoupon}
           applied={appliedCoupon}
           onApplied={(coupon) => onCouponChange?.(coupon)}
         />
@@ -434,6 +547,7 @@ export function CheckoutForm({
             rawSubtotal={rawSubtotal()}
             promoDiscount={promoDiscount()}
             subtotal={orderSubtotal}
+            transferDiscount={transferDiscount}
             couponCode={appliedCoupon?.code}
             couponDiscount={couponDiscount}
             totalAfterDiscounts={subtotalAfterCoupon}
@@ -475,7 +589,11 @@ export function CheckoutForm({
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Button type="submit" size="lg" className="w-full" disabled={loading || items.length === 0}>
-        {loading ? "Procesando..." : "Pagar con Mercado Pago"}
+        {loading
+          ? "Procesando..."
+          : paymentMethod === "transfer"
+            ? "Confirmar pedido por transferencia"
+            : "Pagar con Mercado Pago"}
       </Button>
     </form>
   );

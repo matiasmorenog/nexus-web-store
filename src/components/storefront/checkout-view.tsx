@@ -14,6 +14,8 @@ import { useCartStore } from "@/stores/cart-store";
 import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { formatPrice } from "@/lib/utils";
 import { getClientVariantLabels } from "@/lib/variant-labels";
+import type { CheckoutPaymentConfig } from "@/lib/payments";
+import { calculateTransferPaymentDiscount } from "@/lib/payments";
 
 type CheckoutViewProps = {
   shippingCost: number;
@@ -21,6 +23,7 @@ type CheckoutViewProps = {
   storeName: string;
   couponsEnabled?: boolean;
   dynamicShippingEnabled?: boolean;
+  paymentConfig: CheckoutPaymentConfig;
   defaultCustomer?: {
     name: string;
     email: string;
@@ -33,10 +36,16 @@ export function CheckoutView({
   storeName,
   couponsEnabled = false,
   dynamicShippingEnabled = false,
+  paymentConfig,
   defaultCustomer,
 }: CheckoutViewProps) {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(
     null,
+  );
+  const [paymentMethod, setPaymentMethod] = useState<"mercadopago" | "transfer">(
+    paymentConfig.transferAvailable && !paymentConfig.mercadopagoAvailable
+      ? "transfer"
+      : "mercadopago",
   );
   const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
@@ -45,7 +54,14 @@ export function CheckoutView({
   const subtotal = useCartStore((s) => s.subtotal());
   const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
   const couponDiscount = appliedCoupon?.discount ?? 0;
-  const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+  const transferDiscount =
+    paymentMethod === "transfer"
+      ? calculateTransferPaymentDiscount(subtotal)
+      : 0;
+  const subtotalAfterCoupon = Math.max(
+    0,
+    subtotal - transferDiscount - couponDiscount,
+  );
   const promoByVariant = getCartPromoPricing(items, promo2x1Active).byVariantId;
 
   if (items.length === 0) {
@@ -88,6 +104,9 @@ export function CheckoutView({
             defaultCustomer={defaultCustomer}
             couponsEnabled={couponsEnabled}
             dynamicShippingEnabled={dynamicShippingEnabled}
+            paymentConfig={paymentConfig}
+            paymentMethod={paymentMethod}
+            onPaymentMethodChange={setPaymentMethod}
             appliedCoupon={appliedCoupon}
             onCouponChange={setAppliedCoupon}
           />
@@ -135,6 +154,7 @@ export function CheckoutView({
               rawSubtotal={rawSubtotal}
               promoDiscount={promoDiscount}
               subtotal={subtotal}
+              transferDiscount={transferDiscount}
               couponCode={appliedCoupon?.code}
               couponDiscount={couponDiscount}
               totalAfterDiscounts={subtotalAfterCoupon}

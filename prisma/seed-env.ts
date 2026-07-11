@@ -34,7 +34,6 @@ export type SeedStoreConfig = {
   adminPassword: string;
   adminDisplayName: string;
   primaryColor: string;
-  shippingFlatRate: number;
 };
 
 export const SEED_STORES: SeedStoreConfig[] = [
@@ -45,7 +44,6 @@ export const SEED_STORES: SeedStoreConfig[] = [
     adminPassword: SEED_ADMIN_PASSWORD,
     adminDisplayName: SEED_ADMIN_NAME,
     primaryColor: "#db2777",
-    shippingFlatRate: 2500,
   },
   {
     slug: APP2_STORE_SLUG,
@@ -54,7 +52,6 @@ export const SEED_STORES: SeedStoreConfig[] = [
     adminPassword: SEED_ADMIN_PASSWORD,
     adminDisplayName: SEED_ADMIN_NAME,
     primaryColor: "#00e5ff",
-    shippingFlatRate: 2000,
   },
 ];
 

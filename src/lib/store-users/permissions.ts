@@ -197,6 +197,10 @@ export function canAccessAdminPath(
     return permissions.has("config:view");
   }
 
+  if (pathname.startsWith("/admin/modulos/cobros")) {
+    return permissions.has("config:view");
+  }
+
   if (pathname.startsWith("/admin/plan")) {
     return permissions.has("plan:view");
   }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  CreditCard,
   ExternalLink,
   Gift,
   Heart,
@@ -40,6 +41,7 @@ const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
   coupons: Gift,
   homeEditor: Home,
   analytics: BarChart3,
+  cobros: CreditCard,
   crm: Users,
   shippingCarriers: Truck,
   marketing: Megaphone,
@@ -126,9 +128,8 @@ export function AdminNav({
   navItems,
 }: AdminNavProps) {
   const pathname = usePathname();
-  const coreItems = navItems.filter((item) => item.kind === "core");
-  const moduleItems = navItems.filter((item) => item.kind === "module");
   const planItem = navItems.find((item) => item.kind === "plan");
+  const mainItems = navItems.filter((item) => item.kind !== "plan");
 
   const linkClass = (item: AdminNavItem, mobile = false) => {
     const active = isActive(pathname, item.href, item.exact);
@@ -160,9 +161,9 @@ export function AdminNav({
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <nav
             aria-label="Navegación principal"
-            className="shrink-0 space-y-1 border-b border-white/10 p-4"
+            className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
           >
-            {coreItems.map((item) => (
+            {mainItems.map((item) => (
               <DesktopNavLink
                 key={item.href}
                 item={item}
@@ -171,25 +172,6 @@ export function AdminNav({
               />
             ))}
           </nav>
-
-          {moduleItems.length > 0 ? (
-            <nav
-              aria-label="Módulos Plus"
-              className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
-            >
-              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
-                Módulos
-              </p>
-              {moduleItems.map((item) => (
-                <DesktopNavLink
-                  key={item.href}
-                  item={item}
-                  enabledModuleIds={enabledModuleIds}
-                  pathname={pathname}
-                />
-              ))}
-            </nav>
-          ) : null}
 
           {planItem ? (
             <nav

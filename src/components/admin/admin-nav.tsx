@@ -234,19 +234,19 @@ function AdminSidebarPanel({
   );
 }
 
-export function AdminNav({
+type AdminMobileNavProps = AdminNavProps & {
+  pathname: string;
+};
+
+function AdminMobileNav({
   brandPrefix,
   userName,
   userEmail,
   enabledModuleIds,
   navItems,
-}: AdminNavProps) {
-  const pathname = usePathname();
+  pathname,
+}: AdminMobileNavProps) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  useEffect(() => {
-    setMobileNavOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     if (!mobileNavOpen) return;
@@ -265,18 +265,6 @@ export function AdminNav({
 
   return (
     <>
-      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col overflow-hidden bg-zinc-900 lg:flex lg:h-full">
-        <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
-        <AdminSidebarPanel
-          brandPrefix={brandPrefix}
-          userName={userName}
-          userEmail={userEmail}
-          enabledModuleIds={enabledModuleIds}
-          navItems={navItems}
-          pathname={pathname}
-        />
-      </aside>
-
       <header className="relative z-30 shrink-0 border-b border-neutral-200 bg-white lg:hidden">
         <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
         <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-4">
@@ -340,6 +328,42 @@ export function AdminNav({
           </aside>
         </div>
       ) : null}
+    </>
+  );
+}
+
+export function AdminNav({
+  brandPrefix,
+  userName,
+  userEmail,
+  enabledModuleIds,
+  navItems,
+}: AdminNavProps) {
+  const pathname = usePathname();
+
+  return (
+    <>
+      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col overflow-hidden bg-zinc-900 lg:flex lg:h-full">
+        <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
+        <AdminSidebarPanel
+          brandPrefix={brandPrefix}
+          userName={userName}
+          userEmail={userEmail}
+          enabledModuleIds={enabledModuleIds}
+          navItems={navItems}
+          pathname={pathname}
+        />
+      </aside>
+
+      <AdminMobileNav
+        key={pathname}
+        brandPrefix={brandPrefix}
+        userName={userName}
+        userEmail={userEmail}
+        enabledModuleIds={enabledModuleIds}
+        navItems={navItems}
+        pathname={pathname}
+      />
     </>
   );
 }

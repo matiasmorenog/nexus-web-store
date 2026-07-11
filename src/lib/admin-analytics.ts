@@ -14,6 +14,11 @@ import {
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
 import {
+  getMercadoEnviosTokenSource,
+  isMercadoEnviosAdminConfigured,
+} from "@/lib/mercado-envios/resolve-token";
+import { storeHasModule } from "@/lib/modules";
+import {
   getMercadoPagoTokenSource,
   isMercadoPagoAdminConfigured,
 } from "@/lib/payments/resolve-token";
@@ -36,6 +41,7 @@ export {
   buildAdminPaidOrdersHref,
   buildAdminPaymentSettingsHref,
   buildAdminRecentOrdersListHref,
+  buildAdminShippingCarriersHref,
   getDashboardMonthPeriodMeta,
   parseActivityPeriod,
   parseDashboardMonthPeriod,
@@ -346,25 +352,34 @@ async function fetchTopProductsAggregates(
 }
 
 async function fetchAdminDashboardAttention(storeId: string) {
-  const [paidAwaitingShipment, outOfStockVariants, mercadoPagoSource] =
-    await Promise.all([
-      db.order.count({
-        where: { storeId, status: "PAID" },
-      }),
-      db.productVariant.count({
-        where: {
-          product: { storeId },
-          stock: { lte: 0 },
-        },
-      }),
-      getMercadoPagoTokenSource(storeId),
-    ]);
+  const [
+    paidAwaitingShipment,
+    outOfStockVariants,
+    shippingCarriersEnabled,
+    mercadoPagoSource,
+    mercadoEnviosSource,
+  ] = await Promise.all([
+    db.order.count({
+      where: { storeId, status: "PAID" },
+    }),
+    db.productVariant.count({
+      where: {
+        product: { storeId },
+        stock: { lte: 0 },
+      },
+    }),
+    storeHasModule(storeId, "shippingCarriers"),
+    getMercadoPagoTokenSource(storeId),
+    getMercadoEnviosTokenSource(storeId),
+  ]);
 
   return {
     paidAwaitingShipment,
     outOfStockVariants,
     cobrosTokenMissing: !isMercadoPagoAdminConfigured(mercadoPagoSource),
-    shippingCarriersTokenMissing: false,
+    shippingCarriersTokenMissing:
+      shippingCarriersEnabled &&
+      !isMercadoEnviosAdminConfigured(mercadoEnviosSource, mercadoPagoSource),
   };
 }
 

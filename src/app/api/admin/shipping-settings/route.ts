@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { saveStoreShippingSettings } from "@/lib/shipping-carriers/admin-persist";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
-import type { StoreShippingSettingsData } from "@/lib/shipping-carriers/types";
+import type { StoreShippingSettingsSaveInput } from "@/lib/shipping-carriers/types";
 import { assertModule, moduleErrorResponse } from "@/lib/modules";
 import { getStoreId } from "@/lib/store-context";
 
@@ -37,9 +37,10 @@ export async function PUT(request: NextRequest) {
   if ("error" in authResult) return authResult.error;
 
   try {
-    const body = (await request.json()) as StoreShippingSettingsData;
+    const body = (await request.json()) as StoreShippingSettingsSaveInput;
     await saveStoreShippingSettings(authResult.storeId, body);
-    return NextResponse.json({ ok: true });
+    const settings = await getStoreShippingSettingsForAdmin(authResult.storeId);
+    return NextResponse.json({ ok: true, settings });
   } catch (error) {
     return NextResponse.json(
       {

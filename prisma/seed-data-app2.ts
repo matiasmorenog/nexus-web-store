@@ -16,7 +16,7 @@ export const APP2_PRODUCTS: App2SeedProduct[] = [
       "Pod descartable listo para usar. Sabor mango con frescura. Aprox. 3000 caladas.",
     featured: true,
     image:
-      "https://images.unsplash.com/photo-1635398863038-94958f86142c?w=800&q=80",
+      "https://images.unsplash.com/photo-1666402666628-61eec7cc8d26?w=800&q=80",
     price: 8900,
     variants: [
       { nicotina: "35mg", sabor: "Mango Ice", stock: 20 },
@@ -30,7 +30,7 @@ export const APP2_PRODUCTS: App2SeedProduct[] = [
       "Líquido con nicotina salts. Sabor menta fresca. Frasco 30 ml.",
     featured: true,
     image:
-      "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=800&q=80",
+      "https://images.unsplash.com/photo-1715613814256-25bef16120cd?w=800&q=80",
     price: 6500,
     variants: [
       { nicotina: "25mg", sabor: "Mint", stock: 12 },
@@ -45,7 +45,7 @@ export const APP2_PRODUCTS: App2SeedProduct[] = [
       "Kit completo con dispositivo recargable, cartucho y cable USB. Ideal para empezar.",
     featured: true,
     image:
-      "https://images.unsplash.com/photo-1585338109759-4fd4c4d72f98?w=800&q=80",
+      "https://images.unsplash.com/photo-1715613814529-939dcaaa33d3?w=800&q=80",
     price: 18900,
     variants: [{ nicotina: "Kit", sabor: "Negro", stock: 8 }],
   },
@@ -56,7 +56,7 @@ export const APP2_PRODUCTS: App2SeedProduct[] = [
       "Cartucho de repuesto compatible con vape pen. Capacidad 2 ml.",
     featured: false,
     image:
-      "https://images.unsplash.com/photo-1611078489935-0cb964d6adc4?w=800&q=80",
+      "https://images.unsplash.com/photo-1701278109202-ad455b0506ac?w=800&q=80",
     price: 4500,
     variants: [
       { nicotina: "0.8Ω", sabor: "Transparente", stock: 25 },
@@ -69,7 +69,7 @@ export const APP2_PRODUCTS: App2SeedProduct[] = [
     description: "Cable USB-C de 1 m para recargar tu dispositivo.",
     featured: false,
     image:
-      "https://images.unsplash.com/photo-1625948515291-69613efd202f?w=800&q=80",
+      "https://images.unsplash.com/photo-1762681290814-432626dffb8c?w=800&q=80",
     price: 3200,
     variants: [{ nicotina: "Único", sabor: "Negro", stock: 30 }],
   },

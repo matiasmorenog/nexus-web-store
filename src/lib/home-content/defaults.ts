@@ -70,7 +70,7 @@ export function buildDefaultApp2HomeContent(): HomeContentPayload {
         order: 10,
         content: {
           backgroundImageUrl:
-            "https://source.unsplash.com/1600x900/?vape,neon,smoke",
+            "https://images.unsplash.com/photo-1621934801745-3eabc6d3ac89?w=1600&q=80",
           eyebrow: "Nuevas llegadas 2025",
           titleLine1: "ELEVA TU",
           titleLine2: "EXPERIENCIA",
@@ -138,7 +138,7 @@ export function buildDefaultApp2HomeContent(): HomeContentPayload {
           couponCode: APP2_PROMO.code,
           couponHint: "al comprar",
           backgroundImageUrl:
-            "https://source.unsplash.com/1400x400/?vape,device,dark",
+            "https://images.unsplash.com/photo-1715613814529-939dcaaa33d3?w=1400&q=80",
           cta: { label: "Canjear oferta", href: "#productos-app2" },
         },
       },

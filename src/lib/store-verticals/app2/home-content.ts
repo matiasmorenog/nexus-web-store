@@ -19,25 +19,29 @@ export const APP2_HOME_CATEGORIES = [
     slug: "kits",
     label: "Mods & Kits",
     gradient: "from-cyan-500/20",
-    image: "https://source.unsplash.com/600x700/?vape,mod,device",
+    image:
+      "https://images.unsplash.com/photo-1699631559529-83389014055c?w=600&q=80",
   },
   {
     slug: "descartables",
     label: "Desechables",
     gradient: "from-orange-500/20",
-    image: "https://source.unsplash.com/600x700/?vape,disposable,pod",
+    image:
+      "https://images.unsplash.com/photo-1666402666628-61eec7cc8d26?w=600&q=80",
   },
   {
     slug: "liquidos",
     label: "E-Líquidos",
     gradient: "from-purple-500/20",
-    image: "https://source.unsplash.com/600x700/?e-liquid,bottle,vape",
+    image:
+      "https://images.unsplash.com/photo-1715613814256-25bef16120cd?w=600&q=80",
   },
   {
     slug: "pods",
     label: "Pods & Cartuchos",
     gradient: "from-emerald-500/20",
-    image: "https://source.unsplash.com/600x700/?vape,pod,cartridge",
+    image:
+      "https://images.unsplash.com/photo-1701278109202-ad455b0506ac?w=600&q=80",
   },
 ] as const;
 

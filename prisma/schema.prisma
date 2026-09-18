@@ -95,6 +95,7 @@ model Store {
   products Product[]
   orders            Order[]
   coupons           Coupon[]
+  categories        StoreCategory[]
   homeContent       StoreHomeContent?
   customers         StoreCustomer[]
   seoSettings       StoreSeoSettings?
@@ -107,6 +108,23 @@ model Store {
   promotionSettings StorePromotionSettings?
   paymentSettings   StorePaymentSettings?
   afipSettings      StoreAfipSettings?
+}
+
+model StoreCategory {
+  id         String   @id @default(cuid())
+  storeId    String
+  slug       String
+  label      String
+  sortOrder  Int      @default(0)
+  audiences  Json?
+  showInNav  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, slug])
+  @@index([storeId, sortOrder])
 }
 
 model StoreAfipSettings {

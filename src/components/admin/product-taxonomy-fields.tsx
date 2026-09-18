@@ -13,14 +13,18 @@ import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 type ProductTaxonomyFieldsProps = {
   defaultAudience?: string;
   defaultCategory?: string;
+  /** Categorías de la tienda (DB). Si falta, usa vertical client config. */
+  categories?: readonly ProductCategoryDef[];
 };
 
 export function ProductTaxonomyFields({
   defaultAudience = "unisex",
   defaultCategory,
+  categories: categoriesProp,
 }: ProductTaxonomyFieldsProps) {
   const verticalConfig = useMemo(() => getClientStorefrontConfig(), []);
-  const { audiences, productCategories, features } = verticalConfig;
+  const { audiences, features } = verticalConfig;
+  const productCategories = categoriesProp ?? verticalConfig.productCategories;
 
   const defaultAudienceSlug =
     audiences.find((item) => item.slug === defaultAudience)?.slug ??

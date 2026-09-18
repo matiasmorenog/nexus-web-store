@@ -20,6 +20,7 @@ import {
   Settings,
   ShoppingCart,
   Sparkles,
+  Tags,
   Truck,
   Users,
   Webhook,
@@ -38,6 +39,7 @@ import { cn } from "@/lib/utils";
 const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
   dashboard: LayoutTemplate,
   products: Package,
+  categories: Tags,
   orders: ShoppingCart,
   config: Settings,
   plan: Sparkles,

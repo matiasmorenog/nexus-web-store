@@ -189,6 +189,10 @@ export function canAccessAdminPath(
     return permissions.has("products:view");
   }
 
+  if (pathname.startsWith("/admin/categorias")) {
+    return permissions.has("products:manage");
+  }
+
   if (pathname.startsWith("/admin/pedidos")) {
     return permissions.has("orders:view");
   }

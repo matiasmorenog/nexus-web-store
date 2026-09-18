@@ -28,6 +28,7 @@ import {
   adminListMainColumnClass,
 } from "@/lib/admin-list-layout";
 import { storeHasModule } from "@/lib/modules";
+import { getStoreCategories } from "@/lib/store-categories";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,7 @@ export default async function AdminProductsPage({
   const summary = await getAdminProductsSummary(storeId);
   const listQueryActive = hasAdminProductListQuery(filters);
   const page = await getAdminProductsPage(storeId, 1, filters);
+  const categories = await getStoreCategories(storeId);
   const promo2x1Selectable =
     getStorefrontConfig().features.promo2x1 &&
     (await storeHasModule(storeId, "coupons"));
@@ -81,6 +83,7 @@ export default async function AdminProductsPage({
       categoryCounts={summary.categoryCounts}
       audienceCounts={summary.audienceCounts}
       estadoCounts={summary.estadoCounts}
+      categories={categories}
     />
   );
 
@@ -129,6 +132,7 @@ export default async function AdminProductsPage({
               filters={filters}
               promo2x1Selectable={promo2x1Selectable}
               canManage={canManageProducts}
+              categories={categories}
             />
           ) : page.total === 0 ? (
             <AdminCard>
@@ -145,6 +149,7 @@ export default async function AdminProductsPage({
               filters={filters}
               promo2x1Selectable={promo2x1Selectable}
               canManage={canManageProducts}
+              categories={categories}
             />
           )}
         </div>

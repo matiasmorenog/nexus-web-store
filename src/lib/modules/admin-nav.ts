@@ -4,6 +4,7 @@ import { MODULE_CATALOG, type ModuleId } from "@/lib/modules/catalog";
 export type AdminNavIconKey =
   | "dashboard"
   | "products"
+  | "categories"
   | "orders"
   | "cobros"
   | "config"
@@ -66,6 +67,13 @@ const CORE_NAV_BY_HREF = {
     shortLabel: "Productos",
     iconKey: "products" as const,
   },
+  "/admin/categorias": {
+    kind: "core" as const,
+    href: "/admin/categorias",
+    label: "Categorías",
+    shortLabel: "Categorías",
+    iconKey: "categories" as const,
+  },
   "/admin/modulos/cobros": {
     kind: "core" as const,
     href: "/admin/modulos/cobros",
@@ -89,6 +97,7 @@ const ADMIN_SIDEBAR_ORDER: Array<
   { kind: "core", href: "/admin" },
   { kind: "core", href: "/admin/pedidos" },
   { kind: "core", href: "/admin/productos" },
+  { kind: "core", href: "/admin/categorias" },
   { kind: "core", href: "/admin/modulos/cobros" },
   { kind: "module", moduleId: "shippingCarriers" },
   { kind: "module", moduleId: "crm" },

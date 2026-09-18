@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 
 type ProductEditFormProps = {
   product: {
@@ -33,6 +34,7 @@ type ProductEditFormProps = {
   onBlockedToggle?: () => void;
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
+  categories?: readonly ProductCategoryDef[];
 };
 
 export function ProductEditForm({
@@ -42,13 +44,14 @@ export function ProductEditForm({
   disabled = false,
   onBlockedToggle,
   promo2x1Selectable = false,
+  categories,
 }: ProductEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
   const collapsedDescription = [
-    getProductTaxonomyLabel(product.category, product.audience),
+    getProductTaxonomyLabel(product.category, product.audience, categories),
     product.featured ? "Destacado" : null,
     product.promo2x1 ? "2x1" : null,
   ]
@@ -101,6 +104,7 @@ export function ProductEditForm({
           <ProductTaxonomyFields
             defaultAudience={product.audience}
             defaultCategory={product.category}
+            categories={categories}
           />
           <div className="sm:col-span-2">
             <Label htmlFor="description">Descripción</Label>

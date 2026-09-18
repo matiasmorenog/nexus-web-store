@@ -17,6 +17,7 @@ import {
   type CatalogIndexData,
 } from "@/lib/catalog-index";
 import { categoriesForStoreFilter } from "@/lib/categories";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 import { cn } from "@/lib/utils";
 
 type CatalogPageClientProps = {
@@ -30,6 +31,7 @@ type CatalogPageClientProps = {
   variantSizeLabel: string;
   variantColorLabel?: string;
   priceTiers: readonly CatalogPriceTier[];
+  categories: readonly ProductCategoryDef[];
 };
 
 function catalogDescription(
@@ -64,6 +66,7 @@ export function CatalogPageClient({
   variantSizeLabel,
   variantColorLabel,
   priceTiers,
+  categories,
 }: CatalogPageClientProps) {
   const searchParams = useSearchParams();
   const params = useMemo(
@@ -73,10 +76,10 @@ export function CatalogPageClient({
 
   const categorySlugs = useMemo(
     () =>
-      categoriesForStoreFilter(params.genero || undefined).map(
+      categoriesForStoreFilter(params.genero || undefined, categories).map(
         (category) => category.slug,
       ),
-    [params.genero],
+    [params.genero, categories],
   );
 
   const variantSizeOptions = useMemo(() => {
@@ -137,6 +140,7 @@ export function CatalogPageClient({
           variantSizeLabel={variantSizeLabel}
           variantColorLabel={variantColorLabel}
           priceTiers={priceTiers}
+          categories={categories}
         />
         <div className="min-w-0">
           <div

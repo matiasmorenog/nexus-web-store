@@ -21,10 +21,23 @@ import {
 } from "@/lib/variant-images";
 import { slugify } from "@/lib/utils";
 import type { AdminPermission } from "@/lib/store-users/permissions";
+import { storeHasCategorySlug } from "@/lib/store-categories";
 
 async function requireAdminStoreId(permission: AdminPermission) {
   const session = await assertAdminPermission(permission);
   return session.user.storeId;
+}
+
+async function requireValidProductCategory(storeId: string, category: string) {
+  const slug = category.trim();
+  if (!slug) {
+    throw new Error("Seleccioná una categoría");
+  }
+  const valid = await storeHasCategorySlug(storeId, slug);
+  if (!valid) {
+    throw new Error("Categoría inválida");
+  }
+  return slug;
 }
 
 export async function updateOrderStatus(orderId: string, status: string) {
@@ -43,6 +56,10 @@ export async function createProduct(formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const name = formData.get("name") as string;
   const slug = slugify(name);
+  const category = await requireValidProductCategory(
+    storeId,
+    String(formData.get("category") ?? ""),
+  );
 
   const product = await db.product.create({
     data: {
@@ -50,7 +67,7 @@ export async function createProduct(formData: FormData) {
       name,
       slug,
       description: formData.get("description") as string,
-      category: formData.get("category") as string,
+      category,
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
       promo2x1: formData.get("promo2x1") === "on",
@@ -114,6 +131,10 @@ export async function updateProduct(productId: string, formData: FormData) {
 
   const name = formData.get("name") as string;
   const slug = slugify(name);
+  const category = await requireValidProductCategory(
+    storeId,
+    String(formData.get("category") ?? ""),
+  );
 
   const slugConflict = await db.product.findFirst({
     where: { storeId, slug, NOT: { id: productId } },
@@ -128,7 +149,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       name,
       slug,
       description: formData.get("description") as string,
-      category: formData.get("category") as string,
+      category,
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
       promo2x1: formData.get("promo2x1") === "on",

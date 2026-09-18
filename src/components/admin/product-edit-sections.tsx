@@ -7,6 +7,7 @@ import {
   VariantManager,
   type VariantRow,
 } from "@/components/admin/variant-manager";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 
 export type ProductEditSection = "product" | "colors" | "variants";
 
@@ -22,12 +23,14 @@ type ProductEditSectionsProps = {
   };
   promo2x1Selectable?: boolean;
   canManage?: boolean;
+  categories?: readonly ProductCategoryDef[];
 };
 
 export function ProductEditSections({
   product,
   promo2x1Selectable = false,
   canManage = true,
+  categories,
 }: ProductEditSectionsProps) {
   const [activeSection, setActiveSection] =
     useState<ProductEditSection | null>("product");
@@ -125,6 +128,7 @@ export function ProductEditSections({
         disabled={sectionLocked}
         onBlockedToggle={sectionLocked ? signalBlockedEdit : undefined}
         promo2x1Selectable={promo2x1Selectable}
+        categories={categories}
       />
 
       <ProductColorsCard

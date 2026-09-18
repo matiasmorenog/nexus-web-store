@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import type { CatalogFilterCounts } from "@/lib/catalog-index";
 import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
@@ -65,6 +66,7 @@ type ProductFiltersProps = {
   variantSizeLabel: string;
   variantColorLabel?: string;
   priceTiers: readonly CatalogPriceTier[];
+  categories: readonly ProductCategoryDef[];
 };
 
 export function ProductFilters({
@@ -78,6 +80,7 @@ export function ProductFilters({
   variantSizeLabel,
   variantColorLabel,
   priceTiers,
+  categories,
 }: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useCatalogNavigation();
@@ -125,10 +128,14 @@ export function ProductFilters({
 
   const categoryOptions = categoriesForStoreFilter(
     showAudienceFilter ? activeGenero || undefined : undefined,
+    categories,
   );
 
   const selectGenero = (genero: string) => {
-    const nextCategories = categoriesForStoreFilter(genero || undefined);
+    const nextCategories = categoriesForStoreFilter(
+      genero || undefined,
+      categories,
+    );
     const keepCategory = nextCategories.some(
       (category) => category.slug === activeCategory,
     );

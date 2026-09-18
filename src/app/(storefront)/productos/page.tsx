@@ -8,6 +8,7 @@ import {
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { getCatalogIndex } from "@/lib/catalog-index-query";
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
+import { getStoreCategories } from "@/lib/store-categories";
 import { getStoreDisplayName, getStoreId } from "@/lib/store-context";
 import {
   getCatalogPriceTiers,
@@ -46,9 +47,13 @@ export default async function ProductsPage() {
 
   const storeId = await getStoreId();
   const storeDisplayName = await getStoreDisplayName();
-  const index = await getCatalogIndex(storeId);
-  const promo2x1Active =
-    config.features.promo2x1 && (await isPromo2x1ActiveForStore(storeId));
+  const [index, categories, promo2x1Active] = await Promise.all([
+    getCatalogIndex(storeId),
+    getStoreCategories(storeId),
+    config.features.promo2x1
+      ? isPromo2x1ActiveForStore(storeId)
+      : Promise.resolve(false),
+  ]);
   const priceTiers = getCatalogPriceTiers(config);
   const variantSizeParam = getVariantSizeFacetParam(config);
   const variantColorParam = getVariantColorFacetParam(config);
@@ -68,6 +73,7 @@ export default async function ProductsPage() {
           variantColorParam ? config.variantLabels.primary : undefined
         }
         priceTiers={priceTiers}
+        categories={categories}
       />
     </Suspense>
   );

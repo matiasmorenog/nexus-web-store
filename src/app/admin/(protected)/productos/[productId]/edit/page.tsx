@@ -8,6 +8,7 @@ import {
 } from "@/lib/admin-session";
 import { db } from "@/lib/db";
 import { storeHasModule } from "@/lib/modules";
+import { getStoreCategories } from "@/lib/store-categories";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export default async function AdminProductEditPage({
   const promo2x1Selectable =
     getStorefrontConfig().features.promo2x1 &&
     (await storeHasModule(storeId, "coupons"));
+  const categories = await getStoreCategories(storeId);
 
   return (
     <div className="space-y-6 pb-8">
@@ -68,6 +70,7 @@ export default async function AdminProductEditPage({
         }}
         promo2x1Selectable={promo2x1Selectable}
         canManage={canManageProducts}
+        categories={categories}
       />
     </div>
   );

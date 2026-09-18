@@ -16,6 +16,9 @@ import {
   OBSOLETE_SEED_CUSTOMER_EMAILS,
   type SeedStoreConfig,
 } from "./seed-env";
+import { APP1_PRODUCT_CATEGORIES } from "../src/lib/store-verticals/app1/config";
+import { APP2_PRODUCT_CATEGORIES } from "../src/lib/store-verticals/app2/config";
+import { seedStoreCategories } from "../src/lib/store-categories/seed";
 
 export const prisma = new PrismaClient();
 
@@ -251,6 +254,7 @@ export async function seedApp1Store(options: SeedStoreOptions = {}) {
 
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
+  await seedStoreCategories(prisma, store.id, APP1_PRODUCT_CATEGORIES);
   const productCount = await seedApp1Products(store.id);
   await seedDemoPaymentSettings(store.id);
   await seedDemoShippingSettings(store.id);
@@ -268,6 +272,7 @@ export async function seedApp2Store(options: SeedStoreOptions = {}) {
 
   const config = getStoreConfig(slug);
   const { store, admin } = await createStoreWithAdmin(config);
+  await seedStoreCategories(prisma, store.id, APP2_PRODUCT_CATEGORIES);
   const productCount = await seedApp2Products(store.id);
 
   return { store, admin, config, productCount };

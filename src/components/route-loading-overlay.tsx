@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { useRouteLoading } from "@/lib/route-loading-context";
 import { cn } from "@/lib/utils";
 
@@ -66,10 +66,10 @@ export function RouteLoadingOverlay() {
     }
   };
 
-  const scheduleShow = () => {
+  const scheduleShow = useEffectEvent(() => {
     clearShowTimer();
     showTimerRef.current = setTimeout(() => startLoading(), SHOW_DELAY_MS);
-  };
+  });
 
   useEffect(() => {
     clearShowTimer();

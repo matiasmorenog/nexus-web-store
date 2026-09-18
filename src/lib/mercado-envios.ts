@@ -51,13 +51,14 @@ function hashString(value: string) {
 /** @deprecated Usar quoteMercadoEnvios async con CP destino. */
 export function quoteMercadoEnviosSync({
   zip,
-  baseRate,
+  baseRate: _baseRate,
   carrierId = "mercado_envios",
 }: {
   zip: string;
   baseRate: number;
   carrierId?: MercadoEnviosCarrierId;
 }): MercadoEnviosQuote {
+  void _baseRate;
   return quoteMercadoEnviosDemo({
     destinationZip: zip,
     carrierId,

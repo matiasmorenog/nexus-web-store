@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import type { OrderPaidWebhookData } from "@/lib/afip/types";
 
-const orderInclude = {
+export const orderInclude = {
   items: {
     include: {
       variant: {

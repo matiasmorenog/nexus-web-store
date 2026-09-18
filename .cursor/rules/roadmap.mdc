@@ -36,7 +36,7 @@ Performance: índice catálogo cliente + cache store — ver `performance-todo.m
 |-------|------|
 | NEX-6 | MP producción + AFIP |
 | NEX-9 | Categorías dinámicas (admin) |
-| NEX-11 | CI Fase 1.5: lint + branch protection |
+| NEX-11 | CI Fase 1.5: lint + branch protection | ✅ |
 | NEX-7 | CI Fase 2 (opcional): build en Actions |
 | NEX-8 | Separar Vercel Blob por tienda |
 | NEX-10 | Onboarding + billing (Fase C) |

@@ -44,26 +44,23 @@ No marcar ambos Vercel como required en branch protection: el Ignored Build Step
 
 ## Roadmap / tech debt
 
-### Fase 1.5 — Lint en verde (antes de branch protection)
+### Fase 1.5 — Lint + branch protection (hecho, NEX-11)
 
-Hay ~31 errores ESLint preexistentes. Corregirlos antes de exigir el check en merge. Ver `.cursor/rules/ci-todo.mdc`.
+`npm run lint` = `eslint src --max-warnings=0`. Check `lint-and-typecheck` requerido en `development`. Ver `.cursor/rules/ci-todo.mdc`.
 
 ### Fase 2 — `npm run build` en CI (opcional, futuro)
 
-**Pendiente para cuando la app esté en producción activa** y quieras un pipeline más estricto. Hoy el build en desarrollo lo cubre Vercel.
+**Pendiente para cuando la app esté en producción activa** y quieras un pipeline más estricto. Hoy el build en desarrollo lo cubre Vercel. Linear: NEX-7.
 
 - Env dummy o secrets mínimos para `next build`
 - Evaluar si alguna ruta consulta DB en build time
 - No es prioridad mientras el producto siga en fase demo/desarrollo
 
-### Fase 3 — Branch protection
+### Fase 3 — Branch protection (hecho con NEX-11)
 
 GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
-Solo después de Fase 1.5.
-
 ## Merge (agente / flujo ágil)
 
-- **Hoy:** mergear cuando `typecheck` pase; lint en CI puede fallar hasta Fase 1.5.
+- `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.
 - Preferir verde en **`Vercel – nexus-web-store`** antes del merge; **`nexus-vape-store`** no bloquea salvo cambios específicos de app2.
-- **Tras Fase 3:** `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.

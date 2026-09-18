@@ -40,6 +40,7 @@ Performance: índice catálogo cliente + cache store — ver `performance-todo.m
 | NEX-7 | CI Fase 2 (opcional): build en Actions |
 | NEX-8 | Separar Vercel Blob por tienda |
 | NEX-10 | Onboarding + billing (Fase C) |
+| NEX-13 | Pricing: tiers Start / Grow / Pro (USD, sin take-rate) |
 
 ## Fases (resumen)
 

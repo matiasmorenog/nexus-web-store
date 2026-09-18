@@ -1,14 +1,18 @@
-import { Check, Lock, Sparkles, X } from "lucide-react";
+import { Check, Lock, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AdminCard } from "@/components/admin/admin-card";
 import { cn } from "@/lib/utils";
 import {
-  BASE_PLAN,
-  estimateMonthlyTotal,
   getModuleDefinition,
+  getModuleMinPlan,
   isModuleId,
   listModulesInSidebarOrder,
+  PLAN_CORE,
+  PLAN_TIER_IDS,
+  PLAN_TIERS,
+  resolvePlanTier,
   type ModuleId,
+  type PlanTierId,
 } from "@/lib/modules";
 import { moduleAdminPath } from "@/lib/modules/access";
 
@@ -27,119 +31,110 @@ function formatUsd(amount: number) {
   }).format(amount);
 }
 
+function tierLabel(tierId: PlanTierId) {
+  return PLAN_TIERS[tierId].name;
+}
+
 export function AdminPlanOverview({
   enabledModuleIds,
   highlightedModuleId,
 }: AdminPlanOverviewProps) {
   const enabled = new Set(enabledModuleIds);
-  const monthlyTotal = estimateMonthlyTotal(enabledModuleIds);
+  const currentTier = resolvePlanTier(enabledModuleIds);
   const modules = listModulesInSidebarOrder();
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <AdminCard
-          title="Plan Base"
-          description="Incluido en todos los contratos. Operación diaria de la tienda."
-        >
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="text-3xl font-bold text-neutral-900">
-              {formatUsd(BASE_PLAN.monthlyPriceUsd)}
-              <span className="text-base font-normal text-neutral-500">/mes</span>
-            </p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-              <Check className="h-3.5 w-3.5" />
-              Activo
-            </span>
-          </div>
-          <div className="mt-4 grid gap-5 sm:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                Incluido
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {BASE_PLAN.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-start gap-2 text-sm text-neutral-700"
-                  >
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                Requiere Plus
-              </p>
-              <ul className="mt-2 max-h-48 space-y-1.5 overflow-y-auto sm:max-h-none">
-                {modules.map((module) => (
-                  <li
-                    key={module.id}
-                    className="flex items-start gap-2 text-sm text-neutral-400"
-                  >
-                    <X className="mt-0.5 h-4 w-4 shrink-0 text-neutral-300" />
-                    <span>{module.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </AdminCard>
+      <div className="grid gap-4 lg:grid-cols-3">
+        {PLAN_TIER_IDS.map((tierId) => {
+          const tier = PLAN_TIERS[tierId];
+          const isCurrent = currentTier.id === tierId;
 
-        <AdminCard
-          title="Tu plan actual"
-          description="Base + módulos Plus activos en esta tienda."
-        >
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="text-3xl font-bold text-neutral-900">
-              {formatUsd(monthlyTotal)}
-              <span className="text-base font-normal text-neutral-500">/mes</span>
-            </p>
-            <span className="text-sm text-neutral-500">
-              {enabledModuleIds.length === 0
-                ? "Sin módulos Plus"
-                : `${enabledModuleIds.length} módulo${enabledModuleIds.length === 1 ? "" : "s"} Plus`}
-            </span>
-          </div>
-          {enabledModuleIds.length > 0 ? (
-            <ul className="mt-4 space-y-1.5 text-sm text-neutral-600">
-              {enabledModuleIds.map((id) => (
-                <li key={id} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-600" />
-                  {getModuleDefinition(id).name}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 text-sm text-neutral-500">
-              Activá módulos Plus para ampliar el panel y la tienda online.
-            </p>
-          )}
-        </AdminCard>
+          return (
+            <AdminCard
+              key={tier.id}
+              title={tier.name}
+              description={tier.target}
+              className={cn(isCurrent && "ring-2 ring-[var(--brand-primary)]")}
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <p className="text-3xl font-bold text-neutral-900">
+                  {formatUsd(tier.monthlyPriceUsd)}
+                  <span className="text-base font-normal text-neutral-500">
+                    /mes
+                  </span>
+                </p>
+                {isCurrent ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                    <Check className="h-3.5 w-3.5" />
+                    Actual
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-1 text-xs text-neutral-500">
+                Anual {formatUsd(tier.annualMonthlyUsd)}/mes (−20%)
+              </p>
+              <p className="mt-3 text-sm text-neutral-600">{tier.description}</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                +{tier.moduleIds.length} módulos
+                {tier.maxStaffSeats === null
+                  ? " · staff alto"
+                  : tier.maxStaffSeats > 0
+                    ? ` · hasta ${tier.maxStaffSeats} staff`
+                    : " · 1 owner"}
+              </p>
+            </AdminCard>
+          );
+        })}
       </div>
+
+      <AdminCard
+        title="Núcleo (todos los planes)"
+        description="Operación diaria incluida en Start, Grow y Pro. Sin comisión sobre ventas."
+      >
+        <ul className="grid gap-1.5 sm:grid-cols-2">
+          {PLAN_CORE.features.map((feature) => (
+            <li
+              key={feature}
+              className="flex items-start gap-2 text-sm text-neutral-700"
+            >
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm text-neutral-500">
+          Plan inferido en esta tienda:{" "}
+          <span className="font-medium text-neutral-800">{currentTier.name}</span>{" "}
+          ({formatUsd(currentTier.monthlyPriceUsd)}/mes) según módulos activos.
+        </p>
+      </AdminCard>
 
       {highlightedModuleId && !enabled.has(highlightedModuleId) ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p className="font-medium">
-            Necesitás el módulo{" "}
+            Necesitás el plan{" "}
+            <span className="text-amber-950">
+              {tierLabel(getModuleMinPlan(highlightedModuleId))}
+            </span>{" "}
+            (módulo{" "}
             <span className="text-amber-950">
               {getModuleDefinition(highlightedModuleId).name}
-            </span>{" "}
-            para acceder a esa sección.
+            </span>
+            ) para acceder a esa sección.
           </p>
         </div>
       ) : null}
 
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
-          Módulos
+          Módulos por plan
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {modules.map((module) => {
             const isActive = enabled.has(module.id);
             const isHighlighted = highlightedModuleId === module.id;
+            const minPlan = getModuleMinPlan(module.id);
 
             return (
               <AdminCard
@@ -167,16 +162,20 @@ export function AdminPlanOverview({
                     ) : (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
                         <Lock className="h-3 w-3" />
-                        Plus
+                        {tierLabel(minPlan)}+
                       </span>
                     )}
                   </div>
 
                   <div className="mt-4 flex items-end justify-between gap-3">
-                    <p className="text-lg font-bold text-neutral-900">
-                      +{formatUsd(module.monthlyPriceUsd)}
-                      <span className="text-sm font-normal text-neutral-500">
-                        /mes
+                    <p className="text-sm font-medium text-neutral-700">
+                      Desde{" "}
+                      <span className="font-bold text-neutral-900">
+                        {tierLabel(minPlan)}
+                      </span>
+                      <span className="font-normal text-neutral-500">
+                        {" "}
+                        ({formatUsd(PLAN_TIERS[minPlan].monthlyPriceUsd)}/mes)
                       </span>
                     </p>
 
@@ -189,7 +188,7 @@ export function AdminPlanOverview({
                       </Link>
                     ) : (
                       <a
-                        href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Activar módulo: ${module.name}`)}`}
+                        href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Plan ${tierLabel(minPlan)}: ${module.name}`)}`}
                         className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
@@ -205,22 +204,22 @@ export function AdminPlanOverview({
       </section>
 
       <AdminCard
-        title="¿Cómo activar un módulo?"
-        description="Hoy la activación es manual. En Fase C se integrará billing automático."
+        title="¿Cómo cambiar de plan?"
+        description="Hoy la activación es manual. En Fase C (NEX-10) billing cobra el tier automáticamente."
       >
         <ol className="list-decimal space-y-2 pl-5 text-sm text-neutral-600">
-          <li>Elegí el módulo y hacé clic en &quot;Solicitar&quot;.</li>
-          <li>Te contactamos para confirmar el add-on y el nuevo total mensual.</li>
-          <li>Activamos el módulo en tu tienda (env o panel interno).</li>
+          <li>Elegí Start, Grow o Pro según lo que necesitás.</li>
+          <li>Pedí el cambio por email (botón Solicitar en el módulo).</li>
+          <li>Activamos los módulos del tier en tu tienda.</li>
         </ol>
         <p className="mt-4 text-sm text-neutral-500">
-          En desarrollo local podés restringir módulos con{" "}
+          En desarrollo local:{" "}
           <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs">
             ENABLED_MODULES=none
           </code>{" "}
-          o un subconjunto en tu{" "}
-          <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs">.env</code>.
-          Por defecto todos están activos en demo.
+          o un subconjunto en{" "}
+          <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs">.env</code>
+          . Por defecto demo = todos activos (Pro).
         </p>
       </AdminCard>
     </div>

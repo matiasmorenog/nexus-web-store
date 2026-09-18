@@ -9,6 +9,7 @@ import {
   type StoreCategoryListItem,
   type StoreCategoryRow,
 } from "@/lib/store-categories/types";
+import type { StoreNavCategory } from "@/lib/store-categories/nav";
 
 export const STORE_CATEGORIES_CACHE_TAG = "store-categories";
 
@@ -74,6 +75,43 @@ export async function getStoreCategories(
   const cached = unstable_cache(
     () => loadStoreCategoriesWithFallback(storeId),
     [`store-categories-${storeId}`],
+    {
+      tags: [
+        STORE_CATEGORIES_CACHE_TAG,
+        `${STORE_CATEGORIES_CACHE_TAG}:${storeId}`,
+      ],
+      revalidate: STOREFRONT_CATALOG_REVALIDATE_SECONDS,
+    },
+  );
+
+  return cached();
+}
+
+async function loadStoreNavCategories(
+  storeId: string,
+): Promise<StoreNavCategory[]> {
+  const rows = await loadStoreCategoryRows(storeId);
+  if (rows.length === 0) {
+    return getStorefrontConfig().productCategories.map((category) => ({
+      slug: category.slug,
+      label: category.label,
+      showInNav: true,
+    }));
+  }
+  return rows.map((row) => ({
+    slug: row.slug,
+    label: row.label,
+    showInNav: row.showInNav,
+  }));
+}
+
+/** Categorías para header nav (incluye showInNav). */
+export async function getStoreNavCategories(
+  storeId: string,
+): Promise<StoreNavCategory[]> {
+  const cached = unstable_cache(
+    () => loadStoreNavCategories(storeId),
+    [`store-nav-categories-${storeId}`],
     {
       tags: [
         STORE_CATEGORIES_CACHE_TAG,

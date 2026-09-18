@@ -5,6 +5,7 @@ import { PromoConfigSync } from "@/components/storefront/promo-config-sync";
 import { WishlistSync } from "@/components/storefront/wishlist-sync";
 import { App2Footer } from "@/themes/app2/components/app2-footer";
 import { App2ThemeShell } from "@/themes/app2/components/app2-theme-shell";
+import type { HeaderNavLink } from "@/lib/store-verticals/nav";
 import type { ResolvedStoreTheme } from "@/lib/premium-themes";
 import type { App2ColorThemeId } from "@/lib/store-verticals/app2/themes";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
@@ -16,6 +17,8 @@ type App2StorefrontLayoutProps = {
   wishlistEnabled?: boolean;
   storeTheme?: ResolvedStoreTheme;
   promo2x1Active?: boolean;
+  navDesktop?: HeaderNavLink[];
+  navMobile?: HeaderNavLink[];
 };
 
 export function App2StorefrontLayout({
@@ -25,6 +28,8 @@ export function App2StorefrontLayout({
   wishlistEnabled = false,
   storeTheme,
   promo2x1Active = false,
+  navDesktop = config.headerNavDesktop,
+  navMobile = config.headerNavMobile,
 }: App2StorefrontLayoutProps) {
   const app2ThemeId =
     storeTheme?.themeId && storeTheme.themeId !== "default"
@@ -49,8 +54,8 @@ export function App2StorefrontLayout({
       >
         <Header
           storeName={storeDisplayName}
-          navDesktop={config.headerNavDesktop}
-          navMobile={config.headerNavMobile}
+          navDesktop={navDesktop}
+          navMobile={navMobile}
           features={config.features}
           chrome="dark"
           uiVariant="app2"

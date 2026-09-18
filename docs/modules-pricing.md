@@ -1,14 +1,36 @@
-# Módulos admin y pricing
+# Planes y módulos
 
-Modelo comercial y técnico para vender el backoffice en **plan base + módulos plus**. El plan base cubre operación diaria; cada módulo extra se activa por tienda y suma al precio mensual.
+Modelo comercial: **3 planes empaquetados** en USD (Start / Grow / Pro). Precio fijo, **sin comisión** sobre ventas. Los módulos Plus siguen existiendo en código para gating; el cliente **no** los compra a la carta.
 
-Relacionado: roadmap Fase B/C en [`README.md`](../README.md), multi-tenant en [`multi-store.md`](multi-store.md).
+Relacionado: [NEX-13](https://linear.app/nexus-development/issue/NEX-13/pricing-tiers-start-grow-pro-usd-sin-take-rate), billing Fase C [NEX-10](https://linear.app/nexus-development/issue/NEX-10/onboarding-tiendas-billing-automatico), multi-tenant en [`multi-store.md`](multi-store.md).
 
 ---
 
-## Plan Base (~USD 100/mes)
+## Principios
 
-Incluido sin costo adicional. Sin estos ítems la tienda no opera.
+| Decisión | Detalle |
+|----------|---------|
+| Moneda | USD |
+| Forma | Planes (no à la carte) |
+| Take-rate | **No** |
+| Forever-free | **No** (sin % no escala costo infra) |
+| Trial | 14 días → plan pago |
+| Anual | −20% sobre mensual |
+| Wedge | Precio fijo transparente vs TN / Shopify (que cobrán % plataforma o gateway) |
+
+---
+
+## Planes (USD / mes)
+
+| Tier | Mensual | Anual equiv. | Target |
+|------|---------|--------------|--------|
+| **Start** | 29 | ~23 | Emprende / Instagram → web |
+| **Grow** | 59 | ~47 | Ya vende, quiere crecer |
+| **Pro** | 99 | ~79 | Equipo + analytics + API |
+
+### Núcleo en todos (vender)
+
+Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 
 | Área | Funcionalidad |
 |------|---------------|
@@ -21,141 +43,108 @@ Incluido sin costo adicional. Sin estos ítems la tienda no opera.
 | Integraciones base | Emails transaccionales |
 | Usuarios | 1 owner por tienda |
 
+### Módulos por tier
+
+| ID | Módulo | Start | Grow | Pro |
+|----|--------|:-----:|:----:|:---:|
+| `marketing` | WhatsApp y Meta Pixel | ✓ | ✓ | ✓ |
+| `seo` | SEO avanzado | ✓ | ✓ | ✓ |
+| `coupons` | Cupones y promociones (incl. 2x1) | | ✓ | ✓ |
+| `homeEditor` | Home editable | | ✓ | ✓ |
+| `premiumThemes` | Temas premium | | ✓ | ✓ |
+| `wishlist` | Wishlist | | ✓ | ✓ |
+| `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
+| `crm` | CRM lite | | ✓ | ✓ |
+| `multiUser` | Multi-usuario | | ✓ (≤3 staff) | ✓ (ilimitado / alto) |
+| `analytics` | Analytics y reportes | | | ✓ |
+| `api` | API y webhooks | | | ✓ |
+
+**Upgrade ladder:** Start→Grow = promos, home, envíos, CRM, equipo. Grow→Pro = reportes fuertes + API.
+
+Addons sueltos: **no** (salvo seats extra más adelante).
+
 ---
 
-## Catálogo de módulos Plus
+## Catálogo técnico de módulos
 
-Precios orientativos en USD/mes. Ajustar según mercado y costo de soporte.
-
-| ID | Módulo | Precio sugerido | Descripción |
-|----|--------|-----------------|-------------|
-| `coupons` | Cupones y promociones | +20 | Códigos de descuento, reglas por categoría, promo 2x1 (banner + descuento) |
-| `homeEditor` | Home editable | +25 | Banners, hero y secciones sin tocar código |
-| `analytics` | Analytics y reportes | +30 | Comparación de períodos, embudo, tops, CSV de reporte/pedidos/catálogo |
-| `crm` | CRM lite | +25 | Clientes, historial de compras, tags y notas |
-| `shippingCarriers` | Envíos carrier | +20 | Cotización y etiquetas con operadores logísticos |
-| `marketing` | WhatsApp y Meta Pixel | +15 | Botón WhatsApp, pixel de conversión, eventos checkout |
-| `multiUser` | Multi-usuario | +20/usuario | Roles vendedor, depósito, solo lectura |
-| `api` | API y webhooks | +50 | REST para productos/pedidos, webhooks de eventos |
-| `premiumThemes` | Temas premium | +15 | Temas visuales adicionales (app2, app1, futuros) |
-| `seo` | SEO avanzado | +10 | Sitemap dinámico, meta por página, structured data |
-| `wishlist` | Wishlist | +10 | Lista de deseos en storefront y cuenta cliente |
-
----
-
-## Ejemplos de pricing
-
-| Perfil | Módulos | Total aprox. |
-|--------|---------|--------------|
-| Tienda chica | Solo base | USD 100 |
-| Tienda en crecimiento | base + cupones + home editable | USD 145 |
-| Marca establecida | base + cupones + analytics + CRM | USD 180 |
-| Integrador | base + API + webhooks + multi-usuario (3) | USD 204 |
+IDs estables en `src/lib/modules/catalog.ts`. Cada módulo declara `id`, copy UI, `includedInPlans`, rutas admin y superficies storefront. El precio comercial es el **tier**, no la suma de módulos.
 
 ---
 
 ## Arquitectura técnica
-
-### Catálogo en código
-
-Definición única en `src/lib/modules/catalog.ts`. Cada módulo declara:
-
-- `id` — clave estable (usada en DB y env)
-- `name`, `description` — UI admin
-- `monthlyPriceUsd` — pricing de referencia
-- `adminRoutes` — rutas del backoffice que requiere
-- `category` — agrupación en la pantalla Plan
 
 ### Activación por tienda (hoy)
 
 Por defecto **todos los módulos están activos** (modo demo). Para restringir:
 
 ```bash
-# Solo plan base
+# Solo núcleo (sin Plus) — aprox. “debajo de Start”
 ENABLED_MODULES=none
 
-# Subconjunto manual
-ENABLED_MODULES=coupons,homeEditor,analytics
+# Subconjunto manual (simula un tier)
+ENABLED_MODULES=marketing,seo,coupons,homeEditor
 ```
 
 #### Por deploy (app1 vs app2)
 
 | Proyecto Vercel | Slug | `ENABLED_MODULES` | Rol |
 |-----------------|------|-------------------|-----|
-| `nexus-web-store` | `demo-store` | omitido / vacío | Demo full: todos los módulos activos para mostrar capacidades |
-| `nexus-vape-store` | `vape-demo` | `none` | Beta en plan base; cualquier módulo se activa vía env sin cambiar código |
+| `nexus-web-store` | `demo-store` | omitido / vacío | Demo full (Pro) |
+| `nexus-vape-store` | `vape-demo` | `none` | Beta núcleo; activar vía env |
 
-**Regla:** los módulos Plus no se restringen por vertical (`app1` / `app2`). El vertical define branding, nav y facets; el gating es siempre `storeHasModule()`.
+**Regla:** los módulos no se restringen por vertical. Gating = `storeHasModule()`.
 
-Ver también: [`multi-store.md`](multi-store.md), rule `.cursor/rules/modules-gating.mdc`.
+Ver: [`multi-store.md`](multi-store.md), `.cursor/rules/modules-gating.mdc`.
 
 ### Activación por tienda (Fase C — SaaS)
-
-Migración prevista a tablas Prisma:
 
 ```prisma
 model StorePlan {
   id      String   @id @default(cuid())
   storeId String   @unique
-  tier    PlanTier @default(BASIC)
+  tier    PlanTier @default(START) // START | GROW | PRO
   store   Store    @relation(...)
-}
-
-model StoreModule {
-  id        String    @id @default(cuid())
-  storeId   String
-  moduleId  String
-  enabledAt DateTime  @default(now())
-  expiresAt DateTime?
-  store     Store     @relation(...)
-  @@unique([storeId, moduleId])
 }
 ```
 
-`storeHasModule()` leerá primero DB; `ENABLED_MODULES` queda como override para dev y demos.
+Tier → set de `ModuleId` (ver `PLAN_TIERS` en catálogo). `ENABLED_MODULES` queda override para demos. Billing cobra **un tier**, no suma de módulos ([NEX-10](https://linear.app/nexus-development/issue/NEX-10)).
 
 ### Gating
 
 | Capa | Mecanismo |
 |------|-----------|
-| Admin layout | `requireModule("coupons")` en `layout.tsx` de la ruta |
-| Admin nav | Ítems de módulos inactivos con badge "Plus" y link a `/admin/plan` |
-| API admin | `assertModule("coupons")` → `403` con `{ code: "MODULE_REQUIRED" }` |
-| Storefront | Solo si el módulo afecta compradores (cupones, wishlist, pixel) |
+| Admin layout | `requireModule("coupons")` en layout de la ruta |
+| Admin nav | Ítems inactivos con badge y link a `/admin/plan` |
+| API admin | `assertModule(...)` → `403` `{ code: "MODULE_REQUIRED" }` |
+| Storefront | Solo si afecta compradores (cupones, wishlist, pixel) |
 
 ### Promo 2x1 (dentro de `coupons`)
 
-La promo 2x1 no es un módulo aparte: vive en el addon **Cupones y promociones**.
-
 | Pieza | Comportamiento |
 |-------|----------------|
-| Activación | Módulo `coupons` activo **y** `StorePromotionSettings.promo2x1Enabled` (toggle en `/admin/modulos/coupons`) |
-| Storefront | Banner header, badges, pricing carrito/checkout, filtro catálogo — vía `isPromo2x1ActiveForStore()` |
-| Admin productos | Checkbox «Promoción 2x1» solo si `storeHasModule("coupons")` |
-| Hero home (slide 2x1) | Contenido editorial en `home-hero-slides.ts`; **no** se apaga con el toggle |
-| Vertical | `features.promo2x1` / `promoBanner` habilitan superficies de UI; **no** bloquean el addon. Ambos verticales lo soportan |
-
-Modelo Prisma: `StorePromotionSettings` (`promo2x1Enabled`). Lib: `src/lib/promotions/`, `src/lib/promo-2x1.ts`. Cliente: `src/stores/promo-config-store.ts` + `PromoConfigSync`.
+| Activación | Módulo `coupons` **y** `StorePromotionSettings.promo2x1Enabled` |
+| Storefront | Banner, badges, pricing — `isPromo2x1ActiveForStore()` |
+| Admin productos | Checkbox 2x1 si `storeHasModule("coupons")` |
+| Hero home (slide 2x1) | Editorial; **no** depende del toggle |
+| Vertical | `features.promo2x1` = UI; no bloquea el módulo |
 
 ### Pantalla Plan (`/admin/plan`)
 
-- Resumen del plan base activo
-- Grid de módulos con precio, descripción y estado (activo / disponible)
-- CTA "Solicitar activación" (manual hasta integrar billing)
-- Sin billing automático en Fase B; activación por soporte o env
+- Comparativa Start / Grow / Pro
+- Módulos con badge de tier mínimo
+- CTA “Solicitar” (manual hasta billing)
+- Demo: activación vía `ENABLED_MODULES`
 
 ### Billing (Fase C — pendiente)
 
 - Stripe Billing o Mercado Pago suscripciones
-- Webhook de pago → `StoreModule.enabledAt`
-- Trial 14 días por módulo (opcional)
-- Facturación: base + suma de módulos activos
+- Webhook → `StorePlan.tier`
+- Trial 14 días del plan
+- Facturación: precio del tier (mensual o anual −20%)
 
 ---
 
 ## Qué no modularizar
-
-Funcionalidad que debe existir siempre en plan base:
 
 - Login admin, sesión, logout
 - CRUD productos, variantes, stock, imágenes
@@ -166,22 +155,11 @@ Funcionalidad que debe existir siempre en plan base:
 
 ---
 
-## Orden de implementación de módulos
+## Orden de implementación
 
-1. **Infra** — catálogo, `storeHasModule`, pantalla Plan, nav condicional ✅
-2. **Cupones** — CRUD admin, validación checkout, descuento en pedido ✅
-3. **Home editable** — bloques por tienda (hero estático app2, carrusel app1) ✅
-4. **Export CSV** — pedidos y productos en admin ✅
-5. **CRM lite** — clientes desde pedidos, tags y notas ✅
-6. **SEO avanzado** — sitemap, robots, meta y JSON-LD ✅
-7. **Wishlist** — favoritos en storefront y cuenta ✅
-8. **Analytics avanzado** — comparación de períodos, embudo y cohortes ✅
-9. **Marketing** — WhatsApp y Meta Pixel ✅
-10. **Envíos carrier** — cotización por CP, operador preferido y etiquetas demo ✅
-11. **Temas premium** — paletas app2, tema por tienda y toggle visitante ✅
-12. **Multi-usuario** — staff admin con invitación por email ✅
-13. **API y webhooks** — REST v1 (productos/pedidos) y webhook `order.paid` ✅
-14. **Billing** — al cerrar el segundo cliente SaaS (Fase C)
+1–13. Módulos producto ✅ (ver historial en git / Linear)
+14. **Pricing comercial** — tiers en docs + catálogo (NEX-13) ← este doc
+15. **Billing + onboarding** — NEX-10 (Fase C)
 
 ---
 
@@ -189,23 +167,7 @@ Funcionalidad que debe existir siempre en plan base:
 
 | Pieza | Ruta |
 |-------|------|
-| Catálogo | `src/lib/modules/catalog.ts` |
+| Catálogo / tiers | `src/lib/modules/catalog.ts` |
 | Acceso / gating | `src/lib/modules/access.ts` |
-| Cupones | `src/lib/coupons/`, `/admin/modulos/coupons` |
-| Promo 2x1 | `src/lib/promotions/`, `src/lib/promo-2x1.ts`, toggle en `/admin/modulos/coupons` |
-| Home editable | `src/lib/home-content/`, `/admin/modulos/homeEditor` |
-| Analytics y reportes | `src/lib/advanced-analytics/`, `src/lib/exports/`, `/admin/modulos/analytics`, `/api/admin/exports/*` |
-| CRM lite | `src/lib/crm/`, `/admin/modulos/crm` |
-| SEO avanzado | `src/lib/seo/`, `/admin/modulos/seo`, `/sitemap.xml`, `/robots.txt` |
-| Wishlist | `src/lib/wishlist/`, `/admin/modulos/wishlist`, `/favoritos` |
-| Marketing | `src/lib/marketing/`, `/admin/modulos/marketing` |
-| Envíos carrier | `src/lib/shipping-carriers/`, `/admin/modulos/shippingCarriers`, `/api/shipping/quote` |
-| Cobros (plan base) | `src/lib/payments/`, `/admin/modulos/cobros`, `/api/admin/payment-settings` |
-| Temas premium | `src/lib/premium-themes/`, `/admin/modulos/premiumThemes` |
-| Multi-usuario | `src/lib/store-users/`, `/admin/modulos/multiUser` |
-| API y webhooks | `src/lib/store-api/`, `/admin/modulos/api`, `/api/v1/*` |
-| AFIP (prep) | `src/lib/afip/`, `docs/afip-integration.md` |
-| Errores API | `src/lib/modules/api-error.ts` |
-| Nav admin | `src/lib/modules/admin-nav.ts` |
 | Pantalla Plan | `src/app/admin/(protected)/plan/page.tsx` |
 | Env | `.env.example` → `ENABLED_MODULES` |

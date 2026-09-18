@@ -8,7 +8,13 @@ export type ModuleDefinition = {
   id: string;
   name: string;
   description: string;
+  /**
+   * Legacy / display only. Pricing comercial = tier (`PLAN_TIERS`), no suma de módulos.
+   * Preferí `includedInPlans`.
+   */
   monthlyPriceUsd: number;
+  /** Planes que incluyen este módulo (Start ⊂ Grow ⊂ Pro). */
+  includedInPlans: ReadonlyArray<"start" | "grow" | "pro">;
   category: ModuleCategory;
   /** Rutas admin que requieren este módulo (cuando existan). */
   adminRoutes: readonly string[];

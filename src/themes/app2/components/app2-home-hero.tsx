@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { HeroStaticContent } from "@/lib/home-content/types";
 import { App2BrandWordmark } from "@/themes/app2/components/home/app2-brand-wordmark";

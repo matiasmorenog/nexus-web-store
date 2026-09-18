@@ -7,7 +7,7 @@ import { CartEmptyState } from "@/components/storefront/cart-empty-state";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { useCartStore } from "@/stores/cart-store";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 type CartDrawerProps = {

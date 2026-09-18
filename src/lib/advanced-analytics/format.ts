@@ -1,5 +1,5 @@
 import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
-import type { AnalyticsDateRange, AnalyticsPeriodRanges } from "@/lib/advanced-analytics/types";
+import type { AnalyticsPeriodRanges } from "@/lib/advanced-analytics/types";
 
 function startOfDay(date: Date): Date {
   const value = new Date(date);

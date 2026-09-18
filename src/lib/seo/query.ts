@@ -9,13 +9,6 @@ import type {
 
 export const SEO_SETTINGS_CACHE_TAG = "seo-settings";
 
-const DEFAULT_SETTINGS: StoreSeoSettingsData = {
-  metaDescription: "",
-  ogImageUrl: "",
-  robotsIndex: true,
-  structuredDataEnabled: true,
-};
-
 function mapRow(
   row: {
     metaDescription: string | null;

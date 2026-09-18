@@ -4,6 +4,7 @@ import { Header } from "@/components/storefront/header";
 import { PromoConfigSync } from "@/components/storefront/promo-config-sync";
 import { WishlistSync } from "@/components/storefront/wishlist-sync";
 import { Footer } from "@/themes/app1/components/footer";
+import type { HeaderNavLink } from "@/lib/store-verticals/nav";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
 import "@/themes/app1/styles/theme.css";
 
@@ -14,6 +15,8 @@ type App1StorefrontLayoutProps = {
   brandPrimary: string;
   wishlistEnabled?: boolean;
   promo2x1Active?: boolean;
+  navDesktop?: HeaderNavLink[];
+  navMobile?: HeaderNavLink[];
 };
 
 export function App1StorefrontLayout({
@@ -23,6 +26,8 @@ export function App1StorefrontLayout({
   brandPrimary,
   wishlistEnabled = false,
   promo2x1Active = false,
+  navDesktop = config.headerNavDesktop,
+  navMobile = config.headerNavMobile,
 }: App1StorefrontLayoutProps) {
   const themeStyle = {
     ...config.ui.cssVars,
@@ -44,8 +49,8 @@ export function App1StorefrontLayout({
       >
         <Header
           storeName={storeDisplayName}
-          navDesktop={config.headerNavDesktop}
-          navMobile={config.headerNavMobile}
+          navDesktop={navDesktop}
+          navMobile={navMobile}
           features={config.features}
           chrome="light"
           uiVariant="app1"

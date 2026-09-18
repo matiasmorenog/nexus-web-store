@@ -18,18 +18,21 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 
 type ProductCreateFormProps = {
   onClose: () => void;
   blockedHint?: number;
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
+  categories?: readonly ProductCategoryDef[];
 };
 
 export function ProductCreateForm({
   onClose,
   blockedHint = 0,
   promo2x1Selectable = false,
+  categories,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
   const variantLabels = getClientVariantLabels();
@@ -60,7 +63,7 @@ export function ProductCreateForm({
                   <Label htmlFor="name">Nombre</Label>
                   <Input id="name" name="name" required />
                 </div>
-                <ProductTaxonomyFields />
+                <ProductTaxonomyFields categories={categories} />
                 <div className="sm:col-span-2">
                   <Label htmlFor="description">Descripción</Label>
                   <AdminTextarea id="description" name="description" rows={3} required />

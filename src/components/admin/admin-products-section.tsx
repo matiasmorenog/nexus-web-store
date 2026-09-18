@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import type { AdminProductsFilterParams } from "@/lib/admin-products-query";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 import { cn, formatPrice } from "@/lib/utils";
 
 export type AdminProductRow = {
@@ -54,6 +55,7 @@ type AdminProductsSectionProps = {
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
   canManage?: boolean;
+  categories?: readonly ProductCategoryDef[];
 };
 
 export function AdminProductsSection({
@@ -64,6 +66,7 @@ export function AdminProductsSection({
   awaitingFilters = false,
   promo2x1Selectable = false,
   canManage = true,
+  categories,
 }: AdminProductsSectionProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
@@ -140,6 +143,7 @@ export function AdminProductsSection({
             onClose={() => handleCreateOpenChange(false)}
             blockedHint={blockedHint}
             promo2x1Selectable={promo2x1Selectable}
+            categories={categories}
           />
         ) : null}
 
@@ -210,7 +214,11 @@ export function AdminProductsSection({
                   </div>
                 </AdminTableCell>
                 <AdminTableCell>
-                  {getProductTaxonomyLabel(product.category, product.audience)}
+                  {getProductTaxonomyLabel(
+                    product.category,
+                    product.audience,
+                    categories,
+                  )}
                 </AdminTableCell>
                 <AdminTableCell className="font-medium">
                   {formatPrice(Number(product.variants[0]?.price ?? 0))}

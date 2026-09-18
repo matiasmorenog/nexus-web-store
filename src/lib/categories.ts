@@ -7,6 +7,7 @@ import {
 } from "@/lib/store-verticals/taxonomy";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { APP1_PRODUCT_CATEGORIES } from "@/lib/store-verticals/app1/config";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 
 export const STORE_AUDIENCES = [
   { slug: "hombre", label: "Hombre" },
@@ -18,16 +19,25 @@ export type StoreAudience = (typeof STORE_AUDIENCES)[number]["slug"];
 
 export const PRODUCT_CATEGORIES = APP1_PRODUCT_CATEGORIES;
 
-export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number]["slug"];
+export type ProductCategorySlug = (typeof PRODUCT_CATEGORIES)[number]["slug"];
 
-/** @deprecated Usar PRODUCT_CATEGORIES; se mantiene por compatibilidad en admin. */
+/** @deprecated Usar ProductCategorySlug. */
+export type ProductCategory = ProductCategorySlug;
+
+/** @deprecated Usar PRODUCT_CATEGORIES o getStoreCategories(). */
 export const STORE_CATEGORIES = PRODUCT_CATEGORIES;
 
-export type StoreCategory = ProductCategory;
+function resolveCategories(
+  categories?: readonly ProductCategoryDef[],
+): readonly ProductCategoryDef[] {
+  return categories ?? getStorefrontConfig().productCategories;
+}
 
-export function categoriesForStoreFilter(genero?: string) {
-  const config = getStorefrontConfig();
-  return categoriesForStoreFilterBase(config.productCategories, genero);
+export function categoriesForStoreFilter(
+  genero?: string,
+  categories?: readonly ProductCategoryDef[],
+) {
+  return categoriesForStoreFilterBase(resolveCategories(categories), genero);
 }
 
 export const HOME_GENDER_TILES = [
@@ -46,9 +56,11 @@ export const HOME_CATEGORY_TILES = [
   ...HOME_PRODUCT_CATEGORY_TILES,
 ] as const;
 
-export function categoriesForAudience(audience: StoreAudience) {
-  const config = getStorefrontConfig();
-  return categoriesForAudienceFilter(config.productCategories, audience);
+export function categoriesForAudience(
+  audience: StoreAudience,
+  categories?: readonly ProductCategoryDef[],
+) {
+  return categoriesForAudienceFilter(resolveCategories(categories), audience);
 }
 
 export function getAudienceLabel(slug: string) {
@@ -56,15 +68,21 @@ export function getAudienceLabel(slug: string) {
   return config.audiences.find((audience) => audience.slug === slug)?.label ?? slug;
 }
 
-export function getCategoryLabel(slug: string) {
-  const config = getStorefrontConfig();
-  return getCategoryLabelFromList(config.productCategories, slug);
+export function getCategoryLabel(
+  slug: string,
+  categories?: readonly ProductCategoryDef[],
+) {
+  return getCategoryLabelFromList(resolveCategories(categories), slug);
 }
 
-export function getProductTaxonomyLabel(category: string, audience: string) {
+export function getProductTaxonomyLabel(
+  category: string,
+  audience: string,
+  categories?: readonly ProductCategoryDef[],
+) {
   const config = getStorefrontConfig();
   return taxonomyLabel(
-    config.productCategories,
+    resolveCategories(categories),
     config.audiences,
     category,
     audience,
@@ -86,7 +104,7 @@ function navGenero(slug: Exclude<StoreAudience, "unisex">) {
   };
 }
 
-function navCategoria(slug: ProductCategory) {
+function navCategoria(slug: ProductCategorySlug) {
   return {
     href: `/productos?categoria=${slug}`,
     label: getCategoryLabel(slug),

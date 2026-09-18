@@ -11,6 +11,7 @@ import { useAdminListNavigation } from "@/components/admin/use-admin-list-naviga
 import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
 import { hasAdminProductFacetFilters } from "@/lib/admin-product-filters";
 import { PRODUCT_CATEGORIES, STORE_AUDIENCES } from "@/lib/categories";
+import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 import { cn } from "@/lib/utils";
 
 type ProductsFiltersPanelProps = {
@@ -22,6 +23,7 @@ type ProductsFiltersPanelProps = {
     promo2x1: number;
     normal: number;
   };
+  categories?: readonly ProductCategoryDef[];
   className?: string;
 };
 
@@ -30,6 +32,7 @@ export function ProductsFiltersPanel({
   categoryCounts,
   audienceCounts,
   estadoCounts,
+  categories = PRODUCT_CATEGORIES,
   className,
 }: ProductsFiltersPanelProps) {
   const searchParams = useSearchParams();
@@ -81,7 +84,7 @@ export function ProductsFiltersPanel({
             count={totalProducts}
             onClick={() => navigate({ categoria: "" })}
           />
-          {PRODUCT_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <AdminFilterButton
               key={category.slug}
               active={activeCategory === category.slug}

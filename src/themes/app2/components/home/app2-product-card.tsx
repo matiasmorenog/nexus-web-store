@@ -22,7 +22,7 @@ function StarRating({ rating = 5 }: { rating?: number }) {
           key={s}
           className={cn(
             "h-3 w-3",
-            s <= 5 ? "fill-yellow-400 text-yellow-400" : "text-[var(--brand-primary-mid)]",
+            s <= rating ? "fill-yellow-400 text-yellow-400" : "text-[var(--brand-primary-mid)]",
           )}
         />
       ))}

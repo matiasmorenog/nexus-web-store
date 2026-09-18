@@ -96,20 +96,6 @@ export function AdminSkeletonPageHeader({
   );
 }
 
-function AdminSkeletonStatCard() {
-  return (
-    <div className={adminCardClass}>
-      <div className="flex items-start justify-between gap-3 p-5">
-        <div className="space-y-2">
-          <AdminSkeleton className="h-4 w-20" />
-          <AdminSkeleton className="h-8 w-16" />
-        </div>
-        <AdminSkeleton className="size-10 shrink-0 rounded-lg" />
-      </div>
-    </div>
-  );
-}
-
 function AdminSkeletonChartArea() {
   return (
     <div className="space-y-4">

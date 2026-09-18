@@ -6,7 +6,6 @@ import type {
   ActivityPoint,
   DashboardMonthPeriod,
   DashboardRecentOrder,
-  TopProduct,
 } from "@/lib/admin-analytics-shared";
 import {
   ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS,

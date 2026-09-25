@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
-import { AdminLocaleSwitcher } from "@/components/admin/admin-locale-switcher";
 import { AdminLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { ADMIN_LOCALE_COOKIE, adminLogin, parseAdminLocale } from "@/lib/admin-locale";
 import { storefrontPath } from "@/lib/storefront-paths";
@@ -86,9 +85,6 @@ export default async function AdminLoginPage({
             </div>
 
             <div className="rounded-xl border border-neutral-200/80 bg-white p-8 shadow-sm">
-              <div className="mb-4 flex justify-end">
-                <AdminLocaleSwitcher locale={locale} tone="light" />
-              </div>
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 {copy.signIn}
               </h2>

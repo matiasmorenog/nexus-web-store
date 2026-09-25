@@ -179,6 +179,7 @@ export default async function ProductPage({ params }: PageProps) {
               productSlug={product.slug}
               promo2x1={promo2x1Active && product.promo2x1}
               showSizeGuideLink={showSizeGuide}
+              hasSize={product.hasSize}
               variantLabels={variantLabels}
               variants={product.variants.map((v) => ({
                 id: v.id,

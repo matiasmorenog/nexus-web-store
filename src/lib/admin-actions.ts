@@ -22,6 +22,13 @@ import {
 import { slugify } from "@/lib/utils";
 import type { AdminPermission } from "@/lib/store-users/permissions";
 import { storeHasCategorySlug } from "@/lib/store-categories";
+import {
+  distinctSizes,
+  resolveVariantSize,
+  SIZELESS_SIZE_VALUE,
+} from "@/lib/product-size";
+import { getVariantLabels } from "@/lib/variant-labels";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 async function requireAdminStoreId(permission: AdminPermission) {
   const session = await assertAdminPermission(permission);
@@ -60,6 +67,16 @@ export async function createProduct(formData: FormData) {
     storeId,
     String(formData.get("category") ?? ""),
   );
+  const labels = getVariantLabels();
+  const sizeToggle = getStorefrontConfig().features.productSizeToggle;
+  const hasSize = sizeToggle
+    ? formData.get("hasSize") === "on"
+    : true;
+  const size = resolveVariantSize(
+    hasSize,
+    formData.get("size") as string | null,
+    labels.secondaryInitial ?? "M",
+  );
 
   const product = await db.product.create({
     data: {
@@ -71,11 +88,12 @@ export async function createProduct(formData: FormData) {
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
       promo2x1: formData.get("promo2x1") === "on",
+      hasSize,
       variants: {
         create: {
-          size: formData.get("size") as string,
+          size,
           color: formData.get("color") as string,
-          sku: `${slug}-${formData.get("size")}-${formData.get("color")}`.toUpperCase(),
+          sku: `${slug}-${size}-${formData.get("color")}`.toUpperCase(),
           stock: parseInt(formData.get("stock") as string) || 0,
           price: parseFloat(formData.get("price") as string) || 0,
           imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
@@ -162,6 +180,52 @@ export async function updateProduct(productId: string, formData: FormData) {
   revalidateStorefrontProductSurfaces(slug);
 }
 
+export async function updateProductHasSize(productId: string, hasSize: boolean) {
+  const storeId = await requireAdminStoreId("products:manage");
+  const product = await assertProductOwnership(productId, storeId);
+
+  if (!getStorefrontConfig().features.productSizeToggle) {
+    throw new Error("Esta tienda no permite desactivar el tamaño");
+  }
+
+  if (!hasSize) {
+    const variants = await db.productVariant.findMany({
+      where: { productId },
+      select: { id: true, size: true, color: true },
+    });
+    const sizes = distinctSizes(variants.map((v) => v.size));
+    if (sizes.length > 1) {
+      throw new Error(
+        "No se puede desactivar el tamaño mientras haya más de un valor. Unificá o eliminá variantes primero.",
+      );
+    }
+
+    const keepSize = sizes[0] ?? SIZELESS_SIZE_VALUE;
+    if (keepSize !== SIZELESS_SIZE_VALUE) {
+      for (const variant of variants) {
+        if (variant.size === SIZELESS_SIZE_VALUE) continue;
+        await db.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            size: SIZELESS_SIZE_VALUE,
+            sku: `${product.slug}-${SIZELESS_SIZE_VALUE}-${variant.color}`.toUpperCase(),
+          },
+        });
+      }
+    }
+  }
+
+  await db.product.update({
+    where: { id: productId },
+    data: { hasSize },
+  });
+
+  revalidateAdminProductDataCaches(storeId);
+  revalidatePath("/admin/productos");
+  revalidatePath(`/admin/productos/${productId}/edit`);
+  revalidateStorefrontProductSurfaces(product.slug);
+}
+
 export async function upsertProductColor(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
@@ -234,15 +298,22 @@ export async function upsertProductColor(productId: string, formData: FormData) 
       orderBy: { createdAt: "asc" },
     });
 
+    const labels = getVariantLabels();
+    const size = resolveVariantSize(
+      product.hasSize,
+      template?.size ?? labels.secondaryInitial,
+      labels.secondaryInitial ?? "M",
+    );
+
     await db.productVariant.create({
       data: {
         productId,
         color,
-        size: "M",
+        size,
         stock: 0,
         price: template?.price ?? 0,
         imageUrl,
-        sku: `${product.slug}-M-${color}`.toUpperCase(),
+        sku: `${product.slug}-${size}-${color}`.toUpperCase(),
       },
     });
   }
@@ -309,7 +380,12 @@ export async function createVariant(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
-  const size = formData.get("size") as string;
+  const labels = getVariantLabels();
+  const size = resolveVariantSize(
+    product.hasSize,
+    formData.get("size") as string | null,
+    labels.secondaryInitial ?? "M",
+  );
   const color = formData.get("color") as string;
 
   const duplicate = await db.productVariant.findFirst({
@@ -355,7 +431,12 @@ export async function updateVariant(variantId: string, formData: FormData) {
   });
   if (!variant) throw new Error("Variante no encontrada");
 
-  const size = formData.get("size") as string;
+  const labels = getVariantLabels();
+  const size = resolveVariantSize(
+    variant.product.hasSize,
+    formData.get("size") as string | null,
+    labels.secondaryInitial ?? "M",
+  );
   const color = formData.get("color") as string;
 
   const duplicate = await db.productVariant.findFirst({

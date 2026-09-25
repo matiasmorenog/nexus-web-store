@@ -79,6 +79,7 @@ export const app2Config: VerticalConfig = {
     showAudienceFilter: false,
     sizeGuide: false,
     ageNotice: true,
+    productSizeToggle: false,
   },
   variantLabels: {
     primary: "Sabor",

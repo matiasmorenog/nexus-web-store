@@ -68,6 +68,7 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 
 - [x] **Ignored Build Step** en proyecto **app1**: `bash scripts/vercel-should-build-app1.sh`
 - [x] **Ignored Build Step** en proyecto **app2**: `bash scripts/vercel-should-build-app2.sh`
+- [x] **Ignored Build Step** en proyecto **app3** (`manoviva-store`): `bash scripts/vercel-should-build-app3.sh`
 - [x] **Protección de branches** en GitHub: `main` y `development` con *Require pull request*
 - [x] **Default branch** en GitHub → `development`
 - [x] **Release** `development` → `main` (PR #3 mergeado)
@@ -88,7 +89,7 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 Ver `.cursor/rules/git-workflow.mdc` y `DEPLOY.md`.
 
 ```
-feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
 Una tarea = branch nuevo desde `development`. Producción solo vía release PR.

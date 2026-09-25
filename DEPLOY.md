@@ -8,6 +8,7 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB
 
 - [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-app1.sh`
 - [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-app2.sh`
+- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -176,7 +177,7 @@ Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ni
 Regla completa para el agente: `.cursor/rules/git-workflow.mdc`.
 
 ```
-feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
 - **`development`** — integración y preview. **Una tarea = un branch nuevo** desde acá.
@@ -204,12 +205,12 @@ Cuando `development` esté estable:
 gh pr create --base main --head development --title "release: development → main"
 ```
 
-Merge → deploy de producción en app1 + app2 (salvo Ignored Build Step).
+Merge → deploy de producción en app1 + app2 + app3 (salvo Ignored Build Step).
 
 | Evento | Producción (`main`) | Preview |
 |--------|---------------------|---------|
 | PR / merge → `development` | No | Sí |
-| PR / merge → `main` | Sí (×2) | — |
+| PR / merge → `main` | Sí (×3) | — |
 | Push directo a `main` | Sí | **Evitar** |
 
 **GitHub (recomendado):** Settings → General → Default branch → `development` (así `gh pr create` apunta ahí por defecto). Protegé `main` y `development` con **Require pull request**.

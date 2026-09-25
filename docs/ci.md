@@ -37,8 +37,8 @@ No se duplican: Actions valida el código rápido; Vercel valida que compile y d
 Orden práctico (app1 es hoy la tienda más completa / demo full):
 
 1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
-2. **`Vercel – nexus-web-store`** (app1 / Goat) — **preview de build principal**
-3. **`Vercel – nexus-vape-store`** (app2 / VAPORX) — **complementario** (plan base, Ignored Build puede omitirlo; revisar si el PR toca `src/themes/app2/` o vertical app2)
+2. **`Vercel – goat-indumentaria`** (app1 / Goat) — **preview de build principal**
+3. **`Vercel – vape-store`** (app2 / VAPORX) — **complementario** (plan base, Ignored Build puede omitirlo; revisar si el PR toca `src/themes/app2/` o vertical app2)
 4. **`Vercel – manoviva-store`** (app3) — preview opcional; en merge a `main` deploya producción igual que Goat y Vape
 
 No marcar los checks Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
@@ -64,4 +64,4 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 ## Merge (agente / flujo ágil)
 
 - `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.
-- Preferir verde en **`Vercel – nexus-web-store`** antes del merge; **`nexus-vape-store`** no bloquea salvo cambios específicos de app2.
+- Preferir verde en **`Vercel – goat-indumentaria`** antes del merge; **`vape-store`** no bloquea salvo cambios específicos de app2.

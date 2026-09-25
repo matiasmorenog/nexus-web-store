@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Vercel → proyecto vape-store → Settings → Git → Ignored Build Step
+# Vercel → proyecto vaporx-store → Settings → Git → Ignored Build Step
 # Exit 0 = omitir build | Exit 1 = ejecutar build
 set -euo pipefail
 

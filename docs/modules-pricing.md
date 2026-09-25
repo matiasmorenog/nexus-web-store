@@ -89,7 +89,7 @@ ENABLED_MODULES=marketing,seo,coupons,homeEditor
 | Proyecto Vercel | Slug | `ENABLED_MODULES` | Rol |
 |-----------------|------|-------------------|-----|
 | `goat-indumentaria` | `demo-store` | omitido / vacío | Demo full (Pro). Ve Plan y módulos |
-| `vape-store` | `vape-demo` | `none` | Beta núcleo. Ve Plan y módulos |
+| `vaporx-store` | `vape-demo` | `none` | Beta núcleo. Ve Plan y módulos |
 | `manoviva-store` | `manoviva-italia` | ignorado | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto |
 
 **Regla:** los módulos no se restringen por vertical. Gating = `storeHasModule()`.

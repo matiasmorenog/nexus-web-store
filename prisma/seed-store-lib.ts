@@ -11,7 +11,7 @@ import {
   DEFAULT_STORE_SLUG,
   APP2_STORE_SLUG,
   APP3_STORE_SLUG,
-  SEED_STORES,
+  getSeedStores,
   SEED_CUSTOMER_EMAIL,
   SEED_CUSTOMER_NAME,
   SEED_CUSTOMER_PASSWORD,
@@ -64,9 +64,9 @@ function seedVariantStock(
 }
 
 function getStoreConfig(slug: string): SeedStoreConfig {
-  const config = SEED_STORES.find((store) => store.slug === slug);
+  const config = getSeedStores().find((store) => store.slug === slug);
   if (!config) {
-    throw new Error(`Slug "${slug}" no está en prisma/seed-env.ts → SEED_STORES`);
+    throw new Error(`Slug "${slug}" no está en prisma/seed-env.ts → getSeedStores()`);
   }
   return config;
 }

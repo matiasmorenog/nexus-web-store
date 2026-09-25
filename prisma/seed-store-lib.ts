@@ -287,11 +287,11 @@ async function seedDisabledApp3Commerce(storeId: string) {
       where: { storeId },
       create: {
         storeId,
-        transferEnabled: false,
+        transferEnabled: true,
         transferInstructions: MANOVIVA_TRANSFER_INSTRUCTIONS_TEMPLATE,
       },
       update: {
-        transferEnabled: false,
+        transferEnabled: true,
       },
     }),
     prisma.storeShippingSettings.upsert({
@@ -305,13 +305,11 @@ async function seedDisabledApp3Commerce(storeId: string) {
         storeId,
         whatsappEnabled: false,
         whatsappMessage:
-          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+          "Ciao! Vorrei informazioni sul mio ordine Manoviva.",
       },
       update: {
-        whatsappEnabled: false,
-        whatsappPhone: null,
         whatsappMessage:
-          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+          "Ciao! Vorrei informazioni sul mio ordine Manoviva.",
       },
     }),
   ]);

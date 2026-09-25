@@ -19,7 +19,10 @@ import type {
   CheckoutPaymentConfig,
   CheckoutPaymentMethodOption,
 } from "@/lib/payments";
-import { calculateTransferPaymentDiscount } from "@/lib/payments";
+import {
+  calculateTransferPaymentDiscount,
+  defaultCheckoutPaymentMethod,
+} from "@/lib/payments";
 import {
   getTransferStorefrontPaymentCopy,
   usesItalianBanking,
@@ -64,6 +67,7 @@ function readFormField(form: HTMLFormElement, name: string) {
 type CheckoutFormProps = {
   shippingCost: number;
   allowPickup: boolean;
+  pickupOnly?: boolean;
   storeName: string;
   showSummary?: boolean;
   couponsEnabled?: boolean;
@@ -82,6 +86,7 @@ type CheckoutFormProps = {
 export function CheckoutForm({
   shippingCost,
   allowPickup,
+  pickupOnly = false,
   storeName,
   showSummary = true,
   couponsEnabled = false,
@@ -102,12 +107,12 @@ export function CheckoutForm({
   const { items, rawSubtotal, promoDiscount, subtotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("shipping");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(() =>
+    pickupOnly || allowPickup ? "pickup" : "shipping",
+  );
   const [internalPaymentMethod, setInternalPaymentMethod] =
     useState<CheckoutPaymentMethodOption>(() =>
-      paymentConfig.transferAvailable && !paymentConfig.mercadopagoAvailable
-        ? "transfer"
-        : "mercadopago",
+      defaultCheckoutPaymentMethod(paymentConfig),
     );
   const paymentMethod = paymentMethodProp ?? internalPaymentMethod;
 
@@ -278,7 +283,7 @@ export function CheckoutForm({
       if (result.initPoint) {
         clearCart();
         window.location.href = result.initPoint;
-      } else if (result.transferMode) {
+      } else if (result.transferMode || result.cashMode) {
         clearCart();
         router.push(`${getStorefrontPaths().checkoutPending}?order=${result.orderId}`);
       } else if (result.demoMode) {
@@ -300,10 +305,18 @@ export function CheckoutForm({
       onSubmit={handleSubmit}
       className="space-y-6"
     >
-      {allowPickup && (
+      {pickupOnly ? (
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 px-4 py-3 text-sm text-neutral-700">
+          <p className="font-medium text-neutral-900">{localeCopy.pickupOption}</p>
+          <p className="mt-1 text-neutral-600">
+            {localeCopy.pickupOnlyNotice(storeName)}
+          </p>
+          <input type="hidden" name="deliveryMethod" value="pickup" />
+        </div>
+      ) : allowPickup ? (
         <fieldset className="space-y-3">
           <legend className="text-sm font-medium text-neutral-900">
-            Forma de entrega
+            {localeCopy.deliveryMethodLegend}
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">
             <label
@@ -324,7 +337,7 @@ export function CheckoutForm({
               />
               <span className="flex items-center gap-2 font-medium">
                 <Truck className="size-4 text-[#3483fa]" aria-hidden />
-                Mercado Envíos
+                {localeCopy.shippingOption}
               </span>
               <span className="mt-1 text-sm text-neutral-600">
                 {dynamicShippingEnabled
@@ -358,20 +371,17 @@ export function CheckoutForm({
                 onChange={() => setDeliveryMethod("pickup")}
                 className="sr-only"
               />
-              <span className="font-medium">Retiro en local</span>
-              <span className="mt-1 text-sm text-neutral-600">Sin costo</span>
+              <span className="font-medium">{localeCopy.pickupOption}</span>
+              <span className="mt-1 text-sm text-neutral-600">{localeCopy.pickupFree}</span>
             </label>
           </div>
           <DeliverySection method="pickup" active={deliveryMethod === "pickup"}>
             <p className="text-sm text-neutral-600">
-              Retirás tu pedido en {storeName}. Te avisaremos por email cuando
-              esté listo.
+              {localeCopy.pickupReadyNotice(storeName)}
             </p>
           </DeliverySection>
         </fieldset>
-      )}
-
-      {!allowPickup && deliveryMethod === "shipping" ? (
+      ) : deliveryMethod === "shipping" ? (
         <div className="rounded-lg border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-3 text-sm text-neutral-700">
           <p className="flex items-center gap-2 font-medium text-neutral-900">
             <Truck className="size-4 text-[#3483fa]" aria-hidden />
@@ -487,11 +497,40 @@ export function CheckoutForm({
           <div
             className={cn(
               "grid gap-3",
-              paymentConfig.mercadopagoAvailable && paymentConfig.transferAvailable
+              [
+                paymentConfig.mercadopagoAvailable,
+                paymentConfig.transferAvailable,
+                paymentConfig.cashAvailable,
+              ].filter(Boolean).length > 1
                 ? "sm:grid-cols-2"
                 : "sm:grid-cols-1",
             )}
           >
+            {paymentConfig.cashAvailable ? (
+            <label
+              className={cn(
+                "cursor-pointer rounded-lg border p-4 transition-colors",
+                paymentMethod === "cash"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]/40"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cash"
+                checked={paymentMethod === "cash"}
+                onChange={() => setPaymentMethod("cash")}
+                className="sr-only"
+              />
+              <p className="font-medium text-neutral-900">
+                {localeCopy.cashMethodTitle}
+              </p>
+              <p className="mt-1 text-xs text-neutral-500">
+                {localeCopy.cashMethodDetail}
+              </p>
+            </label>
+            ) : null}
             {paymentConfig.mercadopagoAvailable ? (
             <label
               className={cn(
@@ -570,12 +609,12 @@ export function CheckoutForm({
           >
             <span>
               {deliveryMethod === "pickup"
-                ? "Retiro en local"
-                : "Mercado Envíos"}
+                ? localeCopy.pickupOption
+                : localeCopy.shippingOption}
             </span>
             <span>
               {deliveryMethod === "pickup"
-                ? "Sin costo"
+                ? localeCopy.pickupFree
                 : formatPrice(effectiveShipping)}
             </span>
           </DeliverySection>
@@ -590,7 +629,7 @@ export function CheckoutForm({
           active
           className="flex items-baseline justify-between border-t border-neutral-100 pt-4"
         >
-          <span className="text-sm text-neutral-600">Total a pagar</span>
+          <span className="text-sm text-neutral-600">{localeCopy.totalToPay}</span>
           <span className="text-xl font-bold tabular-nums text-neutral-900">
             {formatPrice(total)}
           </span>
@@ -601,10 +640,12 @@ export function CheckoutForm({
 
       <Button type="submit" size="lg" className="w-full" disabled={loading || items.length === 0}>
         {loading
-          ? "Procesando..."
+          ? localeCopy.processing
           : paymentMethod === "transfer"
             ? transferCopy.confirmButton
-            : "Pagar con Mercado Pago"}
+            : paymentMethod === "cash"
+              ? localeCopy.cashConfirmButton
+              : localeCopy.payWithMercadoPago}
       </Button>
     </form>
   );

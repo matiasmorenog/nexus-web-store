@@ -16,6 +16,7 @@ export {
   getTransferStorefrontPaymentCopy,
   usesItalianBanking,
 } from "@/lib/payments/transfer-copy";
+export { defaultCheckoutPaymentMethod } from "@/lib/payments/default-method";
 export type {
   BankingRegion,
   TransferAdminCopy,

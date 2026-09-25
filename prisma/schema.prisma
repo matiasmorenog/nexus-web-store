@@ -78,6 +78,7 @@ model Coupon {
 enum CheckoutPaymentMethod {
   MERCADO_PAGO
   TRANSFER
+  CASH
 }
 
 model Store {

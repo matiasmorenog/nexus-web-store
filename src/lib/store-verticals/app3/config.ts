@@ -32,7 +32,8 @@ export const app3Config: VerticalConfig = {
       "Regali personalizzati e creazioni artigianali. Ogni materia prende vita, fatta a mano per te.",
   },
   features: {
-    checkout: false,
+    checkout: true,
+    pickupOnly: true,
     catalog: true,
     catalogFilters: true,
     productSearch: true,

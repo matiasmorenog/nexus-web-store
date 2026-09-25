@@ -1,5 +1,6 @@
 import { Clock } from "lucide-react";
 import { redirect } from "next/navigation";
+import { CheckoutWhatsAppCta } from "@/components/storefront/checkout-whatsapp-cta";
 import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
 import { getStorefrontPaths } from "@/lib/storefront-paths";
 import { getLocaleCopy } from "@/lib/storefront-locale-copy";
@@ -8,6 +9,7 @@ import { db } from "@/lib/db";
 import { formatOrderId } from "@/lib/order-status";
 import { getStoreId } from "@/lib/store-context";
 import { formatPrice } from "@/lib/utils";
+import { getStoreMarketingSettings } from "@/lib/marketing/query";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,7 @@ export default async function CheckoutPendingPage({
   const copy = getLocaleCopy(config.locale);
   const params = await searchParams;
   const storeId = await getStoreId();
+  const marketing = await getStoreMarketingSettings(storeId);
 
   const order = params.order
     ? await db.order.findUnique({
@@ -38,8 +41,10 @@ export default async function CheckoutPendingPage({
       })
     : null;
 
-  const isTransferOrder =
-    order?.storeId === storeId && order.paymentMethod === "TRANSFER";
+  const belongsToStore = order?.storeId === storeId;
+  const isTransferOrder = belongsToStore && order.paymentMethod === "TRANSFER";
+  const isCashOrder = belongsToStore && order.paymentMethod === "CASH";
+  const preferWhatsApp = isTransferOrder || isCashOrder || config.features.pickupOnly;
 
   const transferInstructions = isTransferOrder
     ? (
@@ -50,16 +55,39 @@ export default async function CheckoutPendingPage({
       )?.transferInstructions
     : null;
 
+  const whatsappPhone =
+    marketing.whatsappEnabled && marketing.whatsappPhone
+      ? marketing.whatsappPhone
+      : null;
+
   return (
     <StorefrontStatusPage
       icon={Clock}
       iconClassName="text-amber-600"
-      title={isTransferOrder ? copy.orderRegistered : copy.paymentPending}
+      title={
+        isTransferOrder || isCashOrder ? copy.orderRegistered : copy.paymentPending
+      }
       actionHref="/"
       actionLabel={copy.backHome}
       actionVariant="secondary"
     >
-      {isTransferOrder ? (
+      {isCashOrder ? (
+        <>
+          <p>{copy.cashPending}</p>
+          {order ? (
+            <p>
+              {copy.orderNumber}{" "}
+              <strong className="text-neutral-900">{formatOrderId(order.id)}</strong>
+            </p>
+          ) : null}
+          <p>
+            {copy.cashTotal}{" "}
+            <strong className="text-neutral-900">
+              {order ? formatPrice(Number(order.total)) : "—"}
+            </strong>
+          </p>
+        </>
+      ) : isTransferOrder ? (
         <>
           <p>{copy.transferPending}</p>
           {order ? (
@@ -87,6 +115,15 @@ export default async function CheckoutPendingPage({
       ) : (
         <p>{copy.paymentProcessing}</p>
       )}
+
+      {preferWhatsApp ? (
+        <CheckoutWhatsAppCta
+          phone={whatsappPhone}
+          message={marketing.whatsappMessage}
+          orderId={order?.id}
+          copy={copy}
+        />
+      ) : null}
     </StorefrontStatusPage>
   );
 }

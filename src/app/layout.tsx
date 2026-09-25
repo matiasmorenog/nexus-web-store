@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Inter, Oswald, Rajdhani, Sora } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { getStoreSiteUrl } from "@/lib/seo/site-url";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import "./globals.css";
@@ -46,6 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const displayName = formatStoreName(store.name);
 
   return {
+    metadataBase: new URL(getStoreSiteUrl()),
     title: displayName,
     description: config.metadata.description,
   };

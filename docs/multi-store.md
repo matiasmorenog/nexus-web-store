@@ -10,9 +10,11 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 
 | Proyecto Vercel | Slug | URL | Config storefront | Módulos (`ENABLED_MODULES`) |
 |-----------------|------|-----|-------------------|----------------------------|
-| `nexus-web-store` | `demo-store` | https://nexus-web-store.vercel.app | app1 | omitido → todos (demo full) |
-| `nexus-vape-store` | `vape-demo` | https://nexus-vape-store.vercel.app | app2 | `none` → plan base (activar módulos por env) |
+| `goat-indumentaria` | `demo-store` | https://goat-indumentaria.vercel.app | app1 | omitido → todos (demo full) |
+| `vaporx-store` | `vape-demo` | https://vaporx-store.vercel.app | app2 | `none` → plan base (activar módulos por env) |
 | `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto. Comercio apagado |
+
+App2 usa `vaporx-store` (no `vape-store`): `vape-store.vercel.app` pertenece a otro proyecto ajeno. Ver nota en [`DEPLOY.md`](../DEPLOY.md).
 
 Los módulos Plus están **disponibles para ambas tiendas**; el vertical no los bloquea. Detalle en [`modules-pricing.md`](modules-pricing.md) y `.cursor/rules/modules-gating.mdc`.
 

@@ -21,8 +21,8 @@ alwaysApply: true
 
 | Proyecto | Slug | `ENABLED_MODULES` esperado |
 |----------|------|----------------------------|
-| `nexus-web-store` (app1 demo) | `demo-store` | omitido / vacío → **todos** los módulos |
-| `nexus-vape-store` (beta) | `vape-demo` | `none` → **solo plan base** |
+| `goat-indumentaria` (app1 demo) | `demo-store` | omitido / vacío → **todos** los módulos |
+| `vaporx-store` (beta) | `vape-demo` | `none` → **solo plan base** |
 | `manoviva-store` | `manoviva-italia` | fijo en código: plan **Start** (`marketing`, `seo`). Menú Plan y módulos oculto |
 
 App2 puede activar cualquier módulo cambiando env; no requiere cambios de código por vertical.

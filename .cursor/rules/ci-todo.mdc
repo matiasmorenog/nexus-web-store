@@ -40,13 +40,13 @@ Referencia: `docs/ci.md` · Linear NEX-7
 
 ## Prioridad de previews Vercel (día a día)
 
-Hoy app1 (`nexus-web-store` / `demo-store`) es la tienda demo más completa; app2 (`nexus-vape-store` / `vape-demo`) corre plan base.
+Hoy app1 (`goat-indumentaria` / `demo-store`) es la tienda demo más completa; app2 (`vaporx-store` / `vape-demo`) corre plan base.
 
 | Prioridad | Check | Rol |
 |-----------|-------|-----|
 | 1 | `lint-and-typecheck` | Gate de código (Actions) |
-| 2 | `Vercel – nexus-web-store` | Preview de build **principal** |
-| 3 | `Vercel – nexus-vape-store` | Preview **complementario** (o obligatorio si el PR toca app2) |
+| 2 | `Vercel – goat-indumentaria` | Preview de build **principal** |
+| 3 | `Vercel – vaporx-store` | Preview **complementario** (o obligatorio si el PR toca app2) |
 
 ## Referencias
 

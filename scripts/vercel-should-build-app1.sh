@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Vercel → proyecto app1 → Settings → Git → Ignored Build Step
+# Vercel → proyecto goat-indumentaria → Settings → Git → Ignored Build Step
 # Exit 0 = omitir build | Exit 1 = ejecutar build
 set -euo pipefail
 

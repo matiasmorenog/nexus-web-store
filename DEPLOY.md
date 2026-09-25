@@ -6,8 +6,8 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-app1.sh`
-- [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-app2.sh`
+- [x] Ignored Build Step en **goat-indumentaria**: `bash scripts/vercel-should-build-app1.sh`
+- [x] Ignored Build Step en **vaporx-store**: `bash scripts/vercel-should-build-app2.sh`
 - [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
@@ -23,9 +23,13 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 | Proyecto Vercel | Tienda | URL | `DEFAULT_STORE_SLUG` |
 |-----------------|--------|-----|----------------------|
-| `nexus-web-store` | Goat (app1) | https://nexus-web-store.vercel.app | `demo-store` |
-| `nexus-vape-store` | VAPORX (app2) | https://nexus-vape-store.vercel.app | `vape-demo` |
+| `goat-indumentaria` | Goat (app1) | https://goat-indumentaria.vercel.app | `demo-store` |
+| `vaporx-store` | VAPORX (app2) | https://vaporx-store.vercel.app | `vape-demo` |
 | `manoviva-store` | Manoviva (app3) | https://manoviva-store.vercel.app | `manoviva-italia` |
+
+**Alias legacy (siguen vivos):** `nexus-web-store.vercel.app` → Goat; `nexus-vape-store.vercel.app` → VAPORX.
+
+**Por qué `vaporx-store` (no `vape-store`):** el hostname global `vape-store.vercel.app` ya está tomado por otra cuenta (sitio “Smoke & Vape Co.” / Colorado Springs). Renombrar el proyecto a `vape-store` no reclama ese alias. Elegimos `vaporx-store` (marca VAPORX, hostname libre). No usar `https://vape-store.vercel.app` en env ni docs.
 
 Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
 
@@ -39,7 +43,7 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 |----------|---------|------|
 | `DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
 | `NEXT_PUBLIC_DEFAULT_STORE_SLUG` | `demo-store` | `vape-demo` |
-| `AUTH_URL` | `https://nexus-web-store.vercel.app` | `https://nexus-vape-store.vercel.app` |
+| `AUTH_URL` | `https://goat-indumentaria.vercel.app` | `https://vaporx-store.vercel.app` |
 | `NEXT_PUBLIC_APP_URL` | igual que `AUTH_URL` | igual que `AUTH_URL` |
 | `AUTH_SECRET` | **único por proyecto** | **único por proyecto** |
 | `DATABASE_URL` | Neon pooled (misma DB) | Neon pooled (misma DB) |
@@ -52,8 +56,8 @@ Opcionales: `MERCADOENVIOS_ACCESS_TOKEN` (sin esto, envíos en modo demo).
 
 **Google OAuth (login cliente + admin):** `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` (mismas credenciales en app1 y app2 si compartís login). Sin estas vars el botón «Continuar con Google» no aparece. En [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client ID → **Authorized redirect URIs** (una por deploy):
 
-- App1: `https://nexus-web-store.vercel.app/api/auth/callback/google` (local: `http://localhost:3000/api/auth/callback/google`)
-- App2: `https://nexus-vape-store.vercel.app/api/auth/callback/google` (local app2: `http://localhost:3001/api/auth/callback/google`)
+- App1: `https://goat-indumentaria.vercel.app/api/auth/callback/google` (local: `http://localhost:3000/api/auth/callback/google`)
+- App2: `https://vaporx-store.vercel.app/api/auth/callback/google` (local app2: `http://localhost:3001/api/auth/callback/google`)
 
 Admin con Google **solo** entra si el email ya existe con rol admin (`STORE_OWNER`, `STORE_STAFF`, `PLATFORM_ADMIN`); no crea admins nuevos. Cliente con Google crea cuenta `CUSTOMER` si el email es nuevo, o vincula OAuth a cuenta existente (también si tenía contraseña).
 
@@ -93,7 +97,7 @@ No se puede apagar el branching por preview sin desconectar la integración. Pas
 
 1. **Neon Console** → [console.neon.tech](https://console.neon.tech) → tu proyecto.
 2. Menú **Integrations** → Vercel → **Manage** → **Disconnect**.
-3. En **Vercel** (cada proyecto: `nexus-web-store` y `nexus-vape-store`):
+3. En **Vercel** (cada proyecto: `goat-indumentaria` y `vaporx-store`):
    - **Settings → Environment Variables**
    - Confirmá que existen `DATABASE_URL` y `DIRECT_URL` para **Production** y **Preview** (copiá las URLs desde Neon → Connection details del branch `main` / production).
    - Si la integración había inyectado vars con prefijo o duplicadas (`POSTGRES_URL`, `PGHOST`, etc.), dejalas solo si las usás; este repo usa `DATABASE_URL` + `DIRECT_URL`.
@@ -143,8 +147,8 @@ Tras cambiar env en Vercel → **Redeploy**.
 
 **Mercado Pago — webhooks (uno por dominio):**
 
-- App1: `https://nexus-web-store.vercel.app/api/webhooks/mercadopago`
-- App2: `https://nexus-vape-store.vercel.app/api/webhooks/mercadopago`
+- App1: `https://goat-indumentaria.vercel.app/api/webhooks/mercadopago`
+- App2: `https://vaporx-store.vercel.app/api/webhooks/mercadopago`
 
 ## Desarrollo local
 
@@ -170,7 +174,7 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
 
-**Prioridad de preview en PRs:** `nexus-web-store` (app1) es el build principal (demo más completa hoy); `nexus-vape-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
+**Prioridad de preview en PRs:** `goat-indumentaria` (app1) es el build principal (demo más completa hoy); `vaporx-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 

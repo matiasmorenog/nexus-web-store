@@ -21,7 +21,7 @@ export default async function AdminCobrosPage() {
           title="Cobros"
           description={
             hideMercadoPago
-              ? "Transferencia bancaria (bonifico) y métodos de pago en checkout."
+              ? "Bonifico bancario (IBAN) y métodos de pago en checkout."
               : "Mercado Pago, transferencia con descuento y métodos de pago en checkout."
           }
         />

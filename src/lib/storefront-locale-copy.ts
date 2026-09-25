@@ -98,6 +98,10 @@ const spanish = {
   keepShopping: "Seguir comprando",
   orderProcessed: "Tu pedido fue procesado correctamente.",
   emailSent: "Te enviamos un email con el detalle de tu compra.",
+  taxIdLabel: "CUIT / CUIL / DNI (opcional)",
+  taxIdPlaceholder: "Para factura — ej. 20-12345678-9",
+  taxIdHint: "Solo si necesitás factura a tu nombre o razón social.",
+  paymentMethodLegend: "Método de pago",
 };
 
 const italian = {
@@ -188,16 +192,22 @@ const italian = {
   orderRegistered: "Richiesta registrata",
   paymentPending: "Pagamento in attesa",
   backHome: "Torna alla home",
-  transferPending: "La richiesta resta in attesa finché non confermiamo il pagamento.",
+  transferPending:
+    "Il tuo ordine resta in attesa finché non confermiamo il bonifico bancario.",
   orderNumber: "Numero ordine:",
-  transferTotal: "Totale da trasferire:",
-  transferDetails: "Dati per il trasferimento",
-  transferProof: "Invia la ricevuta via email indicando il numero dell'ordine.",
+  transferTotal: "Totale da bonificare:",
+  transferDetails: "Dati per il bonifico (IBAN)",
+  transferProof:
+    "Invia la ricevuta via email indicando il numero dell'ordine.",
   paymentProcessing: "Il pagamento è in elaborazione. Ti avvisiamo quando viene confermato.",
   purchaseConfirmed: "Richiesta confermata",
   keepShopping: "Continua lo shopping",
   orderProcessed: "La tua richiesta è stata registrata.",
   emailSent: "Ti abbiamo inviato un'email con il dettaglio.",
+  taxIdLabel: "Codice fiscale (opzionale)",
+  taxIdPlaceholder: "Es. RSSMRA80A01H501U",
+  taxIdHint: "Solo se ti serve la fattura intestata a te o alla tua azienda.",
+  paymentMethodLegend: "Metodo di pagamento",
 };
 
 export type LocaleCopy = typeof spanish;

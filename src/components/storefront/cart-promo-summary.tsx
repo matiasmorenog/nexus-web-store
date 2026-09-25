@@ -1,5 +1,6 @@
 "use client";
 
+import { getTransferStorefrontPaymentCopy } from "@/lib/payments/transfer-copy";
 import { formatPrice } from "@/lib/utils";
 
 type CartPromoSummaryProps = {
@@ -86,7 +87,7 @@ export function CartPromoSummary({
               : "flex justify-between text-[var(--brand-primary)]"
           }
         >
-          <span>Transferencia (10% off)</span>
+          <span>{getTransferStorefrontPaymentCopy().cartDiscountLabel}</span>
           <span>-{formatPrice(transferDiscount)}</span>
         </div>
       ) : null}

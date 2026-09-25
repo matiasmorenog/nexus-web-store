@@ -45,7 +45,7 @@ Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
 
 **Neon + serverless** — Pooler con `connection_limit=1`; queries admin en `$transaction` secuencial para evitar timeouts del pool.
 
-**Multi-tenant + dos deploys** — Schema con `storeId`; hoy **dos proyectos Vercel** (app1 + app2) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
+**Multi-tenant + tres deploys** — Schema con `storeId`; **tres proyectos Vercel** (app1 Goat, app2 Vape, app3 Manoviva) leen distinto `DEFAULT_STORE_SLUG` sobre la misma Neon. Verticales en `src/lib/store-verticals/`. Detalle en [`docs/multi-store.md`](docs/multi-store.md).
 
 **Sin middleware Edge** — Auth del admin en layout server-side (límite de Vercel en middleware + DB).
 

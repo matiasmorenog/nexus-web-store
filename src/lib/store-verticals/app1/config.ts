@@ -81,6 +81,7 @@ export const app1Config: VerticalConfig = {
     showAudienceFilter: true,
     sizeGuide: true,
     ageNotice: false,
+    productSizeToggle: false,
   },
   variantLabels: {
     primary: "Color",

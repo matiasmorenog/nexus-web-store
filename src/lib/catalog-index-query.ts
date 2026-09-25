@@ -28,6 +28,7 @@ function mapProductToIndex(product: {
   audience: string;
   featured: boolean;
   promo2x1: boolean;
+  hasSize: boolean;
   createdAt: Date;
   variants: {
     size: string;
@@ -47,6 +48,7 @@ function mapProductToIndex(product: {
     audience: product.audience,
     featured: product.featured,
     promo2x1: product.promo2x1,
+    hasSize: product.hasSize,
     createdAt: product.createdAt.toISOString(),
     variants: product.variants.map((variant) => ({
       size: variant.size,

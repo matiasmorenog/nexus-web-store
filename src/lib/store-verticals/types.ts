@@ -30,6 +30,11 @@ export type VerticalFeatures = {
   showAudienceFilter: boolean;
   sizeGuide: boolean;
   ageNotice: boolean;
+  /**
+   * Admin can toggle Product.hasSize (Shopify-like option axis).
+   * New products default hasSize off when this is true (Manoviva).
+   */
+  productSizeToggle: boolean;
 };
 
 export type StorefrontUiTokens = {

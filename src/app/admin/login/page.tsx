@@ -9,22 +9,7 @@ import { auth } from "@/lib/auth";
 import { getBrandPrefix } from "@/lib/brand";
 import { getMerchantEmailOptional } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
-import {
-  SEED_ADMIN_EMAIL,
-  SEED_ADMIN_PASSWORD,
-} from "@/lib/demo-admin-credentials";
 import { isGoogleAuthEnabled } from "@/lib/auth-session";
-
-async function getLoginDefaultEmail(storeId: string) {
-  const fromDb = await getMerchantEmailOptional(storeId);
-  if (fromDb) return fromDb;
-  // Tras db:seed el cache de getStore puede quedar con un storeId viejo; en dev
-  // prellenamos con el email del seed para no bloquear el login demo.
-  if (process.env.NODE_ENV === "development") {
-    return SEED_ADMIN_EMAIL;
-  }
-  return "";
-}
 
 export default async function AdminLoginPage({
   searchParams,
@@ -44,7 +29,7 @@ export default async function AdminLoginPage({
 
   const store = await getStore();
   const displayName = formatStoreName(store.name);
-  const ownerEmail = await getLoginDefaultEmail(store.id);
+  const ownerEmail = (await getMerchantEmailOptional(store.id)) ?? "";
   const brandPrefix = getBrandPrefix(store.name);
   const cookieStore = await cookies();
   const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
@@ -101,7 +86,6 @@ export default async function AdminLoginPage({
               <AdminLoginWithDemo>
                 <LoginForm
                   defaultEmail={ownerEmail}
-                  defaultPassword={SEED_ADMIN_PASSWORD}
                   googleAuthEnabled={isGoogleAuthEnabled()}
                   copy={copy}
                 />

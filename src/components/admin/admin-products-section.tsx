@@ -19,6 +19,10 @@ import {
 } from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  getAdminProductsCopy,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import type { AdminProductsFilterParams } from "@/lib/admin-products-query";
 import type { ProductCategoryDef } from "@/lib/store-verticals/types";
@@ -35,15 +39,6 @@ export type AdminProductRow = {
   variants: { imageUrl: string; price: number }[];
   _count: { variants: number };
 };
-
-const PRODUCT_COLUMNS = [
-  "Producto",
-  "Categoría",
-  "Precio",
-  "Variantes",
-  "Estado",
-  "Acciones",
-] as const;
 
 type AdminProductsSectionProps = {
   initialProducts: AdminProductRow[];
@@ -68,6 +63,16 @@ export function AdminProductsSection({
   canManage = true,
   categories,
 }: AdminProductsSectionProps) {
+  const copy = getAdminProductsCopy(readAdminLocaleFromDocument());
+  const productColumns = [
+    copy.columns.product,
+    copy.columns.category,
+    copy.columns.price,
+    copy.columns.variants,
+    copy.columns.status,
+    copy.columns.actions,
+  ] as const;
+
   const [createOpen, setCreateOpen] = useState(false);
   const [blockedHint, setBlockedHint] = useState(0);
   const [products, setProducts] = useState(initialProducts);
@@ -122,7 +127,7 @@ export function AdminProductsSection({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "Error al cargar productos");
+        throw new Error(data.error ?? copy.loadError);
       }
 
       setProducts((current) => [...current, ...data.products]);
@@ -134,6 +139,12 @@ export function AdminProductsSection({
       setLoading(false);
     }
   };
+
+  const catalogDescription = awaitingFilters
+    ? copy.catalogAwaitingDescription
+    : hasMore || products.length < total
+      ? copy.catalogCountPartial(products.length, total)
+      : copy.catalogCountAll(total);
 
   return (
     <div className="space-y-6 pb-2">
@@ -163,15 +174,9 @@ export function AdminProductsSection({
           }
         >
           <AdminCard
-            title="Catálogo"
+            title={copy.catalogTitle}
             className={cn(createOpen && "bg-neutral-100/50")}
-            description={
-              awaitingFilters
-                ? "Elegí un filtro del panel o buscá por nombre para ver productos."
-                : hasMore || products.length < total
-                  ? `${products.length} de ${total} producto${total !== 1 ? "s" : ""}`
-                  : `${total} producto${total !== 1 ? "s" : ""}`
-            }
+            description={catalogDescription}
             padding={false}
             action={
               canManage && !createOpen ? (
@@ -180,17 +185,17 @@ export function AdminProductsSection({
                   className="w-full whitespace-nowrap sm:w-auto"
                   onClick={() => handleCreateOpenChange(true)}
                 >
-                  Nuevo producto
+                  {copy.newProduct}
                 </Button>
               ) : undefined
             }
           >
-            <AdminDataTable columns={[...PRODUCT_COLUMNS]}>
+            <AdminDataTable columns={[...productColumns]}>
             {products.length === 0 ? (
-              <AdminTableEmpty colSpan={PRODUCT_COLUMNS.length}>
+              <AdminTableEmpty colSpan={productColumns.length}>
                 {awaitingFilters
-                  ? "Usá los filtros del panel o la búsqueda para listar productos."
-                  : "No hay productos en el catálogo. Creá el primero con «Nuevo producto»."}
+                  ? copy.catalogEmptyAwaiting
+                  : copy.catalogEmptyNoProducts}
               </AdminTableEmpty>
             ) : (
               products.map((product) => (
@@ -208,7 +213,7 @@ export function AdminProductsSection({
                         className="text-xs text-neutral-500 hover:underline"
                         target="_blank"
                       >
-                        Ver en tienda
+                        {copy.viewInStore}
                       </Link>
                     </div>
                   </div>
@@ -226,18 +231,22 @@ export function AdminProductsSection({
                 <AdminTableCell>{product._count.variants}</AdminTableCell>
                 <AdminTableCell>
                   <div className="flex flex-wrap gap-1">
-                    {product.promo2x1 && <Badge variant="success">2x1</Badge>}
+                    {product.promo2x1 && (
+                      <Badge variant="success">{copy.statusPromo2x1}</Badge>
+                    )}
                     {product.featured ? (
-                      <Badge variant="success">Destacado</Badge>
+                      <Badge variant="success">{copy.statusFeatured}</Badge>
                     ) : (
-                      !product.promo2x1 && <Badge>Normal</Badge>
+                      !product.promo2x1 && (
+                        <Badge>{copy.statusNormal}</Badge>
+                      )
                     )}
                   </div>
                 </AdminTableCell>
                 <AdminTableCell>
                   <AdminTableActions>
                     <AdminTableIconAction
-                      label={`Editar ${product.name}`}
+                      label={copy.editProductAria(product.name)}
                       icon={Pencil}
                       href={`/admin/productos/${product.id}/edit`}
                     />
@@ -260,7 +269,9 @@ export function AdminProductsSection({
             hasMore={hasMore && !awaitingFilters}
             loading={loading}
             onLoadMore={loadMore}
-            label="Cargar más productos"
+            label={copy.loadMore}
+            loadingLabel={copy.loading}
+            showingLabel={copy.showingOf(products.length, total)}
           />
           </AdminCard>
         </div>

@@ -9,6 +9,8 @@ type AdminLoadMoreProps = {
   loading: boolean;
   onLoadMore: () => void;
   label?: string;
+  loadingLabel?: string;
+  showingLabel?: string;
 };
 
 export function AdminLoadMore({
@@ -18,13 +20,15 @@ export function AdminLoadMore({
   loading,
   onLoadMore,
   label = "Cargar más",
+  loadingLabel = "Cargando...",
+  showingLabel,
 }: AdminLoadMoreProps) {
   if (!hasMore) return null;
 
   return (
     <div className="flex flex-col items-center gap-2 border-t border-neutral-100 px-6 py-4 sm:flex-row sm:justify-between">
       <p className="text-sm text-neutral-500">
-        Mostrando {loaded} de {total}
+        {showingLabel ?? `Mostrando ${loaded} de ${total}`}
       </p>
       <Button
         type="button"
@@ -34,7 +38,7 @@ export function AdminLoadMore({
         disabled={loading}
         className="w-full sm:w-auto"
       >
-        {loading ? "Cargando..." : label}
+        {loading ? loadingLabel : label}
       </Button>
     </div>
   );

@@ -15,6 +15,7 @@ type AdminSearchFieldProps = {
   onSubmit: () => void;
   placeholder?: string;
   ariaLabel?: string;
+  clearAriaLabel?: string;
 };
 
 export function AdminSearchField({
@@ -24,6 +25,7 @@ export function AdminSearchField({
   onSubmit,
   placeholder = "Buscar...",
   ariaLabel = "Buscar",
+  clearAriaLabel = "Limpiar búsqueda",
 }: AdminSearchFieldProps) {
   return (
     <form
@@ -52,7 +54,7 @@ export function AdminSearchField({
             type="button"
             onClick={onClear}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-            aria-label="Limpiar búsqueda"
+            aria-label={clearAriaLabel}
           >
             <X className="h-4 w-4" aria-hidden />
           </button>
@@ -210,7 +212,13 @@ export function AdminFilterSection({
   );
 }
 
-export function AdminClearFiltersButton({ onClick }: { onClick: () => void }) {
+export function AdminClearFiltersButton({
+  onClick,
+  label = "Limpiar filtros",
+}: {
+  onClick: () => void;
+  label?: string;
+}) {
   return (
     <div className="border-t border-neutral-100 px-4 py-3">
       <button
@@ -218,7 +226,7 @@ export function AdminClearFiltersButton({ onClick }: { onClick: () => void }) {
         onClick={onClick}
         className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
       >
-        Limpiar filtros
+        {label}
       </button>
     </div>
   );

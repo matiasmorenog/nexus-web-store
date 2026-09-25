@@ -5,6 +5,10 @@ import { Trash2 } from "lucide-react";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTableIconAction } from "@/components/admin/admin-table";
 import { deleteProduct } from "@/lib/admin-actions";
+import {
+  getAdminProductsCopy,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
 
 type DeleteProductButtonProps = {
   productId: string;
@@ -17,6 +21,7 @@ export function DeleteProductButton({
 }: DeleteProductButtonProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const copy = getAdminProductsCopy(readAdminLocaleFromDocument());
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -31,7 +36,7 @@ export function DeleteProductButton({
   return (
     <>
       <AdminTableIconAction
-        label={`Eliminar ${productName}`}
+        label={copy.deleteProductAria(productName)}
         icon={Trash2}
         onClick={() => setConfirmOpen(true)}
         loading={loading}
@@ -39,9 +44,10 @@ export function DeleteProductButton({
       />
       <AdminConfirmDialog
         open={confirmOpen}
-        title="Eliminar producto"
-        description={`¿Eliminar "${productName}"? Se borrarán también sus variantes. Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
+        title={copy.deleteTitle}
+        description={copy.deleteDescription(productName)}
+        confirmLabel={copy.deleteConfirm}
+        cancelLabel={copy.deleteCancel}
         loading={loading}
         onConfirm={() => void handleConfirm()}
         onCancel={() => {

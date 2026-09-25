@@ -14,6 +14,7 @@ import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-field
 import { getAdminVariantLabels } from "@/lib/variant-labels";
 import {
   adminProductOptions,
+  getAdminProductsCopy,
   readAdminLocaleFromDocument,
 } from "@/lib/admin-locale";
 import { getClientStorefrontConfig } from "@/lib/store-slug-client";
@@ -43,6 +44,7 @@ export function ProductCreateForm({
   const [loading, setLoading] = useState(false);
   const locale = readAdminLocaleFromDocument();
   const optionsCopy = adminProductOptions[locale];
+  const productsCopy = getAdminProductsCopy(locale);
   const variantLabels = getAdminVariantLabels(locale);
   const sizeToggle = getClientStorefrontConfig().features.productSizeToggle;
   const [hasSize, setHasSize] = useState(!sizeToggle);
@@ -61,8 +63,8 @@ export function ProductCreateForm({
   return (
     <AdminMotion variant="panel">
       <AdminCard
-        title="Nuevo producto"
-        description="Completá los datos del producto y su primera variante."
+        title={productsCopy.newProduct}
+        description={productsCopy.createDescription}
         padding={false}
       >
         <div className={adminBlockedEditShellClass}>

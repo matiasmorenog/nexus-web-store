@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -26,6 +26,10 @@ import {
   X,
 } from "lucide-react";
 import { SignOutButton } from "@/components/admin/sign-out-button";
+import {
+  SlidingIndicatorPill,
+  useSlidingIndicator,
+} from "@/components/ui/sliding-indicator";
 import { adminChrome, type AdminLocale } from "@/lib/admin-locale";
 import {
   isModuleNavItemEnabled,
@@ -89,49 +93,6 @@ function navItemHref(
     return moduleUpgradeHref(item.moduleId);
   }
   return item.href;
-}
-
-function useSelectedNavIndicator(activeKey: string) {
-  const listRef = useRef<HTMLElement>(null);
-  const [indicator, setIndicator] = useState<{
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const [animate, setAnimate] = useState(false);
-
-  useLayoutEffect(() => {
-    const list = listRef.current;
-    if (!list) return;
-
-    const update = () => {
-      const active = list.querySelector<HTMLElement>('[aria-current="page"]');
-      if (!active) {
-        setIndicator(null);
-        return;
-      }
-      setIndicator({
-        top: active.offsetTop,
-        left: active.offsetLeft,
-        width: active.offsetWidth,
-        height: active.offsetHeight,
-      });
-    };
-
-    update();
-    setAnimate(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-
-    const observer = new ResizeObserver(update);
-    observer.observe(list);
-    for (const link of list.querySelectorAll(":scope > a")) {
-      observer.observe(link);
-    }
-
-    return () => observer.disconnect();
-  }, [activeKey]);
-
-  return { listRef, indicator, animate };
 }
 
 function DesktopNavLink({
@@ -204,7 +165,7 @@ function AdminSidebarPanel({
   const copy = adminChrome[locale];
   const planItem = navItems.find((item) => item.kind === "plan");
   const mainItems = navItems.filter((item) => item.kind !== "plan");
-  const { listRef, indicator, animate } = useSelectedNavIndicator(pathname);
+  const { listRef, indicator, animate } = useSlidingIndicator(pathname);
 
   return (
     <>
@@ -235,20 +196,11 @@ function AdminSidebarPanel({
           aria-label={copy.nav}
           className="relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
         >
-          {indicator ? (
-            <span
-              aria-hidden
-              className={cn(
-                "pointer-events-none absolute top-0 left-0 z-0 rounded-lg bg-white/10",
-                animate && "admin-nav-indicator-animate",
-              )}
-              style={{
-                width: indicator.width,
-                height: indicator.height,
-                transform: `translate(${indicator.left}px, ${indicator.top}px)`,
-              }}
-            />
-          ) : null}
+          <SlidingIndicatorPill
+            indicator={indicator}
+            animate={animate}
+            className="rounded-lg bg-white/10"
+          />
           {mainItems.map((item) => (
             <DesktopNavLink
               key={item.href}

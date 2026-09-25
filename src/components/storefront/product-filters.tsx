@@ -9,6 +9,7 @@ import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/ty
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
+import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 
@@ -17,20 +18,22 @@ const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 const fieldClass =
   "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
+const filterPillClass = "rounded-lg bg-[var(--brand-primary)]";
+
 function filterButtonClass(active: boolean) {
   return cn(
-    "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+    "relative z-[1] flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
     active
-      ? "bg-[var(--brand-primary)] text-white"
+      ? "text-white"
       : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
   );
 }
 
 function sizeButtonClass(active: boolean) {
   return cn(
-    "flex min-w-[2.5rem] flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+    "relative z-[1] flex min-w-[2.5rem] flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
-      ? "border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white"
+      ? "border-[var(--brand-primary)] text-white"
       : "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
   );
 }
@@ -182,11 +185,16 @@ export function ProductFilters({
 
       <div>
         <Label className={labelClass}>{copy.promotion}</Label>
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           <button
             type="button"
             onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
-            className={filterButtonClass(activeDestacados)}
+            className={cn(
+              "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+              activeDestacados
+                ? "bg-[var(--brand-primary)] text-white"
+                : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+            )}
           >
             <span>{copy.featured}</span>
             <FilterCount count={counts.destacados} active={activeDestacados} />
@@ -195,7 +203,12 @@ export function ProductFilters({
             <button
               type="button"
               onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
-              className={filterButtonClass(activePromo2x1)}
+              className={cn(
+                "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+                activePromo2x1
+                  ? "bg-[var(--brand-primary)] text-white"
+                  : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+              )}
             >
               <span>2x1</span>
               <FilterCount count={counts.promo2x1} active={activePromo2x1} />
@@ -207,10 +220,15 @@ export function ProductFilters({
       {showAudienceFilter ? (
         <div>
           <Label className={labelClass}>Género</Label>
-          <div className="space-y-1">
+          <SlidingOptionGroup
+            activeKey={activeGenero || "__all__"}
+            className="flex flex-col gap-1"
+            pillClassName={filterPillClass}
+          >
             <button
               type="button"
               onClick={() => selectGenero("")}
+              data-sliding-selected={!activeGenero ? "true" : undefined}
               className={filterButtonClass(!activeGenero)}
             >
               <span>Todo</span>
@@ -228,6 +246,7 @@ export function ProductFilters({
                   key={audience.slug}
                   type="button"
                   onClick={() => selectGenero(audience.slug)}
+                  data-sliding-selected={isActive ? "true" : undefined}
                   className={filterButtonClass(isActive)}
                 >
                   <span>{audience.label}</span>
@@ -235,16 +254,21 @@ export function ProductFilters({
                 </button>
               );
             })}
-          </div>
+          </SlidingOptionGroup>
         </div>
       ) : null}
 
       <div>
         <Label className={labelClass}>{copy.category}</Label>
-        <div className="space-y-1">
+        <SlidingOptionGroup
+          activeKey={activeCategory || "__all__"}
+          className="flex flex-col gap-1"
+          pillClassName={filterPillClass}
+        >
           <button
             type="button"
             onClick={() => update({ ...baseFilterParams(), categoria: "" })}
+            data-sliding-selected={!activeCategory ? "true" : undefined}
             className={filterButtonClass(!activeCategory)}
           >
             <span>{copy.all}</span>
@@ -262,6 +286,7 @@ export function ProductFilters({
                 onClick={() =>
                   update({ ...baseFilterParams(), categoria: category.slug })
                 }
+                data-sliding-selected={isActive ? "true" : undefined}
                 className={filterButtonClass(isActive)}
               >
                 <span>{category.label}</span>
@@ -269,13 +294,17 @@ export function ProductFilters({
               </button>
             );
           })}
-        </div>
+        </SlidingOptionGroup>
       </div>
 
       {sizeOptions.length > 0 ? (
         <div>
           <Label className={labelClass}>{sizeLabel}</Label>
-          <div className="flex flex-wrap gap-2">
+          <SlidingOptionGroup
+            activeKey={activeSize || "__none__"}
+            className="flex flex-wrap gap-2"
+            pillClassName={filterPillClass}
+          >
             {sizeOptions.map((size) => {
               const isActive = activeSize === size;
 
@@ -289,6 +318,7 @@ export function ProductFilters({
                       [sizeParam]: isActive ? "" : size,
                     })
                   }
+                  data-sliding-selected={isActive ? "true" : undefined}
                   className={sizeButtonClass(isActive)}
                 >
                   <span>{size}</span>
@@ -300,14 +330,18 @@ export function ProductFilters({
                 </button>
               );
             })}
-          </div>
+          </SlidingOptionGroup>
         </div>
       ) : null}
 
       {isApp2 && variantColorLabel && saborOptions.length > 0 ? (
         <div>
           <Label className={labelClass}>{variantColorLabel}</Label>
-          <div className="flex flex-wrap gap-2">
+          <SlidingOptionGroup
+            activeKey={activeSabor || "__none__"}
+            className="flex flex-wrap gap-2"
+            pillClassName={filterPillClass}
+          >
             {saborOptions.map((sabor) => {
               const isActive = activeSabor === sabor;
 
@@ -321,6 +355,7 @@ export function ProductFilters({
                       sabor: isActive ? "" : sabor,
                     })
                   }
+                  data-sliding-selected={isActive ? "true" : undefined}
                   className={sizeButtonClass(isActive)}
                 >
                   <span>{sabor}</span>
@@ -332,7 +367,7 @@ export function ProductFilters({
                 </button>
               );
             })}
-          </div>
+          </SlidingOptionGroup>
         </div>
       ) : null}
 

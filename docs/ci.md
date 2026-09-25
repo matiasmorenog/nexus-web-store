@@ -34,7 +34,7 @@ No se duplican: Actions valida el código rápido; Vercel valida que compile y d
 
 ### Previews pausados (×3); Production en `main` activo
 
-Hasta nuevo aviso, las **tres** tiendas (`goat-indumentaria`, `vaporx-store`, `manoviva-store`) usan Ignored Build Step = `bash scripts/vercel-should-build-app{N}.sh`: **skip** en Preview / PRs / `development` / feature branches; **build** solo si `VERCEL_ENV=production` o ref=`main` (release). Cómo reanudar previews: `DEPLOY.md` → “Reanudar previews (las 3 tiendas)”.
+Hasta nuevo aviso, las **tres** tiendas usan Ignored Build Step con one-liner (o scripts espejo): **skip** Preview / PRs / `development` / feature branches; **build** solo si `VERCEL_ENV=production` o ref=`main` (release). Cómo reanudar: `DEPLOY.md` → “Reanudar previews (las 3 tiendas)”.
 
 ### Prioridad de checks en un PR
 

@@ -26,6 +26,11 @@ import {
   REMEMBER_SESSION_MAX_AGE,
   type AuthLoginContext,
 } from "@/lib/auth-session";
+import {
+  assertDemoPersonaAllowed,
+  isDemoLoginEnabled,
+} from "@/lib/demo-login";
+import { getDemoPersonaById } from "@/lib/demo-personas";
 
 function applySessionExpiry(
   token: JWT,
@@ -109,6 +114,45 @@ const providers: NextAuthConfig["providers"] = [
       );
 
       if (!valid) return null;
+
+      return mapUserToTokenFields(user);
+    },
+  }),
+  Credentials({
+    id: "demo",
+    name: "Demo",
+    credentials: {
+      personaId: { label: "Persona", type: "text" },
+    },
+    async authorize(credentials) {
+      if (!isDemoLoginEnabled()) return null;
+
+      const personaId = String(credentials?.personaId ?? "").trim();
+      if (!personaId) return null;
+
+      try {
+        assertDemoPersonaAllowed(personaId);
+      } catch {
+        return null;
+      }
+
+      const persona = getDemoPersonaById(personaId);
+      if (!persona) return null;
+
+      const user = await db.user.findUnique({
+        where: { email: persona.email.trim().toLowerCase() },
+        include: {
+          stores: {
+            include: { store: true },
+            take: 1,
+          },
+        },
+      });
+
+      if (!user) return null;
+
+      if (persona.kind === "staff" && !isAdminRole(user.role)) return null;
+      if (persona.kind === "customer" && user.role !== "CUSTOMER") return null;
 
       return mapUserToTokenFields(user);
     },

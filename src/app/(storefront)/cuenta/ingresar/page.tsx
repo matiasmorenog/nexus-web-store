@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { CustomerLoginForm } from "@/components/storefront/customer-auth-form";
+import { CustomerLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { resolveCustomerCallbackUrl } from "@/lib/customer-auth-redirect";
 import {
@@ -59,16 +60,20 @@ export default async function CustomerLoginPage({ searchParams }: PageProps) {
             {loginError}
           </p>
         ) : null}
-        <CustomerLoginForm
-          callbackUrl={redirectTo}
-          defaultEmail={
-            process.env.NODE_ENV === "development" ? SEED_CUSTOMER_EMAIL : ""
-          }
-          defaultPassword={
-            process.env.NODE_ENV === "development" ? SEED_CUSTOMER_PASSWORD : ""
-          }
-          googleAuthEnabled={isGoogleAuthEnabled()}
-        />
+        <CustomerLoginWithDemo>
+          <CustomerLoginForm
+            callbackUrl={redirectTo}
+            defaultEmail={
+              process.env.NODE_ENV === "development" ? SEED_CUSTOMER_EMAIL : ""
+            }
+            defaultPassword={
+              process.env.NODE_ENV === "development"
+                ? SEED_CUSTOMER_PASSWORD
+                : ""
+            }
+            googleAuthEnabled={isGoogleAuthEnabled()}
+          />
+        </CustomerLoginWithDemo>
       </div>
     </div>
   );

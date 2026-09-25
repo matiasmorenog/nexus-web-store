@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
 import { AdminLocaleSwitcher } from "@/components/admin/admin-locale-switcher";
+import { AdminLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { ADMIN_LOCALE_COOKIE, adminLogin, parseAdminLocale } from "@/lib/admin-locale";
 import { storefrontPath } from "@/lib/storefront-paths";
 import { auth } from "@/lib/auth";
@@ -101,12 +102,14 @@ export default async function AdminLoginPage({
                   {loginError}
                 </p>
               ) : null}
-              <LoginForm
-                defaultEmail={ownerEmail}
-                defaultPassword={SEED_ADMIN_PASSWORD}
-                googleAuthEnabled={isGoogleAuthEnabled()}
-                copy={copy}
-              />
+              <AdminLoginWithDemo>
+                <LoginForm
+                  defaultEmail={ownerEmail}
+                  defaultPassword={SEED_ADMIN_PASSWORD}
+                  googleAuthEnabled={isGoogleAuthEnabled()}
+                  copy={copy}
+                />
+              </AdminLoginWithDemo>
             </div>
 
             <p className="mt-6 text-center text-sm text-neutral-500">

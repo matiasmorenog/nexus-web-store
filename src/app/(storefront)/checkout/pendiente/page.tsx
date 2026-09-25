@@ -2,6 +2,7 @@ import { Clock } from "lucide-react";
 import { redirect } from "next/navigation";
 import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
 import { getStorefrontPaths } from "@/lib/storefront-paths";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { db } from "@/lib/db";
 import { formatOrderId } from "@/lib/order-status";
@@ -15,10 +16,12 @@ export default async function CheckoutPendingPage({
 }: {
   searchParams: Promise<{ order?: string }>;
 }) {
-  if (!getStorefrontConfig().features.checkout) {
+  const config = getStorefrontConfig();
+  if (!config.features.checkout) {
     redirect(getStorefrontPaths().contact);
   }
 
+  const copy = getLocaleCopy(config.locale);
   const params = await searchParams;
   const storeId = await getStoreId();
 
@@ -51,43 +54,38 @@ export default async function CheckoutPendingPage({
     <StorefrontStatusPage
       icon={Clock}
       iconClassName="text-amber-600"
-      title={isTransferOrder ? "Pedido registrado" : "Pago pendiente"}
+      title={isTransferOrder ? copy.orderRegistered : copy.paymentPending}
       actionHref="/"
-      actionLabel="Volver al inicio"
+      actionLabel={copy.backHome}
       actionVariant="secondary"
     >
       {isTransferOrder ? (
         <>
-          <p>
-            Tu pedido quedó pendiente hasta que confirmemos la transferencia.
-          </p>
+          <p>{copy.transferPending}</p>
           {order ? (
             <p>
-              Número de orden:{" "}
+              {copy.orderNumber}{" "}
               <strong className="text-neutral-900">{formatOrderId(order.id)}</strong>
             </p>
           ) : null}
           <p>
-            Total a transferir:{" "}
+            {copy.transferTotal}{" "}
             <strong className="text-neutral-900">
               {order ? formatPrice(Number(order.total)) : "—"}
             </strong>
           </p>
           {transferInstructions ? (
             <div className="mx-auto mt-4 max-w-md storefront-card border border-amber-200 bg-amber-50 px-4 py-4 text-left text-sm">
-              <p className="font-medium text-neutral-900">Datos para transferir</p>
+              <p className="font-medium text-neutral-900">{copy.transferDetails}</p>
               <p className="mt-2 whitespace-pre-line text-neutral-700">
                 {transferInstructions}
               </p>
-              <p className="mt-3 text-xs text-neutral-500">
-                Enviá el comprobante por WhatsApp o email indicando tu número de
-                orden.
-              </p>
+              <p className="mt-3 text-xs text-neutral-500">{copy.transferProof}</p>
             </div>
           ) : null}
         </>
       ) : (
-        <p>Tu pago está siendo procesado. Te notificaremos cuando se confirme.</p>
+        <p>{copy.paymentProcessing}</p>
       )}
     </StorefrontStatusPage>
   );

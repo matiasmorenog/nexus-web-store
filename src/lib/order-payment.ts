@@ -7,6 +7,7 @@ export type OrderPaymentInfo = {
 };
 
 import { transferPaymentDiscountLabel } from "@/lib/payments/transfer";
+import { getTransferStorefrontPaymentCopy } from "@/lib/payments/transfer-copy";
 
 type OrderPaymentInput = {
   status: string;
@@ -20,29 +21,30 @@ export function getOrderPaymentInfo(order: OrderPaymentInput): OrderPaymentInfo 
   if (order.paymentMethod === "TRANSFER") {
     const discount =
       order.transferDiscount != null ? Number(order.transferDiscount) : 0;
+    const transferCopy = getTransferStorefrontPaymentCopy();
 
     if (order.status === "PAID" || order.status === "SHIPPED") {
       return {
-        provider: "Transferencia",
-        statusLabel: "Acreditado",
-        detail: discount > 0 ? `Incluye descuento por transferencia` : undefined,
+        provider: transferCopy.providerName,
+        statusLabel: transferCopy.statusPaid,
+        detail: discount > 0 ? transferCopy.detailWithDiscount : undefined,
       };
     }
 
     if (order.status === "CANCELLED") {
       return {
-        provider: "Transferencia",
-        statusLabel: "Cancelado",
+        provider: transferCopy.providerName,
+        statusLabel: transferCopy.statusCancelled,
       };
     }
 
     return {
-      provider: "Transferencia",
-      statusLabel: "Pendiente de transferencia",
+      provider: transferCopy.providerName,
+      statusLabel: transferCopy.statusPending,
       detail:
         discount > 0
-          ? `${transferPaymentDiscountLabel()} de descuento en productos`
-          : "Esperando comprobante",
+          ? transferCopy.detailDiscountProducts(transferPaymentDiscountLabel())
+          : transferCopy.detailWaitingProof,
     };
   }
 

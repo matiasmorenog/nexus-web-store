@@ -40,13 +40,14 @@ Referencia: `docs/ci.md` · Linear NEX-7
 
 ## Prioridad de previews Vercel (día a día)
 
-Hoy app1 (`goat-indumentaria` / `demo-store`) es la tienda demo más completa; app2 (`vaporx-store` / `vape-demo`) corre plan base.
+**Estado actual:** previews pausados en las 3 tiendas (Ignored Build Step: build solo Production/`main`). Gate de PR = Actions.
+
+Cuando se reanuden previews: app1 (`goat-indumentaria` / `demo-store`) es la demo más completa; app2 (`vaporx-store` / `vape-demo`) plan base; app3 Manoviva según cambios.
 
 | Prioridad | Check | Rol |
 |-----------|-------|-----|
 | 1 | `lint-and-typecheck` | Gate de código (Actions) |
-| 2 | `Vercel – goat-indumentaria` | Preview de build **principal** |
-| 3 | `Vercel – vaporx-store` | Preview **complementario** (o obligatorio si el PR toca app2) |
+| 2 | `Vercel – *` | Omitidos mientras previews pausados; al reanudar: Goat principal, Vaporx complementario |
 
 ## Referencias
 

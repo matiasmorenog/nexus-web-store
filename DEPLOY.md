@@ -6,9 +6,9 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **goat-indumentaria**: `exit 0` (**PAUSED** hasta nuevo aviso; script repo también siempre skip)
-- [x] Ignored Build Step en **vaporx-store**: `exit 0` (**PAUSED** hasta nuevo aviso; script repo también siempre skip)
-- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh` (sigue activo)
+- [x] Ignored Build Step en **goat-indumentaria**: `bash scripts/vercel-should-build-app1.sh` (solo Production/`main`; previews pausados)
+- [x] Ignored Build Step en **vaporx-store**: `bash scripts/vercel-should-build-app2.sh` (solo Production/`main`; previews pausados)
+- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh` (solo Production/`main`; previews pausados)
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -168,21 +168,19 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 | Proyecto | Comando | Estado |
 |----------|---------|--------|
-| app1 (`goat-indumentaria`) | `exit 0` | **PAUSED** — no builds Preview/Production hasta nuevo aviso |
-| app2 (`vaporx-store`) | `exit 0` | **PAUSED** — no builds Preview/Production hasta nuevo aviso |
-| app3 (`manoviva-store`) | `bash scripts/vercel-should-build-app3.sh` | Activo (selectivo) |
+| app1 (`goat-indumentaria`) | `bash scripts/vercel-should-build-app1.sh` | Build solo Production / `main`; **previews pausados** |
+| app2 (`vaporx-store`) | `bash scripts/vercel-should-build-app2.sh` | Build solo Production / `main`; **previews pausados** |
+| app3 (`manoviva-store`) | `bash scripts/vercel-should-build-app3.sh` | Build solo Production / `main`; **previews pausados** |
 
-Exit 0 = omitir build. Los scripts `scripts/vercel-should-build-app1.sh` / `app2.sh` también hacen `exit 0` con comentario `PAUSED until further notice` para alinear repo + dashboard.
+Exit 0 = omitir build · Exit 1 = continuar build. Los tres scripts: si `VERCEL_ENV=production` **o** `VERCEL_GIT_COMMIT_REF=main` → build; si no → skip. Release `development → main` sigue disparando producción ×3.
 
-### Reanudar builds (Goat / Vaporx)
+### Reanudar previews (las 3 tiendas)
 
-1. Restaurar la lógica selectiva en `scripts/vercel-should-build-app1.sh` y `app2.sh` (historial git previo al pause).
-2. En cada proyecto Vercel → **Settings → Git → Ignored Build Step** → volver a:
-   - Goat: `bash scripts/vercel-should-build-app1.sh`
-   - Vaporx: `bash scripts/vercel-should-build-app2.sh`
-3. Manoviva no se tocó; no hace falta reanudar nada ahí.
+1. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa (docs-only / other-app skips) desde historial git.
+2. Dejar Ignored Build Step en cada proyecto apuntando al script (`bash scripts/vercel-should-build-appN.sh`) — no hace falta `exit 0` crudo.
+3. Mergear el cambio a `development` (y a `main` en el próximo release si querés que Production use ya la lógica nueva).
 
-**Prioridad de preview en PRs (cuando no estén pausados):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario. Ver `docs/ci.md`.
+**Prioridad de preview en PRs (cuando se reanuden):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario; Manoviva según cambios de app3. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 

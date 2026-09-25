@@ -32,17 +32,16 @@ npm run lint
 
 No se duplican: Actions valida el código rápido; Vercel valida que compile y despliegue. El *Ignored Build Step* puede omitir preview en algunos PRs; por eso Actions no depende de Vercel para types/lint.
 
-### Builds pausados (Goat + Vaporx)
+### Previews pausados (×3); Production en `main` activo
 
-Hasta nuevo aviso, **`goat-indumentaria`** y **`vaporx-store`** tienen Ignored Build Step = `exit 0` (y scripts repo siempre skip). **No hay Preview ni Production builds** en esas dos. **`manoviva-store` sigue buildando.** Cómo reanudar: ver `DEPLOY.md` → “Reanudar builds (Goat / Vaporx)”.
+Hasta nuevo aviso, las **tres** tiendas (`goat-indumentaria`, `vaporx-store`, `manoviva-store`) usan Ignored Build Step = `bash scripts/vercel-should-build-app{N}.sh`: **skip** en Preview / PRs / `development` / feature branches; **build** solo si `VERCEL_ENV=production` o ref=`main` (release). Cómo reanudar previews: `DEPLOY.md` → “Reanudar previews (las 3 tiendas)”.
 
 ### Prioridad de checks en un PR
 
-Orden práctico (mientras Goat/Vaporx estén pausados, el único preview Vercel esperado es Manoviva):
+Orden práctico (mientras previews Vercel estén pausados):
 
 1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
-2. **`Vercel – manoviva-store`** (app3) — preview activo
-3. **`Vercel – goat-indumentaria`** / **`vaporx-store`** — **omitidos** (paused) hasta nuevo aviso
+2. Checks **`Vercel – *`** — **omitidos** (Ignored Build Step) hasta reanudar previews
 
 No marcar los checks Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
 
@@ -66,5 +65,5 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
 ## Merge (agente / flujo ágil)
 
-- `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.
-- Preferir verde en **`Vercel – goat-indumentaria`** antes del merge; **`vaporx-store`** no bloquea salvo cambios específicos de app2.
+- `gh pr checks` → job `lint-and-typecheck` verde → pedir sí del usuario antes de merge.
+- Mientras previews Vercel estén pausados, no esperar checks `Vercel – *` en PRs a `development`.

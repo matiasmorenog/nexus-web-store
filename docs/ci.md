@@ -32,14 +32,16 @@ npm run lint
 
 No se duplican: Actions valida el código rápido; Vercel valida que compile y despliegue. El *Ignored Build Step* puede omitir preview en algunos PRs; por eso Actions no depende de Vercel para types/lint.
 
+### Previews pausados (×3); Production en `main` activo
+
+Hasta nuevo aviso, las **tres** tiendas usan Ignored Build Step con one-liner (o scripts espejo): **skip** Preview / PRs / `development` / feature branches; **build** solo si `VERCEL_ENV=production` o ref=`main` (release). Cómo reanudar: `DEPLOY.md` → “Reanudar previews (las 3 tiendas)”.
+
 ### Prioridad de checks en un PR
 
-Orden práctico (app1 es hoy la tienda más completa / demo full):
+Orden práctico (mientras previews Vercel estén pausados):
 
 1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
-2. **`Vercel – goat-indumentaria`** (app1 / Goat) — **preview de build principal**
-3. **`Vercel – vaporx-store`** (app2 / VAPORX) — **complementario** (plan base, Ignored Build puede omitirlo; revisar si el PR toca `src/themes/app2/` o vertical app2)
-4. **`Vercel – manoviva-store`** (app3) — preview opcional; en merge a `main` deploya producción igual que Goat y Vape
+2. Checks **`Vercel – *`** — **omitidos** (Ignored Build Step) hasta reanudar previews
 
 No marcar los checks Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
 
@@ -63,5 +65,5 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
 ## Merge (agente / flujo ágil)
 
-- `gh pr checks` → job `lint-and-typecheck` verde → `gh pr merge --squash`.
-- Preferir verde en **`Vercel – goat-indumentaria`** antes del merge; **`vaporx-store`** no bloquea salvo cambios específicos de app2.
+- `gh pr checks` → job `lint-and-typecheck` verde → pedir sí del usuario antes de merge.
+- Mientras previews Vercel estén pausados, no esperar checks `Vercel – *` en PRs a `development`.

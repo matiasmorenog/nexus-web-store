@@ -5,12 +5,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import { storefrontPath } from "@/lib/storefront-paths";
 
 export function ForgotPasswordForm({
-  loginHref = "/cuenta/ingresar",
+  loginHref = storefrontPath("signIn"),
 }: {
   loginHref?: string;
 }) {
+  const copy = getLocaleCopy();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -32,13 +35,13 @@ export function ForgotPasswordForm({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "No se pudo enviar el enlace");
+        throw new Error(data.error ?? copy.couldNotSendLink);
       }
 
       setSent(true);
-      setMessage(data.message ?? "Revisá tu email.");
+      setMessage(data.message ?? copy.checkEmail);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
+      setError(err instanceof Error ? err.message : copy.unexpectedError);
     } finally {
       setLoading(false);
     }
@@ -48,15 +51,12 @@ export function ForgotPasswordForm({
     return (
       <div className="space-y-4">
         <p className="text-sm text-neutral-700">{message}</p>
-        <p className="text-sm text-neutral-500">
-          En desarrollo local sin Resend, el enlace aparece en la consola del
-          servidor.
-        </p>
+        <p className="text-sm text-neutral-500">{copy.devResetHint}</p>
         <Link
           href={loginHref}
           className="inline-block text-sm font-medium text-[var(--brand-primary)] hover:underline"
         >
-          Volver a ingresar
+          {copy.backToSignIn}
         </Link>
       </div>
     );
@@ -78,14 +78,14 @@ export function ForgotPasswordForm({
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Enviando..." : "Enviar enlace"}
+        {loading ? copy.sending : copy.sendLink}
       </Button>
       <p className="text-center text-sm text-neutral-600">
         <Link
           href={loginHref}
           className="font-medium text-[var(--brand-primary)] hover:underline"
         >
-          Volver a ingresar
+          {copy.backToSignIn}
         </Link>
       </p>
     </form>

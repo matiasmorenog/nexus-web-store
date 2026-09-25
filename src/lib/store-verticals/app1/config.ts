@@ -54,14 +54,6 @@ function navGenero(slug: "hombre" | "mujer"): HeaderNavLink {
   };
 }
 
-function navCategoria(slug: string, label: string): HeaderNavLink {
-  return {
-    href: `/productos?categoria=${slug}`,
-    label,
-    match: { type: "categoria", slug },
-  };
-}
-
 const APP1_PRICE_TIERS = [
   { value: "20000", label: "Hasta $20.000" },
   { value: "35000", label: "Hasta $35.000" },
@@ -107,6 +99,8 @@ export const app1Config: VerticalConfig = {
   },
   productCategories: APP1_PRODUCT_CATEGORIES,
   audiences: STORE_AUDIENCES,
+  // Allowlist corto: sin categorías de prenda (siguen en filtros/home).
+  // Sin links `categoria` acá, applyStoreCategoriesToHeaderNav no inyecta el catálogo.
   headerNavDesktop: [
     { href: "/", label: "Inicio", match: { type: "home" } },
     navGenero("hombre"),
@@ -116,32 +110,15 @@ export const app1Config: VerticalConfig = {
       label: "Destacados",
       match: { type: "destacados" },
     },
-    navCategoria("accesorios", "Accesorios"),
-    {
-      href: "/productos?promo=2x1",
-      label: "Sale",
-      match: { type: "promo2x1" },
-      accent: "promo2x1",
-    },
   ],
   headerNavMobile: [
     { href: "/", label: "Inicio", match: { type: "home" } },
-    { href: "/productos", label: "Catálogo", match: { type: "catalog" } },
     navGenero("hombre"),
     navGenero("mujer"),
     {
       href: "/productos?destacados=1",
       label: "Destacados",
       match: { type: "destacados" },
-    },
-    ...APP1_PRODUCT_CATEGORIES.map((category) =>
-      navCategoria(category.slug, category.label),
-    ),
-    {
-      href: "/productos?promo=2x1",
-      label: "Sale",
-      match: { type: "promo2x1" },
-      accent: "promo2x1",
     },
   ],
   home: {

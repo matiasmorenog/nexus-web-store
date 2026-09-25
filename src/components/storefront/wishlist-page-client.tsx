@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { productHref, storefrontPath } from "@/lib/storefront-paths";
 import { Heart, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { ProductImage } from "@/components/storefront/product-image";
@@ -32,7 +33,7 @@ export function WishlistPageClient({
       <div
         className={cn(
           "text-center",
-          inAccount ? "py-10" : "rounded-xl border border-neutral-200 bg-white px-6 py-12 shadow-sm",
+          inAccount ? "py-10" : "storefront-card border border-neutral-200 bg-white px-6 py-12 shadow-sm",
         )}
       >
         <Heart className="mx-auto size-10 text-neutral-300" />
@@ -43,7 +44,7 @@ export function WishlistPageClient({
           Guardá productos con el corazón en el catálogo o en la ficha del producto.
         </p>
         <Link
-          href="/productos"
+          href={storefrontPath("catalog")}
           className="mt-6 inline-flex h-10 items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] bg-[var(--brand-primary)] px-4 text-sm font-medium text-[var(--ui-button-primary-foreground,white)] hover:brightness-95"
         >
           Ver productos
@@ -61,11 +62,11 @@ export function WishlistPageClient({
             "flex gap-4",
             inAccount
               ? "py-4 first:pt-0 last:pb-0"
-              : "rounded-xl border border-neutral-200 bg-white p-4 shadow-sm",
+              : "storefront-card border border-neutral-200 bg-white p-4 shadow-sm",
           )}
         >
           <Link
-            href={`/producto/${item.productSlug}`}
+            href={productHref(item.productSlug)}
             className="relative block size-24 shrink-0 overflow-hidden rounded-lg bg-neutral-100"
           >
             <ProductImage
@@ -78,7 +79,7 @@ export function WishlistPageClient({
           <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div className="min-w-0">
               <Link
-                href={`/producto/${item.productSlug}`}
+                href={productHref(item.productSlug)}
                 className="font-semibold text-neutral-900 hover:text-[var(--brand-primary)]"
               >
                 {item.productName}
@@ -90,7 +91,7 @@ export function WishlistPageClient({
 
             <div className="flex shrink-0 gap-2">
               <Link
-                href={`/producto/${item.productSlug}`}
+                href={productHref(item.productSlug)}
                 className="inline-flex h-8 items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-[var(--brand-primary)] bg-transparent px-3 text-sm font-medium text-[var(--brand-primary)] hover:bg-[var(--brand-primary-soft)]"
               >
                 Ver producto

@@ -2,10 +2,10 @@ import Link from "next/link";
 import { ManovivaMark } from "@/themes/app3/components/manoviva-mark";
 
 const links = [
-  { href: "/productos", label: "Collezione" },
-  { href: "/contacto", label: "Contatti" },
-  { href: "/envios", label: "Consegne" },
-  { href: "/terminos", label: "Condizioni" },
+  { href: "/prodotti", label: "Collezione" },
+  { href: "/contatti", label: "Contatti" },
+  { href: "/consegne", label: "Consegne" },
+  { href: "/condizioni", label: "Condizioni" },
 ] as const;
 
 export function ManovivaFooter() {

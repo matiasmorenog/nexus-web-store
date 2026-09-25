@@ -8,7 +8,6 @@ import {
 } from "@/lib/seo/build-metadata";
 import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
 import { getStoreMarketingSettings } from "@/lib/marketing/query";
-import { getResolvedStoreTheme } from "@/lib/premium-themes";
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { storeHasModule } from "@/lib/modules";
 import {
@@ -65,7 +64,6 @@ export default async function StorefrontLayout({
     ) : null;
   const wishlistEnabled = await storeHasModule(store.id, "wishlist");
   const marketing = await getStoreMarketingSettings(storeId);
-  const storeTheme = await getResolvedStoreTheme(storeId);
   const [promo2x1Active, navCategories] = await Promise.all([
     config.features.promo2x1
       ? isPromo2x1ActiveForStore(storeId)
@@ -89,7 +87,6 @@ export default async function StorefrontLayout({
           storeDisplayName={displayName}
           config={config}
           wishlistEnabled={wishlistEnabled}
-          storeTheme={storeTheme}
           promo2x1Active={promo2x1Active}
           navDesktop={navDesktop}
           navMobile={navMobile}

@@ -3,11 +3,12 @@ import { notFound } from "next/navigation";
 import { ContactPage } from "@/components/storefront/contact-page";
 import { InfoPage } from "@/components/storefront/info-page";
 import {
-  INFO_PAGES,
   INFO_PAGE_SLUGS,
+  getLocalizedInfoPage,
   isInfoPageSlug,
   resolvePageContent,
 } from "@/lib/info-pages";
+import { infoPageHref } from "@/lib/storefront-paths";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
@@ -38,11 +39,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const store = await getStore();
   const displayName = formatStoreName(store.name);
   const config = getStorefrontConfig();
-  const page = resolvePageContent(INFO_PAGES[slug], displayName);
+  const page = resolvePageContent(getLocalizedInfoPage(slug, config.locale), displayName);
 
   return {
-    title: `${config.locale === "it-IT" && slug === "contacto" ? "Contatti" : page.title} — ${displayName}`,
+    title: `${page.title} — ${displayName}`,
     description: page.description,
+    alternates: { canonical: infoPageHref(slug) },
   };
 }
 
@@ -56,7 +58,7 @@ export default async function StoreInfoPage({ params }: PageProps) {
   const store = await getStore();
   const displayName = formatStoreName(store.name);
   const config = getStorefrontConfig();
-  const page = resolvePageContent(INFO_PAGES[slug], displayName);
+  const page = resolvePageContent(getLocalizedInfoPage(slug, config.locale), displayName);
 
   if (page.kind === "contact") {
     const email = await getMerchantEmail(store.id);

@@ -1,6 +1,7 @@
 "use client";
 
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { CartLineItem } from "@/components/storefront/cart-line-item";
 import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
@@ -28,7 +29,7 @@ export default function CartPage() {
               ? copy.cartItems(totalItems())
               : copy.cartReview
           }
-          backHref="/productos"
+          backHref={storefrontPath("catalog")}
           backLabel={copy.keepShopping}
         />
       </StorefrontReveal>
@@ -60,7 +61,7 @@ export default function CartPage() {
             ))}
           </ul>
 
-          <aside className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+          <aside className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
               {copy.cartSummary}
             </h2>
@@ -81,7 +82,7 @@ export default function CartPage() {
                 {formatPrice(subtotal())}
               </span>
             </div>
-            <Link href={checkoutEnabled ? "/checkout" : "/contacto"} className="mt-5 block">
+            <Link href={checkoutEnabled ? storefrontPath("checkout") : storefrontPath("contact")} className="mt-5 block">
               <Button size="lg" className="w-full">
                 {checkoutEnabled ? copy.checkoutAction : copy.requestAction}
               </Button>

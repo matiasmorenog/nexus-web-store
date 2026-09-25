@@ -9,6 +9,8 @@ export {
   moduleUpgradeHref,
   requireModule,
   storeHasModule,
+  storeHidesMercadoPago,
+  storeHidesPlanCatalog,
 } from "@/lib/modules/access";
 export { moduleErrorResponse } from "@/lib/modules/api-error";
 export {

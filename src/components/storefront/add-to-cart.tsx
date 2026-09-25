@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
@@ -95,7 +96,9 @@ export function AddToCart({
     setBuyingNow(true);
     addItem(item);
     router.push(
-      getClientStorefrontConfig().features.checkout ? "/checkout" : "/contacto",
+      getClientStorefrontConfig().features.checkout
+        ? storefrontPath("checkout")
+        : storefrontPath("contact"),
     );
   };
 
@@ -105,7 +108,7 @@ export function AddToCart({
   return (
     <div className="space-y-6">
       {promo2x1 && (
-        <div className="flex items-start gap-3 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
+        <div className="flex items-start gap-3 storefront-card border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
           <Promo2x1Badge size="md" className="shrink-0" />
           <p className="text-sm text-neutral-700">
             Promoción <strong>2x1</strong>: agregá dos unidades del mismo

@@ -1,5 +1,6 @@
 @layer components {
   [data-storefront-ui="app3"] {
+    --storefront-card-radius: 4px;
     --font-manoviva: var(--font-sora), var(--font-inter), sans-serif;
     color: #202523;
   }

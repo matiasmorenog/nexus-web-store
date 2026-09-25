@@ -387,9 +387,8 @@ export async function ensureSeedCustomerUser() {
 export async function seedAllStores(options: SeedStoreOptions = {}) {
   const app1 = await seedApp1Store(options);
   const app2 = await seedApp2Store(options);
-  const app3 = await seedApp3Store(options);
   await ensureSeedCustomerUser();
-  return { app1, app2, app3 };
+  return { app1, app2 };
 }
 
 export function summarizeApp1Seed() {

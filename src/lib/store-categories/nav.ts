@@ -6,7 +6,12 @@ export type StoreNavCategory = {
   showInNav: boolean;
 };
 
-/** Actualiza links `categoria` con DB (showInNav + label) y agrega slugs nuevos. */
+/**
+ * Actualiza links `categoria` del template con DB (showInNav + label).
+ * Solo agrega slugs nuevos si el template ya incluye al menos un link
+ * `categoria` (allowlist explícito del vertical). Sin ellos, no inyecta
+ * el catálogo entero en el header.
+ */
 export function applyStoreCategoriesToHeaderNav(
   links: readonly HeaderNavLink[],
   categories: readonly StoreNavCategory[],
@@ -15,6 +20,9 @@ export function applyStoreCategoriesToHeaderNav(
     categories.map((category) => [category.slug, category] as const),
   );
   const seen = new Set<string>();
+  const templateIncludesCategories = links.some(
+    (link) => link.match.type === "categoria",
+  );
 
   const rewritten: HeaderNavLink[] = [];
   for (const link of links) {
@@ -33,18 +41,24 @@ export function applyStoreCategoriesToHeaderNav(
     seen.add(category.slug);
     if (!category.showInNav) continue;
 
+    const catalogBase = link.href.split("?")[0] || "/productos";
     rewritten.push({
       ...link,
       label: category.label,
-      href: `/productos?categoria=${category.slug}`,
+      href: `${catalogBase}?categoria=${category.slug}`,
     });
   }
 
+  if (!templateIncludesCategories) return rewritten;
+
+  const catalogBase =
+    links.find((link) => link.match.type === "categoria")?.href.split("?")[0] ??
+    "/productos";
   const extras = categories
     .filter((category) => category.showInNav && !seen.has(category.slug))
     .map(
       (category): HeaderNavLink => ({
-        href: `/productos?categoria=${category.slug}`,
+        href: `${catalogBase}?categoria=${category.slug}`,
         label: category.label,
         match: { type: "categoria", slug: category.slug },
       }),

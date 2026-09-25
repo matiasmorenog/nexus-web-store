@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
+import {
+  isManovivaDeployEnv,
+  STOREFRONT_ROUTE_ALIASES,
+} from "./src/lib/storefront-route-aliases";
 
 const nextConfig: NextConfig = {
-  // Permite dos `next dev` en paralelo (app1 + app2) con NEXT_DIST_DIR distinto.
+  // Permite varios `next dev` en paralelo (app1/app2/app3) con NEXT_DIST_DIR distinto.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
     // Neon usa un pool mínimo en este proyecto. Serializar el prerender evita
@@ -27,6 +31,13 @@ const nextConfig: NextConfig = {
         hostname: "*.public.blob.vercel-storage.com",
       },
     ],
+  },
+  async rewrites() {
+    if (!isManovivaDeployEnv()) return [];
+    return STOREFRONT_ROUTE_ALIASES.map(({ source, destination }) => ({
+      source,
+      destination,
+    }));
   },
 };
 

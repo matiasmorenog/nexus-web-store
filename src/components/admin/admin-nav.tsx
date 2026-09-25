@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -15,7 +15,6 @@ import {
   Megaphone,
   Menu,
   Package,
-  Palette,
   Search,
   Settings,
   ShoppingCart,
@@ -27,6 +26,7 @@ import {
   X,
 } from "lucide-react";
 import { SignOutButton } from "@/components/admin/sign-out-button";
+import { adminChrome, type AdminLocale } from "@/lib/admin-locale";
 import {
   isModuleNavItemEnabled,
   type AdminNavIconKey,
@@ -52,7 +52,6 @@ const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
   marketing: Megaphone,
   multiUser: Users,
   api: Webhook,
-  premiumThemes: Palette,
   seo: Search,
   wishlist: Heart,
 };
@@ -63,6 +62,7 @@ type AdminNavProps = {
   userEmail?: string | null;
   enabledModuleIds: ModuleId[];
   navItems: AdminNavItem[];
+  locale?: AdminLocale;
 };
 
 function AdminNavIcon({
@@ -91,16 +91,61 @@ function navItemHref(
   return item.href;
 }
 
+function useSelectedNavIndicator(activeKey: string) {
+  const listRef = useRef<HTMLElement>(null);
+  const [indicator, setIndicator] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [animate, setAnimate] = useState(false);
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+
+    const update = () => {
+      const active = list.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!active) {
+        setIndicator(null);
+        return;
+      }
+      setIndicator({
+        top: active.offsetTop,
+        left: active.offsetLeft,
+        width: active.offsetWidth,
+        height: active.offsetHeight,
+      });
+    };
+
+    update();
+    setAnimate(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    const observer = new ResizeObserver(update);
+    observer.observe(list);
+    for (const link of list.querySelectorAll(":scope > a")) {
+      observer.observe(link);
+    }
+
+    return () => observer.disconnect();
+  }, [activeKey]);
+
+  return { listRef, indicator, animate };
+}
+
 function DesktopNavLink({
   item,
   enabledModuleIds,
   pathname,
   onNavigate,
+  staticActive = false,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
   pathname: string;
   onNavigate?: () => void;
+  staticActive?: boolean;
 }) {
   const active = isActive(pathname, item.href, item.exact);
 
@@ -108,10 +153,13 @@ function DesktopNavLink({
     <Link
       href={navItemHref(item, enabledModuleIds)}
       onClick={onNavigate}
+      aria-current={active && !staticActive ? "page" : undefined}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+        "relative z-[1] flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
         active
-          ? "bg-white/10 text-white"
+          ? staticActive
+            ? "bg-white/10 text-white"
+            : "text-white"
           : "text-neutral-400 hover:bg-white/5 hover:text-white",
       )}
     >
@@ -135,6 +183,7 @@ type AdminSidebarPanelProps = {
   enabledModuleIds: ModuleId[];
   navItems: AdminNavItem[];
   pathname: string;
+  locale: AdminLocale;
   onNavigate?: () => void;
   showCloseButton?: boolean;
   onClose?: () => void;
@@ -147,12 +196,15 @@ function AdminSidebarPanel({
   enabledModuleIds,
   navItems,
   pathname,
+  locale,
   onNavigate,
   showCloseButton = false,
   onClose,
 }: AdminSidebarPanelProps) {
+  const copy = adminChrome[locale];
   const planItem = navItems.find((item) => item.kind === "plan");
   const mainItems = navItems.filter((item) => item.kind !== "plan");
+  const { listRef, indicator, animate } = useSelectedNavIndicator(pathname);
 
   return (
     <>
@@ -169,7 +221,7 @@ function AdminSidebarPanel({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar menú"
+            aria-label={copy.closeMenu}
             className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
           >
             <X className="h-5 w-5" />
@@ -179,9 +231,24 @@ function AdminSidebarPanel({
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <nav
-          aria-label="Navegación principal"
-          className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
+          ref={listRef}
+          aria-label={copy.nav}
+          className="relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
         >
+          {indicator ? (
+            <span
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute top-0 left-0 z-0 rounded-lg bg-white/10",
+                animate && "admin-nav-indicator-animate",
+              )}
+              style={{
+                width: indicator.width,
+                height: indicator.height,
+                transform: `translate(${indicator.left}px, ${indicator.top}px)`,
+              }}
+            />
+          ) : null}
           {mainItems.map((item) => (
             <DesktopNavLink
               key={item.href}
@@ -195,7 +262,7 @@ function AdminSidebarPanel({
 
         {planItem ? (
           <nav
-            aria-label="Plan"
+            aria-label={copy.plan}
             className="shrink-0 space-y-1 border-t border-white/10 p-4"
           >
             <DesktopNavLink
@@ -203,6 +270,7 @@ function AdminSidebarPanel({
               enabledModuleIds={enabledModuleIds}
               pathname={pathname}
               onNavigate={onNavigate}
+              staticActive
             />
           </nav>
         ) : null}
@@ -216,7 +284,7 @@ function AdminSidebarPanel({
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
         >
           <ExternalLink className="h-4 w-4" />
-          Ver tienda
+          {copy.viewStore}
         </Link>
         {(userName || userEmail) && (
           <div className="rounded-lg bg-white/5 px-3 py-2.5">
@@ -230,7 +298,7 @@ function AdminSidebarPanel({
             )}
           </div>
         )}
-        <SignOutButton variant="dark" />
+        <SignOutButton variant="dark" label={copy.signOut} />
       </div>
     </>
   );
@@ -247,7 +315,9 @@ function AdminMobileNav({
   enabledModuleIds,
   navItems,
   pathname,
+  locale = "es",
 }: AdminMobileNavProps) {
+  const copy = adminChrome[locale];
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
@@ -273,7 +343,7 @@ function AdminMobileNav({
           <button
             type="button"
             onClick={() => setMobileNavOpen(true)}
-            aria-label="Abrir menú"
+            aria-label={copy.openMenu}
             aria-expanded={mobileNavOpen}
             aria-controls="admin-mobile-nav"
             className="rounded-lg p-2 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
@@ -293,9 +363,9 @@ function AdminMobileNav({
               target="_blank"
               className="rounded-lg px-2 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-[var(--brand-primary)]"
             >
-              Tienda
+              {copy.store}
             </Link>
-            <SignOutButton variant="light" compact />
+            <SignOutButton variant="light" compact label={copy.signOut} />
           </div>
         </div>
       </header>
@@ -304,7 +374,7 @@ function AdminMobileNav({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Cerrar menú"
+            aria-label={copy.closeMenu}
             className="absolute inset-0 bg-black/50"
             onClick={closeMobileNav}
           />
@@ -312,7 +382,7 @@ function AdminMobileNav({
             id="admin-mobile-nav"
             role="dialog"
             aria-modal="true"
-            aria-label="Menú de administración"
+            aria-label={copy.menu}
             className="relative flex h-full w-[min(100%,16rem)] flex-col overflow-hidden bg-zinc-900 shadow-xl"
           >
             <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
@@ -323,6 +393,7 @@ function AdminMobileNav({
               enabledModuleIds={enabledModuleIds}
               navItems={navItems}
               pathname={pathname}
+              locale={locale}
               onNavigate={closeMobileNav}
               showCloseButton
               onClose={closeMobileNav}
@@ -340,6 +411,7 @@ export function AdminNav({
   userEmail,
   enabledModuleIds,
   navItems,
+  locale = "es",
 }: AdminNavProps) {
   const pathname = usePathname();
 
@@ -354,6 +426,7 @@ export function AdminNav({
           enabledModuleIds={enabledModuleIds}
           navItems={navItems}
           pathname={pathname}
+          locale={locale}
         />
       </aside>
 
@@ -365,6 +438,7 @@ export function AdminNav({
         enabledModuleIds={enabledModuleIds}
         navItems={navItems}
         pathname={pathname}
+        locale={locale}
       />
     </>
   );

@@ -104,14 +104,6 @@ function navGenero(slug: Exclude<StoreAudience, "unisex">) {
   };
 }
 
-function navCategoria(slug: ProductCategorySlug) {
-  return {
-    href: `/productos?categoria=${slug}`,
-    label: getCategoryLabel(slug),
-    match: { type: "categoria" as const, slug },
-  };
-}
-
 function navDestacados() {
   return {
     href: "/productos?destacados=1",
@@ -120,32 +112,18 @@ function navDestacados() {
   };
 }
 
-function navPromo2x1() {
-  return {
-    href: "/productos?promo=2x1",
-    label: "Sale",
-    match: { type: "promo2x1" as const },
-    accent: "promo2x1" as const,
-  };
-}
-
-/** Género + promos + categorías clave; entra en desktop sin saturar. */
+/** Allowlist corto Goat (app1): sin categorías de prenda. */
 export const HEADER_NAV_DESKTOP = [
   { href: "/", label: "Inicio", match: { type: "home" as const } },
   navGenero("hombre"),
   navGenero("mujer"),
   navDestacados(),
-  navCategoria("accesorios"),
-  navPromo2x1(),
 ];
 
-/** Catálogo completo en menú móvil. */
+/** Misma lista corta que desktop (menú móvil Goat). */
 export const HEADER_NAV_MOBILE = [
   { href: "/", label: "Inicio", match: { type: "home" as const } },
-  { href: "/productos", label: "Catálogo", match: { type: "catalog" as const } },
   navGenero("hombre"),
   navGenero("mujer"),
   navDestacados(),
-  ...PRODUCT_CATEGORIES.map((category) => navCategoria(category.slug)),
-  navPromo2x1(),
 ];

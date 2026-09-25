@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { productHref } from "@/lib/storefront-paths";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,7 +63,7 @@ export function CartLineItem({
     <li
       className={cn(
         isPage
-          ? "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
+          ? "storefront-card border border-neutral-200/80 bg-white p-4 shadow-sm"
           : "rounded-lg border border-neutral-100 bg-neutral-50/40 p-3",
         className,
       )}
@@ -70,7 +71,7 @@ export function CartLineItem({
     >
       <div className="flex gap-3 sm:gap-4">
         <Link
-          href={`/producto/${item.productSlug}`}
+          href={productHref(item.productSlug)}
           className={cn(
             "relative shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-neutral-200/60",
             isPage ? "h-28 w-20 sm:h-32 sm:w-24" : "h-24 w-20",
@@ -89,7 +90,7 @@ export function CartLineItem({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <Link
-                href={`/producto/${item.productSlug}`}
+                href={productHref(item.productSlug)}
                 className="line-clamp-2 text-sm font-medium text-neutral-900 transition-colors hover:text-[var(--brand-primary)] sm:text-base"
               >
                 {item.productName}

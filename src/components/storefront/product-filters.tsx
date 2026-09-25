@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { catalogHref } from "@/lib/storefront-paths";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import type { CatalogFilterCounts } from "@/lib/catalog-index";
 import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
@@ -68,6 +69,9 @@ type ProductFiltersProps = {
   variantColorLabel?: string;
   priceTiers: readonly CatalogPriceTier[];
   categories: readonly ProductCategoryDef[];
+  /** Sidebar con borde. En el cajón mobile va el contenido pelado. */
+  chrome?: boolean;
+  idPrefix?: string;
 };
 
 export function ProductFilters({
@@ -82,6 +86,8 @@ export function ProductFilters({
   variantColorLabel,
   priceTiers,
   categories,
+  chrome = true,
+  idPrefix = "",
 }: ProductFiltersProps) {
   const searchParams = useSearchParams();
   const copy = getStorefrontCopy();
@@ -103,7 +109,7 @@ export function ProductFilters({
       }
     }
 
-    navigateCatalog(`/productos?${params.toString()}`);
+    navigateCatalog(catalogHref(params.toString()));
   };
 
   const activeGenero = searchParams.get("genero") ?? "";
@@ -155,17 +161,23 @@ export function ProductFilters({
 
   const saborOptions = Object.keys(counts.sabor);
 
+  // No base self-start: sticky bottom needs lg:self-end only.
   const asideClass = cn(
-    "h-fit w-full self-start space-y-6 rounded-xl border p-5 shadow-md lg:sticky lg:top-[calc(var(--storefront-chrome-height,6rem)+1rem)] lg:max-h-[calc(100dvh-var(--storefront-chrome-height,6rem)-2.5rem)] lg:overflow-y-auto lg:overscroll-contain",
-    isApp2
-      ? "border-app2 bg-app2-card"
-      : "border-neutral-200/90 bg-white ring-1 ring-neutral-900/[0.04]",
+    "h-fit w-full space-y-6",
+    chrome &&
+      "storefront-card border p-5 shadow-md lg:sticky lg:bottom-4 lg:self-end",
+    chrome &&
+      (isApp2
+        ? "border-app2 bg-app2-card"
+        : "border-neutral-200/90 bg-white ring-1 ring-neutral-900/[0.04]"),
   );
 
   const labelClass = cn("mb-2 block", isApp2 ? "text-app2-muted" : "text-neutral-700");
 
+  const Root = chrome ? "aside" : "div";
+
   return (
-    <aside className={asideClass}>
+    <Root className={asideClass}>
       {showProductSearch ? <ProductSearch /> : null}
 
       <div>
@@ -325,11 +337,11 @@ export function ProductFilters({
       ) : null}
 
       <div>
-        <Label htmlFor="precio-max" className={labelClass}>
+        <Label htmlFor={`${idPrefix}precio-max`} className={labelClass}>
           {copy.maxPrice}
         </Label>
         <select
-          id="precio-max"
+          id={`${idPrefix}precio-max`}
           className={fieldClass}
           value={searchParams.get("precioMax") ?? ""}
           onChange={(e) =>
@@ -351,12 +363,12 @@ export function ProductFilters({
       {hasActiveFilters ? (
         <button
           type="button"
-          onClick={() => navigateCatalog("/productos")}
+          onClick={() => navigateCatalog(catalogHref())}
           className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
         >
           Limpiar filtros
         </button>
       ) : null}
-    </aside>
+    </Root>
   );
 }

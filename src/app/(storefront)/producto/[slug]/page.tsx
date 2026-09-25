@@ -8,6 +8,7 @@ import { ProductJsonLd } from "@/components/storefront/product-json-ld";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getProductTaxonomyLabel } from "@/lib/categories";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
 import { INFO_PAGES, resolvePageContent } from "@/lib/info-pages";
 import {
   getStorefrontProduct,
@@ -22,6 +23,7 @@ import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
 import { storeHasModule } from "@/lib/modules";
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
+import { cn } from "@/lib/utils";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { getVariantLabels } from "@/lib/variant-labels";
 
@@ -96,7 +98,7 @@ export default async function ProductPage({ params }: PageProps) {
   if (!product) notFound();
 
   const mainImage = product.variants[0]?.imageUrl ?? "";
-  const catalogHref = config.features.catalog ? "/productos" : "/";
+  const catalogHref = config.features.catalog ? getStorefrontPaths().catalog : "/";
   const catalogLabel = config.features.catalog ? "Catálogo" : "Inicio";
   const showSizeGuide =
     config.features.sizeGuide && product.category !== "accesorios";
@@ -133,7 +135,14 @@ export default async function ProductPage({ params }: PageProps) {
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         <StorefrontReveal index={1}>
-          <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100 ring-1 ring-neutral-200/60">
+          <div
+            className={cn(
+              "storefront-card relative aspect-[3/4] overflow-hidden bg-neutral-100",
+              config.ui.id === "app3" && "border border-[#202523]/12",
+              config.ui.id === "app1" && "border border-neutral-200",
+              config.ui.id === "app2" && "ring-1 ring-neutral-200/60",
+            )}
+          >
             <ProductImage
               src={mainImage}
               alt={product.name}
@@ -163,7 +172,7 @@ export default async function ProductPage({ params }: PageProps) {
           <p className="mt-4 leading-relaxed text-neutral-600">
             {product.description}
           </p>
-          <div className="mt-8 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mt-8 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
             <AddToCart
               productId={product.id}
               productName={product.name}
@@ -194,7 +203,7 @@ export default async function ProductPage({ params }: PageProps) {
               {sizeGuide.title}
             </h2>
             <p className="mt-2 max-w-2xl text-neutral-600">{sizeGuide.description}</p>
-            <div className="mt-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+            <div className="mt-6 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
               <InfoSections sections={sizeGuide.sections} />
             </div>
           </section>

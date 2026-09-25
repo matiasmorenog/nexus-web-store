@@ -20,7 +20,7 @@ export function InfoPage({ page }: InfoPageProps) {
 
       <StorefrontPageHeader title={page.title} description={page.description} />
 
-      <div className="rounded-xl border border-neutral-200/80 bg-white p-6 shadow-sm sm:p-8">
+      <div className="storefront-card border border-neutral-200/80 bg-white p-6 shadow-sm sm:p-8">
         <InfoSections sections={page.sections} />
       </div>
     </div>

@@ -97,14 +97,14 @@ export function ContactPage({
       <StorefrontPageHeader title={title} description={description} />
 
       {isProvisional ? (
-        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950">
+        <div className="mb-6 storefront-card border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950">
           <strong>Sito in preparazione.</strong> Email, sede e modalità di consegna sono dati
           provvisori e verranno sostituiti prima dell&apos;apertura degli ordini.
         </div>
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.15fr]">
-        <div className="space-y-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+        <div className="space-y-4 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-primary-soft)]">
               <Mail className="h-5 w-5 text-[var(--brand-primary)]" />
@@ -158,7 +158,7 @@ export function ContactPage({
         </div>
 
         {sent ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200/80 bg-[var(--brand-primary-soft)]/40 p-8 text-center shadow-sm">
+          <div className="flex flex-col items-center justify-center storefront-card border border-neutral-200/80 bg-[var(--brand-primary-soft)]/40 p-8 text-center shadow-sm">
             <CheckCircle className="h-12 w-12 text-green-600" />
             <p className="mt-4 font-medium text-neutral-900">
               {isItalian ? "Messaggio inviato!" : "¡Consulta enviada!"}
@@ -180,7 +180,7 @@ export function ContactPage({
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="space-y-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6"
+            className="space-y-4 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6"
           >
             <div>
               <Label htmlFor="contact-name">{isItalian ? "Nome" : "Nombre"}</Label>

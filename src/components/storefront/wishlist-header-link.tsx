@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { useHydrated } from "@/lib/use-hydrated";
 import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/stores/wishlist-store";
@@ -35,7 +36,7 @@ export function WishlistHeaderLink({
 
   return (
     <Link
-      href="/favoritos"
+      href={storefrontPath("wishlist")}
       aria-label={copy.favorites}
       className={cn(
         uiVariant === "app2"

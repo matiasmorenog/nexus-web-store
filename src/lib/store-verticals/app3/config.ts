@@ -10,7 +10,7 @@ export const APP3_PRODUCT_CATEGORIES = [
 ] as const;
 
 const navCategoria = (slug: string, label: string): HeaderNavLink => ({
-  href: `/productos?categoria=${slug}`,
+  href: `/prodotti?categoria=${slug}`,
   label,
   match: { type: "categoria", slug },
 });
@@ -70,15 +70,15 @@ export const app3Config: VerticalConfig = {
     navCategoria("candele", "Candele"),
     navCategoria("saponi", "Saponi"),
     navCategoria("regali-personalizzati", "Su misura"),
-    { href: "/contacto", label: "Contatti", match: { type: "contact" } },
+    { href: "/contatti", label: "Contatti", match: { type: "contact" } },
   ],
   headerNavMobile: [
     { href: "/", label: "Home", match: { type: "home" } },
-    { href: "/productos", label: "Collezione", match: { type: "catalog" } },
+    { href: "/prodotti", label: "Collezione", match: { type: "catalog" } },
     ...APP3_PRODUCT_CATEGORIES.map((category) =>
       navCategoria(category.slug, category.label),
     ),
-    { href: "/contacto", label: "Contatti", match: { type: "contact" } },
+    { href: "/contatti", label: "Contatti", match: { type: "contact" } },
   ],
   home: {
     showAllProducts: false,

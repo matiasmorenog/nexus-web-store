@@ -1,5 +1,8 @@
 import { Clock } from "lucide-react";
+import { redirect } from "next/navigation";
 import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import { db } from "@/lib/db";
 import { formatOrderId } from "@/lib/order-status";
 import { getStoreId } from "@/lib/store-context";
@@ -12,6 +15,10 @@ export default async function CheckoutPendingPage({
 }: {
   searchParams: Promise<{ order?: string }>;
 }) {
+  if (!getStorefrontConfig().features.checkout) {
+    redirect(getStorefrontPaths().contact);
+  }
+
   const params = await searchParams;
   const storeId = await getStoreId();
 
@@ -67,7 +74,7 @@ export default async function CheckoutPendingPage({
             </strong>
           </p>
           {transferInstructions ? (
-            <div className="mx-auto mt-4 max-w-md rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-left text-sm">
+            <div className="mx-auto mt-4 max-w-md storefront-card border border-amber-200 bg-amber-50 px-4 py-4 text-left text-sm">
               <p className="font-medium text-neutral-900">Datos para transferir</p>
               <p className="mt-2 whitespace-pre-line text-neutral-700">
                 {transferInstructions}

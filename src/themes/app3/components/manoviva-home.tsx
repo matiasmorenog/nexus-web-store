@@ -46,7 +46,7 @@ async function ManovivaFeaturedProducts() {
             </h2>
           </div>
           <Link
-            href="/productos?destacados=1"
+            href="/prodotti?destacados=1"
             className="hidden items-center gap-2 text-sm font-semibold text-[#2351D1] sm:flex"
           >
             Vedi tutte <ArrowRight className="h-4 w-4" />
@@ -92,13 +92,13 @@ export async function ManovivaHome() {
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
-                href="/productos"
+                href="/prodotti"
                 className="inline-flex items-center gap-2 rounded-full bg-[#2351D1] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(35,81,209,.22)] transition-transform hover:-translate-y-0.5"
               >
                 Scopri le creazioni <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/contacto"
+                href="/contatti"
                 className="inline-flex items-center rounded-full border border-[#202523]/20 px-6 py-3.5 text-sm font-semibold text-[#202523] transition-colors hover:bg-white/60"
               >
                 Crea il tuo regalo
@@ -164,8 +164,8 @@ export async function ManovivaHome() {
             {categories.map((category, index) => (
               <Link
                 key={category.slug}
-                href={`/productos?categoria=${category.slug}`}
-                className="group relative min-h-[390px] overflow-hidden rounded-[2rem] bg-[#202523]"
+                href={`/prodotti?categoria=${category.slug}`}
+                className="group relative min-h-[390px] overflow-hidden storefront-card bg-[#202523]"
               >
                 <Image
                   src={category.image}
@@ -219,7 +219,7 @@ export async function ManovivaHome() {
               Prepariamo una proposta personalizzata prima di iniziare.
             </p>
             <Link
-              href="/contacto"
+              href="/contatti"
               className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#2351D1]"
             >
               Parliamo del tuo progetto <ArrowRight className="h-4 w-4" />

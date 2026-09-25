@@ -24,7 +24,7 @@ No re-inventariar el código; consultar Linear antes de planificar features nuev
 
 ## Ya implementado (no rehacer)
 
-Storefront: home, catálogo, filtros URL, PDP variantes, carrito, checkout, post-pago, header/footer, cuenta cliente + mis pedidos, módulos Plus (cupones, home, CRM, SEO, wishlist, analytics, WhatsApp/Pixel, carriers, temas).
+Storefront: home, catálogo, filtros URL, PDP variantes, carrito, checkout, post-pago, header/footer, cuenta cliente + mis pedidos, módulos Plus (cupones, home, CRM, SEO, wishlist, analytics, WhatsApp/Pixel, carriers).
 Admin: login, dashboard KPIs, CRUD productos/variantes/stock, pedidos, config, imágenes Blob, multi-usuario, API/webhooks.
 Backend: MP + webhook, multi-tenant, emails (Resend/log), búsqueda, retiro local, páginas legales.
 Infra: dos tiendas (2 Vercel, 1 Neon), storefront por `DEFAULT_STORE_SLUG`, catálogo app2 activo, GitHub Actions CI (lint + typecheck).

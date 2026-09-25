@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { catalogHref } from "@/lib/storefront-paths";
 import { PRODUCT_SORT_OPTIONS, parseProductSort } from "@/lib/product-sort";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ export function ProductSortSelect({ className }: ProductSortSelectProps) {
       params.set("orden", value);
     }
 
-    navigateCatalog(`/productos?${params.toString()}`);
+    navigateCatalog(catalogHref(params.toString()));
   };
 
   return (

@@ -5,6 +5,7 @@ import { storeHasModule } from "@/lib/modules";
 import { getStorefrontProductSlugs } from "@/lib/product-page-query";
 import { getStoreSiteUrl } from "@/lib/seo/site-url";
 import { getStoreId } from "@/lib/store-context";
+import { getStorefrontPaths, infoPageHref } from "@/lib/storefront-paths";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 
 function buildEntry(
@@ -36,18 +37,19 @@ export async function generateStoreSitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   if (config.features.catalog) {
-    entries.push(buildEntry(baseUrl, "/productos", 0.9, "daily"));
+    const paths = getStorefrontPaths();
+    entries.push(buildEntry(baseUrl, paths.catalog, 0.9, "daily"));
 
     const products = await getStorefrontProductSlugs(storeId);
     for (const product of products) {
       entries.push(
-        buildEntry(baseUrl, `/producto/${product.slug}`, 0.8, "weekly"),
+        buildEntry(baseUrl, `${paths.product}/${product.slug}`, 0.8, "weekly"),
       );
     }
   }
 
   for (const slug of INFO_PAGE_SLUGS) {
-    entries.push(buildEntry(baseUrl, `/${slug}`, 0.4, "monthly"));
+    entries.push(buildEntry(baseUrl, infoPageHref(slug), 0.4, "monthly"));
   }
 
   return entries;
@@ -80,7 +82,7 @@ export async function generateStoreRobots(): Promise<MetadataRoute.Robots> {
       ? {
           userAgent: "*",
           allow: "/",
-          disallow: ["/admin", "/api", "/checkout", "/cuenta"],
+          disallow: ["/admin", "/api", "/checkout", "/cuenta", "/cassa", "/profilo"],
         }
       : {
           userAgent: "*",

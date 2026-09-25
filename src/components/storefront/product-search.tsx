@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { catalogHref } from "@/lib/storefront-paths";
 import { useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -13,9 +14,14 @@ type ProductSearchProps = {
   className?: string;
   /** Barra compacta en el header (ícono en mobile, input en desktop) */
   compact?: boolean;
+  id?: string;
 };
 
-export function ProductSearch({ className, compact = false }: ProductSearchProps) {
+export function ProductSearch({
+  className,
+  compact = false,
+  id = "product-search",
+}: ProductSearchProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useCatalogNavigation();
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
@@ -43,7 +49,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
       params.delete("q");
     }
     const qs = params.toString();
-    navigateCatalog(qs ? `/productos?${qs}` : "/productos");
+    navigateCatalog(qs ? catalogHref(qs) : catalogHref());
     setMobileOpen(false);
   };
 
@@ -59,10 +65,10 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
 
   if (compact) {
     return (
-      <div className={cn("flex items-center", className)}>
+      <div className={cn("flex min-w-0 items-center md:flex-1 xl:w-52 xl:flex-none", className)}>
         <form
           onSubmit={submit}
-          className="relative hidden items-center lg:flex"
+          className="relative hidden min-w-0 flex-1 items-center md:flex"
           role="search"
         >
           <Search className="pointer-events-none absolute left-3 h-4 w-4 text-neutral-400" />
@@ -71,7 +77,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
             placeholder={copy.searchProducts}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-10 w-44 pl-9 pr-8 xl:w-52"
+            className="h-10 w-full pl-9 pr-8"
             aria-label={copy.searchProducts}
           />
           {query && (
@@ -90,7 +96,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
           type="button"
           aria-label={copy.searchProducts}
           aria-expanded={mobileOpen}
-          className="rounded-lg p-2.5 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
+          className="shrink-0 rounded-lg p-2.5 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
           <Search className="h-5 w-5" />
@@ -99,7 +105,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
         {mobileOpen && (
           <form
             onSubmit={submit}
-            className="absolute inset-x-0 top-full z-50 border-b border-neutral-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-md lg:hidden"
+            className="absolute inset-x-0 top-full z-50 border-b border-neutral-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-md md:hidden"
             role="search"
           >
             <div className="relative mx-auto flex max-w-7xl items-center gap-2">
@@ -142,13 +148,13 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
 
   return (
     <form onSubmit={submit} className={className} role="search">
-      <Label htmlFor="product-search" className="mb-2 block">
+      <Label htmlFor={id} className="mb-2 block">
         {copy.search}
       </Label>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <Input
-          id="product-search"
+          id={id}
           type="search"
           placeholder={copy.searchDescription}
           value={query}

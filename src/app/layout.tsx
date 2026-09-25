@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Inter, Oswald, Rajdhani, Sora } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import "./globals.css";
 
@@ -39,10 +40,16 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-export const metadata: Metadata = {
-  title: "Nexus Web Store",
-  description: "Tienda online",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await getStore();
+  const config = getStorefrontConfig();
+  const displayName = formatStoreName(store.name);
+
+  return {
+    title: displayName,
+    description: config.metadata.description,
+  };
+}
 
 export default function RootLayout({
   children,

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { User } from "lucide-react";
@@ -45,7 +46,7 @@ export function HeaderAccountLink({
 
   const href =
     session?.user?.role === "CUSTOMER"
-      ? "/cuenta/pedidos"
+      ? storefrontPath("accountOrders")
       : buildCustomerLoginHref(pathname);
 
   const label =

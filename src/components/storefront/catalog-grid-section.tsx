@@ -80,7 +80,7 @@ export function CatalogGridSection({
     return (
       <div
         className={cn(
-          "rounded-xl border border-dashed px-6 py-16 text-center",
+          "storefront-card border border-dashed px-6 py-16 text-center",
           isApp2
             ? "border-app2 bg-app2-card"
             : "border-neutral-200 bg-[var(--brand-primary-soft)]/40",

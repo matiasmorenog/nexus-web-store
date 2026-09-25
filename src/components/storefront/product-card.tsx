@@ -4,7 +4,9 @@ import { getProductTaxonomyLabel } from "@/lib/categories";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
+import { productHref } from "@/lib/storefront-paths";
 
 type ProductCardProps = {
   slug: string;
@@ -33,21 +35,20 @@ export function ProductCard({
 }: ProductCardProps) {
   const showPromoBadge = promo2x1;
   const copy = getStorefrontCopy();
+  const atelierCard = getClientStorefrontConfig().ui.id === "app3";
   const hasHoverImage = Boolean(
     inStock && hoverImageUrl && hoverImageUrl !== imageUrl,
   );
 
   return (
     <Link
-      href={`/producto/${slug}`}
+      href={productHref(slug)}
       className={cn("group block h-full", className)}
     >
       <article
         className={cn(
-          "flex h-full flex-col overflow-hidden rounded-xl border border-neutral-200/90 bg-white shadow-sm ring-1 ring-neutral-900/[0.04]",
-          "transition-[box-shadow,transform] duration-200",
-          inStock &&
-            "group-hover:-translate-y-0.5 group-hover:shadow-md group-hover:ring-[var(--brand-primary)]/15",
+          "storefront-card flex h-full flex-col overflow-hidden border bg-white",
+          atelierCard ? "border-[#202523]/12" : "border-neutral-200",
           !inStock && "opacity-95",
         )}
       >

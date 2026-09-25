@@ -62,7 +62,7 @@ export function App2ProductCard(props: App2ProductCardProps) {
   const hasHoverImage = Boolean(inStock && hoverImageUrl && hoverImageUrl !== imageUrl);
 
   return (
-    <article className="group overflow-hidden rounded-lg border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)]">
+    <article className="storefront-card group overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)]">
       <div className="relative aspect-[4/5] overflow-hidden bg-[var(--brand-primary-mid)]">
         {imageUrl ? (
           <>

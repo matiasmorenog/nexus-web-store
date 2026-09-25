@@ -167,7 +167,7 @@ export function AdminOrdersToolbar({
               />
             </div>
           </div>
-          <Button type="submit" size="sm" variant="secondary" className="sm:mb-0.5">
+          <Button type="submit" variant="secondary" className="h-10 shrink-0 rounded-md px-4">
             Aplicar fecha
           </Button>
         </form>

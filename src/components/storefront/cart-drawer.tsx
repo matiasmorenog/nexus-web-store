@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
@@ -143,12 +144,12 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               <p className="mb-4 mt-3 text-xs text-neutral-500">
                 {copy.shippingAtCheckout}
               </p>
-              <Link href={checkoutEnabled ? "/checkout" : "/contacto"} onClick={onClose}>
+              <Link href={checkoutEnabled ? storefrontPath("checkout") : storefrontPath("contact")} onClick={onClose}>
                 <Button className="w-full" size="lg">
                   {checkoutEnabled ? copy.goToCheckout : copy.requestAction}
                 </Button>
               </Link>
-              <Link href="/carrito" onClick={onClose}>
+              <Link href={storefrontPath("cart")} onClick={onClose}>
                 <Button variant="outline" className="mt-2 w-full">
                   {copy.viewFullCart}
                 </Button>

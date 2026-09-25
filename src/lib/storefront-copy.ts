@@ -10,6 +10,10 @@ const spanishCopy = {
   search: "Buscar",
   searchDescription: "Nombre, descripción...",
   clearSearch: "Limpiar búsqueda",
+  filter: "Filtrar",
+  closeFilters: "Cerrar filtros",
+  viewFilteredProducts: (count: number) =>
+    `Ver ${count} ${count === 1 ? "producto" : "productos"}`,
   closeSearch: "Cerrar búsqueda",
   account: "Mi cuenta",
   signIn: "Ingresar",
@@ -55,6 +59,62 @@ const spanishCopy = {
   redirecting: "Redirigiendo...",
   cartItems: (count: number) => `${count} artículo${count === 1 ? "" : "s"} en tu pedido`,
   cartReview: "Revisá los productos antes de pagar.",
+  home: "Inicio",
+  catalog: "Catálogo",
+  clearFilters: "Limpiar filtros",
+  noProducts: "No se encontraron productos",
+  noProductsHint: "Probá con otros filtros o borrá la búsqueda.",
+  loadingCatalog: "Cargando catálogo...",
+  gender: "Género",
+  noLimit: "Sin límite",
+  removeFilter: (label: string) => `Quitar filtro ${label}`,
+  back: "Volver",
+  subtotal: "Subtotal",
+  coupon: "Cupón",
+  emptyWishlist: "Todavía no tenés favoritos",
+  emptyWishlistHint: "Guardá productos desde el catálogo para verlos acá.",
+  addToWishlist: "Agregar a favoritos",
+  removeFromWishlist: "Quitar de favoritos",
+  contactWhatsApp: "Contactar por WhatsApp",
+  sizeGuide: "Guía de talles",
+  // Contact
+  contactTitle: "Contacto",
+  contactDescription:
+    "Escribinos para consultas sobre productos, pedidos, cambios o devoluciones.",
+  provisionalBannerTitle: "Sitio en preparación.",
+  provisionalBannerBody:
+    "Email, sede y modalidades de entrega son datos provisorios y se reemplazarán antes de abrir pedidos.",
+  provisionalSeat: "Sede provisoria",
+  provisionalSeatBody: "Ubicación por definir",
+  provisionalFooter: "Contactos, horarios y sede deben confirmarse.",
+  pickupTitle: "Retiro en local",
+  pickupBody:
+    "Disponible según opción en checkout. Te confirmamos el punto de retiro por email cuando tu pedido esté listo.",
+  customTitle: "Creación personalizada",
+  customBody:
+    "Contanos la ocasión y los detalles que imaginás. Te responderemos con una propuesta.",
+  contactHours:
+    "Respondemos de lunes a viernes en horario comercial. Para cambios o devoluciones, incluí tu número de pedido.",
+  messageSent: "¡Consulta enviada!",
+  messageSentBody: (store: string) =>
+    `Recibimos tu mensaje en ${store}. Te responderemos a la brevedad.`,
+  sendAnother: "Enviar otra consulta",
+  nameLabel: "Nombre",
+  yourEmail: "Tu email",
+  messageLabel: "Mensaje",
+  sending: "Enviando...",
+  sendMessage: "Enviar consulta",
+  formDisabled: "Formulario aún no activo",
+  formDisabledError:
+    "El formulario se activará cuando estén disponibles los contactos definitivos.",
+  sendFailed: "No se pudo enviar la consulta",
+  unexpectedError: "Error inesperado",
+  // Account
+  myOrders: "Mis pedidos",
+  security: "Seguridad",
+  signOut: "Cerrar sesión",
+  wishlistNav: "Favoritos",
+  siteInPreparation: "Sito in preparazione",
 } as const;
 
 const italianCopy = {
@@ -67,6 +127,10 @@ const italianCopy = {
   search: "Cerca",
   searchDescription: "Nome, descrizione...",
   clearSearch: "Cancella ricerca",
+  filter: "Filtra",
+  closeFilters: "Chiudi filtri",
+  viewFilteredProducts: (count: number) =>
+    `Vedi ${count} ${count === 1 ? "creazione" : "creazioni"}`,
   closeSearch: "Chiudi ricerca",
   account: "Il mio profilo",
   signIn: "Accedi",
@@ -105,17 +169,77 @@ const italianCopy = {
   checkoutAction: "Continua al pagamento",
   checkoutHint: "Pagamento sicuro",
   requestAction: "Richiedi questo ordine",
-  requestHint: "Confermeremo personalizzazione, consegna e pagamento prima dell'ordine.",
+  requestHint:
+    "Confermeremo personalizzazione, consegna e pagamento prima dell'ordine.",
   buyNow: "Richiedi ora",
   addToCart: "Aggiungi al carrello",
   added: "Aggiunto!",
   redirecting: "Apertura...",
-  cartItems: (count: number) => `${count} ${count === 1 ? "creazione" : "creazioni"} nella richiesta`,
+  cartItems: (count: number) =>
+    `${count} ${count === 1 ? "creazione" : "creazioni"} nella richiesta`,
   cartReview: "Controlla le creazioni prima di inviare la richiesta.",
-};
+  home: "Home",
+  catalog: "Collezione",
+  clearFilters: "Cancella filtri",
+  noProducts: "Nessuna creazione trovata",
+  noProductsHint: "Prova altri filtri o cancella la ricerca.",
+  loadingCatalog: "Caricamento collezione...",
+  gender: "Pubblico",
+  noLimit: "Nessun limite",
+  removeFilter: (label: string) => `Rimuovi filtro ${label}`,
+  back: "Indietro",
+  subtotal: "Subtotale",
+  coupon: "Coupon",
+  emptyWishlist: "Non hai ancora preferiti",
+  emptyWishlistHint: "Salva le creazioni dalla collezione per vederle qui.",
+  addToWishlist: "Aggiungi ai preferiti",
+  removeFromWishlist: "Rimuovi dai preferiti",
+  contactWhatsApp: "Contatta su WhatsApp",
+  sizeGuide: "Guida alle misure",
+  contactTitle: "Contatti",
+  contactDescription:
+    "Scrivici per una creazione personalizzata, un regalo o qualsiasi informazione.",
+  provisionalBannerTitle: "Sito in preparazione.",
+  provisionalBannerBody:
+    "Email, sede e modalità di consegna sono dati provvisori e verranno sostituiti prima dell'apertura degli ordini.",
+  provisionalSeat: "Sede provvisoria",
+  provisionalSeatBody: "Italia · città e laboratorio da definire",
+  provisionalFooter: "Contatti, orari e sede devono essere confermati dalla titolare.",
+  pickupTitle: "Ritiro",
+  pickupBody: "Ti confermeremo via email il punto e il momento del ritiro.",
+  customTitle: "Creazione su misura",
+  customBody:
+    "Raccontaci l'occasione, i colori e i dettagli che immagini. Ti risponderemo con una proposta.",
+  contactHours: "Rispondiamo dal lunedì al venerdì in orario commerciale.",
+  messageSent: "Messaggio inviato!",
+  messageSentBody: (store: string) =>
+    `Abbiamo ricevuto il tuo messaggio per ${store}. Ti risponderemo presto.`,
+  sendAnother: "Invia un altro messaggio",
+  nameLabel: "Nome",
+  yourEmail: "La tua email",
+  messageLabel: "Messaggio",
+  sending: "Invio...",
+  sendMessage: "Invia messaggio",
+  formDisabled: "Modulo non ancora attivo",
+  formDisabledError:
+    "Il modulo sarà attivato quando saranno disponibili i contatti definitivi.",
+  sendFailed: "Non è stato possibile inviare il messaggio",
+  unexpectedError: "Errore imprevisto",
+  myOrders: "I miei ordini",
+  security: "Sicurezza",
+  signOut: "Esci",
+  wishlistNav: "Preferiti",
+  siteInPreparation: "Sito in preparazione",
+} as const;
 
-export function getStorefrontCopy() {
+export type StorefrontCopy = typeof spanishCopy | typeof italianCopy;
+
+export function getStorefrontCopy(): StorefrontCopy {
   return getClientStorefrontConfig().locale === "it-IT"
     ? italianCopy
     : spanishCopy;
+}
+
+export function isItalianStorefront(): boolean {
+  return getClientStorefrontConfig().locale === "it-IT";
 }

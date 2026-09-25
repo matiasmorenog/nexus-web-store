@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
@@ -15,7 +16,7 @@ export function CartEmptyState({ onContinue, compact = false }: CartEmptyStatePr
       className={
         compact
           ? "flex flex-col items-center justify-center px-4 py-12 text-center"
-          : "rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center"
+          : "storefront-card border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-16 text-center"
       }
     >
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200/80">
@@ -30,7 +31,7 @@ export function CartEmptyState({ onContinue, compact = false }: CartEmptyStatePr
           {copy.keepShopping}
         </Button>
       ) : (
-        <Link href="/productos" className="mt-5 inline-block">
+        <Link href={storefrontPath("catalog")} className="mt-5 inline-block">
           <Button variant="secondary">{copy.viewProducts}</Button>
         </Link>
       )}

@@ -1,4 +1,5 @@
 [data-storefront-ui="app1"] {
+  --storefront-card-radius: 0px;
   --brand-primary: #f13489;
   --brand-primary-soft: color-mix(in srgb, var(--brand-primary) 10%, white);
   --storefront-bg: var(--background);

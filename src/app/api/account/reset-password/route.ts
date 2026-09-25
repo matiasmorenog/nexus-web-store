@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { resetPasswordWithToken } from "@/lib/password-reset";
+import { storefrontPath } from "@/lib/storefront-paths";
 
 const resetSchema = z.object({
   token: z.string().min(1, "Token inválido"),
@@ -29,7 +30,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       redirectTo:
-        result.user.role === "CUSTOMER" ? "/cuenta/ingresar" : "/admin/login",
+        result.user.role === "CUSTOMER"
+          ? storefrontPath("signIn")
+          : "/admin/login",
     });
   } catch {
     return NextResponse.json(

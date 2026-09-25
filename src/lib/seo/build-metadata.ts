@@ -4,6 +4,7 @@ import {
   normalizeOgImageUrl,
   truncateMetaDescription,
 } from "@/lib/seo/format";
+import { getDefaultOgImageUrl, OG_IMAGE_SIZE } from "@/lib/seo/og-brand";
 import { getStoreSiteUrl } from "@/lib/seo/site-url";
 import type {
   ResolvedStoreSeoSettings,
@@ -24,11 +25,12 @@ function resolveDescription(
 }
 
 function resolveOgImage(
+  context: StoreSeoContext,
   settings: ResolvedStoreSeoSettings | null,
   override?: string,
-): string | undefined {
+): string {
   const image = override?.trim() || settings?.ogImageUrl.trim();
-  return image || undefined;
+  return image || getDefaultOgImageUrl(context.siteUrl);
 }
 
 export function buildStorefrontMetadata(
@@ -45,25 +47,11 @@ export function buildStorefrontMetadata(
   const locale = getStorefrontConfig().locale.replace("-", "_");
   const title = options?.title ?? context.storeName;
   const description = resolveDescription(settings, context, options?.description);
-  const image = resolveOgImage(settings, options?.image);
+  const image = resolveOgImage(context, settings, options?.image);
   const canonical = options?.path
     ? `${context.siteUrl}${options.path.startsWith("/") ? options.path : `/${options.path}`}`
     : undefined;
-
-  if (!settings) {
-    return {
-      title,
-      description,
-    };
-  }
-
-  return {
-    title,
-    description,
-    alternates: canonical ? { canonical } : undefined,
-    robots: settings.robotsIndex
-      ? { index: true, follow: true }
-      : { index: false, follow: false },
+  const social: Pick<Metadata, "openGraph" | "twitter"> = {
     openGraph: {
       type: "website",
       locale,
@@ -71,14 +59,41 @@ export function buildStorefrontMetadata(
       siteName: context.storeName,
       title,
       description,
-      images: image ? [{ url: image }] : undefined,
+      images: [
+        {
+          url: image,
+          width: OG_IMAGE_SIZE.width,
+          height: OG_IMAGE_SIZE.height,
+          alt: context.storeName,
+        },
+      ],
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      images: image ? [image] : undefined,
+      images: [image],
     },
+  };
+
+  if (!settings) {
+    return {
+      metadataBase: new URL(context.siteUrl),
+      title,
+      description,
+      ...social,
+    };
+  }
+
+  return {
+    metadataBase: new URL(context.siteUrl),
+    title,
+    description,
+    alternates: canonical ? { canonical } : undefined,
+    robots: settings.robotsIndex
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    ...social,
   };
 }
 

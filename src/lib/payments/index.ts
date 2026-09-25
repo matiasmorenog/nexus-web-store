@@ -10,3 +10,14 @@ export {
   transferPaymentDiscountLabel,
   TRANSFER_PAYMENT_DISCOUNT_RATE,
 } from "@/lib/payments/transfer";
+export {
+  getBankingRegion,
+  getTransferAdminCopy,
+  getTransferStorefrontPaymentCopy,
+  usesItalianBanking,
+} from "@/lib/payments/transfer-copy";
+export type {
+  BankingRegion,
+  TransferAdminCopy,
+  TransferStorefrontPaymentCopy,
+} from "@/lib/payments/transfer-copy";

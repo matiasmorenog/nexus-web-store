@@ -121,6 +121,12 @@ Banco: Banco Demo
 CBU: 0000000000000000000000
 Alias: demo.store.mp`;
 
+/** Placeholder only — never real bank details. Used when Manoviva enables bonifico. */
+const MANOVIVA_TRANSFER_INSTRUCTIONS_TEMPLATE = `Intestatario: Manoviva
+Banca: ...
+IBAN: IT60X0542811101000000123456
+BIC/SWIFT: ...`;
+
 async function seedDemoPaymentSettings(storeId: string) {
   await prisma.storePaymentSettings.upsert({
     where: { storeId },
@@ -279,8 +285,14 @@ async function seedDisabledApp3Commerce(storeId: string) {
   await Promise.all([
     prisma.storePaymentSettings.upsert({
       where: { storeId },
-      create: { storeId, transferEnabled: false },
-      update: { transferEnabled: false, transferInstructions: null },
+      create: {
+        storeId,
+        transferEnabled: false,
+        transferInstructions: MANOVIVA_TRANSFER_INSTRUCTIONS_TEMPLATE,
+      },
+      update: {
+        transferEnabled: false,
+      },
     }),
     prisma.storeShippingSettings.upsert({
       where: { storeId },

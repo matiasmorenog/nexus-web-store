@@ -7,12 +7,13 @@ import { validateCouponForCheckout } from "@/lib/coupons/validate";
 import { normalizeTaxId } from "@/lib/afip/tax-id";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
-import { storeHasModule } from "@/lib/modules";
+import { storeHasModule, storeHidesMercadoPago } from "@/lib/modules";
 import {
   calculateTransferPaymentDiscount,
   getCheckoutPaymentConfig,
   resolveMercadoPagoAccessToken,
 } from "@/lib/payments/server";
+import { usesItalianBanking } from "@/lib/payments/transfer-copy";
 import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
@@ -22,6 +23,8 @@ import {
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
+
+const italianCheckout = () => usesItalianBanking();
 
 const checkoutSchema = z
   .object({
@@ -45,7 +48,13 @@ const checkoutSchema = z
     paymentMethod: z.enum(["mercadopago", "transfer"]).default("mercadopago"),
   })
   .superRefine((data, ctx) => {
-    if (data.customer.taxId?.trim() && !normalizeTaxId(data.customer.taxId)) {
+    const italian = italianCheckout();
+
+    if (
+      !italian &&
+      data.customer.taxId?.trim() &&
+      !normalizeTaxId(data.customer.taxId)
+    ) {
       ctx.addIssue({
         code: "custom",
         message: "CUIT/CUIL/DNI inválido (7 a 11 dígitos)",
@@ -55,17 +64,25 @@ const checkoutSchema = z
 
     if (data.deliveryMethod !== "shipping") return;
 
-    const labels: Record<"address" | "city" | "zip", string> = {
-      address: "dirección",
-      city: "ciudad",
-      zip: "código postal",
-    };
+    const labels: Record<"address" | "city" | "zip", string> = italian
+      ? {
+          address: "indirizzo",
+          city: "città",
+          zip: "CAP",
+        }
+      : {
+          address: "dirección",
+          city: "ciudad",
+          zip: "código postal",
+        };
 
     for (const field of ["address", "city", "zip"] as const) {
       if (!data.customer[field]?.trim()) {
         ctx.addIssue({
           code: "custom",
-          message: `Completá ${labels[field]} para envío a domicilio`,
+          message: italian
+            ? `Completa ${labels[field]} per la spedizione`
+            : `Completá ${labels[field]} para envío a domicilio`,
           path: ["customer", field],
         });
       }
@@ -100,7 +117,11 @@ export async function POST(request: NextRequest) {
 
     if (isTransfer && !paymentConfig.transferAvailable) {
       return NextResponse.json(
-        { error: "El pago por transferencia no está disponible." },
+        {
+          error: storeHidesMercadoPago()
+            ? "Il pagamento con bonifico non è disponibile."
+            : "El pago por transferencia no está disponible.",
+        },
         { status: 400 },
       );
     }
@@ -233,9 +254,13 @@ export async function POST(request: NextRequest) {
         customerName: customer.name,
         customerEmail: customer.email,
         customerPhone: customer.phone,
-        customerTaxId: normalizeTaxId(customer.taxId),
+        customerTaxId: italianCheckout()
+          ? null
+          : normalizeTaxId(customer.taxId),
         shippingAddress: isPickup
-          ? "Retiro en local"
+          ? italianCheckout()
+            ? "Ritiro"
+            : "Retiro en local"
           : customer.address!.trim(),
         shippingCity: isPickup ? formatStoreName(store.name) : customer.city!.trim(),
         shippingZip: isPickup ? "—" : customer.zip!.trim(),

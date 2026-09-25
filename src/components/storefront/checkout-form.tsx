@@ -20,6 +20,12 @@ import type {
   CheckoutPaymentMethodOption,
 } from "@/lib/payments";
 import { calculateTransferPaymentDiscount } from "@/lib/payments";
+import {
+  getTransferStorefrontPaymentCopy,
+  usesItalianBanking,
+} from "@/lib/payments/transfer-copy";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 
 type DeliveryMethod = "shipping" | "pickup";
 
@@ -90,6 +96,9 @@ export function CheckoutForm({
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
+  const localeCopy = getLocaleCopy(getClientStorefrontConfig().locale);
+  const transferCopy = getTransferStorefrontPaymentCopy();
+  const italianBanking = usesItalianBanking();
   const { items, rawSubtotal, promoDiscount, subtotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -414,19 +423,19 @@ export function CheckoutForm({
             required
           />
         </div>
-        <div className="sm:col-span-2">
-          <Label htmlFor="checkout-tax-id">CUIT / CUIL / DNI (opcional)</Label>
-          <Input
-            id="checkout-tax-id"
-            name="taxId"
-            autoComplete="off"
-            inputMode="numeric"
-            placeholder="Para factura — ej. 20-12345678-9"
-          />
-          <p className="mt-1 text-xs text-neutral-500">
-            Solo si necesitás factura a tu nombre o razón social.
-          </p>
-        </div>
+        {italianBanking ? null : (
+          <div className="sm:col-span-2">
+            <Label htmlFor="checkout-tax-id">{localeCopy.taxIdLabel}</Label>
+            <Input
+              id="checkout-tax-id"
+              name="taxId"
+              autoComplete="off"
+              inputMode="numeric"
+              placeholder={localeCopy.taxIdPlaceholder}
+            />
+            <p className="mt-1 text-xs text-neutral-500">{localeCopy.taxIdHint}</p>
+          </div>
+        )}
       </fieldset>
 
       <fieldset
@@ -473,7 +482,7 @@ export function CheckoutForm({
       {paymentConfig.showPaymentMethods ? (
         <fieldset className="space-y-3 rounded-lg border border-neutral-200 bg-white p-4">
           <legend className="px-1 text-sm font-medium text-neutral-900">
-            Método de pago
+            {localeCopy.paymentMethodLegend}
           </legend>
           <div
             className={cn(
@@ -523,10 +532,11 @@ export function CheckoutForm({
                 onChange={() => setPaymentMethod("transfer")}
                 className="sr-only"
               />
-              <p className="font-medium text-neutral-900">Transferencia</p>
+              <p className="font-medium text-neutral-900">
+                {transferCopy.methodTitle}
+              </p>
               <p className="mt-1 text-xs text-neutral-500">
-                {paymentConfig.transferDiscountPercent}% off en productos. Pagás por
-                transferencia bancaria.
+                {transferCopy.methodDetail(paymentConfig.transferDiscountPercent)}
               </p>
             </label>
             ) : null}
@@ -593,7 +603,7 @@ export function CheckoutForm({
         {loading
           ? "Procesando..."
           : paymentMethod === "transfer"
-            ? "Confirmar pedido por transferencia"
+            ? transferCopy.confirmButton
             : "Pagar con Mercado Pago"}
       </Button>
     </form>

@@ -3,9 +3,9 @@
 **E-commerce full-stack** para indumentaria deportiva — storefront, checkout con Mercado Pago, panel admin y emails transaccionales. Primer producto de [**Nexus**](https://github.com/matiasmorenog), pensado para desplegar tiendas reales y evolucionar a SaaS multi-tenant.
 
 <p>
-  <a href="https://nexus-web-store.vercel.app"><strong>Demo en vivo →</strong></a>
+  <a href="https://goat-indumentaria.vercel.app"><strong>Demo en vivo →</strong></a>
   ·
-  <a href="https://nexus-web-store.vercel.app/admin/login">Admin</a>
+  <a href="https://goat-indumentaria.vercel.app/admin/login">Admin</a>
   ·
   <a href="DEPLOY.md">Deploy</a>
   ·
@@ -150,7 +150,7 @@ docs/                     # Guías técnicas (cache, rutas)
 
 Guía completa en [`DEPLOY.md`](DEPLOY.md): Neon pooler, env vars en Vercel, `db:setup` en producción.
 
-**Producción:** [https://nexus-web-store.vercel.app](https://nexus-web-store.vercel.app)
+**Producción:** [https://goat-indumentaria.vercel.app](https://goat-indumentaria.vercel.app)
 
 ---
 

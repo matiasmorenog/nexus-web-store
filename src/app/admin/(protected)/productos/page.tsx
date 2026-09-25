@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import {
   adminCanManage,
   requireAdminPermission,
@@ -27,6 +28,11 @@ import {
   adminListLayoutRowClass,
   adminListMainColumnClass,
 } from "@/lib/admin-list-layout";
+import {
+  ADMIN_LOCALE_COOKIE,
+  getAdminProductsCopy,
+  parseAdminLocale,
+} from "@/lib/admin-locale";
 import { storeHasModule } from "@/lib/modules";
 import { getStoreCategories } from "@/lib/store-categories";
 import { getStorefrontConfig } from "@/lib/store-verticals";
@@ -50,6 +56,9 @@ export default async function AdminProductsPage({
   const session = await requireAdminPermission("products:view");
   const storeId = session.user.storeId;
   const canManageProducts = adminCanManage(session, "products:manage");
+  const cookieStore = await cookies();
+  const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
+  const copy = getAdminProductsCopy(locale);
 
   const params = await searchParams;
   const filters = {
@@ -72,10 +81,10 @@ export default async function AdminProductsPage({
   const hasFilters = listQueryActive;
 
   const description = hasFilters
-    ? `${page.total} de ${summary.totalProducts} producto${summary.totalProducts !== 1 ? "s" : ""} con los filtros actuales`
-    : `${summary.totalProducts} producto${summary.totalProducts !== 1 ? "s" : ""} en el catálogo — filtrá o buscá para ver el listado`;
+    ? copy.headerFiltered(page.total, summary.totalProducts)
+    : copy.headerCatalog(summary.totalProducts);
 
-  const filterChips = getActiveAdminProductFilterChips(filters);
+  const filterChips = getActiveAdminProductFilterChips(filters, locale);
 
   const filtersPanel = (
     <ProductsFiltersPanel
@@ -90,7 +99,7 @@ export default async function AdminProductsPage({
   return (
     <div>
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader title="Productos" description={description} />
+        <AdminPageHeader title={copy.title} description={description} />
       </AdminDashboardReveal>
 
       <AdminDashboardReveal
@@ -113,14 +122,15 @@ export default async function AdminProductsPage({
               basePath="/admin/productos"
               chips={filterChips}
               clearParams={ADMIN_PRODUCT_FILTER_PARAMS}
+              clearFiltersLabel={copy.clearFilters}
+              removeFilterAria={copy.removeFilterAria}
             />
           </Suspense>
 
           {summary.totalProducts === 0 ? (
             <AdminCard>
               <AdminEmptyState>
-                No hay productos en el catálogo. Creá el primero con «Nuevo
-                producto».
+                {copy.catalogEmptyNoProducts}
               </AdminEmptyState>
             </AdminCard>
           ) : !listQueryActive ? (
@@ -137,7 +147,7 @@ export default async function AdminProductsPage({
           ) : page.total === 0 ? (
             <AdminCard>
               <AdminEmptyState>
-                Ningún producto coincide con los filtros.
+                {copy.noMatchFilters}
               </AdminEmptyState>
             </AdminCard>
           ) : (

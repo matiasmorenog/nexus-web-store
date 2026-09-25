@@ -8,6 +8,10 @@ import {
   AdminFilterSection,
 } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
+import {
+  getAdminProductsCopy,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
 import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
 import { hasAdminProductFacetFilters } from "@/lib/admin-product-filters";
 import { PRODUCT_CATEGORIES, STORE_AUDIENCES } from "@/lib/categories";
@@ -27,6 +31,16 @@ type ProductsFiltersPanelProps = {
   className?: string;
 };
 
+function audienceLabel(
+  slug: string,
+  copy: ReturnType<typeof getAdminProductsCopy>,
+) {
+  if (slug === "hombre") return copy.audienceHombre;
+  if (slug === "mujer") return copy.audienceMujer;
+  if (slug === "unisex") return copy.audienceUnisex;
+  return slug;
+}
+
 export function ProductsFiltersPanel({
   totalProducts,
   categoryCounts,
@@ -37,6 +51,7 @@ export function ProductsFiltersPanel({
 }: ProductsFiltersPanelProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useAdminListNavigation();
+  const copy = getAdminProductsCopy(readAdminLocaleFromDocument());
 
   const activeCategory = searchParams.get("categoria") ?? "";
   const activeAudience = searchParams.get("genero") ?? "";
@@ -76,11 +91,18 @@ export function ProductsFiltersPanel({
 
   return (
     <div className={cn(adminFiltersPanelScrollClass, className)}>
-      <AdminCard title="Filtros" description="Categoría, público y estado." padding={false}>
-        <AdminFilterSection title="Categoría" activeKey={activeCategory || "__all__"}>
+      <AdminCard
+        title={copy.filtersTitle}
+        description={copy.filtersDescription}
+        padding={false}
+      >
+        <AdminFilterSection
+          title={copy.categorySection}
+          activeKey={activeCategory || "__all__"}
+        >
           <AdminFilterButton
             active={!activeCategory}
-            label="Todas"
+            label={copy.allFeminine}
             count={totalProducts}
             onClick={() => navigate({ categoria: "" })}
           />
@@ -100,10 +122,13 @@ export function ProductsFiltersPanel({
           ))}
         </AdminFilterSection>
 
-        <AdminFilterSection title="Público" activeKey={activeAudience || "__all__"}>
+        <AdminFilterSection
+          title={copy.audienceSection}
+          activeKey={activeAudience || "__all__"}
+        >
           <AdminFilterButton
             active={!activeAudience}
-            label="Todos"
+            label={copy.allMasculine}
             count={totalProducts}
             onClick={() => navigate({ genero: "" })}
           />
@@ -111,7 +136,7 @@ export function ProductsFiltersPanel({
             <AdminFilterButton
               key={audience.slug}
               active={activeAudience === audience.slug}
-              label={audience.label}
+              label={audienceLabel(audience.slug, copy)}
               count={audienceCounts[audience.slug] ?? 0}
               onClick={() =>
                 navigate({
@@ -123,16 +148,19 @@ export function ProductsFiltersPanel({
           ))}
         </AdminFilterSection>
 
-        <AdminFilterSection title="Estado" activeKey={activeEstado || "__all__"}>
+        <AdminFilterSection
+          title={copy.statusSection}
+          activeKey={activeEstado || "__all__"}
+        >
           <AdminFilterButton
             active={!activeEstado}
-            label="Todos"
+            label={copy.allMasculine}
             count={totalProducts}
             onClick={() => navigate({ estado: "" })}
           />
           <AdminFilterButton
             active={activeEstado === "destacado"}
-            label="Destacado"
+            label={copy.statusFeatured}
             count={estadoCounts.destacado}
             onClick={() =>
               navigate({
@@ -142,7 +170,7 @@ export function ProductsFiltersPanel({
           />
           <AdminFilterButton
             active={activeEstado === "2x1"}
-            label="2x1"
+            label={copy.statusPromo2x1}
             count={estadoCounts.promo2x1}
             onClick={() =>
               navigate({ estado: activeEstado === "2x1" ? "" : "2x1" })
@@ -150,7 +178,7 @@ export function ProductsFiltersPanel({
           />
           <AdminFilterButton
             active={activeEstado === "normal"}
-            label="Normal"
+            label={copy.statusNormal}
             count={estadoCounts.normal}
             onClick={() =>
               navigate({ estado: activeEstado === "normal" ? "" : "normal" })
@@ -160,6 +188,7 @@ export function ProductsFiltersPanel({
 
         {hasFacetFilters ? (
           <AdminClearFiltersButton
+            label={copy.clearFilters}
             onClick={() =>
               navigate({ categoria: "", genero: "", estado: "" })
             }

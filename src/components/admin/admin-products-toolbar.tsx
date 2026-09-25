@@ -6,7 +6,11 @@ import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Label } from "@/components/ui/label";
-import { ADMIN_PRODUCT_SORT_OPTIONS } from "@/lib/admin-product-sort";
+import {
+  getAdminProductsCopy,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
+import { getAdminProductSortOptions } from "@/lib/admin-product-sort";
 import { cn } from "@/lib/utils";
 
 const fieldClass =
@@ -16,6 +20,9 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
   const searchParams = useSearchParams();
   const navigateCatalog = useAdminListNavigation();
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const locale = readAdminLocaleFromDocument();
+  const copy = getAdminProductsCopy(locale);
+  const sortOptions = getAdminProductSortOptions(locale);
 
   const activeSort = searchParams.get("orden") ?? "recientes";
   const qFromUrl = searchParams.get("q") ?? "";
@@ -64,8 +71,9 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
               navigate({ q: "" });
             }}
             onSubmit={() => navigate({ q: query })}
-            placeholder="Buscar por nombre, slug, SKU..."
-            ariaLabel="Buscar productos"
+            placeholder={copy.searchPlaceholder}
+            ariaLabel={copy.searchAria}
+            clearAriaLabel={copy.clearSearchAria}
           />
         </div>
 
@@ -74,7 +82,7 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
             htmlFor="admin-product-sort-toolbar"
             className="mb-1.5 block text-sm text-neutral-600"
           >
-            Ordenar
+            {copy.sortLabel}
           </Label>
           <AdminSelect
             id="admin-product-sort-toolbar"
@@ -82,7 +90,7 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
             value={activeSort}
             onChange={(event) => navigate({ orden: event.target.value })}
           >
-            {ADMIN_PRODUCT_SORT_OPTIONS.map((option) => (
+            {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>

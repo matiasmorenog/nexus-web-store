@@ -21,11 +21,17 @@ export async function getCheckoutPaymentConfig(
 
   const transferEnabled = row?.transferEnabled ?? false;
   const instructions = row?.transferInstructions?.trim() ?? "";
+  const hideMp = storeHidesMercadoPago();
+  const mercadopagoAvailable = !hideMp;
+  const transferAvailable = transferEnabled && instructions.length > 0;
+  const cashAvailable = hideMp;
 
   return {
-    showPaymentMethods: true,
-    mercadopagoAvailable: !storeHidesMercadoPago(),
-    transferAvailable: transferEnabled && instructions.length > 0,
+    showPaymentMethods:
+      mercadopagoAvailable || transferAvailable || cashAvailable,
+    mercadopagoAvailable,
+    transferAvailable,
+    cashAvailable,
     transferDiscountPercent: Math.round(TRANSFER_PAYMENT_DISCOUNT_RATE * 100),
     transferInstructions: transferEnabled && instructions ? instructions : null,
   };

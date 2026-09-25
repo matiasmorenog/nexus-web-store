@@ -93,7 +93,7 @@ function buildSeedStores(): SeedStoreConfig[] {
       adminDisplayName: "Amministrazione Manoviva (provvisoria)",
       primaryColor: "#2351D1",
       secondaryColor: "#F2F0E9",
-      allowPickup: false,
+      allowPickup: true,
     },
   ];
 }

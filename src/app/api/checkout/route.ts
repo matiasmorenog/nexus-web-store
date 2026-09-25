@@ -45,7 +45,7 @@ const checkoutSchema = z
       }),
     ),
     couponCode: z.string().optional(),
-    paymentMethod: z.enum(["mercadopago", "transfer"]).default("mercadopago"),
+    paymentMethod: z.enum(["mercadopago", "transfer", "cash"]).default("mercadopago"),
   })
   .superRefine((data, ctx) => {
     const italian = italianCheckout();
@@ -112,8 +112,22 @@ export async function POST(request: NextRequest) {
 
     const { customer, items, deliveryMethod, couponCode, paymentMethod } = parsed.data;
     const storeId = await getStoreId();
+    const storefrontFeatures = getStorefrontConfig().features;
     const paymentConfig = await getCheckoutPaymentConfig(storeId);
     const isTransfer = paymentMethod === "transfer";
+    const isCash = paymentMethod === "cash";
+    const pickupOnly = storefrontFeatures.pickupOnly;
+
+    if (pickupOnly && deliveryMethod !== "pickup") {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Questa boutique offre solo il ritiro in sede."
+            : "Esta tienda solo ofrece retiro en local.",
+        },
+        { status: 400 },
+      );
+    }
 
     if (isTransfer && !paymentConfig.transferAvailable) {
       return NextResponse.json(
@@ -126,11 +140,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isCash && !paymentConfig.cashAvailable) {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Il pagamento in contanti non è disponibile."
+            : "El pago en efectivo no está disponible.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (paymentMethod === "mercadopago" && !paymentConfig.mercadopagoAvailable) {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Mercado Pago non è disponibile in questa boutique."
+            : "Mercado Pago no está disponible en esta tienda.",
+        },
+        { status: 400 },
+      );
+    }
+
     const store = await db.store.findUniqueOrThrow({ where: { id: storeId } });
 
     const isPickup = deliveryMethod === "pickup";
 
-    if (isPickup && !store.allowPickup) {
+    if (isPickup && !store.allowPickup && !pickupOnly) {
       return NextResponse.json(
         { error: "El retiro en local no está disponible" },
         { status: 400 },
@@ -227,7 +263,7 @@ export async function POST(request: NextRequest) {
     );
     const shippingCost = await resolveCheckoutShippingCost({
       storeId,
-      zip: customer.zip!.trim(),
+      zip: (customer.zip ?? "").trim(),
       isPickup,
       items,
       orderSubtotal: subtotalAfterCoupon,
@@ -245,7 +281,11 @@ export async function POST(request: NextRequest) {
         total,
         promoDiscount,
         transferDiscount,
-        paymentMethod: isTransfer ? "TRANSFER" : "MERCADO_PAGO",
+        paymentMethod: isTransfer
+          ? "TRANSFER"
+          : isCash
+            ? "CASH"
+            : "MERCADO_PAGO",
         couponId,
         couponCode: resolvedCouponCode,
         couponDiscount,
@@ -311,6 +351,13 @@ export async function POST(request: NextRequest) {
         transferMode: true,
         orderId: order.id,
         transferInstructions: paymentConfig.transferInstructions,
+      });
+    }
+
+    if (isCash) {
+      return NextResponse.json({
+        cashMode: true,
+        orderId: order.id,
       });
     }
 

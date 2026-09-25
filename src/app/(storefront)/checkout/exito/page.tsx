@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle, Truck } from "lucide-react";
 import { MetaPixelPurchaseEvent } from "@/components/storefront/meta-pixel-purchase-event";
+import { CheckoutWhatsAppCta } from "@/components/storefront/checkout-whatsapp-cta";
 import { StorefrontStatusPage } from "@/components/storefront/storefront-status-page";
 import { db } from "@/lib/db";
 import { getStoreMarketingSettings } from "@/lib/marketing/query";
@@ -9,6 +10,7 @@ import { formatOrderId } from "@/lib/order-status";
 import { redirect } from "next/navigation";
 import { getStoreId } from "@/lib/store-context";
 import { getStorefrontPaths } from "@/lib/storefront-paths";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +25,7 @@ export default async function CheckoutSuccessPage({
   if (!config.features.checkout) {
     redirect(getStorefrontPaths().contact);
   }
+  const copy = getLocaleCopy(config.locale);
   const storeId = await getStoreId();
   const marketing = await getStoreMarketingSettings(storeId);
 
@@ -34,6 +37,7 @@ export default async function CheckoutSuccessPage({
           storeId: true,
           total: true,
           isPickup: true,
+          paymentMethod: true,
           meShipmentId: true,
           meTrackingNumber: true,
           meTrackingUrl: true,
@@ -51,9 +55,17 @@ export default async function CheckoutSuccessPage({
     order &&
     order.storeId === storeId;
 
-  const shipping = order
-    ? getOrderShippingInfo(order)
-    : null;
+  const shipping = order ? getOrderShippingInfo(order) : null;
+  const preferWhatsApp =
+    config.features.pickupOnly ||
+    order?.paymentMethod === "CASH" ||
+    order?.paymentMethod === "TRANSFER" ||
+    order?.isPickup;
+
+  const whatsappPhone =
+    marketing.whatsappEnabled && marketing.whatsappPhone
+      ? marketing.whatsappPhone
+      : null;
 
   return (
     <>
@@ -65,58 +77,67 @@ export default async function CheckoutSuccessPage({
         />
       ) : null}
       <StorefrontStatusPage
-      icon={CheckCircle}
-      iconClassName="text-green-600"
-      title="¡Compra confirmada!"
-      actionHref="/productos"
-      actionLabel="Seguir comprando"
-    >
-      <p>Tu pedido fue procesado correctamente.</p>
-      {order ? (
-        <p>
-          Número de orden:{" "}
-          <strong className="text-neutral-900">{formatOrderId(order.id)}</strong>
-        </p>
-      ) : null}
-      {shipping?.trackingNumber ? (
-        <div className="mx-auto mt-4 max-w-md storefront-card border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-4 text-left text-sm">
-          <p className="flex items-center gap-2 font-medium text-neutral-900">
-            <Truck className="size-4 text-[#3483fa]" aria-hidden />
-            {shipping.provider}
+        icon={CheckCircle}
+        iconClassName="text-green-600"
+        title={copy.purchaseConfirmed}
+        actionHref={getStorefrontPaths().catalog}
+        actionLabel={copy.keepShopping}
+      >
+        <p>{copy.orderProcessed}</p>
+        {order ? (
+          <p>
+            {copy.orderNumber}{" "}
+            <strong className="text-neutral-900">{formatOrderId(order.id)}</strong>
           </p>
-          <p className="mt-2 text-neutral-700">
-            Estado: <strong>{shipping.statusLabel}</strong>
-          </p>
-          <p className="mt-1 font-mono text-sm text-neutral-800">
-            {shipping.trackingNumber}
-          </p>
-          {shipping.carrier ? (
-            <p className="mt-1 text-neutral-500">Transportista: {shipping.carrier}</p>
-          ) : null}
-          {shipping.estimatedDelivery ? (
-            <p className="mt-1 text-neutral-500">
-              Entrega estimada: {shipping.estimatedDelivery}
+        ) : null}
+        {shipping?.trackingNumber ? (
+          <div className="mx-auto mt-4 max-w-md storefront-card border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-4 text-left text-sm">
+            <p className="flex items-center gap-2 font-medium text-neutral-900">
+              <Truck className="size-4 text-[#3483fa]" aria-hidden />
+              {shipping.provider}
             </p>
-          ) : null}
-          {shipping.trackingUrl ? (
-            <>
-              <Link
-                href={shipping.trackingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-block font-medium text-[#3483fa] hover:underline"
-              >
-                {shipping.trackingPortalLabel ?? "Rastrear envío"} →
-              </Link>
-              {shipping.trackingHint ? (
-                <p className="mt-2 text-xs text-neutral-500">{shipping.trackingHint}</p>
-              ) : null}
-            </>
-          ) : null}
-        </div>
-      ) : null}
-      <p>Te enviamos un email con el detalle de tu compra.</p>
-    </StorefrontStatusPage>
+            <p className="mt-2 text-neutral-700">
+              Estado: <strong>{shipping.statusLabel}</strong>
+            </p>
+            <p className="mt-1 font-mono text-sm text-neutral-800">
+              {shipping.trackingNumber}
+            </p>
+            {shipping.carrier ? (
+              <p className="mt-1 text-neutral-500">Transportista: {shipping.carrier}</p>
+            ) : null}
+            {shipping.estimatedDelivery ? (
+              <p className="mt-1 text-neutral-500">
+                Entrega estimada: {shipping.estimatedDelivery}
+              </p>
+            ) : null}
+            {shipping.trackingUrl ? (
+              <>
+                <Link
+                  href={shipping.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block font-medium text-[#3483fa] hover:underline"
+                >
+                  {shipping.trackingPortalLabel ?? "Rastrear envío"} →
+                </Link>
+                {shipping.trackingHint ? (
+                  <p className="mt-2 text-xs text-neutral-500">{shipping.trackingHint}</p>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+        ) : null}
+        {preferWhatsApp ? (
+          <CheckoutWhatsAppCta
+            phone={whatsappPhone}
+            message={marketing.whatsappMessage}
+            orderId={order?.id}
+            copy={copy}
+          />
+        ) : (
+          <p>{copy.emailSent}</p>
+        )}
+      </StorefrontStatusPage>
     </>
   );
 }

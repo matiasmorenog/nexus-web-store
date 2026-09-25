@@ -1,6 +1,5 @@
 import {
   APP2_STORE_OWNER_EMAIL,
-  APP3_STORE_OWNER_EMAIL,
   SEED_CUSTOMER_EMAIL,
   STORE_OWNER_EMAIL,
 } from "../../prisma/seed-env";
@@ -19,7 +18,6 @@ import {
 const STORE_OWNER_BY_SLUG: Record<string, string> = {
   [APP1_STORE_SLUG]: STORE_OWNER_EMAIL,
   [APP2_STORE_SLUG]: APP2_STORE_OWNER_EMAIL,
-  [APP3_STORE_SLUG]: APP3_STORE_OWNER_EMAIL,
 };
 
 export type DemoPersonaKind = "customer" | "staff";

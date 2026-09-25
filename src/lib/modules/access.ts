@@ -21,7 +21,7 @@ export function storeHidesPlanCatalog(
   return slug === APP3_STORE_SLUG;
 }
 
-/** Manoviva: sin Mercado Pago (solo transferencia / bonifico). */
+/** Manoviva: sin Mercado Pago (efectivo + bonifico). */
 export function storeHidesMercadoPago(
   slug: string = getActiveStoreSlug(),
 ): boolean {

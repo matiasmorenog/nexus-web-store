@@ -72,6 +72,7 @@ export const app1Config: VerticalConfig = {
   },
   features: {
     checkout: true,
+    pickupOnly: false,
     catalog: true,
     catalogFilters: true,
     productSearch: true,

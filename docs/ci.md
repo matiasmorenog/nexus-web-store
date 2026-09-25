@@ -32,14 +32,17 @@ npm run lint
 
 No se duplican: Actions valida el código rápido; Vercel valida que compile y despliegue. El *Ignored Build Step* puede omitir preview en algunos PRs; por eso Actions no depende de Vercel para types/lint.
 
+### Builds pausados (Goat + Vaporx)
+
+Hasta nuevo aviso, **`goat-indumentaria`** y **`vaporx-store`** tienen Ignored Build Step = `exit 0` (y scripts repo siempre skip). **No hay Preview ni Production builds** en esas dos. **`manoviva-store` sigue buildando.** Cómo reanudar: ver `DEPLOY.md` → “Reanudar builds (Goat / Vaporx)”.
+
 ### Prioridad de checks en un PR
 
-Orden práctico (app1 es hoy la tienda más completa / demo full):
+Orden práctico (mientras Goat/Vaporx estén pausados, el único preview Vercel esperado es Manoviva):
 
 1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
-2. **`Vercel – goat-indumentaria`** (app1 / Goat) — **preview de build principal**
-3. **`Vercel – vaporx-store`** (app2 / VAPORX) — **complementario** (plan base, Ignored Build puede omitirlo; revisar si el PR toca `src/themes/app2/` o vertical app2)
-4. **`Vercel – manoviva-store`** (app3) — preview opcional; en merge a `main` deploya producción igual que Goat y Vape
+2. **`Vercel – manoviva-store`** (app3) — preview activo
+3. **`Vercel – goat-indumentaria`** / **`vaporx-store`** — **omitidos** (paused) hasta nuevo aviso
 
 No marcar los checks Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
 

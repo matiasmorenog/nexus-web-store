@@ -6,9 +6,9 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **goat-indumentaria**: `bash scripts/vercel-should-build-app1.sh`
-- [x] Ignored Build Step en **vaporx-store**: `bash scripts/vercel-should-build-app2.sh`
-- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh`
+- [x] Ignored Build Step en **goat-indumentaria**: `exit 0` (**PAUSED** hasta nuevo aviso; script repo también siempre skip)
+- [x] Ignored Build Step en **vaporx-store**: `exit 0` (**PAUSED** hasta nuevo aviso; script repo también siempre skip)
+- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh` (sigue activo)
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -166,15 +166,23 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 **Settings → Git → Ignored Build Step** (en cada proyecto):
 
-| Proyecto | Comando |
-|----------|---------|
-| app1 | `bash scripts/vercel-should-build-app1.sh` |
-| app2 | `bash scripts/vercel-should-build-app2.sh` |
-| app3 | `bash scripts/vercel-should-build-app3.sh` |
+| Proyecto | Comando | Estado |
+|----------|---------|--------|
+| app1 (`goat-indumentaria`) | `exit 0` | **PAUSED** — no builds Preview/Production hasta nuevo aviso |
+| app2 (`vaporx-store`) | `exit 0` | **PAUSED** — no builds Preview/Production hasta nuevo aviso |
+| app3 (`manoviva-store`) | `bash scripts/vercel-should-build-app3.sh` | Activo (selectivo) |
 
-Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
+Exit 0 = omitir build. Los scripts `scripts/vercel-should-build-app1.sh` / `app2.sh` también hacen `exit 0` con comentario `PAUSED until further notice` para alinear repo + dashboard.
 
-**Prioridad de preview en PRs:** `goat-indumentaria` (app1) es el build principal (demo más completa hoy); `vaporx-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
+### Reanudar builds (Goat / Vaporx)
+
+1. Restaurar la lógica selectiva en `scripts/vercel-should-build-app1.sh` y `app2.sh` (historial git previo al pause).
+2. En cada proyecto Vercel → **Settings → Git → Ignored Build Step** → volver a:
+   - Goat: `bash scripts/vercel-should-build-app1.sh`
+   - Vaporx: `bash scripts/vercel-should-build-app2.sh`
+3. Manoviva no se tocó; no hace falta reanudar nada ahí.
+
+**Prioridad de preview en PRs (cuando no estén pausados):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 

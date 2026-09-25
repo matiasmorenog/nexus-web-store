@@ -10,7 +10,7 @@ import { getMerchantEmailOptional } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import {
   SEED_ADMIN_EMAIL,
-  SEED_ADMIN_PASSWORD,
+  seedAdminPasswordForCurrentStore,
 } from "@/lib/demo-admin-credentials";
 import { isGoogleAuthEnabled } from "@/lib/auth-session";
 
@@ -99,7 +99,7 @@ export default async function AdminLoginPage({
               ) : null}
               <LoginForm
                 defaultEmail={ownerEmail}
-                defaultPassword={SEED_ADMIN_PASSWORD}
+                defaultPassword={seedAdminPasswordForCurrentStore()}
                 googleAuthEnabled={isGoogleAuthEnabled()}
                 copy={copy}
               />

@@ -11,7 +11,11 @@ import {
   APP3_STORE_SLUG,
 } from "@/lib/store-slugs";
 
-/** Emails alineados con `prisma/seed-env.ts`. Sin contraseñas. */
+/**
+ * Emails alineados con `prisma/seed-env.ts`. Sin contraseñas.
+ * Manoviva (app3) is a real store: no demo staff persona for the owner
+ * (passwordless demo login must not impersonate production owner).
+ */
 const STORE_OWNER_BY_SLUG: Record<string, string> = {
   [APP1_STORE_SLUG]: STORE_OWNER_EMAIL,
   [APP2_STORE_SLUG]: APP2_STORE_OWNER_EMAIL,
@@ -32,17 +36,20 @@ export function demoPersonasForStore(
   slug: string = getPublicStoreSlug(),
   kind: DemoPersonaKind | "all" = "all",
 ): DemoPersonaSpec[] {
-  const owner = STORE_OWNER_BY_SLUG[slug];
   const personas: DemoPersonaSpec[] = [];
 
-  if (owner) {
-    personas.push({
-      id: "staff-owner",
-      kind: "staff",
-      email: owner,
-      label: "Admin de la tienda",
-      description: "Dueño del seed de esta tienda. Entra al panel.",
-    });
+  // Real Manoviva owner is never a passwordless demo persona.
+  if (slug !== APP3_STORE_SLUG) {
+    const owner = STORE_OWNER_BY_SLUG[slug];
+    if (owner) {
+      personas.push({
+        id: "staff-owner",
+        kind: "staff",
+        email: owner,
+        label: "Admin de la tienda",
+        description: "Dueño del seed de esta tienda. Entra al panel.",
+      });
+    }
   }
 
   if (slug === APP1_STORE_SLUG) {

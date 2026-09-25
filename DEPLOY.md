@@ -31,7 +31,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 **Por qué `vaporx-store` (no `vape-store`):** el hostname global `vape-store.vercel.app` ya está tomado por otra cuenta (sitio “Smoke & Vape Co.” / Colorado Springs). Renombrar el proyecto a `vape-store` no reclama ese alias. Elegimos `vaporx-store` (marca VAPORX, hostname libre). No usar `https://vape-store.vercel.app` en env ni docs.
 
-Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
+Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.
 
 **Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`) hasta que exista el branch Neon `development` y se pueda guardar en el usuario. Producción de Manoviva debe apuntar al branch Neon `main`; local y preview, al branch `development`. Ese corte de base todavía no está creado: no hacer `db push` ni seed contra el Neon compartido actual.
 

@@ -14,12 +14,19 @@ import { useCartStore } from "@/stores/cart-store";
 import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { formatPrice } from "@/lib/utils";
 import { getClientVariantLabels } from "@/lib/variant-labels";
-import type { CheckoutPaymentConfig } from "@/lib/payments";
-import { calculateTransferPaymentDiscount } from "@/lib/payments";
+import type { CheckoutPaymentConfig, CheckoutPaymentMethodOption } from "@/lib/payments";
+import {
+  calculateTransferPaymentDiscount,
+  defaultCheckoutPaymentMethod,
+} from "@/lib/payments";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
+import { storefrontPath } from "@/lib/storefront-paths";
 
 type CheckoutViewProps = {
   shippingCost: number;
   allowPickup: boolean;
+  pickupOnly?: boolean;
   storeName: string;
   couponsEnabled?: boolean;
   dynamicShippingEnabled?: boolean;
@@ -33,19 +40,19 @@ type CheckoutViewProps = {
 export function CheckoutView({
   shippingCost,
   allowPickup,
+  pickupOnly = false,
   storeName,
   couponsEnabled = false,
   dynamicShippingEnabled = false,
   paymentConfig,
   defaultCustomer,
 }: CheckoutViewProps) {
+  const localeCopy = getLocaleCopy(getClientStorefrontConfig().locale);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCheckoutCoupon | null>(
     null,
   );
-  const [paymentMethod, setPaymentMethod] = useState<"mercadopago" | "transfer">(
-    paymentConfig.transferAvailable && !paymentConfig.mercadopagoAvailable
-      ? "transfer"
-      : "mercadopago",
+  const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethodOption>(
+    () => defaultCheckoutPaymentMethod(paymentConfig),
   );
   const variantLabels = getClientVariantLabels();
   const items = useCartStore((s) => s.items);
@@ -68,12 +75,10 @@ export function CheckoutView({
     return (
       <div className="mx-auto max-w-lg px-4 py-16 sm:px-6">
         <div className="storefront-card border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-12 text-center">
-          <p className="font-medium text-neutral-900">Tu carrito está vacío</p>
-          <p className="mt-2 text-sm text-neutral-500">
-            Agregá productos antes de continuar al checkout.
-          </p>
-          <Link href="/productos" className="mt-5 inline-block">
-            <Button>Ver productos</Button>
+          <p className="font-medium text-neutral-900">{localeCopy.emptyCart}</p>
+          <p className="mt-2 text-sm text-neutral-500">{localeCopy.emptyCartHint}</p>
+          <Link href={storefrontPath("catalog")} className="mt-5 inline-block">
+            <Button>{localeCopy.seeProducts}</Button>
           </Link>
         </div>
       </div>
@@ -84,10 +89,10 @@ export function CheckoutView({
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <StorefrontReveal index={0}>
         <StorefrontPageHeader
-          title="Checkout"
-          description="Completá tus datos para finalizar la compra."
-          backHref="/carrito"
-          backLabel="Volver al carrito"
+          title={localeCopy.checkoutTitle}
+          description={localeCopy.checkoutDescription}
+          backHref={storefrontPath("cart")}
+          backLabel={localeCopy.backToCart}
         />
       </StorefrontReveal>
 
@@ -99,6 +104,7 @@ export function CheckoutView({
           <CheckoutForm
             shippingCost={shippingCost}
             allowPickup={allowPickup}
+            pickupOnly={pickupOnly}
             storeName={storeName}
             showSummary={false}
             defaultCustomer={defaultCustomer}
@@ -114,7 +120,7 @@ export function CheckoutView({
 
         <aside className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-            Tu pedido
+            {localeCopy.yourOrder}
           </h2>
           <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto border-b border-neutral-100 pb-4">
             {items.map((item) => {
@@ -123,30 +129,30 @@ export function CheckoutView({
               };
 
               return (
-              <li key={item.variantId} className="flex gap-3">
-                <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-100 ring-1 ring-neutral-200/60">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.productName}
-                    fill
-                    className="object-cover"
-                    sizes="44px"
-                  />
-                </div>
-                <div className="min-w-0 flex-1 text-sm">
-                  <p className="line-clamp-2 font-medium text-neutral-900">
-                    {item.productName}
+                <li key={item.variantId} className="flex gap-3">
+                  <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-100 ring-1 ring-neutral-200/60">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      fill
+                      className="object-cover"
+                      sizes="44px"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1 text-sm">
+                    <p className="line-clamp-2 font-medium text-neutral-900">
+                      {item.productName}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {variantLabels.secondary}: {item.size} · {variantLabels.primary}:{" "}
+                      {item.color} × {item.quantity}
+                    </p>
+                  </div>
+                  <p className="shrink-0 text-sm font-medium">
+                    {formatPrice(pricing.lineTotal)}
                   </p>
-                  <p className="text-xs text-neutral-500">
-                    {variantLabels.secondary}: {item.size} · {variantLabels.primary}:{" "}
-                    {item.color} × {item.quantity}
-                  </p>
-                </div>
-                <p className="shrink-0 text-sm font-medium">
-                  {formatPrice(pricing.lineTotal)}
-                </p>
-              </li>
-            );
+                </li>
+              );
             })}
           </ul>
           <div className="mt-4">
@@ -161,7 +167,7 @@ export function CheckoutView({
             />
           </div>
           <p className="mt-2 text-xs text-neutral-400">
-            Envío o retiro según elijas en el formulario.
+            {pickupOnly ? localeCopy.pickupOnlyHint : localeCopy.shippingOrPickupHint}
           </p>
         </aside>
       </StorefrontReveal>

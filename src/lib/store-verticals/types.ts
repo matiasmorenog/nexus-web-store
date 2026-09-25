@@ -21,6 +21,10 @@ export type VariantLabels = {
 
 export type VerticalFeatures = {
   checkout: boolean;
+  /**
+   * Only local pickup — hide shipping / carrier options (Manoviva).
+   */
+  pickupOnly: boolean;
   catalog: boolean;
   catalogFilters: boolean;
   productSearch: boolean;

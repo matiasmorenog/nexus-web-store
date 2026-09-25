@@ -11,7 +11,7 @@ import {
   DEFAULT_STORE_SLUG,
   APP2_STORE_SLUG,
   APP3_STORE_SLUG,
-  SEED_STORES,
+  getSeedStores,
   SEED_CUSTOMER_EMAIL,
   SEED_CUSTOMER_NAME,
   SEED_CUSTOMER_PASSWORD,
@@ -64,9 +64,9 @@ function seedVariantStock(
 }
 
 function getStoreConfig(slug: string): SeedStoreConfig {
-  const config = SEED_STORES.find((store) => store.slug === slug);
+  const config = getSeedStores().find((store) => store.slug === slug);
   if (!config) {
-    throw new Error(`Slug "${slug}" no está en prisma/seed-env.ts → SEED_STORES`);
+    throw new Error(`Slug "${slug}" no está en prisma/seed-env.ts → getSeedStores()`);
   }
   return config;
 }
@@ -120,6 +120,12 @@ const DEMO_TRANSFER_INSTRUCTIONS = `Titular: Demo Store
 Banco: Banco Demo
 CBU: 0000000000000000000000
 Alias: demo.store.mp`;
+
+/** Placeholder only — never real bank details. Used when Manoviva enables bonifico. */
+const MANOVIVA_TRANSFER_INSTRUCTIONS_TEMPLATE = `Intestatario: Manoviva
+Banca: ...
+IBAN: IT60X0542811101000000123456
+BIC/SWIFT: ...`;
 
 async function seedDemoPaymentSettings(storeId: string) {
   await prisma.storePaymentSettings.upsert({
@@ -279,8 +285,14 @@ async function seedDisabledApp3Commerce(storeId: string) {
   await Promise.all([
     prisma.storePaymentSettings.upsert({
       where: { storeId },
-      create: { storeId, transferEnabled: false },
-      update: { transferEnabled: false, transferInstructions: null },
+      create: {
+        storeId,
+        transferEnabled: true,
+        transferInstructions: MANOVIVA_TRANSFER_INSTRUCTIONS_TEMPLATE,
+      },
+      update: {
+        transferEnabled: true,
+      },
     }),
     prisma.storeShippingSettings.upsert({
       where: { storeId },
@@ -293,13 +305,11 @@ async function seedDisabledApp3Commerce(storeId: string) {
         storeId,
         whatsappEnabled: false,
         whatsappMessage:
-          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+          "Ciao! Vorrei informazioni sul mio ordine Manoviva.",
       },
       update: {
-        whatsappEnabled: false,
-        whatsappPhone: null,
         whatsappMessage:
-          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+          "Ciao! Vorrei informazioni sul mio ordine Manoviva.",
       },
     }),
   ]);

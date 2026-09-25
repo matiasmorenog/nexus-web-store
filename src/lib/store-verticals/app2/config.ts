@@ -68,6 +68,7 @@ export const app2Config: VerticalConfig = {
   },
   features: {
     checkout: true,
+    pickupOnly: false,
     catalog: true,
     catalogFilters: true,
     productSearch: true,
@@ -79,6 +80,7 @@ export const app2Config: VerticalConfig = {
     showAudienceFilter: false,
     sizeGuide: false,
     ageNotice: true,
+    productSizeToggle: false,
   },
   variantLabels: {
     primary: "Sabor",

@@ -1,9 +1,16 @@
-import { ADMIN_PRODUCT_SORT_OPTIONS } from "@/lib/admin-product-sort";
+import {
+  getAdminProductSortOptions,
+  type AdminProductSort,
+} from "@/lib/admin-product-sort";
 import {
   getAudienceLabel,
   getCategoryLabel,
 } from "@/lib/categories";
 import type { AdminProductsFilterParams } from "@/lib/admin-products-query";
+import {
+  getAdminProductsCopy,
+  type AdminLocale,
+} from "@/lib/admin-locale";
 
 export type AdminFilterChip = {
   key: string;
@@ -21,16 +28,22 @@ export const ADMIN_PRODUCT_FILTER_PARAMS = [
   "orden",
 ] as const;
 
-const PRODUCT_ESTADO_LABELS: Record<string, string> = {
-  destacado: "Destacado",
-  "2x1": "2x1",
-  normal: "Normal",
-};
+function productEstadoLabels(locale: AdminLocale): Record<string, string> {
+  const copy = getAdminProductsCopy(locale);
+  return {
+    destacado: copy.statusFeatured,
+    "2x1": copy.statusPromo2x1,
+    normal: copy.statusNormal,
+  };
+}
 
 export function getActiveAdminProductFilterChips(
   params: AdminProductsFilterParams,
+  locale: AdminLocale = "es",
 ): AdminFilterChip[] {
   const chips: AdminFilterChip[] = [];
+  const copy = getAdminProductsCopy(locale);
+  const estadoLabels = productEstadoLabels(locale);
 
   const searchQuery = params.q?.trim();
   if (searchQuery) {
@@ -50,9 +63,17 @@ export function getActiveAdminProductFilterChips(
   }
 
   if (params.genero) {
+    const audienceKey =
+      params.genero === "hombre"
+        ? "audienceHombre"
+        : params.genero === "mujer"
+          ? "audienceMujer"
+          : params.genero === "unisex"
+            ? "audienceUnisex"
+            : null;
     chips.push({
       key: "genero",
-      label: getAudienceLabel(params.genero),
+      label: audienceKey ? copy[audienceKey] : getAudienceLabel(params.genero),
       removeParams: ["genero"],
     });
   }
@@ -60,7 +81,7 @@ export function getActiveAdminProductFilterChips(
   if (params.estado) {
     chips.push({
       key: "estado",
-      label: PRODUCT_ESTADO_LABELS[params.estado] ?? params.estado,
+      label: estadoLabels[params.estado] ?? params.estado,
       removeParams: ["estado"],
     });
   }
@@ -68,20 +89,20 @@ export function getActiveAdminProductFilterChips(
   if (params.stock === "sin-stock") {
     chips.push({
       key: "stock",
-      label: "Con variantes sin stock",
+      label: copy.stockPartial,
       removeParams: ["stock"],
     });
   } else if (params.stock === "agotado") {
     chips.push({
       key: "stock",
-      label: "Agotados",
+      label: copy.stockSoldOut,
       removeParams: ["stock"],
     });
   }
 
   if (params.orden && params.orden !== "recientes") {
-    const sortLabel = ADMIN_PRODUCT_SORT_OPTIONS.find(
-      (option) => option.value === params.orden,
+    const sortLabel = getAdminProductSortOptions(locale).find(
+      (option) => option.value === (params.orden as AdminProductSort),
     )?.label;
 
     chips.push({

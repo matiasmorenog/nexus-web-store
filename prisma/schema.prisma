@@ -78,6 +78,7 @@ model Coupon {
 enum CheckoutPaymentMethod {
   MERCADO_PAGO
   TRANSFER
+  CASH
 }
 
 model Store {
@@ -338,6 +339,8 @@ model Product {
   audience    String   @default("unisex")
   featured    Boolean  @default(false)
   promo2x1    Boolean  @default(false)
+  /** When false, product sells without a size/formato option axis (single size sentinel). */
+  hasSize     Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

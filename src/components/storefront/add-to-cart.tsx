@@ -27,6 +27,7 @@ type AddToCartProps = {
   productSlug: string;
   promo2x1?: boolean;
   showSizeGuideLink?: boolean;
+  hasSize?: boolean;
   variantLabels?: VariantLabels;
   variants: Variant[];
 };
@@ -41,6 +42,7 @@ export function AddToCart({
   productSlug,
   promo2x1 = false,
   showSizeGuideLink = false,
+  hasSize = true,
   variantLabels = { primary: "Color", secondary: "Talle" },
   variants,
 }: AddToCartProps) {
@@ -141,42 +143,44 @@ export function AddToCart({
         </div>
       </div>
 
-      <div>
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-sm font-medium">{variantLabels.secondary}</p>
-          {showSizeGuideLink && (
-            <button
-              type="button"
-              onClick={scrollToSizeGuide}
-              className="text-xs font-medium text-[var(--brand-primary)] underline-offset-2 transition-colors hover:underline"
-            >
-              Guía de talles
-            </button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {sizes.map((size) => {
-            const available = availableSizes.includes(size);
-            return (
+      {hasSize ? (
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-sm font-medium">{variantLabels.secondary}</p>
+            {showSizeGuideLink && (
               <button
-                key={size}
-                disabled={!available}
-                onClick={() => setSelectedSize(size)}
-                className={cn(
-                  "min-w-[3rem] rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-                  selectedSize === size
-                    ? "border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white"
-                    : available
-                      ? "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
-                      : "cursor-not-allowed border-neutral-100 bg-neutral-50 text-neutral-300 line-through",
-                )}
+                type="button"
+                onClick={scrollToSizeGuide}
+                className="text-xs font-medium text-[var(--brand-primary)] underline-offset-2 transition-colors hover:underline"
               >
-                {size}
+                Guía de talles
               </button>
-            );
-          })}
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((size) => {
+              const available = availableSizes.includes(size);
+              return (
+                <button
+                  key={size}
+                  disabled={!available}
+                  onClick={() => setSelectedSize(size)}
+                  className={cn(
+                    "min-w-[3rem] rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                    selectedSize === size
+                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white"
+                      : available
+                        ? "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
+                        : "cursor-not-allowed border-neutral-100 bg-neutral-50 text-neutral-300 line-through",
+                  )}
+                >
+                  {size}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {selectedVariant && (
         <p className="text-2xl font-bold">{formatPrice(Number(selectedVariant.price))}</p>

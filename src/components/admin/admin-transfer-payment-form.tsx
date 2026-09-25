@@ -11,7 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
 import { transferPaymentDiscountLabel } from "@/lib/payments";
+import {
+  getBankingRegion,
+  getTransferAdminCopy,
+} from "@/lib/payments/transfer-copy";
 import type { StorePaymentSettingsAdminData } from "@/lib/payments";
 
 type AdminTransferPaymentFormProps = {
@@ -25,6 +30,10 @@ export function AdminTransferPaymentForm({
   initialSettings,
 }: AdminTransferPaymentFormProps) {
   const router = useRouter();
+  const copy = getTransferAdminCopy(
+    getBankingRegion(),
+    readAdminLocaleFromDocument(),
+  );
   const [transferEnabled, setTransferEnabled] = useState(
     initialSettings.transferEnabled,
   );
@@ -54,7 +63,7 @@ export function AdminTransferPaymentForm({
       const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar la configuración.");
+        throw new Error(data.error ?? copy.errorFallback);
       }
 
       setSaved(true);
@@ -63,7 +72,7 @@ export function AdminTransferPaymentForm({
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "No se pudo guardar la configuración.",
+          : copy.errorFallback,
       );
     } finally {
       setLoading(false);
@@ -72,8 +81,8 @@ export function AdminTransferPaymentForm({
 
   return (
     <AdminCard
-      title="Transferencia bancaria"
-      description={`Ofrecé pago por transferencia con ${transferPaymentDiscountLabel()} de descuento automático en productos.`}
+      title={copy.title}
+      description={copy.description(transferPaymentDiscountLabel())}
       className="max-w-lg"
     >
       <AdminForm onSubmit={handleSubmit} className="space-y-4">
@@ -82,11 +91,11 @@ export function AdminTransferPaymentForm({
             checked={transferEnabled}
             onChange={(event) => setTransferEnabled(event.target.checked)}
           />
-          Activar transferencia en checkout
+          {copy.enableLabel}
         </label>
 
         <div>
-          <Label htmlFor="transfer-instructions">Datos para transferir</Label>
+          <Label htmlFor="transfer-instructions">{copy.instructionsLabel}</Label>
           <textarea
             id="transfer-instructions"
             name="transferInstructions"
@@ -94,25 +103,20 @@ export function AdminTransferPaymentForm({
             value={transferInstructions}
             disabled={!transferEnabled}
             onChange={(event) => setTransferInstructions(event.target.value)}
-            placeholder={"Titular: Mi Tienda SA\nBanco: ...\nCBU: ...\nAlias: mi.tienda.mp"}
+            placeholder={copy.instructionsPlaceholder}
             className="mt-1.5 flex w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1 disabled:bg-neutral-50 disabled:text-neutral-500"
           />
-          <p className="mt-1.5 text-xs text-neutral-500">
-            El cliente ve estas instrucciones al confirmar el pedido. Requeridas
-            para habilitar el método en checkout.
-          </p>
+          <p className="mt-1.5 text-xs text-neutral-500">{copy.instructionsHint}</p>
         </div>
 
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (
-          <AdminFormAlert variant="success">
-            Configuración de transferencia guardada.
-          </AdminFormAlert>
+          <AdminFormAlert variant="success">{copy.savedMessage}</AdminFormAlert>
         ) : null}
 
         <AdminFormActions>
           <Button type="submit" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar transferencia"}
+            {loading ? copy.savingLabel : copy.saveLabel}
           </Button>
         </AdminFormActions>
       </AdminForm>

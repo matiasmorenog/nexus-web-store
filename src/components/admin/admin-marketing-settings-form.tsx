@@ -64,6 +64,7 @@ export function AdminMarketingSettingsForm({
       <AdminCard
         title="WhatsApp"
         description="Botón flotante en el storefront para que los clientes te escriban."
+        className="max-w-lg"
       >
         <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
           <Switch
@@ -114,6 +115,7 @@ export function AdminMarketingSettingsForm({
       <AdminCard
         title="Meta Pixel"
         description="Seguimiento de conversiones. Registra PageView y Purchase al confirmar pedido."
+        className="max-w-lg"
       >
         <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
           <Switch
@@ -127,7 +129,7 @@ export function AdminMarketingSettingsForm({
           />
           Activar Meta Pixel
         </label>
-        <div className="max-w-md">
+        <div>
           <Label htmlFor="meta-pixel-id">Pixel ID</Label>
           <Input
             id="meta-pixel-id"

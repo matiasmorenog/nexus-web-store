@@ -25,6 +25,7 @@ import {
   createVariant,
   deleteProductColor,
   deleteVariant,
+  updateProductHasSize,
   updateVariant,
   upsertProductColor,
 } from "@/lib/admin-actions";
@@ -34,12 +35,19 @@ import {
   normalizeVariantColor,
 } from "@/lib/variant-images";
 import { cn, formatPrice } from "@/lib/utils";
-import { getClientVariantLabels } from "@/lib/variant-labels";
+import { getAdminVariantLabels } from "@/lib/variant-labels";
+import {
+  adminProductOptions,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
+import { SIZELESS_SIZE_VALUE } from "@/lib/product-size";
 import type { VariantLabels } from "@/lib/store-verticals/types";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export type VariantRow = {
   id: string;
@@ -54,6 +62,8 @@ export type VariantRow = {
 
 type VariantManagerProps = {
   productId: string;
+  hasSize: boolean;
+  onHasSizeChange?: (hasSize: boolean) => void;
   variants: VariantRow[];
   variantsLoading?: boolean;
   variantsFetched?: boolean;
@@ -210,9 +220,7 @@ function NewColorRow({
           primaryLabel={variantLabels.primary}
         />
         <p className="mt-3 text-xs text-neutral-400">
-          Se crea el {variantLabels.secondary.toLowerCase()}{" "}
-          {variantLabels.secondaryInitial ?? "M"} con stock 0 para que puedas sumar más{" "}
-          {variantLabels.secondary.toLowerCase()}s en variantes.
+          Se crea con stock 0 para que puedas sumar variantes después.
         </p>
       </AdminTableCell>
     </AdminTableRow>
@@ -391,7 +399,7 @@ export function ProductColorsCard({
   onBlockedToggle?: () => void;
   blockedHint?: number;
 }) {
-  const variantLabels = getClientVariantLabels();
+  const variantLabels = getAdminVariantLabels();
   const primaryPlural = pluralPrimaryLabel(variantLabels.primary);
   const [activeEdit, setActiveEdit] = useState<ColorEdit>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -548,11 +556,13 @@ function VariantFormFields({
   values,
   colors,
   variantLabels,
+  hasSize,
 }: {
   formId: string;
   values?: Partial<VariantFormValues>;
   colors: string[];
   variantLabels: VariantLabels;
+  hasSize: boolean;
 }) {
   return (
     <AdminFormGrid columns={4} className="gap-3">
@@ -574,15 +584,19 @@ function VariantFormFields({
           ))}
         </AdminSelect>
       </div>
-      <div>
-        <Label htmlFor={`${formId}-size`}>{variantLabels.secondary}</Label>
-        <Input
-          id={`${formId}-size`}
-          name="size"
-          defaultValue={values?.size ?? variantLabels.secondaryInitial ?? "M"}
-          required
-        />
-      </div>
+      {hasSize ? (
+        <div>
+          <Label htmlFor={`${formId}-size`}>{variantLabels.secondary}</Label>
+          <Input
+            id={`${formId}-size`}
+            name="size"
+            defaultValue={values?.size ?? variantLabels.secondaryInitial ?? "M"}
+            required
+          />
+        </div>
+      ) : (
+        <input type="hidden" name="size" value={SIZELESS_SIZE_VALUE} />
+      )}
       <div>
         <Label htmlFor={`${formId}-price`}>Precio</Label>
         <Input
@@ -622,6 +636,7 @@ function VariantInlineForm({
   onCancel,
   blockedHint = 0,
   variantLabels,
+  hasSize,
 }: {
   formId: string;
   title: string;
@@ -634,6 +649,7 @@ function VariantInlineForm({
   onCancel: () => void;
   blockedHint?: number;
   variantLabels: VariantLabels;
+  hasSize: boolean;
 }) {
   const rowRef = useRef<HTMLTableRowElement>(null);
 
@@ -655,6 +671,7 @@ function VariantInlineForm({
               values={values}
               colors={colors}
               variantLabels={variantLabels}
+              hasSize={hasSize}
             />
             <AdminFormActions sticky>
               <Button type="submit" size="sm" disabled={loading}>
@@ -686,6 +703,7 @@ function NewVariantRow({
   onVariantsReload,
   blockedHint = 0,
   variantLabels,
+  hasSize,
 }: {
   productId: string;
   colors: string[];
@@ -694,6 +712,7 @@ function NewVariantRow({
   onVariantsReload?: () => Promise<void>;
   blockedHint?: number;
   variantLabels: VariantLabels;
+  hasSize: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -725,6 +744,7 @@ function NewVariantRow({
       onCancel={onCancel}
       blockedHint={blockedHint}
       variantLabels={variantLabels}
+      hasSize={hasSize}
     />
   );
 }
@@ -740,6 +760,7 @@ function VariantEditRow({
   onBlockedToggle,
   blockedHint = 0,
   variantLabels,
+  hasSize,
 }: {
   variant: VariantRow;
   colors: string[];
@@ -751,6 +772,7 @@ function VariantEditRow({
   onBlockedToggle?: () => void;
   blockedHint?: number;
   variantLabels: VariantLabels;
+  hasSize: boolean;
 }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -785,11 +807,15 @@ function VariantEditRow({
     }
   };
 
+  const variantLabel = hasSize
+    ? `${variant.size} / ${variant.color}`
+    : variant.color;
+
   if (isEditing) {
     return (
       <VariantInlineForm
         formId={`variant-${variant.id}`}
-        title={`Editar: ${variant.size} / ${variant.color}`}
+        title={`Editar: ${variantLabel}`}
         values={variant}
         colors={colors}
         submitLabel="Guardar"
@@ -799,6 +825,7 @@ function VariantEditRow({
         onCancel={onCancelEdit}
         blockedHint={blockedHint}
         variantLabels={variantLabels}
+        hasSize={hasSize}
       />
     );
   }
@@ -809,11 +836,11 @@ function VariantEditRow({
         <AdminTableCell>
           <ProductThumbnail
             src={variant.imageUrl}
-            alt={`${variant.size} ${variant.color}`}
+            alt={variantLabel}
           />
         </AdminTableCell>
         <AdminTableCell className="font-medium text-neutral-900">
-          {variant.size} / {variant.color}
+          {variantLabel}
         </AdminTableCell>
         <AdminTableCell className="font-mono text-xs text-neutral-500">
           {variant.sku}
@@ -837,7 +864,7 @@ function VariantEditRow({
         <AdminTableCell>
           <AdminTableActions>
             <AdminTableIconAction
-              label={`Editar variante ${variant.size} / ${variant.color}`}
+              label={`Editar variante ${variantLabel}`}
               icon={Pencil}
               onClick={() => {
                 if (editDisabled) {
@@ -852,7 +879,7 @@ function VariantEditRow({
             />
             {variant.orderItemCount === 0 ? (
               <AdminTableIconAction
-                label={`Eliminar variante ${variant.size} / ${variant.color}`}
+                label={`Eliminar variante ${variantLabel}`}
                 icon={Trash2}
                 onClick={() => {
                   if (editDisabled) {
@@ -873,7 +900,7 @@ function VariantEditRow({
       <AdminConfirmDialog
         open={confirmOpen}
         title="Eliminar variante"
-        description={`¿Eliminar la variante ${variant.size} / ${variant.color}? Esta acción no se puede deshacer.`}
+        description={`¿Eliminar la variante ${variantLabel}? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         loading={loading}
         onConfirm={() => void handleDelete()}
@@ -887,6 +914,8 @@ function VariantEditRow({
 
 export function VariantManager({
   productId,
+  hasSize,
+  onHasSizeChange,
   variants,
   variantsLoading = false,
   variantsFetched = false,
@@ -900,12 +929,19 @@ export function VariantManager({
   onBlockedToggle,
   blockedHint = 0,
 }: VariantManagerProps) {
-  const variantLabels = getClientVariantLabels();
-  const variantColumnLabel = `${variantLabels.secondary} / ${variantLabels.primary}`;
+  const locale = readAdminLocaleFromDocument();
+  const optionsCopy = adminProductOptions[locale];
+  const variantLabels = getAdminVariantLabels(locale);
+  const sizeToggle = getClientStorefrontConfig().features.productSizeToggle;
+  const variantColumnLabel = hasSize
+    ? `${variantLabels.secondary} / ${variantLabels.primary}`
+    : variantLabels.primary;
   const [activeEdit, setActiveEdit] = useState<ActiveEdit>(null);
+  const [sizeBusy, setSizeBusy] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
 
   const productColors = useMemo(() => getUniqueProductColors(variants), [variants]);
-  const isBusy = activeEdit !== null;
+  const isBusy = activeEdit !== null || sizeBusy;
   const canAddVariant = variantsFetched && productColors.length > 0;
   const showLoading = variantsLoading && !variantsFetched;
 
@@ -924,8 +960,26 @@ export function VariantManager({
     setActiveEdit({ type: "edit", id: variantId });
   };
 
+  const handleHasSizeChange = async (next: boolean) => {
+    setSizeBusy(true);
+    setSizeError(null);
+    try {
+      await updateProductHasSize(productId, next);
+      onHasSizeChange?.(next);
+      await onVariantsReload?.();
+    } catch (err) {
+      setSizeError(
+        err instanceof Error ? err.message : "No se pudo actualizar el tamaño",
+      );
+    } finally {
+      setSizeBusy(false);
+    }
+  };
+
   const variantSummary = !variantsFetched
-    ? `${variantLabels.secondary}s, precio y stock`
+    ? hasSize
+      ? `${variantLabels.secondary}s, precio y stock`
+      : `Precio y stock por ${variantLabels.primary.toLowerCase()}`
     : `${variants.length} variante${variants.length !== 1 ? "s" : ""} registrada${variants.length !== 1 ? "s" : ""}.`;
 
   return (
@@ -938,7 +992,9 @@ export function VariantManager({
       title={variantsFetched ? `Variantes (${variants.length})` : "Variantes"}
       description={
         open
-          ? `${variantLabels.secondary}s, precio y stock por variante.`
+          ? hasSize
+            ? `${variantLabels.secondary}s, precio y stock por variante.`
+            : `Precio y stock por ${variantLabels.primary.toLowerCase()}.`
           : variantSummary
       }
       action={
@@ -961,6 +1017,28 @@ export function VariantManager({
           </Button>
         }
       >
+        {sizeToggle ? (
+          <div className="border-b border-neutral-100 px-4 py-4 sm:px-6">
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+              <Switch
+                checked={hasSize}
+                disabled={accordionLocked || sizeBusy}
+                onChange={(event) => {
+                  void handleHasSizeChange(event.target.checked);
+                }}
+                aria-label={optionsCopy.sizeToggle}
+              />
+              {optionsCopy.sizeToggle}
+            </label>
+            <p className="mt-1.5 text-xs text-neutral-500">
+              {optionsCopy.sizeToggleHint}
+            </p>
+            {sizeError ? (
+              <p className="mt-2 text-sm text-red-600">{sizeError}</p>
+            ) : null}
+          </div>
+        ) : null}
+
         {showLoading ? (
           <AdminDataTableSkeleton
             columns={[
@@ -1001,6 +1079,7 @@ export function VariantManager({
             onVariantsReload={onVariantsReload}
             blockedHint={blockedHint}
             variantLabels={variantLabels}
+            hasSize={hasSize}
           />
         )}
         {variants.map((variant) => {
@@ -1020,6 +1099,7 @@ export function VariantManager({
               blockedHint={blockedHint}
               onBlockedToggle={onBlockedToggle}
               variantLabels={variantLabels}
+              hasSize={hasSize}
             />
           );
         })}

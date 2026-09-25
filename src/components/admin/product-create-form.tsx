@@ -11,7 +11,13 @@ import {
   AdminTextarea,
 } from "@/components/admin/admin-form";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
-import { getClientVariantLabels } from "@/lib/variant-labels";
+import { getAdminVariantLabels } from "@/lib/variant-labels";
+import {
+  adminProductOptions,
+  getAdminProductsCopy,
+  readAdminLocaleFromDocument,
+} from "@/lib/admin-locale";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { AdminMotion, BlockedEditHint } from "@/components/admin/admin-motion";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -19,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ProductCategoryDef } from "@/lib/store-verticals/types";
+import { SIZELESS_SIZE_VALUE } from "@/lib/product-size";
 
 type ProductCreateFormProps = {
   onClose: () => void;
@@ -35,7 +42,12 @@ export function ProductCreateForm({
   categories,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
-  const variantLabels = getClientVariantLabels();
+  const locale = readAdminLocaleFromDocument();
+  const optionsCopy = adminProductOptions[locale];
+  const productsCopy = getAdminProductsCopy(locale);
+  const variantLabels = getAdminVariantLabels(locale);
+  const sizeToggle = getClientStorefrontConfig().features.productSizeToggle;
+  const [hasSize, setHasSize] = useState(!sizeToggle);
   const showPromo2x1 = promo2x1Selectable;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -51,8 +63,8 @@ export function ProductCreateForm({
   return (
     <AdminMotion variant="panel">
       <AdminCard
-        title="Nuevo producto"
-        description="Completá los datos del producto y su primera variante."
+        title={productsCopy.newProduct}
+        description={productsCopy.createDescription}
         padding={false}
       >
         <div className={adminBlockedEditShellClass}>
@@ -83,17 +95,46 @@ export function ProductCreateForm({
                     required
                   />
                 </div>
+
+                {sizeToggle ? (
+                  <div className="sm:col-span-2">
+                    <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+                      <Switch
+                        id="hasSize"
+                        name="hasSize"
+                        checked={hasSize}
+                        onChange={(event) => setHasSize(event.target.checked)}
+                      />
+                      {optionsCopy.sizeToggle}
+                    </label>
+                    <p className="mt-1.5 text-xs text-neutral-500">
+                      {optionsCopy.sizeToggleHint}
+                    </p>
+                  </div>
+                ) : (
+                  <input type="hidden" name="hasSize" value="on" />
+                )}
+
+                {hasSize ? (
+                  <div>
+                    <Label htmlFor="size">
+                      {optionsCopy.sizeInitial(variantLabels.secondary)}
+                    </Label>
+                    <Input
+                      id="size"
+                      name="size"
+                      defaultValue={variantLabels.secondaryInitial ?? "M"}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <input type="hidden" name="size" value={SIZELESS_SIZE_VALUE} />
+                )}
+
                 <div>
-                  <Label htmlFor="size">{variantLabels.secondary} inicial</Label>
-                  <Input
-                    id="size"
-                    name="size"
-                    defaultValue={variantLabels.secondaryInitial ?? "M"}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="color">{variantLabels.primary} inicial</Label>
+                  <Label htmlFor="color">
+                    {optionsCopy.primaryInitial(variantLabels.primary)}
+                  </Label>
                   <Input
                     id="color"
                     name="color"

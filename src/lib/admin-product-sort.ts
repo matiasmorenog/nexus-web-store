@@ -1,20 +1,38 @@
 import { sortProducts, type ProductSort } from "@/lib/product-sort";
+import {
+  getAdminProductsCopy,
+  type AdminLocale,
+} from "@/lib/admin-locale";
 
-export const ADMIN_PRODUCT_SORT_OPTIONS = [
-  { value: "recientes", label: "Más recientes" },
-  { value: "nombre-asc", label: "Nombre A–Z" },
-  { value: "nombre-desc", label: "Nombre Z–A" },
-  { value: "precio-asc", label: "Precio: menor a mayor" },
-  { value: "precio-desc", label: "Precio: mayor a menor" },
-  { value: "categoria", label: "Categoría" },
-  { value: "variantes-desc", label: "Más variantes" },
+export const ADMIN_PRODUCT_SORT_VALUES = [
+  "recientes",
+  "nombre-asc",
+  "nombre-desc",
+  "precio-asc",
+  "precio-desc",
+  "categoria",
+  "variantes-desc",
 ] as const;
 
-export type AdminProductSort = (typeof ADMIN_PRODUCT_SORT_OPTIONS)[number]["value"];
+export type AdminProductSort = (typeof ADMIN_PRODUCT_SORT_VALUES)[number];
 
-const VALID_SORTS = new Set<string>(
-  ADMIN_PRODUCT_SORT_OPTIONS.map((option) => option.value),
+/** @deprecated Prefer getAdminProductSortOptions(locale). ES labels for chips/compat. */
+export const ADMIN_PRODUCT_SORT_OPTIONS = ADMIN_PRODUCT_SORT_VALUES.map(
+  (value) => ({
+    value,
+    label: getAdminProductsCopy("es").sortOptions[value],
+  }),
 );
+
+export function getAdminProductSortOptions(locale: AdminLocale = "es") {
+  const copy = getAdminProductsCopy(locale);
+  return ADMIN_PRODUCT_SORT_VALUES.map((value) => ({
+    value,
+    label: copy.sortOptions[value],
+  }));
+}
+
+const VALID_SORTS = new Set<string>(ADMIN_PRODUCT_SORT_VALUES);
 
 const PRICE_SORTS = new Set<AdminProductSort>(["precio-asc", "precio-desc"]);
 

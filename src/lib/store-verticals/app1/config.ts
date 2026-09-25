@@ -72,6 +72,7 @@ export const app1Config: VerticalConfig = {
   },
   features: {
     checkout: true,
+    pickupOnly: false,
     catalog: true,
     catalogFilters: true,
     productSearch: true,
@@ -81,6 +82,7 @@ export const app1Config: VerticalConfig = {
     showAudienceFilter: true,
     sizeGuide: true,
     ageNotice: false,
+    productSizeToggle: false,
   },
   variantLabels: {
     primary: "Color",

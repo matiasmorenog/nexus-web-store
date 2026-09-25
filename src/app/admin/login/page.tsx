@@ -2,29 +2,14 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
-import { AdminLocaleSwitcher } from "@/components/admin/admin-locale-switcher";
+import { AdminLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { ADMIN_LOCALE_COOKIE, adminLogin, parseAdminLocale } from "@/lib/admin-locale";
 import { storefrontPath } from "@/lib/storefront-paths";
 import { auth } from "@/lib/auth";
 import { getBrandPrefix } from "@/lib/brand";
 import { getMerchantEmailOptional } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
-import {
-  SEED_ADMIN_EMAIL,
-  SEED_ADMIN_PASSWORD,
-} from "@/lib/demo-admin-credentials";
 import { isGoogleAuthEnabled } from "@/lib/auth-session";
-
-async function getLoginDefaultEmail(storeId: string) {
-  const fromDb = await getMerchantEmailOptional(storeId);
-  if (fromDb) return fromDb;
-  // Tras db:seed el cache de getStore puede quedar con un storeId viejo; en dev
-  // prellenamos con el email del seed para no bloquear el login demo.
-  if (process.env.NODE_ENV === "development") {
-    return SEED_ADMIN_EMAIL;
-  }
-  return "";
-}
 
 export default async function AdminLoginPage({
   searchParams,
@@ -44,7 +29,7 @@ export default async function AdminLoginPage({
 
   const store = await getStore();
   const displayName = formatStoreName(store.name);
-  const ownerEmail = await getLoginDefaultEmail(store.id);
+  const ownerEmail = (await getMerchantEmailOptional(store.id)) ?? "";
   const brandPrefix = getBrandPrefix(store.name);
   const cookieStore = await cookies();
   const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
@@ -85,9 +70,6 @@ export default async function AdminLoginPage({
             </div>
 
             <div className="rounded-xl border border-neutral-200/80 bg-white p-8 shadow-sm">
-              <div className="mb-4 flex justify-end">
-                <AdminLocaleSwitcher locale={locale} tone="light" />
-              </div>
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 {copy.signIn}
               </h2>
@@ -101,12 +83,13 @@ export default async function AdminLoginPage({
                   {loginError}
                 </p>
               ) : null}
-              <LoginForm
-                defaultEmail={ownerEmail}
-                defaultPassword={SEED_ADMIN_PASSWORD}
-                googleAuthEnabled={isGoogleAuthEnabled()}
-                copy={copy}
-              />
+              <AdminLoginWithDemo>
+                <LoginForm
+                  defaultEmail={ownerEmail}
+                  googleAuthEnabled={isGoogleAuthEnabled()}
+                  copy={copy}
+                />
+              </AdminLoginWithDemo>
             </div>
 
             <p className="mt-6 text-center text-sm text-neutral-500">

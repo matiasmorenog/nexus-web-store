@@ -7,12 +7,13 @@ import { validateCouponForCheckout } from "@/lib/coupons/validate";
 import { normalizeTaxId } from "@/lib/afip/tax-id";
 import { db } from "@/lib/db";
 import { createPaymentPreference } from "@/lib/mercadopago";
-import { storeHasModule } from "@/lib/modules";
+import { storeHasModule, storeHidesMercadoPago } from "@/lib/modules";
 import {
   calculateTransferPaymentDiscount,
   getCheckoutPaymentConfig,
   resolveMercadoPagoAccessToken,
 } from "@/lib/payments/server";
+import { usesItalianBanking } from "@/lib/payments/transfer-copy";
 import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
@@ -22,6 +23,8 @@ import {
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
+
+const italianCheckout = () => usesItalianBanking();
 
 const checkoutSchema = z
   .object({
@@ -42,10 +45,16 @@ const checkoutSchema = z
       }),
     ),
     couponCode: z.string().optional(),
-    paymentMethod: z.enum(["mercadopago", "transfer"]).default("mercadopago"),
+    paymentMethod: z.enum(["mercadopago", "transfer", "cash"]).default("mercadopago"),
   })
   .superRefine((data, ctx) => {
-    if (data.customer.taxId?.trim() && !normalizeTaxId(data.customer.taxId)) {
+    const italian = italianCheckout();
+
+    if (
+      !italian &&
+      data.customer.taxId?.trim() &&
+      !normalizeTaxId(data.customer.taxId)
+    ) {
       ctx.addIssue({
         code: "custom",
         message: "CUIT/CUIL/DNI inválido (7 a 11 dígitos)",
@@ -55,17 +64,25 @@ const checkoutSchema = z
 
     if (data.deliveryMethod !== "shipping") return;
 
-    const labels: Record<"address" | "city" | "zip", string> = {
-      address: "dirección",
-      city: "ciudad",
-      zip: "código postal",
-    };
+    const labels: Record<"address" | "city" | "zip", string> = italian
+      ? {
+          address: "indirizzo",
+          city: "città",
+          zip: "CAP",
+        }
+      : {
+          address: "dirección",
+          city: "ciudad",
+          zip: "código postal",
+        };
 
     for (const field of ["address", "city", "zip"] as const) {
       if (!data.customer[field]?.trim()) {
         ctx.addIssue({
           code: "custom",
-          message: `Completá ${labels[field]} para envío a domicilio`,
+          message: italian
+            ? `Completa ${labels[field]} per la spedizione`
+            : `Completá ${labels[field]} para envío a domicilio`,
           path: ["customer", field],
         });
       }
@@ -95,12 +112,52 @@ export async function POST(request: NextRequest) {
 
     const { customer, items, deliveryMethod, couponCode, paymentMethod } = parsed.data;
     const storeId = await getStoreId();
+    const storefrontFeatures = getStorefrontConfig().features;
     const paymentConfig = await getCheckoutPaymentConfig(storeId);
     const isTransfer = paymentMethod === "transfer";
+    const isCash = paymentMethod === "cash";
+    const pickupOnly = storefrontFeatures.pickupOnly;
+
+    if (pickupOnly && deliveryMethod !== "pickup") {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Questa boutique offre solo il ritiro in sede."
+            : "Esta tienda solo ofrece retiro en local.",
+        },
+        { status: 400 },
+      );
+    }
 
     if (isTransfer && !paymentConfig.transferAvailable) {
       return NextResponse.json(
-        { error: "El pago por transferencia no está disponible." },
+        {
+          error: storeHidesMercadoPago()
+            ? "Il pagamento con bonifico non è disponibile."
+            : "El pago por transferencia no está disponible.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (isCash && !paymentConfig.cashAvailable) {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Il pagamento in contanti non è disponibile."
+            : "El pago en efectivo no está disponible.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (paymentMethod === "mercadopago" && !paymentConfig.mercadopagoAvailable) {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Mercado Pago non è disponibile in questa boutique."
+            : "Mercado Pago no está disponible en esta tienda.",
+        },
         { status: 400 },
       );
     }
@@ -109,7 +166,7 @@ export async function POST(request: NextRequest) {
 
     const isPickup = deliveryMethod === "pickup";
 
-    if (isPickup && !store.allowPickup) {
+    if (isPickup && !store.allowPickup && !pickupOnly) {
       return NextResponse.json(
         { error: "El retiro en local no está disponible" },
         { status: 400 },
@@ -206,7 +263,7 @@ export async function POST(request: NextRequest) {
     );
     const shippingCost = await resolveCheckoutShippingCost({
       storeId,
-      zip: customer.zip!.trim(),
+      zip: (customer.zip ?? "").trim(),
       isPickup,
       items,
       orderSubtotal: subtotalAfterCoupon,
@@ -224,7 +281,11 @@ export async function POST(request: NextRequest) {
         total,
         promoDiscount,
         transferDiscount,
-        paymentMethod: isTransfer ? "TRANSFER" : "MERCADO_PAGO",
+        paymentMethod: isTransfer
+          ? "TRANSFER"
+          : isCash
+            ? "CASH"
+            : "MERCADO_PAGO",
         couponId,
         couponCode: resolvedCouponCode,
         couponDiscount,
@@ -233,9 +294,13 @@ export async function POST(request: NextRequest) {
         customerName: customer.name,
         customerEmail: customer.email,
         customerPhone: customer.phone,
-        customerTaxId: normalizeTaxId(customer.taxId),
+        customerTaxId: italianCheckout()
+          ? null
+          : normalizeTaxId(customer.taxId),
         shippingAddress: isPickup
-          ? "Retiro en local"
+          ? italianCheckout()
+            ? "Ritiro"
+            : "Retiro en local"
           : customer.address!.trim(),
         shippingCity: isPickup ? formatStoreName(store.name) : customer.city!.trim(),
         shippingZip: isPickup ? "—" : customer.zip!.trim(),
@@ -286,6 +351,13 @@ export async function POST(request: NextRequest) {
         transferMode: true,
         orderId: order.id,
         transferInstructions: paymentConfig.transferInstructions,
+      });
+    }
+
+    if (isCash) {
+      return NextResponse.json({
+        cashMode: true,
+        orderId: order.id,
       });
     }
 

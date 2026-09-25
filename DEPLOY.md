@@ -6,9 +6,7 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **goat-indumentaria**: `bash scripts/vercel-should-build-app1.sh`
-- [x] Ignored Build Step en **vaporx-store**: `bash scripts/vercel-should-build-app2.sh`
-- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh`
+- [x] Ignored Build Step en **goat-indumentaria** / **vaporx-store** / **manoviva-store**: one-liner live (build solo Production/`main`; previews pausados). Scripts repo espejo: `bash scripts/vercel-should-build-app{1,2,3}.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -31,7 +29,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 **Por qué `vaporx-store` (no `vape-store`):** el hostname global `vape-store.vercel.app` ya está tomado por otra cuenta (sitio “Smoke & Vape Co.” / Colorado Springs). Renombrar el proyecto a `vape-store` no reclama ese alias. Elegimos `vaporx-store` (marca VAPORX, hostname libre). No usar `https://vape-store.vercel.app` en env ni docs.
 
-Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
+Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.
 
 **Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`) hasta que exista el branch Neon `development` y se pueda guardar en el usuario. Producción de Manoviva debe apuntar al branch Neon `main`; local y preview, al branch `development`. Ese corte de base todavía no está creado: no hacer `db push` ni seed contra el Neon compartido actual.
 
@@ -166,15 +164,27 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 **Settings → Git → Ignored Build Step** (en cada proyecto):
 
-| Proyecto | Comando |
-|----------|---------|
-| app1 | `bash scripts/vercel-should-build-app1.sh` |
-| app2 | `bash scripts/vercel-should-build-app2.sh` |
-| app3 | `bash scripts/vercel-should-build-app3.sh` |
+| Proyecto | Comando (dashboard, live ahora) | Scripts en repo (misma política) |
+|----------|----------------------------------|----------------------------------|
+| app1 (`goat-indumentaria`) | one-liner abajo | `bash scripts/vercel-should-build-app1.sh` |
+| app2 (`vaporx-store`) | one-liner abajo | `bash scripts/vercel-should-build-app2.sh` |
+| app3 (`manoviva-store`) | one-liner abajo | `bash scripts/vercel-should-build-app3.sh` |
 
-Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
+**One-liner actual (×3):**
 
-**Prioridad de preview en PRs:** `goat-indumentaria` (app1) es el build principal (demo más completa hoy); `vaporx-store` (app2) es complementario. Podés probar app2 con `npm run dev:app2` cuando el Ignored Build Step lo saltee. Ver `docs/ci.md`.
+```bash
+if [ "$VERCEL_ENV" = production ] || [ "$VERCEL_GIT_COMMIT_REF" = main ]; then exit 1; else exit 0; fi
+```
+
+Exit 0 = omitir build · Exit 1 = continuar build. Build solo Production / `main`; **skip** Preview / PRs / `development` / feature branches. El one-liner aplica ya en todos los refs (no depende del script del commit). Los scripts del repo espejan la misma regla; tras merge podés dejar el one-liner o cambiar el dashboard a `bash scripts/vercel-should-build-appN.sh`. Release `development → main` sigue disparando producción ×3.
+
+### Reanudar previews (las 3 tiendas)
+
+1. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa (docs-only / other-app skips) desde historial git.
+2. En cada proyecto Vercel → Ignored Build Step → `bash scripts/vercel-should-build-appN.sh` (sacar el one-liner de “solo main”).
+3. Mergear a `development` (y a `main` en el próximo release).
+
+**Prioridad de preview en PRs (cuando se reanuden):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario; Manoviva según cambios de app3. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 

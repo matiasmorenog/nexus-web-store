@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type {
@@ -270,10 +271,10 @@ export function CheckoutForm({
         window.location.href = result.initPoint;
       } else if (result.transferMode) {
         clearCart();
-        router.push(`/checkout/pendiente?order=${result.orderId}`);
+        router.push(`${getStorefrontPaths().checkoutPending}?order=${result.orderId}`);
       } else if (result.demoMode) {
         clearCart();
-        router.push(`/checkout/exito?order=${result.orderId}`);
+        router.push(`${getStorefrontPaths().checkoutSuccess}?order=${result.orderId}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado");

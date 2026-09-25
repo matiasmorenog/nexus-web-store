@@ -1,6 +1,10 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
+import { AdminLocaleSwitcher } from "@/components/admin/admin-locale-switcher";
+import { ADMIN_LOCALE_COOKIE, adminLogin, parseAdminLocale } from "@/lib/admin-locale";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { auth } from "@/lib/auth";
 import { getBrandPrefix } from "@/lib/brand";
 import { getMerchantEmailOptional } from "@/lib/merchant-email";
@@ -31,7 +35,7 @@ export default async function AdminLoginPage({
   const session = await auth();
 
   if (session?.user?.role === "CUSTOMER") {
-    redirect("/cuenta/pedidos");
+    redirect(storefrontPath("accountOrders"));
   }
 
   if (session) {
@@ -42,11 +46,14 @@ export default async function AdminLoginPage({
   const displayName = formatStoreName(store.name);
   const ownerEmail = await getLoginDefaultEmail(store.id);
   const brandPrefix = getBrandPrefix(store.name);
+  const cookieStore = await cookies();
+  const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
+  const copy = adminLogin[locale];
   const loginError =
     error === "google_not_admin"
-      ? "Google solo funciona con cuentas de administración ya registradas."
+      ? copy.googleNotAdmin
       : error === "OAuthAccountNotLinked"
-        ? "No se pudo vincular tu cuenta de Google."
+        ? copy.googleLinkError
         : null;
 
   return (
@@ -55,9 +62,9 @@ export default async function AdminLoginPage({
         <div className="h-1 w-14 bg-[var(--brand-primary)]" />
         <div>
           <h1 className="text-4xl font-bold tracking-tight">{displayName}</h1>
-          <p className="mt-3 text-lg text-neutral-400">Panel de administración</p>
+          <p className="mt-3 text-lg text-neutral-400">{copy.panel}</p>
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-neutral-500">
-            Gestioná productos, pedidos y la configuración de tu tienda desde un solo lugar.
+            {copy.panelLead}
           </p>
         </div>
         <p className="text-xs text-neutral-600">
@@ -74,16 +81,19 @@ export default async function AdminLoginPage({
                 {brandPrefix}{" "}
                 <span className="text-[var(--brand-primary)]">Admin</span>
               </h1>
-              <p className="mt-1 text-sm text-neutral-500">Panel de administración</p>
+              <p className="mt-1 text-sm text-neutral-500">{copy.panel}</p>
             </div>
 
             <div className="rounded-xl border border-neutral-200/80 bg-white p-8 shadow-sm">
+              <div className="mb-4 flex justify-end">
+                <AdminLocaleSwitcher locale={locale} tone="light" />
+              </div>
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
-                Iniciar sesión
+                {copy.signIn}
               </h2>
               {reset === "1" ? (
                 <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-                  Contraseña actualizada. Podés ingresar con tu nueva contraseña.
+                  {copy.passwordUpdated}
                 </p>
               ) : null}
               {loginError ? (
@@ -95,6 +105,7 @@ export default async function AdminLoginPage({
                 defaultEmail={ownerEmail}
                 defaultPassword={SEED_ADMIN_PASSWORD}
                 googleAuthEnabled={isGoogleAuthEnabled()}
+                copy={copy}
               />
             </div>
 
@@ -103,7 +114,7 @@ export default async function AdminLoginPage({
                 href="/"
                 className="transition-colors hover:text-[var(--brand-primary)]"
               >
-                ← Volver a la tienda
+                {copy.backToStore}
               </Link>
             </p>
           </div>

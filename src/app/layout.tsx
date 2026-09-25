@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { DM_Sans, Inter, Oswald, Rajdhani } from "next/font/google";
+import { DM_Sans, Inter, Oswald, Rajdhani, Sora } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { formatStoreName, getStore } from "@/lib/store-context";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,29 +28,40 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
 
-export const metadata: Metadata = {
-  title: {
-    default: "Indumentaria",
-    template: "%s | Indumentaria",
-  },
-  description: "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await getStore();
+  const config = getStorefrontConfig();
+  const displayName = formatStoreName(store.name);
+
+  return {
+    title: displayName,
+    description: config.metadata.description,
+  };
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = getStorefrontConfig().locale.split("-")[0];
+
   return (
     <html
-      lang="es"
-      className={`${inter.variable} ${oswald.variable} ${rajdhani.variable} ${dmSans.variable} h-full antialiased`}
+      lang={lang}
+      className={`${inter.variable} ${oswald.variable} ${rajdhani.variable} ${dmSans.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

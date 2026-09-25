@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CustomerSignOutButton } from "@/components/storefront/customer-sign-out-button";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import {
+  isOrdersPathname,
+  isSecurityPathname,
+  isWishlistPathname,
+  storefrontPath,
+} from "@/lib/storefront-paths";
 import { cn } from "@/lib/utils";
 
 type CustomerAccountNavProps = {
@@ -19,28 +26,27 @@ const linkClass = (active: boolean) =>
 
 export function CustomerAccountNav({ wishlistEnabled }: CustomerAccountNavProps) {
   const pathname = usePathname();
+  const copy = getLocaleCopy();
 
   const links = [
     {
-      href: "/cuenta/pedidos",
-      label: "Mis pedidos",
-      active:
-        pathname === "/cuenta/pedidos" ||
-        pathname.startsWith("/cuenta/pedidos/"),
+      href: storefrontPath("accountOrders"),
+      label: copy.ordersNav,
+      active: isOrdersPathname(pathname),
     },
     ...(wishlistEnabled
       ? [
           {
-            href: "/favoritos",
-            label: "Favoritos",
-            active: pathname === "/favoritos",
+            href: storefrontPath("wishlist"),
+            label: copy.favoritesNav,
+            active: isWishlistPathname(pathname),
           },
         ]
       : []),
     {
-      href: "/cuenta/seguridad",
-      label: "Seguridad",
-      active: pathname === "/cuenta/seguridad",
+      href: storefrontPath("security"),
+      label: copy.securityNav,
+      active: isSecurityPathname(pathname),
     },
   ];
 
@@ -48,7 +54,7 @@ export function CustomerAccountNav({ wishlistEnabled }: CustomerAccountNavProps)
     <div className="flex flex-1 flex-col gap-4 lg:gap-6">
       <nav
         className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] lg:flex-col lg:gap-1 lg:overflow-visible [&::-webkit-scrollbar]:hidden"
-        aria-label="Mi cuenta"
+        aria-label={copy.accountNav}
       >
         {links.map((link) => (
           <Link

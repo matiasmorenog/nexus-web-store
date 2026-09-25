@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import { storefrontPath } from "@/lib/storefront-paths";
 
 type ResetPasswordFormProps = {
   token: string;
@@ -14,9 +16,10 @@ type ResetPasswordFormProps = {
 
 export function ResetPasswordForm({
   token,
-  loginHref = "/cuenta/ingresar",
+  loginHref = storefrontPath("signIn"),
 }: ResetPasswordFormProps) {
   const router = useRouter();
+  const copy = getLocaleCopy();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +33,7 @@ export function ResetPasswordForm({
     const confirm = String(formData.get("confirmPassword") ?? "");
 
     if (password !== confirm) {
-      setError("Las contraseñas no coinciden");
+      setError(copy.passwordsMismatch);
       setLoading(false);
       return;
     }
@@ -44,7 +47,7 @@ export function ResetPasswordForm({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "No se pudo restablecer la contraseña");
+        throw new Error(data.error ?? copy.couldNotReset);
       }
 
       const redirectTo =
@@ -55,7 +58,7 @@ export function ResetPasswordForm({
       router.push(redirectTo);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
+      setError(err instanceof Error ? err.message : copy.unexpectedError);
       setLoading(false);
     }
   };
@@ -64,13 +67,13 @@ export function ResetPasswordForm({
     return (
       <div className="space-y-4">
         <p className="text-sm text-red-600">
-          El enlace no es válido. Pedí uno nuevo desde recuperar contraseña.
+          {copy.invalidResetLink}
         </p>
         <Link
-          href="/cuenta/recuperar-contrasena"
+          href={storefrontPath("forgotPassword")}
           className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
         >
-          Recuperar contraseña
+          {copy.forgotTitle}
         </Link>
       </div>
     );
@@ -79,7 +82,7 @@ export function ResetPasswordForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="reset-password">Nueva contraseña</Label>
+        <Label htmlFor="reset-password">{copy.newPassword}</Label>
         <Input
           id="reset-password"
           name="password"
@@ -90,7 +93,7 @@ export function ResetPasswordForm({
         />
       </div>
       <div>
-        <Label htmlFor="reset-confirm">Confirmar contraseña</Label>
+        <Label htmlFor="reset-confirm">{copy.confirmPassword}</Label>
         <Input
           id="reset-confirm"
           name="confirmPassword"
@@ -99,11 +102,11 @@ export function ResetPasswordForm({
           minLength={6}
           required
         />
-        <p className="mt-1 text-xs text-neutral-500">Mínimo 6 caracteres</p>
+        <p className="mt-1 text-xs text-neutral-500">{copy.minPassword}</p>
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Guardando..." : "Guardar contraseña"}
+        {loading ? copy.saving : copy.changePassword}
       </Button>
     </form>
   );

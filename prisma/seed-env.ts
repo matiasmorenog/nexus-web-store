@@ -13,6 +13,12 @@ export const APP2_STORE_SLUG = "vape-demo";
 export const APP2_STORE_NAME = "VAPORX";
 export const APP2_STORE_OWNER_EMAIL = "matiasmorenog+vape-nexus@gmail.com";
 
+/** Tienda app3 (deploy Italia). */
+export const APP3_STORE_SLUG = "manoviva-italia";
+export const APP3_STORE_NAME = "Manoviva";
+// PROVVISORIO: sostituire con l'email reale della titolare prima di attivare vendite o contatti.
+export const APP3_STORE_OWNER_EMAIL = "contatto@manoviva.example";
+
 export const SEED_ADMIN_PASSWORD = "admin123";
 export const SEED_ADMIN_NAME = "Admin";
 
@@ -34,6 +40,8 @@ export type SeedStoreConfig = {
   adminPassword: string;
   adminDisplayName: string;
   primaryColor: string;
+  secondaryColor?: string;
+  allowPickup?: boolean;
 };
 
 export const SEED_STORES: SeedStoreConfig[] = [
@@ -52,6 +60,16 @@ export const SEED_STORES: SeedStoreConfig[] = [
     adminPassword: SEED_ADMIN_PASSWORD,
     adminDisplayName: SEED_ADMIN_NAME,
     primaryColor: "#00e5ff",
+  },
+  {
+    slug: APP3_STORE_SLUG,
+    name: APP3_STORE_NAME,
+    adminEmail: APP3_STORE_OWNER_EMAIL,
+    adminPassword: SEED_ADMIN_PASSWORD,
+    adminDisplayName: "Amministrazione Manoviva (provvisoria)",
+    primaryColor: "#2351D1",
+    secondaryColor: "#F2F0E9",
+    allowPickup: false,
   },
 ];
 

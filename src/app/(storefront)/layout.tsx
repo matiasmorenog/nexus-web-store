@@ -8,7 +8,6 @@ import {
 } from "@/lib/seo/build-metadata";
 import { getResolvedStoreSeoSettings } from "@/lib/seo/query";
 import { getStoreMarketingSettings } from "@/lib/marketing/query";
-import { getResolvedStoreTheme } from "@/lib/premium-themes";
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { storeHasModule } from "@/lib/modules";
 import {
@@ -19,6 +18,7 @@ import { formatStoreName, getStore, getStoreId } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import { App1StorefrontLayout } from "@/themes/app1/components/storefront-layout";
 import { App2StorefrontLayout } from "@/themes/app2/components/storefront-layout";
+import { App3StorefrontLayout } from "@/themes/app3/components/storefront-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
@@ -59,11 +59,11 @@ export default async function StorefrontLayout({
         name={displayName}
         url={seoContext.siteUrl}
         description={description}
+        language={config.locale}
       />
     ) : null;
   const wishlistEnabled = await storeHasModule(store.id, "wishlist");
   const marketing = await getStoreMarketingSettings(storeId);
-  const storeTheme = await getResolvedStoreTheme(storeId);
   const [promo2x1Active, navCategories] = await Promise.all([
     config.features.promo2x1
       ? isPromo2x1ActiveForStore(storeId)
@@ -87,13 +87,29 @@ export default async function StorefrontLayout({
           storeDisplayName={displayName}
           config={config}
           wishlistEnabled={wishlistEnabled}
-          storeTheme={storeTheme}
           promo2x1Active={promo2x1Active}
           navDesktop={navDesktop}
           navMobile={navMobile}
         >
           {children}
         </App2StorefrontLayout>
+      </StorefrontMarketingShell>
+    );
+  }
+
+  if (config.ui.id === "app3") {
+    return (
+      <StorefrontMarketingShell settings={marketing}>
+        {structuredData}
+        <App3StorefrontLayout
+          storeDisplayName={displayName}
+          config={config}
+          wishlistEnabled={wishlistEnabled}
+          navDesktop={navDesktop}
+          navMobile={navMobile}
+        >
+          {children}
+        </App3StorefrontLayout>
       </StorefrontMarketingShell>
     );
   }

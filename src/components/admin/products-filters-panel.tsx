@@ -77,7 +77,7 @@ export function ProductsFiltersPanel({
   return (
     <div className={cn(adminFiltersPanelScrollClass, className)}>
       <AdminCard title="Filtros" description="Categoría, público y estado." padding={false}>
-        <AdminFilterSection title="Categoría">
+        <AdminFilterSection title="Categoría" activeKey={activeCategory || "__all__"}>
           <AdminFilterButton
             active={!activeCategory}
             label="Todas"
@@ -100,7 +100,7 @@ export function ProductsFiltersPanel({
           ))}
         </AdminFilterSection>
 
-        <AdminFilterSection title="Público">
+        <AdminFilterSection title="Público" activeKey={activeAudience || "__all__"}>
           <AdminFilterButton
             active={!activeAudience}
             label="Todos"
@@ -123,7 +123,7 @@ export function ProductsFiltersPanel({
           ))}
         </AdminFilterSection>
 
-        <AdminFilterSection title="Estado">
+        <AdminFilterSection title="Estado" activeKey={activeEstado || "__all__"}>
           <AdminFilterButton
             active={!activeEstado}
             label="Todos"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { catalogHref } from "@/lib/storefront-paths";
 import { X } from "lucide-react";
 import {
   CATALOG_FILTER_PARAMS,
@@ -24,7 +25,7 @@ export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) 
     const params = new URLSearchParams(searchParams.toString());
     params.delete(param);
     const query = params.toString();
-    navigateCatalog(query ? `/productos?${query}` : "/productos");
+    navigateCatalog(query ? catalogHref(query) : catalogHref());
   };
 
   const clearAll = () => {
@@ -33,7 +34,7 @@ export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) 
       params.delete(param);
     }
     const query = params.toString();
-    navigateCatalog(query ? `/productos?${query}` : "/productos");
+    navigateCatalog(query ? catalogHref(query) : catalogHref());
   };
 
   return (

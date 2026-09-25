@@ -5,6 +5,7 @@ import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
 import { cn } from "@/lib/utils";
 
 type AdminSearchFieldProps = {
@@ -170,10 +171,11 @@ export function AdminFilterButton({
     <button
       type="button"
       onClick={onClick}
+      data-sliding-selected={active ? "true" : undefined}
       className={cn(
-        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
+        "relative z-[1] flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
         active
-          ? "bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)]"
+          ? "font-medium text-[var(--brand-primary)]"
           : "text-neutral-700 hover:bg-neutral-50",
       )}
     >
@@ -185,9 +187,11 @@ export function AdminFilterButton({
 
 export function AdminFilterSection({
   title,
+  activeKey,
   children,
 }: {
   title: string;
+  activeKey: string;
   children: ReactNode;
 }) {
   return (
@@ -195,7 +199,13 @@ export function AdminFilterSection({
       <Label className="mb-2 block text-xs font-medium uppercase tracking-wide text-neutral-400">
         {title}
       </Label>
-      <div className="space-y-1">{children}</div>
+      <SlidingOptionGroup
+        activeKey={activeKey}
+        className="flex flex-col gap-1"
+        pillClassName="rounded-lg bg-[var(--brand-primary-soft)]"
+      >
+        {children}
+      </SlidingOptionGroup>
     </div>
   );
 }

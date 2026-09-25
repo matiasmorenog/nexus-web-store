@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { cn } from "@/lib/utils";
 
 type CustomerSignOutButtonProps = {
@@ -14,12 +15,14 @@ export function CustomerSignOutButton({
   iconOnly = false,
   className,
 }: CustomerSignOutButtonProps) {
+  const copy = getLocaleCopy();
+
   if (iconOnly) {
     return (
       <button
         type="button"
         onClick={() => signOut({ callbackUrl: "/" })}
-        aria-label="Cerrar sesión"
+        aria-label={copy.signOut}
         className={cn(
           "inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50",
           className,
@@ -38,7 +41,7 @@ export function CustomerSignOutButton({
       className={className}
       onClick={() => signOut({ callbackUrl: "/" })}
     >
-      Cerrar sesión
+      {copy.signOut}
     </Button>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
 import { useCartStore } from "@/stores/cart-store";
@@ -8,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import type { VariantLabels } from "@/lib/store-verticals/types";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type Variant = {
   id: string;
@@ -41,6 +44,7 @@ export function AddToCart({
   variantLabels = { primary: "Color", secondary: "Talle" },
   variants,
 }: AddToCartProps) {
+  const copy = getStorefrontCopy();
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const colors = [...new Set(variants.map((v) => v.color))];
@@ -91,7 +95,11 @@ export function AddToCart({
 
     setBuyingNow(true);
     addItem(item);
-    router.push("/checkout");
+    router.push(
+      getClientStorefrontConfig().features.checkout
+        ? storefrontPath("checkout")
+        : storefrontPath("contact"),
+    );
   };
 
   const outOfStock = !selectedVariant || selectedVariant.stock <= 0;
@@ -100,7 +108,7 @@ export function AddToCart({
   return (
     <div className="space-y-6">
       {promo2x1 && (
-        <div className="flex items-start gap-3 rounded-xl border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
+        <div className="flex items-start gap-3 storefront-card border border-[var(--brand-primary)]/25 bg-[var(--brand-primary-soft)] px-4 py-3">
           <Promo2x1Badge size="md" className="shrink-0" />
           <p className="text-sm text-neutral-700">
             Promoción <strong>2x1</strong>: agregá dos unidades del mismo
@@ -183,10 +191,10 @@ export function AddToCart({
           disabled={disabled}
         >
           {buyingNow
-            ? "Redirigiendo..."
+            ? copy.redirecting
             : outOfStock
-              ? "Sin stock"
-              : "Comprar ahora"}
+              ? copy.outOfStock
+              : copy.buyNow}
         </Button>
         <Button
           size="lg"
@@ -198,12 +206,12 @@ export function AddToCart({
           {added ? (
             <span className="inline-flex items-center gap-2">
               <Check className="h-5 w-5" aria-hidden />
-              ¡Agregado!
+              {copy.added}
             </span>
           ) : outOfStock ? (
-            "Sin stock"
+            copy.outOfStock
           ) : (
-            "Agregar al carrito"
+            copy.addToCart
           )}
         </Button>
       </div>

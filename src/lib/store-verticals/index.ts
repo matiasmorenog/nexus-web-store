@@ -4,19 +4,23 @@ import {
   APP1_STORE_SLUG,
   isKnownStoreSlug,
   APP2_STORE_SLUG,
+  APP3_STORE_SLUG,
 } from "@/lib/store-slugs";
 import { app1Config } from "@/lib/store-verticals/app1/config";
 import { app2Config } from "@/lib/store-verticals/app2/config";
+import { app3Config } from "@/lib/store-verticals/app3/config";
 import type { StoreVertical, VerticalConfig } from "@/lib/store-verticals/types";
 
 const STOREFRONT_CONFIG_BY_SLUG: Record<string, VerticalConfig> = {
   [APP1_STORE_SLUG]: app1Config,
   [APP2_STORE_SLUG]: app2Config,
+  [APP3_STORE_SLUG]: app3Config,
 };
 
 const STOREFRONT_CONFIG_BY_KIND: Record<StoreVertical, VerticalConfig> = {
   app1: app1Config,
   app2: app2Config,
+  app3: app3Config,
 };
 
 function resolveStorefrontConfig(slug: string): VerticalConfig {
@@ -25,7 +29,7 @@ function resolveStorefrontConfig(slug: string): VerticalConfig {
   }
 
   throw new Error(
-    `No hay storefront config para slug "${slug}". Slugs conocidos: ${APP1_STORE_SLUG}, ${APP2_STORE_SLUG}.`,
+    `No hay storefront config para slug "${slug}". Slugs conocidos: ${APP1_STORE_SLUG}, ${APP2_STORE_SLUG}, ${APP3_STORE_SLUG}.`,
   );
 }
 
@@ -34,7 +38,7 @@ export const getStorefrontConfig = cache((): VerticalConfig => {
   return resolveStorefrontConfig(getActiveStoreSlug());
 });
 
-/** Plantilla interna (app1 | app2) derivada del slug activo. */
+/** Plantilla interna derivada del slug activo. */
 export function getStorefrontKind(): StoreVertical {
   return getStorefrontConfig().id;
 }

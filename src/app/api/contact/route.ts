@@ -4,6 +4,7 @@ import { formatStoreName } from "@/lib/brand";
 import { sendContactEmail } from "@/lib/emails/send-contact-email";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { getStore } from "@/lib/store-context";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -13,15 +14,36 @@ const contactSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const store = await getStore();
+    const merchantEmail = await getMerchantEmail(store.id);
+    const config = getStorefrontConfig();
+    const provisional =
+      config.id === "app3" || merchantEmail.trim().toLowerCase().endsWith(".example");
+
+    if (provisional) {
+      return NextResponse.json(
+        {
+          error:
+            config.locale === "it-IT"
+              ? "Il modulo di contatto non è ancora attivo."
+              : "El formulario de contacto aún no está activo.",
+        },
+        { status: 503 },
+      );
+    }
+
     const body = await request.json();
     const parsed = contactSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            config.locale === "it-IT" ? "Dati non validi" : "Datos inválidos",
+        },
+        { status: 400 },
+      );
     }
-
-    const store = await getStore();
-    const merchantEmail = await getMerchantEmail(store.id);
 
     const result = await sendContactEmail(
       {

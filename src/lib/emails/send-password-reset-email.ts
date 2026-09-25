@@ -4,6 +4,7 @@ import {
   isResendConfigured,
   logDemoEmail,
 } from "@/lib/emails/email-utils";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 type PasswordResetEmailData = {
   storeName: string;
@@ -12,7 +13,35 @@ type PasswordResetEmailData = {
 };
 
 function buildPasswordResetEmail(data: PasswordResetEmailData) {
-  const subject = `Restablecer contraseña — ${data.storeName}`;
+  const italian = getStorefrontConfig().locale === "it-IT";
+  const subject = italian
+    ? `Reimposta la password — ${data.storeName}`
+    : `Restablecer contraseña — ${data.storeName}`;
+
+  if (italian) {
+    const html = `
+    <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;color:#171717;">
+      <h1 style="font-size:22px;margin-bottom:8px;">Reimposta la password</h1>
+      <p>Abbiamo ricevuto una richiesta per reimpostare la password del tuo profilo su <strong>${data.storeName}</strong>.</p>
+      <p style="margin:24px 0;">
+        <a href="${data.resetUrl}" style="display:inline-block;background:#171717;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">
+          Scegli una nuova password
+        </a>
+      </p>
+      <p style="color:#666;font-size:14px;">Il link scade tra 1 ora. Se non hai chiesto tu questo cambio, ignora questa email.</p>
+      <p style="color:#666;font-size:13px;word-break:break-all;">${data.resetUrl}</p>
+    </div>
+  `;
+    const text = [
+      `Reimposta la password — ${data.storeName}`,
+      "",
+      "Usa questo link per scegliere una nuova password (scade tra 1 ora):",
+      data.resetUrl,
+      "",
+      "Se non hai chiesto tu questo cambio, ignora questo messaggio.",
+    ].join("\n");
+    return { subject, html, text };
+  }
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;color:#171717;">

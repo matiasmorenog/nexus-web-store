@@ -1,6 +1,16 @@
 import type { CSSProperties } from "react";
-import { getStore } from "@/lib/store-context";
+import type { Metadata } from "next";
+import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await getStore();
+  const displayName = formatStoreName(store.name);
+
+  return {
+    title: displayName,
+  };
+}
 
 export default async function AdminLayout({
   children,
@@ -15,6 +25,7 @@ export default async function AdminLayout({
   const themeStyle = {
     ...config.ui.cssVars,
     "--brand-primary": brandPrimary,
+    "--ui-button-radius": "0.5rem",
   } as CSSProperties;
 
   return (

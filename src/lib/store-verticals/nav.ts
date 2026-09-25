@@ -1,3 +1,8 @@
+import {
+  isCatalogPathname,
+  isContactPathname,
+} from "@/lib/storefront-paths";
+
 export type HeaderNavMatch =
   | { type: "home" }
   | { type: "catalog" }
@@ -49,10 +54,10 @@ export function isStorefrontNavActive(
   }
 
   if (match.type === "contact") {
-    return pathname === "/contacto";
+    return isContactPathname(pathname);
   }
 
-  if (pathname !== "/productos") return false;
+  if (!isCatalogPathname(pathname)) return false;
 
   if (match.type === "catalog") {
     return (

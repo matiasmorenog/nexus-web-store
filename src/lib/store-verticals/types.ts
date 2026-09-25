@@ -1,6 +1,6 @@
 import type { HeaderNavLink } from "@/lib/store-verticals/nav";
 
-export type StoreVertical = "app1" | "app2";
+export type StoreVertical = "app1" | "app2" | "app3";
 
 export type StorefrontMode = "full" | "home-only";
 
@@ -20,6 +20,7 @@ export type VariantLabels = {
 };
 
 export type VerticalFeatures = {
+  checkout: boolean;
   catalog: boolean;
   catalogFilters: boolean;
   productSearch: boolean;
@@ -61,6 +62,8 @@ export type CatalogFacetDef = {
 
 export type VerticalConfig = {
   id: StoreVertical;
+  locale: string;
+  currency: string;
   storefrontMode: StorefrontMode;
   /** Línea secundaria del logo (ej. «Indumentaria» bajo «Goat»). No se concatena al nombre en DB. */
   brandLogoAccent?: string;

@@ -113,16 +113,6 @@ const MODULE_LIST = [
     adminRoutes: ["/admin/api"],
   },
   {
-    id: "premiumThemes",
-    name: "Temas premium",
-    description: "Temas visuales adicionales para diferenciar tu marca.",
-    monthlyPriceUsd: 0,
-    includedInPlans: ["grow", "pro"],
-    category: "storefront",
-    adminRoutes: ["/admin/temas"],
-    storefrontSurfaces: ["layout"],
-  },
-  {
     id: "seo",
     name: "SEO avanzado",
     description:
@@ -197,7 +187,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     description: "Promos, home, envíos, CRM y equipo chico.",
     target: "Marca que ya vende",
     moduleIds: GROW_MODULE_IDS,
-    maxStaffSeats: 3,
+    maxStaffSeats: 2,
   },
   pro: {
     id: "pro",

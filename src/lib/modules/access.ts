@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
+import { getActiveStoreSlug } from "@/lib/store-env";
+import { APP3_STORE_SLUG } from "@/lib/store-slugs";
 import {
   getModuleDefinition,
   isModuleId,
   MODULE_IDS,
+  PLAN_TIERS,
   type ModuleId,
 } from "@/lib/modules/catalog";
 import type { ModuleAccessResult } from "@/lib/modules/types";
@@ -10,6 +13,24 @@ import { MODULE_REQUIRED_ERROR_CODE } from "@/lib/modules/types";
 import { getStoreId } from "@/lib/store-context";
 
 export const ADMIN_PLAN_PATH = "/admin/plan";
+
+/** Manoviva no muestra el catálogo de planes. Queda fija en Start. */
+export function storeHidesPlanCatalog(
+  slug: string = getActiveStoreSlug(),
+): boolean {
+  return slug === APP3_STORE_SLUG;
+}
+
+/** Manoviva: sin Mercado Pago (solo transferencia / bonifico). */
+export function storeHidesMercadoPago(
+  slug: string = getActiveStoreSlug(),
+): boolean {
+  return slug === APP3_STORE_SLUG;
+}
+
+function startPlanModuleIds(): Set<ModuleId> {
+  return new Set(PLAN_TIERS.start.moduleIds);
+}
 
 /** Override por env. Vacío = todos activos (demo). `none` = solo plan base. */
 function parseEnabledModulesFromEnv(): Set<ModuleId> {
@@ -45,6 +66,9 @@ export async function getEnabledModulesForStore(
   _storeId?: string,
 ): Promise<Set<ModuleId>> {
   void _storeId;
+  if (storeHidesPlanCatalog()) {
+    return startPlanModuleIds();
+  }
   return parseEnabledModulesFromEnv();
 }
 

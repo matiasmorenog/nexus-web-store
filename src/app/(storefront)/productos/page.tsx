@@ -28,7 +28,7 @@ function CatalogPageFallback() {
         description="Cargando catálogo..."
       />
       <div className="grid items-start gap-8 lg:grid-cols-[260px_1fr]">
-        <StorefrontSkeleton className="h-[32rem] w-full rounded-xl" />
+        <StorefrontSkeleton className="h-[32rem] w-full storefront-card" />
         <div className="min-w-0">
           <StorefrontSkeleton className="mb-4 h-4 w-28" />
           <StorefrontSkeletonProductGrid />

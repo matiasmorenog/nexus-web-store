@@ -16,7 +16,7 @@ import {
   getMercadoEnviosTokenSource,
   isMercadoEnviosAdminConfigured,
 } from "@/lib/mercado-envios/resolve-token";
-import { storeHasModule } from "@/lib/modules";
+import { storeHasModule, storeHidesMercadoPago } from "@/lib/modules";
 import {
   getMercadoPagoTokenSource,
   isMercadoPagoAdminConfigured,
@@ -375,7 +375,9 @@ async function fetchAdminDashboardAttention(storeId: string) {
   return {
     paidAwaitingShipment,
     outOfStockVariants,
-    cobrosTokenMissing: !isMercadoPagoAdminConfigured(mercadoPagoSource),
+    cobrosTokenMissing: storeHidesMercadoPago()
+      ? false
+      : !isMercadoPagoAdminConfigured(mercadoPagoSource),
     shippingCarriersTokenMissing:
       shippingCarriersEnabled &&
       !isMercadoEnviosAdminConfigured(mercadoEnviosSource, mercadoPagoSource),

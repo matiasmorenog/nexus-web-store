@@ -8,6 +8,7 @@ import {
 } from "@/lib/demo-customer-credentials";
 import { auth } from "@/lib/auth";
 import { isAdminRole, isGoogleAuthEnabled } from "@/lib/auth-session";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 
 type PageProps = {
   searchParams: Promise<{
@@ -18,12 +19,9 @@ type PageProps = {
 };
 
 function getCustomerLoginError(error?: string) {
-  if (error === "google_admin") {
-    return "Esta cuenta es de administración. Usá el panel admin.";
-  }
-  if (error === "OAuthAccountNotLinked") {
-    return "No se pudo vincular tu cuenta de Google.";
-  }
+  const copy = getLocaleCopy();
+  if (error === "google_admin") return copy.adminAccountError;
+  if (error === "OAuthAccountNotLinked") return copy.googleLinkError;
   return null;
 }
 
@@ -32,6 +30,7 @@ export default async function CustomerLoginPage({ searchParams }: PageProps) {
   const session = await auth();
   const redirectTo = resolveCustomerCallbackUrl(callbackUrl);
   const loginError = getCustomerLoginError(error);
+  const copy = getLocaleCopy();
 
   if (session?.user?.role === "CUSTOMER") {
     redirect(redirectTo);
@@ -44,15 +43,15 @@ export default async function CustomerLoginPage({ searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-md px-4 py-10 sm:px-6">
       <StorefrontPageHeader
-        title="Ingresar"
-        description="Accedé a tu cuenta para ver el historial de pedidos."
+        title={copy.signInTitle}
+        description={copy.signInDescription}
         backHref="/"
-        backLabel="Volver a la tienda"
+        backLabel={copy.backToStore}
       />
-      <div className="mt-8 rounded-xl border border-neutral-200/90 bg-white p-6 shadow-sm">
+      <div className="mt-8 storefront-card border border-neutral-200/90 bg-white p-6 shadow-sm">
         {reset === "1" ? (
           <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800">
-            Contraseña actualizada. Podés ingresar con tu nueva contraseña.
+            {copy.passwordUpdated}
           </p>
         ) : null}
         {loginError ? (

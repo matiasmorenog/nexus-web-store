@@ -1,11 +1,4 @@
-const CUSTOMER_LOGIN_PATH = "/cuenta/ingresar";
-
-const CUSTOMER_AUTH_PATHS = new Set([
-  CUSTOMER_LOGIN_PATH,
-  "/cuenta/registrarse",
-  "/cuenta/recuperar-contrasena",
-  "/cuenta/restablecer-contrasena",
-]);
+import { isCustomerAuthPath, storefrontPath } from "@/lib/storefront-paths";
 
 /** Safe internal redirect after customer login. Defaults to home. */
 export function resolveCustomerCallbackUrl(raw?: string | null): string {
@@ -15,7 +8,7 @@ export function resolveCustomerCallbackUrl(raw?: string | null): string {
   if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return "/";
 
   const pathOnly = trimmed.split("?")[0]?.split("#")[0] ?? "/";
-  if (CUSTOMER_AUTH_PATHS.has(pathOnly)) return "/";
+  if (isCustomerAuthPath(pathOnly)) return "/";
 
   return trimmed.split("#")[0] ?? "/";
 }
@@ -23,9 +16,9 @@ export function resolveCustomerCallbackUrl(raw?: string | null): string {
 export function buildCustomerLoginHref(callbackPath?: string | null): string {
   const callback = resolveCustomerCallbackUrl(callbackPath);
   if (callback === "/") {
-    return CUSTOMER_LOGIN_PATH;
+    return storefrontPath("signIn");
   }
-  return `${CUSTOMER_LOGIN_PATH}?callbackUrl=${encodeURIComponent(callback)}`;
+  return `${storefrontPath("signIn")}?callbackUrl=${encodeURIComponent(callback)}`;
 }
 
 /** Best-effort current path for server redirects to login (protected routes). */

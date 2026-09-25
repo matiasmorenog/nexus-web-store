@@ -4,10 +4,17 @@ import { storeHasModule } from "@/lib/modules";
 import { isCarrierShippingEnabled } from "@/lib/shipping-carriers/query";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { getCheckoutPaymentConfig } from "@/lib/payments/server";
+import { redirect } from "next/navigation";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutPage() {
+  if (!getStorefrontConfig().features.checkout) {
+    redirect(getStorefrontPaths().contact);
+  }
+
   const store = await getStore();
   const couponsEnabled = await storeHasModule(store.id, "coupons");
   const dynamicShippingEnabled = await isCarrierShippingEnabled(store.id);

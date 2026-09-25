@@ -5,7 +5,8 @@ import {
   parseHighlightedModule,
 } from "@/components/admin/admin-plan-overview";
 import { requireAdminPermission } from "@/lib/admin-session";
-import { getEnabledModuleIds } from "@/lib/modules";
+import { getEnabledModuleIds, storeHidesPlanCatalog } from "@/lib/modules";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ type AdminPlanPageProps = {
 };
 
 export default async function AdminPlanPage({ searchParams }: AdminPlanPageProps) {
+  if (storeHidesPlanCatalog()) {
+    redirect("/admin");
+  }
   await requireAdminPermission("plan:view");
   const enabledModuleIds = await getEnabledModuleIds();
   const { module: moduleParam } = await searchParams;

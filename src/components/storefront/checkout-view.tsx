@@ -67,7 +67,7 @@ export function CheckoutView({
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 sm:px-6">
-        <div className="rounded-xl border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-12 text-center">
+        <div className="storefront-card border border-dashed border-neutral-200 bg-[var(--brand-primary-soft)]/40 px-6 py-12 text-center">
           <p className="font-medium text-neutral-900">Tu carrito está vacío</p>
           <p className="mt-2 text-sm text-neutral-500">
             Agregá productos antes de continuar al checkout.
@@ -95,7 +95,7 @@ export function CheckoutView({
         index={1}
         className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start"
       >
-        <div className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+        <div className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
           <CheckoutForm
             shippingCost={shippingCost}
             allowPickup={allowPickup}
@@ -112,7 +112,7 @@ export function CheckoutView({
           />
         </div>
 
-        <aside className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+        <aside className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm lg:sticky lg:top-24">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
             Tu pedido
           </h2>

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { productHref } from "@/lib/storefront-paths";
 import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type CartLineItemProps = {
   item: CartItem;
@@ -33,6 +35,7 @@ export function CartLineItem({
   style,
 }: CartLineItemProps) {
   const variantLabels = getClientVariantLabels();
+  const copy = getStorefrontCopy();
   const isPage = variant === "page";
   const cartItems = useCartStore((state) => state.items);
   const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
@@ -60,7 +63,7 @@ export function CartLineItem({
     <li
       className={cn(
         isPage
-          ? "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm"
+          ? "storefront-card border border-neutral-200/80 bg-white p-4 shadow-sm"
           : "rounded-lg border border-neutral-100 bg-neutral-50/40 p-3",
         className,
       )}
@@ -68,7 +71,7 @@ export function CartLineItem({
     >
       <div className="flex gap-3 sm:gap-4">
         <Link
-          href={`/producto/${item.productSlug}`}
+          href={productHref(item.productSlug)}
           className={cn(
             "relative shrink-0 overflow-hidden rounded-lg bg-neutral-100 ring-1 ring-neutral-200/60",
             isPage ? "h-28 w-20 sm:h-32 sm:w-24" : "h-24 w-20",
@@ -87,7 +90,7 @@ export function CartLineItem({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <Link
-                href={`/producto/${item.productSlug}`}
+                href={productHref(item.productSlug)}
                 className="line-clamp-2 text-sm font-medium text-neutral-900 transition-colors hover:text-[var(--brand-primary)] sm:text-base"
               >
                 {item.productName}
@@ -102,12 +105,12 @@ export function CartLineItem({
                 </div>
               )}
               <p className="mt-1 text-xs text-neutral-400">
-                {formatPrice(item.price)} c/u
+                {formatPrice(item.price)} {copy.each}
               </p>
             </div>
             <button
               type="button"
-              aria-label={`Quitar ${item.productName} del carrito`}
+              aria-label={copy.removeFromCart(item.productName)}
               onClick={onRemove}
               className="shrink-0 rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >

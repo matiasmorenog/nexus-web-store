@@ -13,6 +13,7 @@ import { db } from "@/lib/db";
 import { storeHasModule } from "@/lib/modules";
 import { getStorefrontKind } from "@/lib/store-verticals";
 import { formatStoreName, getStore } from "@/lib/store-context";
+import type { StoreVertical } from "@/lib/store-verticals/types";
 
 export const HOME_CONTENT_CACHE_TAG = "home-content";
 
@@ -25,7 +26,7 @@ async function loadHomeContentRow(storeId: string) {
 
 function parsePayload(
   raw: unknown,
-  vertical: "app1" | "app2",
+  vertical: StoreVertical,
   storeDisplayName: string,
 ): HomeContentPayload {
   const parsed = homeContentPayloadSchema.safeParse(raw);
@@ -41,7 +42,7 @@ function parsePayload(
 
 export async function getStoreHomeContent(
   storeId: string,
-  options?: { storeDisplayName?: string; vertical?: "app1" | "app2" },
+  options?: { storeDisplayName?: string; vertical?: StoreVertical },
 ): Promise<HomeContentPayload> {
   const vertical = options?.vertical ?? getStorefrontKind();
   const store = options?.storeDisplayName

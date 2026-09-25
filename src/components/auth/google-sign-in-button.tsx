@@ -11,6 +11,7 @@ type GoogleSignInButtonProps = {
   callbackUrl: string;
   disabled?: boolean;
   className?: string;
+  label?: string;
 };
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -42,6 +43,7 @@ export function GoogleSignInButton({
   callbackUrl,
   disabled = false,
   className,
+  label = "Continuar con Google",
 }: GoogleSignInButtonProps) {
   const handleClick = () => {
     setAuthIntentCookies(context, rememberMe);
@@ -59,7 +61,7 @@ export function GoogleSignInButton({
       )}
     >
       <GoogleIcon className="size-5 shrink-0" />
-      Continuar con Google
+      {label}
     </button>
   );
 }

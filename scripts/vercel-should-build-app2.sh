@@ -19,15 +19,15 @@ if [[ "$CHANGED" == "__vercel_force_build__" ]]; then
 fi
 
 docs_only=true
-app1_only=true
+other_only=true
 
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
   if ! echo "$file" | grep -qE '^(DEPLOY\.md|README\.md|\.env\.example|\.github/|docs/|AGENTS\.md|CLAUDE\.md)'; then
     docs_only=false
   fi
-  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/app1/|src/themes/app1/|prisma/seed-data-app1\.ts|prisma/seed-app1\.ts|prisma/seed-demo-orders\.ts|prisma/demo-orders-data\.ts|scripts/seed-app1\.sh)'; then
-    app1_only=false
+  if ! echo "$file" | grep -qE '^(src/lib/store-verticals/app1/|src/themes/app1/|prisma/seed-data-app1\.ts|prisma/seed-app1\.ts|prisma/seed-demo-orders\.ts|prisma/demo-orders-data\.ts|scripts/seed-app1\.sh|scripts/vercel-should-build-app1\.sh|src/lib/store-verticals/app3/|src/themes/app3/|prisma/seed-data-app3\.ts|prisma/seed-app3\.ts|scripts/seed-app3\.sh|scripts/vercel-should-build-app3\.sh)'; then
+    other_only=false
   fi
 done <<< "$CHANGED"
 
@@ -36,8 +36,8 @@ if [[ "$docs_only" == true ]]; then
   exit 0
 fi
 
-if [[ "$app1_only" == true ]]; then
-  echo "vercel-should-build-app2: skip (solo cambios app1)"
+if [[ "$other_only" == true ]]; then
+  echo "vercel-should-build-app2: skip (solo cambios app1/app3)"
   exit 0
 fi
 

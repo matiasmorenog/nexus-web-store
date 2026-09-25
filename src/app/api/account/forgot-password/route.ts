@@ -5,6 +5,7 @@ import { sendPasswordResetEmail } from "@/lib/emails/send-password-reset-email";
 import { getMerchantEmailOptional } from "@/lib/merchant-email";
 import { createPasswordResetToken } from "@/lib/password-reset";
 import { getStoreSiteUrl } from "@/lib/seo/site-url";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
 import { getStore } from "@/lib/store-context";
 
 const forgotSchema = z.object({
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     const plainToken = await createPasswordResetToken(user.id);
-    const resetUrl = `${getStoreSiteUrl()}/cuenta/restablecer-contrasena?token=${plainToken}`;
+    const resetUrl = `${getStoreSiteUrl()}${getStorefrontPaths().resetPassword}?token=${plainToken}`;
 
     await sendPasswordResetEmail(
       {

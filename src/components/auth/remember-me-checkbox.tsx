@@ -8,6 +8,7 @@ type RememberMeCheckboxProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;
   className?: string;
+  label?: string;
 };
 
 export function RememberMeCheckbox({
@@ -15,6 +16,7 @@ export function RememberMeCheckbox({
   checked,
   onChange,
   className,
+  label = "Recordarme",
 }: RememberMeCheckboxProps) {
   return (
     <label
@@ -30,7 +32,7 @@ export function RememberMeCheckbox({
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
-      Recordarme
+      {label}
     </label>
   );
 }

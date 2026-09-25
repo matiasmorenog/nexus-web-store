@@ -45,7 +45,7 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
           </p>
         </div>
 
-        <section className="rounded-xl border border-neutral-200/90 bg-white p-5 shadow-sm">
+        <section className="storefront-card border border-neutral-200/90 bg-white p-5 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
             Productos
           </h2>
@@ -76,7 +76,7 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-neutral-200/90 bg-white p-5 shadow-sm">
+          <div className="storefront-card border border-neutral-200/90 bg-white p-5 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
               Entrega
             </h2>
@@ -106,7 +106,7 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-neutral-200/90 bg-white p-5 shadow-sm">
+          <div className="storefront-card border border-neutral-200/90 bg-white p-5 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
               Pago
             </h2>

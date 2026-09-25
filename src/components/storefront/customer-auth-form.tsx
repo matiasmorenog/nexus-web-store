@@ -11,6 +11,8 @@ import {
 import { RememberMeCheckbox } from "@/components/auth/remember-me-checkbox";
 import { setAuthIntentCookies } from "@/lib/auth-client";
 import { resolveCustomerCallbackUrl } from "@/lib/customer-auth-redirect";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +35,7 @@ export function CustomerLoginForm({
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const redirectTo = resolveCustomerCallbackUrl(callbackUrl);
+  const copy = getLocaleCopy();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,7 +53,7 @@ export function CustomerLoginForm({
     });
 
     if (result?.error) {
-      setError("Email o contraseña incorrectos");
+      setError(copy.wrongCredentials);
       setLoading(false);
       return;
     }
@@ -58,7 +61,7 @@ export function CustomerLoginForm({
     const session = await getSession();
     if (session?.user?.role !== "CUSTOMER") {
       await signOut({ redirect: false });
-      setError("Esta cuenta es de administración. Usá el panel admin.");
+      setError(copy.adminAccountError);
       setLoading(false);
       return;
     }
@@ -76,6 +79,7 @@ export function CustomerLoginForm({
             rememberMe={rememberMe}
             callbackUrl={redirectTo}
             disabled={loading}
+            label={copy.continueWithGoogle}
           />
           <AuthProviderDivider />
         </>
@@ -94,7 +98,7 @@ export function CustomerLoginForm({
           />
         </div>
         <div>
-          <Label htmlFor="customer-password">Contraseña</Label>
+          <Label htmlFor="customer-password">{copy.password}</Label>
           <Input
             id="customer-password"
             name="password"
@@ -108,26 +112,27 @@ export function CustomerLoginForm({
           id="customer-remember-me"
           checked={rememberMe}
           onChange={setRememberMe}
+          label={copy.rememberMe}
         />
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Ingresando..." : "Ingresar"}
+          {loading ? copy.signingIn : copy.signInAction}
         </Button>
         <p className="text-center text-sm text-neutral-600">
           <Link
-            href="/cuenta/recuperar-contrasena"
+            href={storefrontPath("forgotPassword")}
             className="font-medium text-[var(--brand-primary)] hover:underline"
           >
-            ¿Olvidaste tu contraseña?
+            {copy.forgotPassword}
           </Link>
         </p>
         <p className="text-center text-sm text-neutral-600">
-          ¿No tenés cuenta?{" "}
+          {copy.noAccount}{" "}
           <Link
-            href="/cuenta/registrarse"
+            href={storefrontPath("register")}
             className="font-medium text-[var(--brand-primary)] hover:underline"
           >
-            Registrate
+            {copy.registerAction}
           </Link>
         </p>
       </form>
@@ -141,6 +146,7 @@ export function CustomerRegisterForm({
   googleAuthEnabled?: boolean;
 }) {
   const router = useRouter();
+  const copy = getLocaleCopy();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -165,7 +171,7 @@ export function CustomerRegisterForm({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "No se pudo crear la cuenta");
+        throw new Error(data.error ?? copy.couldNotCreate);
       }
 
       setAuthIntentCookies("customer", false);
@@ -177,14 +183,14 @@ export function CustomerRegisterForm({
       });
 
       if (signInResult?.error) {
-        router.push("/cuenta/ingresar");
+        router.push(storefrontPath("signIn"));
         return;
       }
 
-      router.push("/cuenta/pedidos");
+      router.push(storefrontPath("accountOrders"));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
+      setError(err instanceof Error ? err.message : copy.unexpectedError);
       setLoading(false);
     }
   };
@@ -196,8 +202,9 @@ export function CustomerRegisterForm({
           <GoogleSignInButton
             context="customer_register"
             rememberMe={false}
-            callbackUrl="/cuenta/pedidos"
+            callbackUrl={storefrontPath("accountOrders")}
             disabled={loading}
+            label={copy.continueWithGoogle}
           />
           <AuthProviderDivider />
         </>
@@ -205,7 +212,7 @@ export function CustomerRegisterForm({
 
       <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="register-name">Nombre completo</Label>
+        <Label htmlFor="register-name">{copy.fullName}</Label>
         <Input
           id="register-name"
           name="name"
@@ -224,7 +231,7 @@ export function CustomerRegisterForm({
         />
       </div>
       <div>
-        <Label htmlFor="register-password">Contraseña</Label>
+        <Label htmlFor="register-password">{copy.password}</Label>
         <Input
           id="register-password"
           name="password"
@@ -233,19 +240,19 @@ export function CustomerRegisterForm({
           minLength={6}
           required
         />
-        <p className="mt-1 text-xs text-neutral-500">Mínimo 6 caracteres</p>
+        <p className="mt-1 text-xs text-neutral-500">{copy.minPassword}</p>
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Creando cuenta..." : "Crear cuenta"}
+        {loading ? copy.creatingAccount : copy.createAccount}
       </Button>
       <p className="text-center text-sm text-neutral-600">
-        ¿Ya tenés cuenta?{" "}
+        {copy.haveAccount}{" "}
         <Link
-          href="/cuenta/ingresar"
+          href={storefrontPath("signIn")}
           className="font-medium text-[var(--brand-primary)] hover:underline"
         >
-          Ingresá
+          {copy.signInShort}
         </Link>
       </p>
       </form>

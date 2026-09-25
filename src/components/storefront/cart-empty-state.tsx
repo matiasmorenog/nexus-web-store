@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type CartEmptyStateProps = {
   onContinue?: () => void;
@@ -8,6 +9,7 @@ type CartEmptyStateProps = {
 };
 
 export function CartEmptyState({ onContinue, compact = false }: CartEmptyStateProps) {
+  const copy = getStorefrontCopy();
   return (
     <div
       className={
@@ -19,17 +21,17 @@ export function CartEmptyState({ onContinue, compact = false }: CartEmptyStatePr
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200/80">
         <ShoppingBag className="h-7 w-7 text-[var(--brand-primary)]/70" />
       </div>
-      <p className="text-base font-medium text-neutral-900">Tu carrito está vacío</p>
+      <p className="text-base font-medium text-neutral-900">{copy.emptyCart}</p>
       <p className="mt-1 max-w-xs text-sm text-neutral-500">
-        Explorá el catálogo y encontrá tu próxima prenda favorita.
+        {copy.emptyCartDescription}
       </p>
       {onContinue ? (
         <Button variant="secondary" className="mt-5" onClick={onContinue}>
-          Seguir comprando
+          {copy.keepShopping}
         </Button>
       ) : (
         <Link href="/productos" className="mt-5 inline-block">
-          <Button variant="secondary">Ver productos</Button>
+          <Button variant="secondary">{copy.viewProducts}</Button>
         </Link>
       )}
     </div>

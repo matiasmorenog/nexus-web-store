@@ -117,6 +117,7 @@ export default async function ProductPage({ params }: PageProps) {
           image={image}
           url={productUrl}
           price={minPrice}
+          currency={config.currency}
           inStock={inStock}
         />
       ) : null}

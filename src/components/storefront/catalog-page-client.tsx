@@ -17,8 +17,9 @@ import {
   type CatalogIndexData,
 } from "@/lib/catalog-index";
 import { categoriesForStoreFilter } from "@/lib/categories";
-import type { ProductCategoryDef } from "@/lib/store-verticals/types";
+import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/types";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type CatalogPageClientProps = {
   index: CatalogIndexData;
@@ -26,7 +27,7 @@ type CatalogPageClientProps = {
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
   showProductSearch: boolean;
-  catalogVertical: "app1" | "app2";
+  catalogVertical: StoreVertical;
   variantSizeParam: "talle" | "nicotina";
   variantSizeLabel: string;
   variantColorLabel?: string;
@@ -38,10 +39,11 @@ function catalogDescription(
   params: ReturnType<typeof parseCatalogParams>,
   storeDisplayName: string,
 ) {
+  const copy = getStorefrontCopy();
   const searchQuery = params.q?.trim();
 
   if (params.destacados === "1") {
-    return "Selección destacada de la tienda.";
+    return copy.featuredDescription;
   }
 
   if (params.promo === "2x1") {
@@ -49,10 +51,10 @@ function catalogDescription(
   }
 
   if (searchQuery) {
-    return `Resultados para “${searchQuery}”`;
+    return copy.resultsFor(searchQuery);
   }
 
-  return `Explorá el catálogo completo de ${storeDisplayName}.`;
+  return copy.catalogDescription(storeDisplayName);
 }
 
 export function CatalogPageClient({
@@ -69,6 +71,7 @@ export function CatalogPageClient({
   categories,
 }: CatalogPageClientProps) {
   const searchParams = useSearchParams();
+  const copy = getStorefrontCopy();
   const params = useMemo(
     () => parseCatalogParams(searchParams),
     [searchParams],
@@ -123,7 +126,7 @@ export function CatalogPageClient({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <StorefrontPageHeader
-        title="Productos"
+        title={copy.products}
         description={catalogDescription(params, storeDisplayName)}
         className={isApp2 ? "[&_h1]:text-[var(--brand-primary-light)] [&_p]:text-app2-muted" : undefined}
       />
@@ -155,7 +158,8 @@ export function CatalogPageClient({
                 isApp2 ? "text-[var(--brand-primary-light)]" : "text-neutral-700",
               )}
             >
-              {page.total} producto{page.total !== 1 ? "s" : ""}
+              {page.total}{" "}
+              {page.total === 1 ? copy.productSingular : copy.productPlural}
             </p>
             <ProductSortSelect />
           </div>

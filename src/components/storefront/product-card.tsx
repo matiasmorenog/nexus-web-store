@@ -4,6 +4,7 @@ import { getProductTaxonomyLabel } from "@/lib/categories";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type ProductCardProps = {
   slug: string;
@@ -31,6 +32,7 @@ export function ProductCard({
   className,
 }: ProductCardProps) {
   const showPromoBadge = promo2x1;
+  const copy = getStorefrontCopy();
   const hasHoverImage = Boolean(
     inStock && hoverImageUrl && hoverImageUrl !== imageUrl,
   );
@@ -57,7 +59,7 @@ export function ProductCard({
           )}
           {!inStock && (
             <span className="absolute left-3 top-3 z-20 rounded-md bg-neutral-900/85 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
-              Sin stock
+              {copy.outOfStock}
             </span>
           )}
           {imageUrl ? (
@@ -89,7 +91,7 @@ export function ProductCard({
             </>
           ) : (
             <div className="flex h-full items-center justify-center px-4 text-center text-xs text-neutral-400">
-              Sin imagen
+              {copy.noImage}
             </div>
           )}
         </div>

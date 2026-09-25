@@ -6,10 +6,11 @@ import { Heart } from "lucide-react";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { cn } from "@/lib/utils";
 import { app2ButtonClassName } from "@/themes/app2/components/app2-button";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type WishlistHeaderLinkProps = {
   chrome?: "light" | "dark";
-  uiVariant?: "app1" | "app2";
+  uiVariant?: "app1" | "app2" | "app3";
 };
 
 export function WishlistHeaderLink({
@@ -18,6 +19,7 @@ export function WishlistHeaderLink({
 }: WishlistHeaderLinkProps) {
   const ready = useHydrated();
   const totalItems = useWishlistStore((state) => state.totalItems());
+  const copy = getStorefrontCopy();
 
   const app2Class = app2ButtonClassName({
     variant: "ghost",
@@ -34,7 +36,7 @@ export function WishlistHeaderLink({
   return (
     <Link
       href="/favoritos"
-      aria-label="Ver favoritos"
+      aria-label={copy.favorites}
       className={cn(
         uiVariant === "app2"
           ? app2Class

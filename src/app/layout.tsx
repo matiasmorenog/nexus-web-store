@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { DM_Sans, Inter, Oswald, Rajdhani } from "next/font/google";
+import { DM_Sans, Inter, Oswald, Rajdhani, Sora } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,6 +27,12 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600", "700"],
 });
 
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const viewport = {
   width: "device-width",
   initialScale: 1,
@@ -33,11 +40,8 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: {
-    default: "Indumentaria",
-    template: "%s | Indumentaria",
-  },
-  description: "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",
+  title: "Nexus Web Store",
+  description: "Tienda online",
 };
 
 export default function RootLayout({
@@ -45,10 +49,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = getStorefrontConfig().locale.split("-")[0];
+
   return (
     <html
-      lang="es"
-      className={`${inter.variable} ${oswald.variable} ${rajdhani.variable} ${dmSans.variable} h-full antialiased`}
+      lang={lang}
+      className={`${inter.variable} ${oswald.variable} ${rajdhani.variable} ${dmSans.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

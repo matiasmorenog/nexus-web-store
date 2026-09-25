@@ -21,6 +21,7 @@ import {
 } from "@/lib/promo-2x1";
 import { isPromo2x1ActiveForStore } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 const checkoutSchema = z
   .object({
@@ -73,6 +74,16 @@ const checkoutSchema = z
 
 export async function POST(request: NextRequest) {
   try {
+    if (!getStorefrontConfig().features.checkout) {
+      return NextResponse.json(
+        {
+          error:
+            "Il checkout non è ancora disponibile. Contattaci per una richiesta personalizzata.",
+        },
+        { status: 503 },
+      );
+    }
+
     const body = await request.json();
     const parsed = checkoutSchema.safeParse(body);
 

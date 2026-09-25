@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -7,10 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatPrice(amount: number | string) {
   const value = typeof amount === "string" ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat("es-AR", {
+  const { locale, currency } = getClientStorefrontConfig();
+  return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
+    currency,
+    minimumFractionDigits: currency === "ARS" ? 0 : 2,
   }).format(value);
 }
 

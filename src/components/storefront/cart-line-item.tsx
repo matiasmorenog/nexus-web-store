@@ -12,6 +12,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { usePromoConfigStore } from "@/stores/promo-config-store";
 import { getClientVariantLabels } from "@/lib/variant-labels";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type CartLineItemProps = {
   item: CartItem;
@@ -33,6 +34,7 @@ export function CartLineItem({
   style,
 }: CartLineItemProps) {
   const variantLabels = getClientVariantLabels();
+  const copy = getStorefrontCopy();
   const isPage = variant === "page";
   const cartItems = useCartStore((state) => state.items);
   const promo2x1Active = usePromoConfigStore((s) => s.promo2x1Active);
@@ -102,12 +104,12 @@ export function CartLineItem({
                 </div>
               )}
               <p className="mt-1 text-xs text-neutral-400">
-                {formatPrice(item.price)} c/u
+                {formatPrice(item.price)} {copy.each}
               </p>
             </div>
             <button
               type="button"
-              aria-label={`Quitar ${item.productName} del carrito`}
+              aria-label={copy.removeFromCart(item.productName)}
               onClick={onRemove}
               className="shrink-0 rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
             >

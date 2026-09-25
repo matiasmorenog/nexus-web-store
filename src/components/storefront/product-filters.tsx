@@ -4,11 +4,12 @@ import { useSearchParams } from "next/navigation";
 import { categoriesForStoreFilter, STORE_AUDIENCES } from "@/lib/categories";
 import type { CatalogFilterCounts } from "@/lib/catalog-index";
 import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
-import type { ProductCategoryDef } from "@/lib/store-verticals/types";
+import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/types";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 
@@ -60,7 +61,7 @@ type ProductFiltersProps = {
   showAudienceFilter: boolean;
   showPromo2x1: boolean;
   showProductSearch: boolean;
-  catalogVertical: "app1" | "app2";
+  catalogVertical: StoreVertical;
   variantSizeOptions: string[];
   variantSizeParam: "talle" | "nicotina";
   variantSizeLabel: string;
@@ -83,6 +84,7 @@ export function ProductFilters({
   categories,
 }: ProductFiltersProps) {
   const searchParams = useSearchParams();
+  const copy = getStorefrontCopy();
   const navigateCatalog = useCatalogNavigation();
   const isApp2 = catalogVertical === "app2";
   const sizeParam = variantSizeParam;
@@ -167,14 +169,14 @@ export function ProductFilters({
       {showProductSearch ? <ProductSearch /> : null}
 
       <div>
-        <Label className={labelClass}>Promoción</Label>
+        <Label className={labelClass}>{copy.promotion}</Label>
         <div className="space-y-1">
           <button
             type="button"
             onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
             className={filterButtonClass(activeDestacados)}
           >
-            <span>Destacados</span>
+            <span>{copy.featured}</span>
             <FilterCount count={counts.destacados} active={activeDestacados} />
           </button>
           {showPromo2x1 ? (
@@ -226,14 +228,14 @@ export function ProductFilters({
       ) : null}
 
       <div>
-        <Label className={labelClass}>Categoría</Label>
+        <Label className={labelClass}>{copy.category}</Label>
         <div className="space-y-1">
           <button
             type="button"
             onClick={() => update({ ...baseFilterParams(), categoria: "" })}
             className={filterButtonClass(!activeCategory)}
           >
-            <span>Todas</span>
+            <span>{copy.all}</span>
             <FilterCount count={counts.categoriaAll} active={!activeCategory} />
           </button>
 
@@ -324,7 +326,7 @@ export function ProductFilters({
 
       <div>
         <Label htmlFor="precio-max" className={labelClass}>
-          Precio máximo
+          {copy.maxPrice}
         </Label>
         <select
           id="precio-max"

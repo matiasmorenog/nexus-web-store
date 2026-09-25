@@ -7,6 +7,7 @@ import { getStoreMarketingSettings } from "@/lib/marketing/query";
 import { getOrderShippingInfo } from "@/lib/order-shipping";
 import { formatOrderId } from "@/lib/order-status";
 import { getStoreId } from "@/lib/store-context";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function CheckoutSuccessPage({
 }) {
   const params = await searchParams;
   const storeId = await getStoreId();
+  const config = getStorefrontConfig();
   const marketing = await getStoreMarketingSettings(storeId);
 
   const order = params.order
@@ -54,6 +56,7 @@ export default async function CheckoutSuccessPage({
         <MetaPixelPurchaseEvent
           orderId={order.id}
           value={Number(order.total)}
+          currency={config.currency}
         />
       ) : null}
       <StorefrontStatusPage

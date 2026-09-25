@@ -5,7 +5,7 @@ import {
   getCategoryLabelFromList,
   getProductTaxonomyLabel as taxonomyLabel,
 } from "@/lib/store-verticals/taxonomy";
-import { getStorefrontConfig } from "@/lib/store-verticals";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { APP1_PRODUCT_CATEGORIES } from "@/lib/store-verticals/app1/config";
 import type { ProductCategoryDef } from "@/lib/store-verticals/types";
 
@@ -30,7 +30,7 @@ export const STORE_CATEGORIES = PRODUCT_CATEGORIES;
 function resolveCategories(
   categories?: readonly ProductCategoryDef[],
 ): readonly ProductCategoryDef[] {
-  return categories ?? getStorefrontConfig().productCategories;
+  return categories ?? getClientStorefrontConfig().productCategories;
 }
 
 export function categoriesForStoreFilter(
@@ -64,7 +64,7 @@ export function categoriesForAudience(
 }
 
 export function getAudienceLabel(slug: string) {
-  const config = getStorefrontConfig();
+  const config = getClientStorefrontConfig();
   return config.audiences.find((audience) => audience.slug === slug)?.label ?? slug;
 }
 
@@ -80,7 +80,7 @@ export function getProductTaxonomyLabel(
   audience: string,
   categories?: readonly ProductCategoryDef[],
 ) {
-  const config = getStorefrontConfig();
+  const config = getClientStorefrontConfig();
   return taxonomyLabel(
     resolveCategories(categories),
     config.audiences,

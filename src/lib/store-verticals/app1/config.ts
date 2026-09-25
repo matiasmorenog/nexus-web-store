@@ -70,6 +70,8 @@ const APP1_PRICE_TIERS = [
 
 export const app1Config: VerticalConfig = {
   id: "app1",
+  locale: "es-AR",
+  currency: "ARS",
   storefrontMode: "full",
   brandLogoAccent: "Indumentaria",
   metadata: {
@@ -77,6 +79,7 @@ export const app1Config: VerticalConfig = {
       "Ropa deportiva y CrossFit. Indumentaria para entrenar sin límites.",
   },
   features: {
+    checkout: true,
     catalog: true,
     catalogFilters: true,
     productSearch: true,

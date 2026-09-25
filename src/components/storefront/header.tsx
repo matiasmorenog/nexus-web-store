@@ -21,9 +21,11 @@ import { WishlistHeaderLink } from "@/components/storefront/wishlist-header-link
 import { App2StoreLogo } from "@/themes/app2/components/home/app2-store-logo";
 import { App2ThemeToggle } from "@/themes/app2/components/app2-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
+import { ManovivaLogo } from "@/themes/app3/components/manoviva-logo";
 import { Button } from "@/components/ui/button";
 import { App2Button } from "@/themes/app2/components/app2-button";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type HeaderProps = {
   storeName: string;
@@ -31,7 +33,7 @@ type HeaderProps = {
   navMobile: HeaderNavLink[];
   features: VerticalFeatures;
   chrome?: "light" | "dark";
-  uiVariant?: "app1" | "app2";
+  uiVariant?: "app1" | "app2" | "app3";
   wishlistEnabled?: boolean;
   showApp2ThemeToggle?: boolean;
   /** 2x1 activo (módulo coupons + toggle). Controla banner y links promo. */
@@ -179,6 +181,8 @@ export function Header({
 
   const isDarkChrome = chrome === "dark";
   const isApp2Ui = uiVariant === "app2";
+  const isApp3Ui = uiVariant === "app3";
+  const copy = getStorefrontCopy();
 
   const navLinkClass = (link: HeaderNavLink, mobile = false) => {
     const active = isStorefrontNavActive(link.match, pathname, navParams, {
@@ -267,7 +271,7 @@ export function Header({
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
-              aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-label={mobileOpen ? copy.closeMenu : copy.openMenu}
               className={cn(
                 "rounded-lg p-2 lg:hidden",
                 isDarkChrome
@@ -280,6 +284,8 @@ export function Header({
             </button>
             {isApp2Ui ? (
               <App2StoreLogo storeName={storeName} />
+            ) : isApp3Ui ? (
+              <ManovivaLogo />
             ) : (
               <StoreLogo storeName={storeName} />
             )}
@@ -315,7 +321,7 @@ export function Header({
                 type="button"
                 variant="ghost"
                 size="md"
-                aria-label="Abrir carrito"
+                aria-label={copy.openCart}
                 className="relative h-10 px-3"
                 onClick={() => setCartOpen(true)}
               >
@@ -335,7 +341,7 @@ export function Header({
               <Button
                 type="button"
                 variant="secondary"
-                aria-label="Abrir carrito"
+                aria-label={copy.openCart}
                 className="relative px-3"
                 onClick={() => setCartOpen(true)}
               >

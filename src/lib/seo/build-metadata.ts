@@ -9,6 +9,7 @@ import type {
   ResolvedStoreSeoSettings,
   StoreSeoContext,
 } from "@/lib/seo/types";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 function resolveDescription(
   settings: ResolvedStoreSeoSettings | null,
@@ -41,6 +42,7 @@ export function buildStorefrontMetadata(
     type?: "website" | "product";
   },
 ): Metadata {
+  const locale = getStorefrontConfig().locale.replace("-", "_");
   const title = options?.title ?? context.storeName;
   const description = resolveDescription(settings, context, options?.description);
   const image = resolveOgImage(settings, options?.image);
@@ -64,7 +66,7 @@ export function buildStorefrontMetadata(
       : { index: false, follow: false },
     openGraph: {
       type: "website",
-      locale: "es_AR",
+      locale,
       url: canonical,
       siteName: context.storeName,
       title,

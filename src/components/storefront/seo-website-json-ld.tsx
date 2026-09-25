@@ -2,12 +2,14 @@ type StorefrontWebsiteJsonLdProps = {
   name: string;
   url: string;
   description: string;
+  language?: string;
 };
 
 export function StorefrontWebsiteJsonLd({
   name,
   url,
   description,
+  language = "es-AR",
 }: StorefrontWebsiteJsonLdProps) {
   const payload = {
     "@context": "https://schema.org",
@@ -15,7 +17,7 @@ export function StorefrontWebsiteJsonLd({
     name,
     url,
     description,
-    inLanguage: "es-AR",
+    inLanguage: language,
   };
 
   return (

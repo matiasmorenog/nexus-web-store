@@ -5,12 +5,13 @@ import { renderCatalogProductCard } from "@/themes/catalog-product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonProductCard } from "@/components/storefront/storefront-skeleton";
 import type { CatalogProductRow } from "@/lib/catalog-index";
+import type { StoreVertical } from "@/lib/store-verticals/types";
 import { CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cn } from "@/lib/utils";
 
 type CatalogGridSectionProps = {
   products: CatalogProductRow[];
-  catalogVertical?: "app1" | "app2";
+  catalogVertical?: StoreVertical;
   promo2x1Active?: boolean;
   initialPage: {
     products: CatalogProductRow[];

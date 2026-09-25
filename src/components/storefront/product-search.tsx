@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type ProductSearchProps = {
   className?: string;
@@ -22,6 +23,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
   const inputRef = useRef<HTMLInputElement>(null);
   const qFromUrl = searchParams.get("q") ?? "";
   const [prevQFromUrl, setPrevQFromUrl] = useState(qFromUrl);
+  const copy = getStorefrontCopy();
 
   if (qFromUrl !== prevQFromUrl) {
     setPrevQFromUrl(qFromUrl);
@@ -66,18 +68,18 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
           <Search className="pointer-events-none absolute left-3 h-4 w-4 text-neutral-400" />
           <Input
             type="search"
-            placeholder="Buscar productos..."
+            placeholder={copy.searchProducts}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="h-10 w-44 pl-9 pr-8 xl:w-52"
-            aria-label="Buscar productos"
+            aria-label={copy.searchProducts}
           />
           {query && (
             <button
               type="button"
               onClick={clear}
               className="absolute right-2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-              aria-label="Limpiar búsqueda"
+              aria-label={copy.clearSearch}
             >
               <X className="h-4 w-4" />
             </button>
@@ -86,7 +88,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
 
         <button
           type="button"
-          aria-label="Buscar productos"
+          aria-label={copy.searchProducts}
           aria-expanded={mobileOpen}
           className="rounded-lg p-2.5 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -106,18 +108,18 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
                 <Input
                   ref={inputRef}
                   type="search"
-                  placeholder="Buscar productos..."
+                  placeholder={copy.searchProducts}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   className="h-10 pl-9 pr-8"
-                  aria-label="Buscar productos"
+                  aria-label={copy.searchProducts}
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={clear}
                     className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-                    aria-label="Limpiar búsqueda"
+                    aria-label={copy.clearSearch}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -127,7 +129,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
                 type="button"
                 onClick={() => setMobileOpen(false)}
                 className="shrink-0 rounded-lg p-2 text-neutral-600 hover:bg-neutral-100"
-                aria-label="Cerrar búsqueda"
+                aria-label={copy.closeSearch}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -141,14 +143,14 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
   return (
     <form onSubmit={submit} className={className} role="search">
       <Label htmlFor="product-search" className="mb-2 block">
-        Buscar
+        {copy.search}
       </Label>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <Input
           id="product-search"
           type="search"
-          placeholder="Nombre, descripción..."
+          placeholder={copy.searchDescription}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-9 pr-8"
@@ -158,7 +160,7 @@ export function ProductSearch({ className, compact = false }: ProductSearchProps
             type="button"
             onClick={clear}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-            aria-label="Limpiar búsqueda"
+            aria-label={copy.clearSearch}
           >
             <X className="h-4 w-4" />
           </button>

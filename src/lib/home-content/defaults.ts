@@ -9,6 +9,7 @@ import {
 import { app2CatalogHref } from "@/lib/store-verticals/app2/config";
 import type { HomeContentPayload, HomeSection } from "@/lib/home-content/types";
 import { HOME_CONTENT_VERSION } from "@/lib/home-content/types";
+import type { StoreVertical } from "@/lib/store-verticals/types";
 
 const APP1_CATEGORY_IMAGES: Record<string, string> = {
   mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
@@ -205,7 +206,7 @@ export function buildDefaultApp1HomeContent(
 }
 
 export function buildDefaultHomeContent(
-  vertical: "app1" | "app2",
+  vertical: StoreVertical,
   storeDisplayName: string,
 ): HomeContentPayload {
   return vertical === "app2"

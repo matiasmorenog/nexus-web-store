@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
 import { Promo2x1Badge } from "@/components/storefront/promo-2x1-badge";
 import type { VariantLabels } from "@/lib/store-verticals/types";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type Variant = {
   id: string;
@@ -41,6 +43,7 @@ export function AddToCart({
   variantLabels = { primary: "Color", secondary: "Talle" },
   variants,
 }: AddToCartProps) {
+  const copy = getStorefrontCopy();
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const colors = [...new Set(variants.map((v) => v.color))];
@@ -91,7 +94,9 @@ export function AddToCart({
 
     setBuyingNow(true);
     addItem(item);
-    router.push("/checkout");
+    router.push(
+      getClientStorefrontConfig().features.checkout ? "/checkout" : "/contacto",
+    );
   };
 
   const outOfStock = !selectedVariant || selectedVariant.stock <= 0;
@@ -183,10 +188,10 @@ export function AddToCart({
           disabled={disabled}
         >
           {buyingNow
-            ? "Redirigiendo..."
+            ? copy.redirecting
             : outOfStock
-              ? "Sin stock"
-              : "Comprar ahora"}
+              ? copy.outOfStock
+              : copy.buyNow}
         </Button>
         <Button
           size="lg"
@@ -198,12 +203,12 @@ export function AddToCart({
           {added ? (
             <span className="inline-flex items-center gap-2">
               <Check className="h-5 w-5" aria-hidden />
-              ¡Agregado!
+              {copy.added}
             </span>
           ) : outOfStock ? (
-            "Sin stock"
+            copy.outOfStock
           ) : (
-            "Agregar al carrito"
+            copy.addToCart
           )}
         </Button>
       </div>

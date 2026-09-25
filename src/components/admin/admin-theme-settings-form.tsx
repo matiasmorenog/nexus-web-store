@@ -19,7 +19,7 @@ import {
 
 type AdminThemeSettingsFormProps = {
   initialSettings: StoreThemeSettingsData;
-  vertical: "app1" | "app2";
+  vertical: "app1" | "app2" | "app3";
 };
 
 export function AdminThemeSettingsForm({

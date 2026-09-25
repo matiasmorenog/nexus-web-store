@@ -6,9 +6,11 @@ import {
   type App1SeedProduct,
 } from "./seed-data-app1";
 import { APP2_PRODUCTS } from "./seed-data-app2";
+import { APP3_PRODUCTS } from "./seed-data-app3";
 import {
   DEFAULT_STORE_SLUG,
   APP2_STORE_SLUG,
+  APP3_STORE_SLUG,
   SEED_STORES,
   SEED_CUSTOMER_EMAIL,
   SEED_CUSTOMER_NAME,
@@ -18,6 +20,7 @@ import {
 } from "./seed-env";
 import { APP1_PRODUCT_CATEGORIES } from "../src/lib/store-verticals/app1/config";
 import { APP2_PRODUCT_CATEGORIES } from "../src/lib/store-verticals/app2/config";
+import { APP3_PRODUCT_CATEGORIES } from "../src/lib/store-verticals/app3/config";
 import { seedStoreCategories } from "../src/lib/store-categories/seed";
 
 export const prisma = new PrismaClient();
@@ -25,18 +28,20 @@ export const prisma = new PrismaClient();
 export const STORE_SLUG_BY_PROFILE = {
   app1: DEFAULT_STORE_SLUG,
   app2: APP2_STORE_SLUG,
+  app3: APP3_STORE_SLUG,
 } as const;
 
 export type StoreProfile = keyof typeof STORE_SLUG_BY_PROFILE;
 
 export function resolveStoreProfile(value: string): StoreProfile | null {
-  if (value === "app1" || value === "app2") return value;
+  if (value === "app1" || value === "app2" || value === "app3") return value;
   return null;
 }
 
 export function slugToProfile(slug: string): StoreProfile | null {
   if (slug === DEFAULT_STORE_SLUG) return "app1";
   if (slug === APP2_STORE_SLUG) return "app2";
+  if (slug === APP3_STORE_SLUG) return "app3";
   return null;
 }
 
@@ -155,8 +160,8 @@ async function createStoreWithAdmin(config: SeedStoreConfig) {
       name: config.name,
       slug: config.slug,
       primaryColor: config.primaryColor,
-      secondaryColor: "#ffffff",
-      allowPickup: true,
+      secondaryColor: config.secondaryColor ?? "#ffffff",
+      allowPickup: config.allowPickup ?? true,
     },
   });
 
@@ -239,6 +244,66 @@ async function seedApp2Products(storeId: string) {
   return APP2_PRODUCTS.length;
 }
 
+async function seedApp3Products(storeId: string) {
+  for (const product of APP3_PRODUCTS) {
+    const slug = slugify(product.name);
+    await prisma.product.create({
+      data: {
+        storeId,
+        name: product.name,
+        slug,
+        description: product.description,
+        category: product.category,
+        audience: "unisex",
+        featured: product.featured,
+        promo2x1: false,
+        variants: {
+          create: {
+            size: product.format,
+            color: product.finish,
+            sku: `MV-${slug.toUpperCase()}`,
+            stock: 1,
+            price: product.price,
+            imageUrl: product.image,
+          },
+        },
+      },
+    });
+  }
+
+  return APP3_PRODUCTS.length;
+}
+
+async function seedDisabledApp3Commerce(storeId: string) {
+  await Promise.all([
+    prisma.storePaymentSettings.upsert({
+      where: { storeId },
+      create: { storeId, transferEnabled: false },
+      update: { transferEnabled: false, transferInstructions: null },
+    }),
+    prisma.storeShippingSettings.upsert({
+      where: { storeId },
+      create: { storeId, carriersEnabled: false },
+      update: { carriersEnabled: false, originZip: null },
+    }),
+    prisma.storeMarketingSettings.upsert({
+      where: { storeId },
+      create: {
+        storeId,
+        whatsappEnabled: false,
+        whatsappMessage:
+          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+      },
+      update: {
+        whatsappEnabled: false,
+        whatsappPhone: null,
+        whatsappMessage:
+          "Ciao! Vorrei informazioni su una creazione personalizzata Manoviva.",
+      },
+    }),
+  ]);
+}
+
 type SeedStoreOptions = {
   /** Por defecto true: limpia solo esta tienda antes de insertar. */
   wipeFirst?: boolean;
@@ -278,6 +343,23 @@ export async function seedApp2Store(options: SeedStoreOptions = {}) {
   return { store, admin, config, productCount };
 }
 
+export async function seedApp3Store(options: SeedStoreOptions = {}) {
+  const { wipeFirst = true } = options;
+  const slug = APP3_STORE_SLUG;
+
+  if (wipeFirst) {
+    await wipeStoreBySlug(slug);
+  }
+
+  const config = getStoreConfig(slug);
+  const { store, admin } = await createStoreWithAdmin(config);
+  await seedStoreCategories(prisma, store.id, APP3_PRODUCT_CATEGORIES);
+  const productCount = await seedApp3Products(store.id);
+  await seedDisabledApp3Commerce(store.id);
+
+  return { store, admin, config, productCount };
+}
+
 /** Cuenta cliente demo compartida (pedidos demo por email). */
 export async function ensureSeedCustomerUser() {
   await prisma.user.deleteMany({
@@ -305,8 +387,9 @@ export async function ensureSeedCustomerUser() {
 export async function seedAllStores(options: SeedStoreOptions = {}) {
   const app1 = await seedApp1Store(options);
   const app2 = await seedApp2Store(options);
+  const app3 = await seedApp3Store(options);
   await ensureSeedCustomerUser();
-  return { app1, app2 };
+  return { app1, app2, app3 };
 }
 
 export function summarizeApp1Seed() {

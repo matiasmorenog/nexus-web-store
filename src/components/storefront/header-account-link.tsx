@@ -7,6 +7,8 @@ import { User } from "lucide-react";
 import { buildCustomerLoginHref } from "@/lib/customer-auth-redirect";
 import { cn } from "@/lib/utils";
 import { app2ButtonClassName } from "@/themes/app2/components/app2-button";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const app2LinkClass = app2ButtonClassName({
   variant: "secondary",
@@ -25,12 +27,14 @@ export function HeaderAccountLink({
   uiVariant = "app1",
 }: {
   chrome?: "light" | "dark";
-  uiVariant?: "app1" | "app2";
+  uiVariant?: "app1" | "app2" | "app3";
 }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const hydrated = useHydrated();
+  const copy = getStorefrontCopy();
 
-  if (status === "loading") {
+  if (!hydrated || status === "loading") {
     return (
       <span
         className="inline-flex h-10 w-10 shrink-0 items-center justify-center"
@@ -45,7 +49,7 @@ export function HeaderAccountLink({
       : buildCustomerLoginHref(pathname);
 
   const label =
-    session?.user?.role === "CUSTOMER" ? "Mi cuenta" : "Ingresar";
+    session?.user?.role === "CUSTOMER" ? copy.account : copy.signIn;
 
   return (
     <Link

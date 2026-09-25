@@ -249,7 +249,8 @@ export const adminProducts = {
     statusNormal: "Normal",
     statusPromo2x1: "2x1",
     clearFilters: "Limpiar filtros",
-    removeFilterAria: (label: string) => `Quitar filtro ${label}`,
+    /** Template with `{label}` — plain string so Server Components can pass it to Client. */
+    removeFilterAria: "Quitar filtro {label}",
     columns: {
       product: "Producto",
       category: "Categoría",
@@ -322,7 +323,8 @@ export const adminProducts = {
     statusNormal: "Normale",
     statusPromo2x1: "2x1",
     clearFilters: "Cancella filtri",
-    removeFilterAria: (label: string) => `Rimuovi filtro ${label}`,
+    /** Template with `{label}` — plain string so Server Components can pass it to Client. */
+    removeFilterAria: "Rimuovi filtro {label}",
     columns: {
       product: "Prodotto",
       category: "Categoria",

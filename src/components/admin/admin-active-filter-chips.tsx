@@ -11,7 +11,8 @@ type AdminActiveFilterChipsProps = {
   clearParams: readonly string[];
   className?: string;
   clearFiltersLabel?: string;
-  removeFilterAria?: (label: string) => string;
+  /** Aria template with `{label}` placeholder (plain string — safe Server → Client). */
+  removeFilterAria?: string;
 };
 
 export function AdminActiveFilterChips({
@@ -20,7 +21,7 @@ export function AdminActiveFilterChips({
   clearParams,
   className,
   clearFiltersLabel = "Limpiar filtros",
-  removeFilterAria = (label) => `Quitar filtro ${label}`,
+  removeFilterAria = "Quitar filtro {label}",
 }: AdminActiveFilterChipsProps) {
   const navigateCatalog = useAdminListNavigation();
 
@@ -69,7 +70,7 @@ export function AdminActiveFilterChips({
             "bg-[var(--brand-primary-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-primary)]",
             "transition-colors hover:border-[var(--brand-primary)]/40 hover:bg-[var(--brand-primary)]/15",
           )}
-          aria-label={removeFilterAria(chip.label)}
+          aria-label={removeFilterAria.replace("{label}", chip.label)}
         >
           <span>{chip.label}</span>
           <X className="size-3.5 shrink-0 opacity-70" aria-hidden />

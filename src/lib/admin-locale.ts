@@ -106,3 +106,44 @@ export const adminChrome = {
     italian: "Italiano",
   },
 } as const;
+
+/** Admin labels for product option axes (size/color), localized by admin_locale. */
+export const adminProductOptions = {
+  es: {
+    sizeToggle: "Este producto tiene tamaño",
+    sizeToggleHint:
+      "Activá para definir formato o tamaño de la pieza. Desactivado: un solo SKU sin opciones de tamaño.",
+    sizeInitial: (secondary: string) => `${secondary} inicial`,
+    primaryInitial: (primary: string) => `${primary} inicial`,
+  },
+  it: {
+    sizeToggle: "Questo prodotto ha una dimensione",
+    sizeToggleHint:
+      "Attiva per definire formato o dimensione del pezzo. Disattivato: un solo SKU senza opzioni di dimensione.",
+    sizeInitial: (secondary: string) => `${secondary} iniziale`,
+    primaryInitial: (primary: string) => `${primary} iniziale`,
+  },
+} as const;
+
+export const APP3_ADMIN_VARIANT_LABELS: Record<
+  AdminLocale,
+  {
+    primary: string;
+    secondary: string;
+    primaryInitial: string;
+    secondaryInitial: string;
+  }
+> = {
+  es: {
+    primary: "Acabado",
+    secondary: "Tamaño",
+    primaryInitial: "Personalizado",
+    secondaryInitial: "Único",
+  },
+  it: {
+    primary: "Finitura",
+    secondary: "Formato",
+    primaryInitial: "Personalizzato",
+    secondaryInitial: "Unico",
+  },
+};

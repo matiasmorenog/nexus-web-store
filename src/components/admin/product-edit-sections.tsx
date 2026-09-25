@@ -20,6 +20,7 @@ type ProductEditSectionsProps = {
     audience: string;
     featured: boolean;
     promo2x1: boolean;
+    hasSize: boolean;
   };
   promo2x1Selectable?: boolean;
   canManage?: boolean;
@@ -40,6 +41,7 @@ export function ProductEditSections({
   const sectionLocked = sectionBusy || !canManage;
   const [blockedHint, setBlockedHint] = useState(0);
   const [prevSectionBusy, setPrevSectionBusy] = useState(sectionBusy);
+  const [hasSize, setHasSize] = useState(product.hasSize);
 
   if (sectionBusy !== prevSectionBusy) {
     setPrevSectionBusy(sectionBusy);
@@ -149,6 +151,8 @@ export function ProductEditSections({
 
       <VariantManager
         productId={product.id}
+        hasSize={hasSize}
+        onHasSizeChange={setHasSize}
         variants={variants}
         variantsLoading={variantsLoading}
         variantsFetched={variantsFetched}

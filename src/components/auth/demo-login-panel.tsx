@@ -3,7 +3,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { signIn } from "next-auth/react";
 import { setAuthIntentCookies } from "@/lib/auth-client";
-import { isDemoLoginUiEnabled } from "@/lib/demo-login";
 import {
   demoPersonasForStore,
   type DemoPersonaKind,
@@ -35,7 +34,9 @@ function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
     });
 
     if (result?.error) {
-      setError("No se pudo iniciar la sesión demo. ¿Corriste el seed de esta tienda?");
+      setError(
+        "No se pudo iniciar la sesión demo. ¿Corriste el seed de esta tienda?",
+      );
       setLoading(false);
       return;
     }
@@ -68,12 +69,13 @@ function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
       </div>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" disabled={loading || !personaId}>
-        {loading ? "Ingresando..." : "Entrar como demo"}
+        {loading ? "Ingresando…" : "Entrar como demo"}
       </Button>
     </form>
   );
 }
 
+/** Collapsible demo access — replaces credential form while open. */
 export function LoginWithDemoOption({
   kind,
   children,
@@ -82,7 +84,6 @@ export function LoginWithDemoOption({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  if (!isDemoLoginUiEnabled()) return children;
   if (demoPersonasForStore(undefined, kind).length === 0) return children;
 
   return (
@@ -109,7 +110,7 @@ export function LoginWithDemoOption({
         {open ? (
           <div className="space-y-3 border-t border-[var(--brand-primary)]/15 px-3 pt-3 pb-4">
             <p className="text-xs text-neutral-600">
-              Persona de prueba del seed. Sin contraseña. Solo en development y
+              Elegí una persona de prueba. Sin contraseña — solo en development /
               preview.
             </p>
             <DemoLoginForm kind={kind} />

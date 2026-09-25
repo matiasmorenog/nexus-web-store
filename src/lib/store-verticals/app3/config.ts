@@ -42,6 +42,7 @@ export const app3Config: VerticalConfig = {
     showAudienceFilter: false,
     sizeGuide: false,
     ageNotice: false,
+    productSizeToggle: true,
   },
   variantLabels: {
     primary: "Finitura",

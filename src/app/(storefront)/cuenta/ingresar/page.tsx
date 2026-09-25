@@ -1,11 +1,8 @@
 import { redirect } from "next/navigation";
 import { CustomerLoginForm } from "@/components/storefront/customer-auth-form";
+import { CustomerLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
 import { resolveCustomerCallbackUrl } from "@/lib/customer-auth-redirect";
-import {
-  SEED_CUSTOMER_EMAIL,
-  SEED_CUSTOMER_PASSWORD,
-} from "@/lib/demo-customer-credentials";
 import { auth } from "@/lib/auth";
 import { isAdminRole, isGoogleAuthEnabled } from "@/lib/auth-session";
 import { getLocaleCopy } from "@/lib/storefront-locale-copy";
@@ -59,16 +56,12 @@ export default async function CustomerLoginPage({ searchParams }: PageProps) {
             {loginError}
           </p>
         ) : null}
-        <CustomerLoginForm
-          callbackUrl={redirectTo}
-          defaultEmail={
-            process.env.NODE_ENV === "development" ? SEED_CUSTOMER_EMAIL : ""
-          }
-          defaultPassword={
-            process.env.NODE_ENV === "development" ? SEED_CUSTOMER_PASSWORD : ""
-          }
-          googleAuthEnabled={isGoogleAuthEnabled()}
-        />
+        <CustomerLoginWithDemo>
+          <CustomerLoginForm
+            callbackUrl={redirectTo}
+            googleAuthEnabled={isGoogleAuthEnabled()}
+          />
+        </CustomerLoginWithDemo>
       </div>
     </div>
   );

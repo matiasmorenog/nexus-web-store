@@ -37,6 +37,7 @@ export type CatalogIndexProduct = {
   audience: string;
   featured: boolean;
   promo2x1: boolean;
+  hasSize: boolean;
   createdAt: string;
   variants: CatalogIndexVariant[];
 };
@@ -183,10 +184,13 @@ export function matchesCatalogIndexProduct(
   }
 
   if (variantSizeFilter) {
-    const hasSize = product.variants.some(
+    if (!product.hasSize) {
+      return false;
+    }
+    const hasMatchingSize = product.variants.some(
       (variant) => variant.size === variantSizeFilter && variant.stock > 0,
     );
-    if (!hasSize) {
+    if (!hasMatchingSize) {
       return false;
     }
   }

@@ -257,6 +257,7 @@ async function seedApp3Products(storeId: string) {
         audience: "unisex",
         featured: product.featured,
         promo2x1: false,
+        hasSize: false,
         variants: {
           create: {
             size: product.format,

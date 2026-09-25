@@ -5,6 +5,7 @@ import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
 import type { ModuleId } from "@/lib/modules/catalog";
 import { getStoreId } from "@/lib/store-context";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { getStoreStaffRoleForUser } from "@/lib/store-users/membership";
 import {
   canAccessAdminPath,
@@ -69,7 +70,7 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
   }
 
   if (session.user.role === "CUSTOMER") {
-    redirect("/cuenta/pedidos");
+    redirect(storefrontPath("accountOrders"));
   }
 
   if (

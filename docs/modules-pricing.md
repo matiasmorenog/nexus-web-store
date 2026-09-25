@@ -51,11 +51,10 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `seo` | SEO avanzado | ✓ | ✓ | ✓ |
 | `coupons` | Cupones y promociones (incl. 2x1) | | ✓ | ✓ |
 | `homeEditor` | Home editable | | ✓ | ✓ |
-| `premiumThemes` | Temas premium | | ✓ | ✓ |
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
 | `crm` | CRM lite | | ✓ | ✓ |
-| `multiUser` | Multi-usuario | | ✓ (≤3 staff) | ✓ (ilimitado / alto) |
+| `multiUser` | Multi-usuario | | ✓ (owner + 2 staff) | ✓ (ilimitado / alto) |
 | `analytics` | Analytics y reportes | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 
@@ -89,8 +88,9 @@ ENABLED_MODULES=marketing,seo,coupons,homeEditor
 
 | Proyecto Vercel | Slug | `ENABLED_MODULES` | Rol |
 |-----------------|------|-------------------|-----|
-| `nexus-web-store` | `demo-store` | omitido / vacío | Demo full (Pro) |
-| `nexus-vape-store` | `vape-demo` | `none` | Beta núcleo; activar vía env |
+| `nexus-web-store` | `demo-store` | omitido / vacío | Demo full (Pro). Ve Plan y módulos |
+| `nexus-vape-store` | `vape-demo` | `none` | Beta núcleo. Ve Plan y módulos |
+| `manoviva-store` | `manoviva-italia` | ignorado | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto |
 
 **Regla:** los módulos no se restringen por vertical. Gating = `storeHasModule()`.
 

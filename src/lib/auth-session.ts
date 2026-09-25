@@ -1,3 +1,5 @@
+import { APP3_STORE_SLUG } from "@/lib/store-slugs";
+
 export const AUTH_CONTEXT_COOKIE = "auth_context";
 export const AUTH_REMEMBER_COOKIE = "auth_remember";
 
@@ -29,6 +31,11 @@ export function sessionContextForAuth(
 }
 
 export function isGoogleAuthEnabled() {
+  const slug =
+    process.env.DEFAULT_STORE_SLUG ?? process.env.NEXT_PUBLIC_DEFAULT_STORE_SLUG;
+  // Manoviva: Google queda apagado hasta configurar el redirect y probar el flujo.
+  if (slug === APP3_STORE_SLUG) return false;
+
   return Boolean(
     process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
   );

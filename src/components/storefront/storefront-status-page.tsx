@@ -24,7 +24,7 @@ export function StorefrontStatusPage({
 }: StorefrontStatusPageProps) {
   return (
     <div className="mx-auto max-w-lg px-4 py-16 sm:px-6">
-      <div className="rounded-xl border border-neutral-200/80 bg-white p-8 text-center shadow-sm sm:p-10">
+      <div className="storefront-card border border-neutral-200/80 bg-white p-8 text-center shadow-sm sm:p-10">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--brand-primary-soft)]">
           <Icon className={cn("h-8 w-8", iconClassName ?? "text-[var(--brand-primary)]")} />
         </div>

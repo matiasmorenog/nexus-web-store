@@ -59,12 +59,15 @@ const APP2_HEADER_NAV_MOBILE: HeaderNavLink[] = [
 
 export const app2Config: VerticalConfig = {
   id: "app2",
+  locale: "es-AR",
+  currency: "ARS",
   storefrontMode: "full",
   metadata: {
     description:
       "Tu tienda de confianza para vapes premium. Envío seguro y productos seleccionados.",
   },
   features: {
+    checkout: true,
     catalog: true,
     catalogFilters: true,
     productSearch: true,

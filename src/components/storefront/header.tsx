@@ -21,9 +21,11 @@ import { WishlistHeaderLink } from "@/components/storefront/wishlist-header-link
 import { App2StoreLogo } from "@/themes/app2/components/home/app2-store-logo";
 import { App2ThemeToggle } from "@/themes/app2/components/app2-theme-toggle";
 import { StoreLogo } from "@/components/storefront/store-logo";
+import { ManovivaLogo } from "@/themes/app3/components/manoviva-logo";
 import { Button } from "@/components/ui/button";
 import { App2Button } from "@/themes/app2/components/app2-button";
 import { cn } from "@/lib/utils";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 type HeaderProps = {
   storeName: string;
@@ -31,9 +33,8 @@ type HeaderProps = {
   navMobile: HeaderNavLink[];
   features: VerticalFeatures;
   chrome?: "light" | "dark";
-  uiVariant?: "app1" | "app2";
+  uiVariant?: "app1" | "app2" | "app3";
   wishlistEnabled?: boolean;
-  showApp2ThemeToggle?: boolean;
   /** 2x1 activo (módulo coupons + toggle). Controla banner y links promo. */
   promo2x1Active?: boolean;
 };
@@ -46,7 +47,6 @@ export function Header({
   chrome = "light",
   uiVariant = "app1",
   wishlistEnabled = false,
-  showApp2ThemeToggle = true,
   promo2x1Active = false,
 }: HeaderProps) {
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -179,6 +179,8 @@ export function Header({
 
   const isDarkChrome = chrome === "dark";
   const isApp2Ui = uiVariant === "app2";
+  const isApp3Ui = uiVariant === "app3";
+  const copy = getStorefrontCopy();
 
   const navLinkClass = (link: HeaderNavLink, mobile = false) => {
     const active = isStorefrontNavActive(link.match, pathname, navParams, {
@@ -198,7 +200,7 @@ export function Header({
       "transition-colors",
       mobile
         ? "block rounded-lg px-3 py-3 text-base"
-        : "border-b-2 pb-0.5 text-sm font-medium",
+        : "whitespace-nowrap border-b-2 pb-0.5 text-sm font-medium",
       active
         ? mobile
           ? isDarkChrome
@@ -263,13 +265,13 @@ export function Header({
               : "border-neutral-100 bg-white/90",
           )}
         >
-        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl flex-nowrap items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
-              aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-label={mobileOpen ? copy.closeMenu : copy.openMenu}
               className={cn(
-                "rounded-lg p-2 lg:hidden",
+                "rounded-lg p-2 xl:hidden",
                 isDarkChrome
                   ? "text-neutral-300 hover:bg-white/10"
                   : "text-neutral-700 hover:bg-neutral-100",
@@ -280,12 +282,14 @@ export function Header({
             </button>
             {isApp2Ui ? (
               <App2StoreLogo storeName={storeName} />
+            ) : isApp3Ui ? (
+              <ManovivaLogo />
             ) : (
               <StoreLogo storeName={storeName} />
             )}
           </div>
 
-          <nav className="hidden items-center gap-5 xl:gap-6 lg:flex">
+          <nav className="hidden min-w-0 items-center gap-4 xl:flex xl:gap-5">
             {visibleNavDesktop.map((link) => (
               <Link
                 key={`${link.href}-${link.label}`}
@@ -298,8 +302,8 @@ export function Header({
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            {isApp2Ui && showApp2ThemeToggle ? (
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 xl:flex-none xl:shrink-0">
+            {isApp2Ui ? (
               <>
                 <App2ThemeToggle compact className="flex sm:hidden" />
                 <App2ThemeToggle className="hidden sm:flex" />
@@ -315,7 +319,7 @@ export function Header({
                 type="button"
                 variant="ghost"
                 size="md"
-                aria-label="Abrir carrito"
+                aria-label={copy.openCart}
                 className="relative h-10 px-3"
                 onClick={() => setCartOpen(true)}
               >
@@ -335,7 +339,7 @@ export function Header({
               <Button
                 type="button"
                 variant="secondary"
-                aria-label="Abrir carrito"
+                aria-label={copy.openCart}
                 className="relative px-3"
                 onClick={() => setCartOpen(true)}
               >
@@ -357,7 +361,7 @@ export function Header({
 
         <div
           className={cn(
-            "overflow-hidden border-t transition-all duration-200 lg:hidden",
+            "overflow-hidden border-t transition-all duration-200 xl:hidden",
             isDarkChrome ? "border-white/10" : "border-neutral-100",
             mobileOpen ? "max-h-[min(70vh,28rem)] opacity-100" : "max-h-0 opacity-0",
           )}

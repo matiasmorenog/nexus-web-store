@@ -5,12 +5,13 @@ import { renderCatalogProductCard } from "@/themes/catalog-product-card";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontSkeletonProductCard } from "@/components/storefront/storefront-skeleton";
 import type { CatalogProductRow } from "@/lib/catalog-index";
+import type { StoreVertical } from "@/lib/store-verticals/types";
 import { CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cn } from "@/lib/utils";
 
 type CatalogGridSectionProps = {
   products: CatalogProductRow[];
-  catalogVertical?: "app1" | "app2";
+  catalogVertical?: StoreVertical;
   promo2x1Active?: boolean;
   initialPage: {
     products: CatalogProductRow[];
@@ -79,7 +80,7 @@ export function CatalogGridSection({
     return (
       <div
         className={cn(
-          "rounded-xl border border-dashed px-6 py-16 text-center",
+          "storefront-card border border-dashed px-6 py-16 text-center",
           isApp2
             ? "border-app2 bg-app2-card"
             : "border-neutral-200 bg-[var(--brand-primary-soft)]/40",

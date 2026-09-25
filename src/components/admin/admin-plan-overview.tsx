@@ -75,13 +75,28 @@ export function AdminPlanOverview({
                 Anual {formatUsd(tier.annualMonthlyUsd)}/mes (−20%)
               </p>
               <p className="mt-3 text-sm text-neutral-600">{tier.description}</p>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                +{tier.moduleIds.length} módulos
+              <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                Incluye
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {modules
+                  .filter((module) => tier.moduleIds.includes(module.id))
+                  .map((module) => (
+                    <li
+                      key={module.id}
+                      className="flex items-start gap-2 text-sm text-neutral-700"
+                    >
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                      <span>{module.name}</span>
+                    </li>
+                  ))}
+              </ul>
+              <p className="mt-3 text-xs text-neutral-500">
                 {tier.maxStaffSeats === null
-                  ? " · staff alto"
+                  ? "1 owner + staff alto"
                   : tier.maxStaffSeats > 0
-                    ? ` · hasta ${tier.maxStaffSeats} staff`
-                    : " · 1 owner"}
+                    ? `1 owner + ${tier.maxStaffSeats} staff`
+                    : "1 owner"}
               </p>
             </AdminCard>
           );

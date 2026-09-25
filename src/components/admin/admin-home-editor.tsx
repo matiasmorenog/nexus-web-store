@@ -36,7 +36,7 @@ const SECTION_LABELS: Record<HomeSectionType, string> = {
 
 type AdminHomeEditorProps = {
   initialPayload: HomeContentPayload;
-  vertical: "app1" | "app2";
+  vertical: "app1" | "app2" | "app3";
 };
 
 function TextField({

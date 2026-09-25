@@ -5,6 +5,7 @@ import {
   getOrderStatusLabel,
   getOrderStatusVariant,
 } from "@/lib/order-status";
+import { orderHref } from "@/lib/storefront-paths";
 import { formatPrice } from "@/lib/utils";
 
 type CustomerOrderListItem = {
@@ -20,8 +21,8 @@ export function CustomerOrderCard({ order }: { order: CustomerOrderListItem }) {
 
   return (
     <Link
-      href={`/cuenta/pedidos/${order.id}`}
-      className="block rounded-xl border border-neutral-200/90 bg-white p-5 shadow-sm transition-colors hover:border-[var(--brand-primary)]/40"
+      href={orderHref(order.id)}
+      className="block storefront-card border border-neutral-200/90 bg-white p-5 shadow-sm transition-colors hover:border-[var(--brand-primary)]/40"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>

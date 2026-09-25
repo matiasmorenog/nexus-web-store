@@ -1,6 +1,6 @@
-# Dos tiendas, un repo (app1 + app2)
+# Tres tiendas, un repo (app1 + app2 + app3)
 
-Arquitectura para correr **Goat Indumentaria** (ropa) y **VAPORX** (app2) sin SaaS: mismo código en `main`, **dos proyectos Vercel**, **una base Neon** con dos filas `Store`. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` (layout y config derivados del slug).
+Arquitectura para correr **Goat Indumentaria** (ropa), **VAPORX** (app2) y **Manoviva** (app3) sin SaaS: mismo código, **tres proyectos Vercel**, **una base Neon** con una fila `Store` por tienda. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` (layout y config derivados del slug).
 
 Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-and-routes.md`](caching-and-routes.md).
 
@@ -12,6 +12,7 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 |-----------------|------|-----|-------------------|----------------------------|
 | `nexus-web-store` | `demo-store` | https://nexus-web-store.vercel.app | app1 | omitido → todos (demo full) |
 | `nexus-vape-store` | `vape-demo` | https://nexus-vape-store.vercel.app | app2 | `none` → plan base (activar módulos por env) |
+| `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto. Comercio apagado |
 
 Los módulos Plus están **disponibles para ambas tiendas**; el vertical no los bloquea. Detalle en [`modules-pricing.md`](modules-pricing.md) y `.cursor/rules/modules-gating.mdc`.
 
@@ -67,6 +68,7 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 
 - [x] **Ignored Build Step** en proyecto **app1**: `bash scripts/vercel-should-build-app1.sh`
 - [x] **Ignored Build Step** en proyecto **app2**: `bash scripts/vercel-should-build-app2.sh`
+- [x] **Ignored Build Step** en proyecto **app3** (`manoviva-store`): `bash scripts/vercel-should-build-app3.sh`
 - [x] **Protección de branches** en GitHub: `main` y `development` con *Require pull request*
 - [x] **Default branch** en GitHub → `development`
 - [x] **Release** `development` → `main` (PR #3 mergeado)
@@ -87,7 +89,7 @@ Pasos manuales; detalle en [`DEPLOY.md`](../DEPLOY.md).
 Ver `.cursor/rules/git-workflow.mdc` y `DEPLOY.md`.
 
 ```
-feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
 Una tarea = branch nuevo desde `development`. Producción solo vía release PR.

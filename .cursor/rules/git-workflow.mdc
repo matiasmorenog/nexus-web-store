@@ -30,7 +30,7 @@ Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesa
 - Crear/`pop`/limpiar stashes según la sección de stashes.
 
 ### Pedir confirmación explícita
-- **Release a producción**: PR/merge `development → main` (deploy Vercel ×2). Solo cuando el usuario lo pida.
+- **Release a producción**: PR/merge `development → main` (deploy Vercel ×3). Solo cuando el usuario lo pida.
 - `prisma db push` con **pérdida de datos** (`--accept-data-loss`, drop/rename de columnas con datos).
 - `git push --force`, reescritura de historial, borrar branches remotos ajenos a la tarea.
 - Cambiar env vars de producción, secrets o config de Vercel/Neon.

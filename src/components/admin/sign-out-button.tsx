@@ -8,17 +8,19 @@ type SignOutButtonProps = {
   variant?: "light" | "dark";
   /** Solo ícono, para barras compactas en mobile */
   compact?: boolean;
+  label?: string;
 };
 
 export function SignOutButton({
   variant = "light",
   compact = false,
+  label = "Cerrar sesión",
 }: SignOutButtonProps) {
   return (
     <button
       type="button"
       onClick={() => signOut({ callbackUrl: "/admin/login" })}
-      aria-label="Cerrar sesión"
+      aria-label={label}
       className={cn(
         "flex cursor-pointer items-center rounded-lg text-sm transition-colors",
         compact ? "gap-0 p-2" : "w-full gap-3 px-3 py-2.5",
@@ -28,7 +30,7 @@ export function SignOutButton({
       )}
     >
       <LogOut className="h-4 w-4 shrink-0" />
-      {compact ? null : <span>Cerrar sesión</span>}
+      {compact ? null : <span>{label}</span>}
     </button>
   );
 }

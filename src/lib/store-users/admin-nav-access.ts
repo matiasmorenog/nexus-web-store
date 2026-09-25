@@ -2,6 +2,7 @@ import {
   buildAdminNavItems,
   type AdminNavItem,
 } from "@/lib/modules/admin-nav";
+import { storeHidesPlanCatalog } from "@/lib/modules/access";
 import type { ModuleId } from "@/lib/modules/catalog";
 import {
   canAccessAdminPath,
@@ -23,6 +24,7 @@ export function filterAdminNavItems(
     }
 
     if (item.kind === "plan") {
+      if (storeHidesPlanCatalog()) return false;
       return canAccessAdminPath(context, item.href);
     }
 

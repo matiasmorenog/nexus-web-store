@@ -6,8 +6,6 @@ import { WishlistSync } from "@/components/storefront/wishlist-sync";
 import { App2Footer } from "@/themes/app2/components/app2-footer";
 import { App2ThemeShell } from "@/themes/app2/components/app2-theme-shell";
 import type { HeaderNavLink } from "@/lib/store-verticals/nav";
-import type { ResolvedStoreTheme } from "@/lib/premium-themes";
-import type { App2ColorThemeId } from "@/lib/store-verticals/app2/themes";
 import type { VerticalConfig } from "@/lib/store-verticals/types";
 
 type App2StorefrontLayoutProps = {
@@ -15,7 +13,6 @@ type App2StorefrontLayoutProps = {
   storeDisplayName: string;
   config: VerticalConfig;
   wishlistEnabled?: boolean;
-  storeTheme?: ResolvedStoreTheme;
   promo2x1Active?: boolean;
   navDesktop?: HeaderNavLink[];
   navMobile?: HeaderNavLink[];
@@ -26,25 +23,12 @@ export function App2StorefrontLayout({
   storeDisplayName,
   config,
   wishlistEnabled = false,
-  storeTheme,
   promo2x1Active = false,
   navDesktop = config.headerNavDesktop,
   navMobile = config.headerNavMobile,
 }: App2StorefrontLayoutProps) {
-  const app2ThemeId =
-    storeTheme?.themeId && storeTheme.themeId !== "default"
-      ? (storeTheme.themeId as App2ColorThemeId)
-      : undefined;
-  const showApp2ThemeToggle = storeTheme?.moduleActive
-    ? storeTheme.allowCustomerThemeToggle
-    : true;
-
   return (
-    <App2ThemeShell
-      initialCssVars={config.ui.cssVars}
-      storeThemeId={app2ThemeId}
-      allowCustomerThemeToggle={showApp2ThemeToggle}
-    >
+    <App2ThemeShell initialCssVars={config.ui.cssVars}>
       {wishlistEnabled ? <WishlistSync /> : null}
       <PromoConfigSync promo2x1Active={promo2x1Active} />
       <Suspense
@@ -60,7 +44,6 @@ export function App2StorefrontLayout({
           chrome="dark"
           uiVariant="app2"
           wishlistEnabled={wishlistEnabled}
-          showApp2ThemeToggle={showApp2ThemeToggle}
           promo2x1Active={promo2x1Active}
         />
       </Suspense>

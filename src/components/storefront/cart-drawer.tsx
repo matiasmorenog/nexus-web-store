@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { storefrontPath } from "@/lib/storefront-paths";
 import { ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CartEmptyState } from "@/components/storefront/cart-empty-state";
@@ -9,6 +10,8 @@ import { CartPromoSummary } from "@/components/storefront/cart-promo-summary";
 import { useCartStore } from "@/stores/cart-store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 
 type CartDrawerProps = {
   open: boolean;
@@ -20,6 +23,8 @@ const DRAWER_CONTENT_DELAY_MS = 260;
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, rawSubtotal, promoDiscount, subtotal, totalItems } = useCartStore();
   const [contentReady, setContentReady] = useState(false);
+  const copy = getStorefrontCopy();
+  const checkoutEnabled = getClientStorefrontConfig().features.checkout;
 
   useEffect(() => {
     if (!open) return;
@@ -67,10 +72,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal aria-label="Carrito">
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal aria-label={copy.cart}>
       <button
         type="button"
-        aria-label="Cerrar carrito"
+        aria-label={copy.closeCart}
         className="absolute inset-0 bg-neutral-900/40 backdrop-blur-[2px] cart-drawer-backdrop"
         onClick={onClose}
       />
@@ -81,7 +86,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <div className="flex items-center gap-2.5">
               <ShoppingBag className="h-5 w-5 text-[var(--brand-primary)]" />
               <h2 className="text-lg font-semibold tracking-tight text-neutral-900">
-                Carrito
+                {copy.cart}
                 <span className="ml-1.5 font-normal text-neutral-500">
                   ({totalItems()})
                 </span>
@@ -89,7 +94,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             </div>
             <button
               type="button"
-              aria-label="Cerrar"
+              aria-label={copy.closeCart}
               onClick={onClose}
               className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
             >
@@ -137,16 +142,16 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 compact
               />
               <p className="mb-4 mt-3 text-xs text-neutral-500">
-                Envío calculado en el checkout.
+                {copy.shippingAtCheckout}
               </p>
-              <Link href="/checkout" onClick={onClose}>
+              <Link href={checkoutEnabled ? storefrontPath("checkout") : storefrontPath("contact")} onClick={onClose}>
                 <Button className="w-full" size="lg">
-                  Ir al checkout
+                  {checkoutEnabled ? copy.goToCheckout : copy.requestAction}
                 </Button>
               </Link>
-              <Link href="/carrito" onClick={onClose}>
+              <Link href={storefrontPath("cart")} onClick={onClose}>
                 <Button variant="outline" className="mt-2 w-full">
-                  Ver carrito completo
+                  {copy.viewFullCart}
                 </Button>
               </Link>
             </div>

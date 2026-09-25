@@ -1,4 +1,8 @@
 .env
 .env.*
+.git
+.next
+.next-*
+node_modules
 prisma/dev.db
 prisma/dev.db-journal

@@ -4,6 +4,7 @@ import { StorefrontPageHeader } from "@/components/storefront/storefront-page-he
 import { getCustomerOrders } from "@/lib/customer-orders";
 import { requireCustomerSession } from "@/lib/customer-session";
 import { Button } from "@/components/ui/button";
+import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 
 export const dynamic = "force-dynamic";
 
@@ -14,22 +15,22 @@ export default async function CustomerOrdersPage() {
     session.user.email ?? "",
   );
 
+  const copy = getLocaleCopy();
+
   return (
     <>
       <StorefrontPageHeader
         variant="account"
-        title="Mis pedidos"
-        description="Historial de compras en esta tienda."
+        title={copy.ordersTitle}
+        description={copy.ordersDescription}
       />
 
       {orders.length === 0 ? (
         <div className="py-10 text-center">
-          <p className="font-medium text-neutral-900">Todavía no tenés pedidos</p>
-          <p className="mt-2 text-sm text-neutral-500">
-            Cuando compres con este email, los vas a ver acá.
-          </p>
+          <p className="font-medium text-neutral-900">{copy.noOrders}</p>
+          <p className="mt-2 text-sm text-neutral-500">{copy.noOrdersHint}</p>
           <Link href="/" className="mt-5 inline-block">
-            <Button>Ir a la tienda</Button>
+            <Button>{copy.goToStore}</Button>
           </Link>
         </div>
       ) : (

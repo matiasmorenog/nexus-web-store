@@ -300,6 +300,58 @@ export const INFO_PAGES: Record<InfoPageSlug, PageContent> = {
   },
 };
 
+function preparationPage(title: string, description: string): InfoPageContent {
+  return {
+    kind: "info",
+    title,
+    description,
+    sections: [
+      {
+        type: "paragraph",
+        text: "Sito in preparazione. Questo testo sarà sostituito prima dell'apertura degli ordini. Non è una condizione di vendita.",
+      },
+    ],
+  };
+}
+
+const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
+  terminos: preparationPage(
+    "Condizioni",
+    "Le condizioni di vendita di {{storeName}} saranno pubblicate prima degli ordini.",
+  ),
+  privacidad: preparationPage(
+    "Privacy",
+    "L'informativa privacy di {{storeName}} sarà pubblicata prima degli ordini.",
+  ),
+  "cambios-y-devoluciones": preparationPage(
+    "Resi",
+    "Le condizioni di reso di {{storeName}} saranno pubblicate prima degli ordini.",
+  ),
+  envios: preparationPage(
+    "Consegne",
+    "Zone e tempi di consegna di {{storeName}} saranno definiti prima degli ordini.",
+  ),
+  "guia-de-talles": preparationPage(
+    "Misure",
+    "Le indicazioni su misure e formati saranno pubblicate con la collezione definitiva.",
+  ),
+  faq: preparationPage(
+    "Domande",
+    "Le risposte frequenti saranno pubblicate prima dell'apertura degli ordini.",
+  ),
+  contacto: {
+    kind: "contact",
+    title: "Contatti",
+    description:
+      "Scrivici per una creazione personalizzata, un regalo o qualsiasi informazione.",
+  },
+};
+
+export function getLocalizedInfoPage(slug: InfoPageSlug, locale: string): PageContent {
+  if (locale === "it-IT") return ITALIAN_INFO_PAGES[slug];
+  return INFO_PAGES[slug];
+}
+
 export function resolvePageContent(
   page: PageContent,
   storeName: string,

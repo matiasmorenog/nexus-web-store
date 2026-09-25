@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import { cn } from "@/lib/utils";
 
 type StorefrontSkeletonProps = {
@@ -50,8 +51,18 @@ function StorefrontSkeletonPageHeader({
 }
 
 export function StorefrontSkeletonProductCard() {
+  const uiId = getClientStorefrontConfig().ui.id;
+
   return (
-    <div className="overflow-hidden rounded-xl border border-neutral-200/90 bg-white shadow-sm ring-1 ring-neutral-900/[0.04]">
+    <div
+      className={cn(
+        "storefront-card overflow-hidden bg-white",
+        uiId === "app3" && "border border-[#202523]/12",
+        uiId === "app1" && "border border-neutral-200",
+        uiId === "app2" &&
+          "border border-neutral-200/90 shadow-sm ring-1 ring-neutral-900/[0.04]",
+      )}
+    >
       <StorefrontSkeleton className="aspect-[3/4] w-full" />
       <div className="space-y-2 p-3">
         <StorefrontSkeleton className="h-3 w-16" />
@@ -64,7 +75,7 @@ export function StorefrontSkeletonProductCard() {
 
 export function StorefrontSkeletonFiltersPanel() {
   return (
-    <aside className="h-fit w-full self-start space-y-6 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+    <aside className="h-fit w-full self-start space-y-6 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm">
       <StorefrontSkeleton className="h-10 w-full rounded-lg" />
       <div>
         <StorefrontSkeleton className="mb-2 h-4 w-20" />
@@ -126,14 +137,14 @@ export function StorefrontSkeletonProductDetailPage() {
       <StorefrontSkeleton className="mb-6 h-4 w-40" />
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-        <StorefrontSkeleton className="aspect-[3/4] w-full rounded-xl" />
+        <StorefrontSkeleton className="aspect-[3/4] w-full storefront-card" />
         <div className="space-y-4 lg:py-2">
           <StorefrontSkeleton className="h-3 w-20" />
           <StorefrontSkeleton className="h-10 w-3/4 max-w-md" />
           <StorefrontSkeleton className="h-4 w-full" />
           <StorefrontSkeleton className="h-4 w-full" />
           <StorefrontSkeleton className="h-4 w-2/3" />
-          <div className="mt-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+          <div className="mt-4 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm">
             <StorefrontSkeleton className="mb-3 h-4 w-16" />
             <div className="flex flex-wrap gap-2">
               {Array.from({ length: 4 }, (_, index) => (
@@ -168,7 +179,7 @@ export function StorefrontSkeletonHomePage() {
         <StorefrontSkeleton className="mx-auto mb-8 h-8 w-36" />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
-            <StorefrontSkeleton key={index} className="aspect-square rounded-xl" />
+            <StorefrontSkeleton key={index} className="aspect-square storefront-card" />
           ))}
         </div>
       </div>
@@ -187,7 +198,7 @@ export function StorefrontSkeletonHomePage() {
 
 function StorefrontSkeletonCartLineItem() {
   return (
-    <div className="flex gap-4 rounded-xl border border-neutral-200/80 bg-white p-4">
+    <div className="flex gap-4 storefront-card border border-neutral-200/80 bg-white p-4">
       <StorefrontSkeleton className="h-20 w-16 shrink-0 rounded-md" />
       <div className="min-w-0 flex-1 space-y-2">
         <StorefrontSkeleton className="h-4 w-3/4" />
@@ -212,7 +223,7 @@ export function StorefrontSkeletonCartPage() {
             <StorefrontSkeletonCartLineItem key={index} />
           ))}
         </div>
-        <aside className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+        <aside className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm">
           <StorefrontSkeleton className="h-4 w-20" />
           <div className="mt-4 space-y-2 border-b border-neutral-100 pb-4">
             <div className="flex justify-between gap-4">
@@ -243,7 +254,7 @@ export function StorefrontSkeletonCheckoutPage() {
     >
       <StorefrontSkeletonPageHeader titleWidth="w-28" descriptionWidth="w-56" />
       <div className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
-        <div className="space-y-4 rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
+        <div className="space-y-4 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
           {Array.from({ length: 6 }, (_, index) => (
             <div key={index} className="space-y-2">
               <StorefrontSkeleton className="h-4 w-24" />
@@ -252,7 +263,7 @@ export function StorefrontSkeletonCheckoutPage() {
           ))}
           <StorefrontSkeleton className="h-11 w-full rounded-lg" />
         </div>
-        <aside className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-sm">
+        <aside className="storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm">
           <StorefrontSkeleton className="h-4 w-20" />
           <div className="mt-4 space-y-3 border-b border-neutral-100 pb-4">
             {Array.from({ length: 2 }, (_, index) => (

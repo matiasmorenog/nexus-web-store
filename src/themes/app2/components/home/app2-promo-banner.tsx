@@ -10,7 +10,7 @@ type App2PromoBannerProps = {
 export function App2PromoBanner({ content }: App2PromoBannerProps) {
   return (
     <section id="ofertas" className="mx-auto max-w-7xl scroll-mt-28 px-4 pb-20 sm:px-6">
-      <div className="relative overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--brand-primary)_20%,transparent)] bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] via-app2-card to-[color-mix(in_srgb,var(--brand-promo-accent)_10%,transparent)]">
+      <div className="relative overflow-hidden storefront-card border border-[color-mix(in_srgb,var(--brand-primary)_20%,transparent)] bg-gradient-to-br from-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)] via-app2-card to-[color-mix(in_srgb,var(--brand-promo-accent)_10%,transparent)]">
         {content.backgroundImageUrl ? (
           <div className="absolute inset-0 opacity-10">
             <Image

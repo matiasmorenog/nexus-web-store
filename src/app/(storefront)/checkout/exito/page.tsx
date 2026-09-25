@@ -6,7 +6,10 @@ import { db } from "@/lib/db";
 import { getStoreMarketingSettings } from "@/lib/marketing/query";
 import { getOrderShippingInfo } from "@/lib/order-shipping";
 import { formatOrderId } from "@/lib/order-status";
+import { redirect } from "next/navigation";
 import { getStoreId } from "@/lib/store-context";
+import { getStorefrontPaths } from "@/lib/storefront-paths";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +19,10 @@ export default async function CheckoutSuccessPage({
   searchParams: Promise<{ order?: string }>;
 }) {
   const params = await searchParams;
+  const config = getStorefrontConfig();
+  if (!config.features.checkout) {
+    redirect(getStorefrontPaths().contact);
+  }
   const storeId = await getStoreId();
   const marketing = await getStoreMarketingSettings(storeId);
 
@@ -54,6 +61,7 @@ export default async function CheckoutSuccessPage({
         <MetaPixelPurchaseEvent
           orderId={order.id}
           value={Number(order.total)}
+          currency={config.currency}
         />
       ) : null}
       <StorefrontStatusPage
@@ -71,7 +79,7 @@ export default async function CheckoutSuccessPage({
         </p>
       ) : null}
       {shipping?.trackingNumber ? (
-        <div className="mx-auto mt-4 max-w-md rounded-xl border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-4 text-left text-sm">
+        <div className="mx-auto mt-4 max-w-md storefront-card border border-[#3483fa]/20 bg-[#3483fa]/5 px-4 py-4 text-left text-sm">
           <p className="flex items-center gap-2 font-medium text-neutral-900">
             <Truck className="size-4 text-[#3483fa]" aria-hidden />
             {shipping.provider}

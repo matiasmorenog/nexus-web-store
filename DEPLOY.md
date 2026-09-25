@@ -1,6 +1,6 @@
 # Deploy y operación
 
-Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB, **dos proyectos Vercel** con env distinto. Cada deploy lee una tienda y su layout vía `DEFAULT_STORE_SLUG`.
+Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB, **tres proyectos Vercel** con env distinto. Cada deploy lee una tienda y su layout vía `DEFAULT_STORE_SLUG`.
 
 **Avances y checklist:** [`docs/multi-store.md`](docs/multi-store.md) (implementación hecha + pendientes Vercel/GitHub).
 
@@ -8,6 +8,7 @@ Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **dos filas** `Store` en DB,
 
 - [x] Ignored Build Step en **nexus-web-store**: `bash scripts/vercel-should-build-app1.sh`
 - [x] Ignored Build Step en **nexus-vape-store**: `bash scripts/vercel-should-build-app2.sh`
+- [x] Ignored Build Step en **manoviva-store**: `bash scripts/vercel-should-build-app3.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -24,8 +25,11 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 |-----------------|--------|-----|----------------------|
 | `nexus-web-store` | Goat (app1) | https://nexus-web-store.vercel.app | `demo-store` |
 | `nexus-vape-store` | VAPORX (app2) | https://nexus-vape-store.vercel.app | `vape-demo` |
+| `manoviva-store` | Manoviva (app3) | https://manoviva-store.vercel.app | `manoviva-italia` |
 
 Admin: `/admin/login` — credenciales en `prisma/seed-env.ts`.
+
+**Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`) hasta que exista el branch Neon `development` y se pueda guardar en el usuario. Producción de Manoviva debe apuntar al branch Neon `main`; local y preview, al branch `development`. Ese corte de base todavía no está creado: no hacer `db push` ni seed contra el Neon compartido actual.
 
 ## Variables por proyecto
 
@@ -162,6 +166,7 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 |----------|---------|
 | app1 | `bash scripts/vercel-should-build-app1.sh` |
 | app2 | `bash scripts/vercel-should-build-app2.sh` |
+| app3 | `bash scripts/vercel-should-build-app3.sh` |
 
 Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ninguno.
 
@@ -172,7 +177,7 @@ Exit 0 = omitir build. Ej.: PR solo app2 → app1 no builda; PR solo docs → ni
 Regla completa para el agente: `.cursor/rules/git-workflow.mdc`.
 
 ```
-feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×2)
+feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
 - **`development`** — integración y preview. **Una tarea = un branch nuevo** desde acá.
@@ -200,12 +205,12 @@ Cuando `development` esté estable:
 gh pr create --base main --head development --title "release: development → main"
 ```
 
-Merge → deploy de producción en app1 + app2 (salvo Ignored Build Step).
+Merge → deploy de producción en app1 + app2 + app3 (salvo Ignored Build Step).
 
 | Evento | Producción (`main`) | Preview |
 |--------|---------------------|---------|
 | PR / merge → `development` | No | Sí |
-| PR / merge → `main` | Sí (×2) | — |
+| PR / merge → `main` | Sí (×3) | — |
 | Push directo a `main` | Sí | **Evitar** |
 
 **GitHub (recomendado):** Settings → General → Default branch → `development` (así `gh pr create` apunta ahí por defecto). Protegé `main` y `development` con **Require pull request**.

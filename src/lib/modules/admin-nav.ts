@@ -109,7 +109,6 @@ const ADMIN_SIDEBAR_ORDER: Array<
   { kind: "module", moduleId: "wishlist" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "api" },
-  { kind: "module", moduleId: "premiumThemes" },
   { kind: "core", href: "/admin/configuracion" },
 ];
 

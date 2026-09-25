@@ -1,12 +1,14 @@
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { isCatalogPathname } from "@/lib/storefront-paths";
 
 export function pushCatalogRoute(
   router: AppRouterInstance,
   href: string,
   pathname: string,
 ) {
-  const targetIsCatalog = href === "/productos" || href.startsWith("/productos?");
-  const stayingOnCatalog = pathname === "/productos" && targetIsCatalog;
+  const pathOnly = href.split("?")[0] ?? href;
+  const targetIsCatalog = isCatalogPathname(pathOnly);
+  const stayingOnCatalog = isCatalogPathname(pathname) && targetIsCatalog;
 
   if (stayingOnCatalog) {
     router.replace(href, { scroll: false });

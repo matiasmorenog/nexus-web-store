@@ -65,10 +65,6 @@ function PasswordField({
   );
 }
 
-type ChangePasswordFormProps = {
-  variant?: "storefront" | "account" | "admin";
-};
-
 export function ChangePasswordForm({
   variant = "storefront",
 }: ChangePasswordFormProps) {

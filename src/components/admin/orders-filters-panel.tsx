@@ -49,7 +49,7 @@ export function OrdersFiltersPanel({
   return (
     <div className={cn(adminFiltersPanelScrollClass, className)}>
       <AdminCard title="Filtros" description="Estado del pedido." padding={false}>
-        <AdminFilterSection title="Por estado">
+        <AdminFilterSection title="Por estado" activeKey={activeStatus || "__all__"}>
           <AdminFilterButton
             active={!activeStatus}
             label="Todos"

@@ -34,7 +34,7 @@ function sizeButtonClass(active: boolean) {
     "relative z-[1] flex min-w-[2.5rem] flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
       ? "border-[var(--brand-primary)] text-white"
-      : "border-neutral-200 bg-white hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
+      : "border-neutral-200 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
   );
 }
 

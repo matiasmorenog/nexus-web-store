@@ -1,6 +1,6 @@
 # Tres tiendas, un repo (app1 + app2 + app3)
 
-Arquitectura para correr **Goat Indumentaria** (ropa), **VAPORX** (app2) y **Manoviva** (app3) sin SaaS: mismo código, **tres proyectos Vercel**, **una base Neon** con una fila `Store` por tienda. Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` (layout y config derivados del slug).
+Arquitectura para correr **Goat Indumentaria** (ropa), **VAPORX** (app2) y **Manoviva** (app3) sin SaaS: mismo código, **tres proyectos Vercel**, **un proyecto Neon** con una fila `Store` por tienda y dos branches: `main` (producción real de Manoviva) y `development` (local, previews y demos Goat/VAPORX). Detalle en [`DEPLOY.md`](../DEPLOY.md#neon-database_url-en-vercel). Cada deploy activa su tienda con `DEFAULT_STORE_SLUG` (layout y config derivados del slug).
 
 Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-and-routes.md`](caching-and-routes.md).
 
@@ -57,7 +57,8 @@ Marcá `[x]` al cerrar cada ítem. El roadmap general del producto sigue en [`RE
 
 ### Infra y deploy
 
-- [x] Un Neon, dos filas `Store`
+- [x] Un Neon, tres filas `Store`
+- [x] Split Neon: `main` = prod Manoviva, `development` = local + previews + demos Goat/VAPORX
 - [x] Dos proyectos Vercel con env distinto (slug, URLs, `AUTH_SECRET`, MP)
 - [x] Webhooks Mercado Pago por dominio (documentado en `DEPLOY.md`)
 - [x] `DEPLOY.md` acotado + flujo `development` → `main`

@@ -1,6 +1,6 @@
 # Deploy y operación
 
-Repo: `matiasmorenog/nexus-web-store`. **Un Neon**, **tres filas** `Store` en DB, **tres proyectos Vercel** con env distinto. Cada deploy lee una tienda y su layout vía `DEFAULT_STORE_SLUG`.
+Repo: `matiasmorenog/nexus-web-store`. **Un proyecto Neon con dos branches** (`main` = prod Manoviva, `development` = resto), **tres filas** `Store` en DB, **tres proyectos Vercel** con env distinto. Cada deploy lee una tienda y su layout vía `DEFAULT_STORE_SLUG`.
 
 **Avances y checklist:** [`docs/multi-store.md`](docs/multi-store.md) (implementación hecha + pendientes Vercel/GitHub).
 
@@ -31,7 +31,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.
 
-**Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`) hasta que exista el branch Neon `development` y se pueda guardar en el usuario. Producción de Manoviva debe apuntar al branch Neon `main`; local y preview, al branch `development`. Ese corte de base todavía no está creado: no hacer `db push` ni seed contra el Neon compartido actual.
+**Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`). Producción de Manoviva apunta al branch Neon `main`; local, preview y las demos Goat/VAPORX al branch `development` (ver [Neon](#neon-database_url-en-vercel)). No hacer `db push` ni seed contra `main` sin un sí explícito.
 
 ## Variables por proyecto
 
@@ -44,8 +44,8 @@ Marcá **Production** y **Preview** en Vercel. Compartidas entre proyectos salvo
 | `AUTH_URL` | `https://goat-indumentaria.vercel.app` | `https://vaporx-store.vercel.app` |
 | `NEXT_PUBLIC_APP_URL` | igual que `AUTH_URL` | igual que `AUTH_URL` |
 | `AUTH_SECRET` | **único por proyecto** | **único por proyecto** |
-| `DATABASE_URL` | Neon pooled (misma DB) | Neon pooled (misma DB) |
-| `DIRECT_URL` | Neon direct (misma DB) | Neon direct (misma DB) |
+| `DATABASE_URL` | Neon `development` pooled | Neon `development` pooled |
+| `DIRECT_URL` | Neon `development` direct | Neon `development` direct |
 | `BLOB_READ_WRITE_TOKEN` | compartido o separado | compartido o separado |
 | `RESEND_API_KEY` | compartida | compartida |
 | `MERCADOPAGO_ACCESS_TOKEN` | cuenta MP app1 (opcional si se configura en admin) | cuenta MP app2 (opcional si se configura en admin) |
@@ -65,6 +65,21 @@ Detalle de slugs y valores: `.env.example` → **TIENDA ACTIVA**.
 
 ## Neon (`DATABASE_URL` en Vercel)
 
+Proyecto Neon `web-store` (`holy-cake-32881406`), dos branches:
+
+| Branch | Compute | Usado por |
+|--------|---------|-----------|
+| `main` (default) | `ep-noisy-waterfall-aqd4iy55` | `manoviva-store` **Production** únicamente (datos reales) |
+| `development` (hijo de `main`) | `ep-super-credit-aqa70yms` | `goat-indumentaria` y `vaporx-store` (Production + Preview), `manoviva-store` Preview, `.env` local |
+
+En Vercel, `manoviva-store` tiene entradas separadas: `DATABASE_URL`/`DIRECT_URL` solo **Production** → `main`; solo **Preview** → `development`. Goat y VAPORX tienen una entrada Production+Preview → `development`.
+
+Reglas:
+
+- `db push`, seed y wipe se corren contra `development` (local). Contra `main` solo con sí explícito, cuando un cambio de schema se libere a Manoviva.
+- `development` se puede resetear desde `main` (Neon → Branches → Reset from parent) si hace falta refrescar datos; eso pisa los cambios de las demos.
+- Guard opcional en local: `NEON_PROD_HOST=ep-noisy-waterfall-aqd4iy55` (desactiva el demo login si `DATABASE_URL` apunta a `main`).
+
 URL **pooled** (`-pooler` en el host):
 
 ```env
@@ -78,7 +93,7 @@ No uses la URL direct como `DATABASE_URL` en Vercel.
 
 Si conectaste Neon con la integración de Vercel, puede crearse **un branch de Neon por cada preview deploy** (cada PR). Eso no viene del código del repo.
 
-**Para este proyecto** (un Neon, dos tiendas, datos demo compartidos) conviene **una sola DB** para Production y Preview.
+**Para este proyecto** los branches son fijos (`main` / `development`, ver arriba); no usar branching automático por preview.
 
 #### ¿Qué integración tenés?
 
@@ -97,7 +112,7 @@ No se puede apagar el branching por preview sin desconectar la integración. Pas
 2. Menú **Integrations** → Vercel → **Manage** → **Disconnect**.
 3. En **Vercel** (cada proyecto: `goat-indumentaria` y `vaporx-store`):
    - **Settings → Environment Variables**
-   - Confirmá que existen `DATABASE_URL` y `DIRECT_URL` para **Production** y **Preview** (copiá las URLs desde Neon → Connection details del branch `main` / production).
+   - Confirmá que existen `DATABASE_URL` y `DIRECT_URL` para **Production** y **Preview** (copiá las URLs desde Neon → Connection details del branch que corresponda según la tabla de arriba).
    - Si la integración había inyectado vars con prefijo o duplicadas (`POSTGRES_URL`, `PGHOST`, etc.), dejalas solo si las usás; este repo usa `DATABASE_URL` + `DIRECT_URL`.
 4. Opcional: **Vercel → Team/Project → Integrations** → Neon → **Remove** si sigue instalada.
 5. **Redeploy** un preview para verificar que ya no aparecen branches `preview/*` nuevos.

@@ -5,12 +5,22 @@ alwaysApply: true
 
 # Prisma: db push y reinicio de consola
 
-⚠️ **La DB Neon local es la misma que producción** (un Neon, dos tiendas). Un `db push` local modifica el schema de producción.
+## Branches Neon (proyecto `web-store`)
+
+| Branch Neon | Compute | Quién lo usa |
+|---|---|---|
+| `main` (default) | `ep-noisy-waterfall-aqd4iy55` | **Solo Manoviva Production** (`manoviva-store`). Datos reales. |
+| `development` (hijo de `main`) | `ep-super-credit-aqa70yms` | Local `.env`, Goat y VAPORX (Production + Preview), Manoviva Preview |
+
+- Local apunta a `development`: un `db push` local **no** toca producción.
+- `main` = producción de Manoviva: **ningún** `db push`, seed, wipe ni write sin un sí explícito del usuario para ese paso.
+- Antes de pushear, verificar el host de `DIRECT_URL`/`DATABASE_URL` (`ep-super-credit…` = development). Si es `ep-noisy-waterfall…`, frenar.
+- Cuando un cambio de schema se libere a producción, Manoviva necesita el mismo `db push` contra `main` → planificarlo y pedir sí.
 
 Cuando un cambio incluya `prisma/schema.prisma` (o requiera sincronizar la DB):
 
 1. `npx prisma generate`
-2. Evaluar el tipo de cambio y actuar:
+2. Evaluar el tipo de cambio y actuar (contra `development`):
    - **Aditivo/seguro** (nueva tabla, columna nullable o con default, índice): `npx prisma db push` **sin preguntar**.
    - **Con posible pérdida de datos** (drop/rename de columna o tabla con datos, cambio de tipo incompatible, `NOT NULL` sin default sobre tabla con filas): **frenar y confirmar** con el usuario antes de correr `npx prisma db push --accept-data-loss`.
 3. **Reiniciar el dev server** si estaba corriendo (o al terminar la tarea si el usuario suele tenerlo levantado).

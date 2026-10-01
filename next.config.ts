@@ -7,6 +7,13 @@ import {
 const nextConfig: NextConfig = {
   // Permite varios `next dev` en paralelo (app1/app2/app3) con NEXT_DIST_DIR distinto.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Turbopack's trace misses libvips (loaded via dlopen), so sharp fails on Vercel without it.
+  outputFileTracingIncludes: {
+    "/api/admin/upload": [
+      "./node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+    ],
+  },
   experimental: {
     // Neon usa un pool mínimo en este proyecto. Serializar el prerender evita
     // que varios workers agoten su única conexión durante `next build`.

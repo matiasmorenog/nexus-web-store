@@ -1,5 +1,3 @@
-import sharp from "sharp";
-
 export const DEFAULT_PRODUCT_IMAGE =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
 
@@ -32,6 +30,8 @@ export function normalizeProductImageUrl(raw: FormDataEntryValue | null): string
 }
 
 export async function optimizeProductImage(buffer: Buffer): Promise<Buffer> {
+  // Lazy: product server actions import this module but never need the native binary.
+  const { default: sharp } = await import("sharp");
   return sharp(buffer)
     .rotate()
     .resize(PRODUCT_IMAGE.maxWidth, PRODUCT_IMAGE.maxHeight, {

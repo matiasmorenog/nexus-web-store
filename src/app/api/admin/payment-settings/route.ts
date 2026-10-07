@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ADMIN_LOCALE_COOKIE, parseAdminLocale } from "@/lib/admin-locale";
 import { auth } from "@/lib/auth";
 import {
   getStorePaymentSettingsForAdmin,
@@ -31,7 +32,11 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = (await request.json()) as StorePaymentSettingsSaveInput;
-    await saveStorePaymentSettings(authResult.storeId, body);
+    await saveStorePaymentSettings(
+      authResult.storeId,
+      body,
+      parseAdminLocale(request.cookies.get(ADMIN_LOCALE_COOKIE)?.value),
+    );
     const settings = await getStorePaymentSettingsForAdmin(authResult.storeId);
     return NextResponse.json({ ok: true, settings });
   } catch (error) {

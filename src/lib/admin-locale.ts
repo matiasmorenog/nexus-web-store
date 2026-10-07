@@ -376,8 +376,8 @@ export function getAdminProductsCopy(
 export const adminImageUpload = {
   es: {
     uploading: "Comprimiendo y subiendo…",
-    helper:
-      "Se optimiza en el navegador y se guarda como WebP (máx. 1500×2000 px). JPG, PNG, WebP o GIF (GIF hasta 4 MB).",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Se optimiza una sola vez en el navegador y se guarda como WebP (máx. ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF hasta 4 MB).`,
     showUrl: "Pegar URL externa",
     hideUrl: "Ocultar URL externa",
     preview: "Vista previa",
@@ -392,8 +392,8 @@ export const adminImageUpload = {
   },
   it: {
     uploading: "Compressione e caricamento…",
-    helper:
-      "Viene ottimizzata nel browser e salvata come WebP (max 1500×2000 px). JPG, PNG, WebP o GIF (GIF fino a 4 MB).",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Viene ottimizzata una sola volta nel browser e salvata come WebP (max ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF fino a 4 MB).`,
     showUrl: "Incolla URL esterno",
     hideUrl: "Nascondi URL esterno",
     preview: "Anteprima",

@@ -18,6 +18,7 @@ import {
   compressImageForUpload,
   MAX_UPLOAD_BYTES,
 } from "@/lib/images/compress-image-client";
+import { IMAGE_PRESETS } from "@/lib/images/presets";
 import { discardStagedProductImage } from "@/lib/images/discard-staged-product-image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -237,7 +238,12 @@ export function ImageUploadField({
       ) : null}
 
       {!compact ? (
-        <p className="text-xs text-neutral-400">{copy.helper}</p>
+        <p className="text-xs text-neutral-400">
+          {copy.helper(
+            IMAGE_PRESETS.product.maxWidth,
+            IMAGE_PRESETS.product.maxHeight,
+          )}
+        </p>
       ) : null}
     </div>
   );

@@ -1,13 +1,12 @@
-import { PRODUCT_IMAGE } from "@/lib/images/product-image-spec";
+import { IMAGE_PRESETS, type ImagePreset } from "@/lib/images/presets";
 
 /**
- * Encodes the final product image in the browser (same spec as the server's
+ * Encodes the final image in the browser (same preset as the server's
  * `optimizeProductImage`) so the body stays under Vercel's ~4.5 MB limit and
  * the server can store it without re-encoding.
  */
 
 const WEBP_TYPE = "image/webp";
-const WEBP_QUALITY = PRODUCT_IMAGE.webpQuality / 100;
 const FALLBACK_QUALITY_STEPS = [0.72, 0.62] as const;
 const PASSTHROUGH_WEBP_MAX_BYTES = 600 * 1024;
 const JPEG_LAST_RESORT_QUALITY = 0.92;
@@ -97,11 +96,11 @@ async function resizeWithoutWebp(
     : original;
 }
 
-function fitInside(width: number, height: number) {
+function fitInside(width: number, height: number, preset: ImagePreset) {
   const scale = Math.min(
     1,
-    PRODUCT_IMAGE.maxWidth / width,
-    PRODUCT_IMAGE.maxHeight / height,
+    preset.maxWidth / width,
+    preset.maxHeight / height,
   );
   return {
     width: Math.max(1, Math.round(width * scale)),
@@ -115,7 +114,10 @@ function fitInside(width: number, height: number) {
  * in-bounds WebP or undecodable (e.g. HEIC outside Safari) — in those cases the
  * server does the single encode.
  */
-export async function compressImageForUpload(file: File): Promise<File> {
+export async function compressImageForUpload(
+  file: File,
+  preset: ImagePreset = IMAGE_PRESETS.product,
+): Promise<File> {
   if (typeof document === "undefined") return file;
   if (file.type === "image/gif") return file;
 
@@ -126,8 +128,7 @@ export async function compressImageForUpload(file: File): Promise<File> {
     if (!image.width || !image.height) return file;
 
     const withinBounds =
-      image.width <= PRODUCT_IMAGE.maxWidth &&
-      image.height <= PRODUCT_IMAGE.maxHeight;
+      image.width <= preset.maxWidth && image.height <= preset.maxHeight;
     if (
       file.type === WEBP_TYPE &&
       withinBounds &&
@@ -136,7 +137,7 @@ export async function compressImageForUpload(file: File): Promise<File> {
       return file;
     }
 
-    const { width, height } = fitInside(image.width, image.height);
+    const { width, height } = fitInside(image.width, image.height, preset);
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
@@ -145,7 +146,7 @@ export async function compressImageForUpload(file: File): Promise<File> {
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(image.source, 0, 0, width, height);
 
-    let blob = await encode(canvas, WEBP_TYPE, WEBP_QUALITY);
+    let blob = await encode(canvas, WEBP_TYPE, preset.quality / 100);
     if (!blob || blob.type !== WEBP_TYPE) {
       if (withinBounds && file.size <= MAX_UPLOAD_BYTES) return file;
       return resizeWithoutWebp(canvas, file);

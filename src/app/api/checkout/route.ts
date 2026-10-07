@@ -13,7 +13,14 @@ import {
   getCheckoutPaymentConfig,
   resolveMercadoPagoAccessToken,
 } from "@/lib/payments/server";
+import {
+  createStripeCheckoutSession,
+  resolveStripeCredentials,
+  toStripeAmount,
+} from "@/lib/payments/stripe";
 import { usesItalianBanking } from "@/lib/payments/transfer-copy";
+import { formatOrderId } from "@/lib/order-status";
+import { pathsForLocale } from "@/lib/storefront-paths";
 import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
@@ -45,7 +52,9 @@ const checkoutSchema = z
       }),
     ),
     couponCode: z.string().optional(),
-    paymentMethod: z.enum(["mercadopago", "transfer", "cash"]).default("mercadopago"),
+    paymentMethod: z
+      .enum(["mercadopago", "transfer", "cash", "card"])
+      .default("mercadopago"),
   })
   .superRefine((data, ctx) => {
     const italian = italianCheckout();
@@ -116,6 +125,7 @@ export async function POST(request: NextRequest) {
     const paymentConfig = await getCheckoutPaymentConfig(storeId);
     const isTransfer = paymentMethod === "transfer";
     const isCash = paymentMethod === "cash";
+    const isCard = paymentMethod === "card";
     const pickupOnly = storefrontFeatures.pickupOnly;
 
     if (pickupOnly && deliveryMethod !== "pickup") {
@@ -146,6 +156,19 @@ export async function POST(request: NextRequest) {
           error: italianCheckout()
             ? "Il pagamento in contanti non è disponibile."
             : "El pago en efectivo no está disponible.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const stripeCredentials = isCard ? await resolveStripeCredentials(storeId) : null;
+
+    if (isCard && (!paymentConfig.cardAvailable || !stripeCredentials)) {
+      return NextResponse.json(
+        {
+          error: italianCheckout()
+            ? "Il pagamento con carta non è disponibile."
+            : "El pago con tarjeta no está disponible.",
         },
         { status: 400 },
       );
@@ -285,7 +308,9 @@ export async function POST(request: NextRequest) {
           ? "TRANSFER"
           : isCash
             ? "CASH"
-            : "MERCADO_PAGO",
+            : isCard
+              ? "CARD"
+              : "MERCADO_PAGO",
         couponId,
         couponCode: resolvedCouponCode,
         couponDiscount,
@@ -357,6 +382,52 @@ export async function POST(request: NextRequest) {
     if (isCash) {
       return NextResponse.json({
         cashMode: true,
+        orderId: order.id,
+      });
+    }
+
+    if (isCard && stripeCredentials) {
+      const vertical = getStorefrontConfig();
+      const paths = pathsForLocale(vertical.locale);
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+      const stripeItems = mpItems.map((item) => ({
+        name: item.title,
+        quantity: item.quantity,
+        unitAmount: toStripeAmount(item.unit_price),
+      }));
+      if (shippingCost > 0) {
+        stripeItems.push({
+          name: italianCheckout() ? "Spedizione" : "Envío",
+          quantity: 1,
+          unitAmount: toStripeAmount(shippingCost),
+        });
+      }
+
+      const stripeSession = await createStripeCheckoutSession({
+        secretKey: stripeCredentials.secretKey,
+        orderId: order.id,
+        storeId,
+        currency: vertical.currency,
+        locale: vertical.locale,
+        items: stripeItems,
+        totalAmount: toStripeAmount(total),
+        fallbackItemName: `${formatStoreName(store.name)} #${formatOrderId(order.id)}`,
+        customerEmail: customer.email,
+        successUrl: `${appUrl}${paths.checkoutSuccess}?order=${order.id}`,
+        cancelUrl: `${appUrl}${paths.checkoutError}?order=${order.id}`,
+      });
+
+      await db.order.update({
+        where: { id: order.id },
+        data: { stripeSessionId: stripeSession.id },
+      });
+
+      if (!stripeSession.url) {
+        throw new Error("Stripe Checkout session without URL");
+      }
+
+      return NextResponse.json({
+        redirectUrl: stripeSession.url,
         orderId: order.id,
       });
     }

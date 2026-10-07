@@ -79,6 +79,7 @@ enum CheckoutPaymentMethod {
   MERCADO_PAGO
   TRANSFER
   CASH
+  CARD
 }
 
 model Store {
@@ -145,6 +146,10 @@ model StorePaymentSettings {
   mercadopagoTokenHint      String?
   transferEnabled           Boolean  @default(false)
   transferInstructions      String?
+  stripeEnabled             Boolean  @default(false)
+  stripeSecretKeyEnc        String?
+  stripeSecretKeyHint       String?
+  stripeWebhookSecretEnc    String?
   updatedAt                 DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -402,6 +407,8 @@ model Order {
   shippingZip     String
   mpPreferenceId            String?
   mpPaymentId               String?
+  stripeSessionId           String?
+  stripePaymentIntentId     String?
   meShipmentId              String?
   meTrackingNumber          String?
   meTrackingUrl             String?

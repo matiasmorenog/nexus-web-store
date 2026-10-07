@@ -163,6 +163,8 @@ Tras cambiar env en Vercel → **Redeploy**.
 - App1: `https://goat-indumentaria.vercel.app/api/webhooks/mercadopago`
 - App2: `https://vaporx-store.vercel.app/api/webhooks/mercadopago`
 
+**Stripe (tarjeta / wallets) — webhook por tienda:** `https://<dominio>/api/webhooks/stripe`. Keys en Admin → Cobros (no env). Ver `docs/payments-stripe.md`.
+
 ## Desarrollo local
 
 ```bash

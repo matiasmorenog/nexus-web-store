@@ -16,6 +16,9 @@ export async function getCheckoutPaymentConfig(
     select: {
       transferEnabled: true,
       transferInstructions: true,
+      stripeEnabled: true,
+      stripeSecretKeyEnc: true,
+      stripeWebhookSecretEnc: true,
     },
   });
 
@@ -25,13 +28,17 @@ export async function getCheckoutPaymentConfig(
   const mercadopagoAvailable = !hideMp;
   const transferAvailable = transferEnabled && instructions.length > 0;
   const cashAvailable = hideMp;
+  const cardAvailable = Boolean(
+    row?.stripeEnabled && row.stripeSecretKeyEnc && row.stripeWebhookSecretEnc,
+  );
 
   return {
     showPaymentMethods:
-      mercadopagoAvailable || transferAvailable || cashAvailable,
+      mercadopagoAvailable || transferAvailable || cashAvailable || cardAvailable,
     mercadopagoAvailable,
     transferAvailable,
     cashAvailable,
+    cardAvailable,
     transferDiscountPercent: Math.round(TRANSFER_PAYMENT_DISCOUNT_RATE * 100),
     transferInstructions: transferEnabled && instructions ? instructions : null,
   };

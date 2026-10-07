@@ -115,6 +115,12 @@ const spanishCopy = {
   signOut: "Cerrar sesión",
   wishlistNav: "Favoritos",
   siteInPreparation: "Sito in preparazione",
+  // Not found
+  notFoundTitle: "No encontramos esta página",
+  notFoundBody: "Puede que el enlace esté mal escrito o que la página ya no exista.",
+  productUnavailableTitle: "Este producto ya no está disponible",
+  productUnavailableBody: "Puede que se haya agotado o que ya no forme parte del catálogo. Mirá el resto de los productos.",
+  backHome: "Volver al inicio",
 } as const;
 
 const italianCopy = {
@@ -230,6 +236,11 @@ const italianCopy = {
   signOut: "Esci",
   wishlistNav: "Preferiti",
   siteInPreparation: "Sito in preparazione",
+  notFoundTitle: "Pagina non trovata",
+  notFoundBody: "Il link potrebbe essere errato oppure la pagina non esiste più.",
+  productUnavailableTitle: "Questa creazione non è più disponibile",
+  productUnavailableBody: "Potrebbe essere esaurita o non far più parte della collezione. Scopri le altre creazioni.",
+  backHome: "Torna alla home",
 } as const;
 
 export type StorefrontCopy = typeof spanishCopy | typeof italianCopy;

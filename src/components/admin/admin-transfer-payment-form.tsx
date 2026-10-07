@@ -22,7 +22,7 @@ import type { StorePaymentSettingsAdminData } from "@/lib/payments";
 type AdminTransferPaymentFormProps = {
   initialSettings: Pick<
     StorePaymentSettingsAdminData,
-    "transferEnabled" | "transferInstructions"
+    "transferEnabled" | "transferInstructions" | "transferDiscountEnabled"
   >;
 };
 
@@ -39,6 +39,9 @@ export function AdminTransferPaymentForm({
   );
   const [transferInstructions, setTransferInstructions] = useState(
     initialSettings.transferInstructions,
+  );
+  const [transferDiscountEnabled, setTransferDiscountEnabled] = useState(
+    initialSettings.transferDiscountEnabled,
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +61,7 @@ export function AdminTransferPaymentForm({
         body: JSON.stringify({
           transferEnabled,
           transferInstructions,
+          transferDiscountEnabled,
         }),
       });
       const data = (await response.json()) as { error?: string };
@@ -93,6 +97,22 @@ export function AdminTransferPaymentForm({
           />
           {copy.enableLabel}
         </label>
+
+        <div>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              checked={transferDiscountEnabled}
+              disabled={!transferEnabled}
+              onChange={(event) =>
+                setTransferDiscountEnabled(event.target.checked)
+              }
+            />
+            {copy.discountToggleLabel(transferPaymentDiscountLabel())}
+          </label>
+          <p className="mt-1.5 text-xs text-neutral-500">
+            {copy.discountToggleHint}
+          </p>
+        </div>
 
         <div>
           <Label htmlFor="transfer-instructions">{copy.instructionsLabel}</Label>

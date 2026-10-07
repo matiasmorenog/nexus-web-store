@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { storeHidesMercadoPago } from "@/lib/modules";
 import {
   TRANSFER_PAYMENT_DISCOUNT_RATE,
+  transferDiscountPercentFor,
   transferPaymentDiscountLabel,
 } from "@/lib/payments/transfer";
 import type { CheckoutPaymentConfig } from "@/lib/payments/types";
@@ -16,6 +17,7 @@ export async function getCheckoutPaymentConfig(
     select: {
       transferEnabled: true,
       transferInstructions: true,
+      transferDiscountEnabled: true,
       stripeEnabled: true,
       stripeSecretKeyEnc: true,
       stripeWebhookSecretEnc: true,
@@ -39,7 +41,9 @@ export async function getCheckoutPaymentConfig(
     transferAvailable,
     cashAvailable,
     cardAvailable,
-    transferDiscountPercent: Math.round(TRANSFER_PAYMENT_DISCOUNT_RATE * 100),
+    transferDiscountPercent: transferDiscountPercentFor(
+      row?.transferDiscountEnabled ?? true,
+    ),
     transferInstructions: transferEnabled && instructions ? instructions : null,
   };
 }

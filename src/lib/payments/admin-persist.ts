@@ -36,6 +36,7 @@ export async function getStorePaymentSettingsForAdmin(
       mercadopagoTokenHint: true,
       transferEnabled: true,
       transferInstructions: true,
+      transferDiscountEnabled: true,
       stripeEnabled: true,
       stripeSecretKeyHint: true,
       stripeWebhookSecretEnc: true,
@@ -55,6 +56,7 @@ export async function getStorePaymentSettingsForAdmin(
     mercadopagoSource: source,
     transferEnabled: row?.transferEnabled ?? false,
     transferInstructions: row?.transferInstructions ?? "",
+    transferDiscountEnabled: row?.transferDiscountEnabled ?? true,
     stripeEnabled: row?.stripeEnabled ?? false,
     stripeSecretKeyHint: row?.stripeSecretKeyHint ?? null,
     stripeWebhookSecretConfigured: Boolean(row?.stripeWebhookSecretEnc),
@@ -168,18 +170,24 @@ export async function saveStorePaymentSettings(
       mercadopagoAccessTokenEnc: true,
       transferEnabled: true,
       transferInstructions: true,
+      transferDiscountEnabled: true,
     },
   });
 
   const transferUpdate =
     input.transferEnabled !== undefined ||
-    input.transferInstructions !== undefined
+    input.transferInstructions !== undefined ||
+    input.transferDiscountEnabled !== undefined
       ? {
           transferEnabled: input.transferEnabled ?? existing?.transferEnabled ?? false,
           transferInstructions:
             input.transferInstructions !== undefined
               ? input.transferInstructions.trim() || null
               : existing?.transferInstructions ?? null,
+          transferDiscountEnabled:
+            input.transferDiscountEnabled ??
+            existing?.transferDiscountEnabled ??
+            true,
         }
       : null;
 
@@ -226,6 +234,7 @@ export async function saveStorePaymentSettings(
         mercadopagoTokenHint: maskMercadoPagoAccessToken(nextToken),
         transferEnabled: transferUpdate?.transferEnabled ?? false,
         transferInstructions: transferUpdate?.transferInstructions ?? null,
+        transferDiscountEnabled: transferUpdate?.transferDiscountEnabled ?? true,
       },
       update: {
         mercadopagoAccessTokenEnc: encryptPaymentSecret(nextToken),
@@ -238,8 +247,7 @@ export async function saveStorePaymentSettings(
       where: { storeId },
       create: {
         storeId,
-        transferEnabled: transferUpdate.transferEnabled,
-        transferInstructions: transferUpdate.transferInstructions,
+        ...transferUpdate,
       },
       update: transferUpdate,
     });

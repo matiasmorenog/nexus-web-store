@@ -47,7 +47,6 @@ export function PromoBanner({ onActiveChange }: PromoBannerProps) {
     const wasDismissed = readDismissed();
     setDismissSynced(true);
     setDismissed(wasDismissed);
-    onActiveChange?.(!wasDismissed);
   }
 
   useEffect(() => {

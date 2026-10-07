@@ -1,8 +1,24 @@
 "use client";
 
 import { ImageIcon } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Image from "next/image";
+import {
+  adminImageUpload,
+  readAdminLocaleFromDocument,
+  type AdminLocale,
+} from "@/lib/admin-locale";
+import {
+  compressImageForUpload,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/images/compress-image-client";
+import { IMAGE_PRESETS } from "@/lib/images/presets";
 import { discardStagedProductImage } from "@/lib/images/discard-staged-product-image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -18,6 +34,25 @@ type ImageUploadFieldProps = {
   className?: string;
 };
 
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+const subscribeNoop = () => () => {};
+const serverLocale = (): AdminLocale => "es";
+
+type UploadResponse = {
+  url?: string;
+  error?: string;
+  savedPercent?: number;
+};
+
+async function readUploadResponse(response: Response): Promise<UploadResponse | null> {
+  try {
+    return (await response.json()) as UploadResponse;
+  } catch {
+    return null;
+  }
+}
+
 export function ImageUploadField({
   name,
   id,
@@ -28,6 +63,12 @@ export function ImageUploadField({
 }: ImageUploadFieldProps) {
   const autoId = useId();
   const fieldId = id ?? autoId;
+  const locale = useSyncExternalStore(
+    subscribeNoop,
+    readAdminLocaleFromDocument,
+    serverLocale,
+  );
+  const copy = adminImageUpload[locale];
   const [imageUrl, setImageUrl] = useState(defaultValue);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,38 +102,67 @@ export function ImageUploadField({
     setError(null);
     setUploading(true);
 
+    const controller = new AbortController();
+    let timeoutId: number | undefined;
+
     try {
-      const body = new FormData();
-      body.append("file", file);
-
-      const response = await fetch("/api/admin/upload", {
-        method: "POST",
-        body,
-      });
-
-      const data = (await response.json()) as {
-        url?: string;
-        error?: string;
-        savedPercent?: number;
-      };
-
-      if (!response.ok) {
-        throw new Error(data.error ?? "Error al subir la imagen");
+      const upload = await compressImageForUpload(file);
+      if (upload.size > MAX_UPLOAD_BYTES) {
+        setError(copy.tooLarge);
+        return;
       }
 
-      if (data.url) {
+      const body = new FormData();
+      body.append("file", upload);
+
+      timeoutId = window.setTimeout(
+        () => controller.abort(),
+        UPLOAD_TIMEOUT_MS,
+      );
+      let response: Response;
+      try {
+        response = await fetch("/api/admin/upload", {
+          method: "POST",
+          body,
+          signal: controller.signal,
+        });
+      } catch (fetchError) {
+        setError(
+          controller.signal.aborted ? copy.timeout : copy.network,
+        );
+        console.error("Image upload request failed:", fetchError);
+        return;
+      }
+
+      const data = await readUploadResponse(response);
+
+      if (!response.ok) {
+        if (data?.error) {
+          setError(data.error);
+        } else if (response.status === 413) {
+          setError(copy.tooLarge);
+        } else {
+          setError(copy.genericStatus(response.status));
+        }
+        return;
+      }
+
+      if (data?.url) {
         discardSessionUpload(imageUrl);
         sessionUploadsRef.current.add(data.url);
         setImageUrl(data.url);
         setShowUrlInput(false);
+      } else {
+        setError(copy.generic);
       }
     } catch (uploadError) {
       setError(
-        uploadError instanceof Error
+        uploadError instanceof Error && uploadError.message
           ? uploadError.message
-          : "Error al subir la imagen",
+          : copy.generic,
       );
     } finally {
+      window.clearTimeout(timeoutId);
       setUploading(false);
     }
   }
@@ -108,7 +178,7 @@ export function ImageUploadField({
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt="Vista previa"
+          alt={copy.preview}
           fill
           className="object-cover"
           sizes={compact ? "88px" : "128px"}
@@ -141,7 +211,7 @@ export function ImageUploadField({
       />
 
       {uploading ? (
-        <p className="text-xs text-neutral-500">Comprimiendo y subiendo…</p>
+        <p className="text-xs text-neutral-500">{copy.uploading}</p>
       ) : null}
       {error ? (
         <p className="text-xs text-[var(--brand-primary)]">{error}</p>
@@ -152,7 +222,7 @@ export function ImageUploadField({
         className="text-xs text-neutral-500 underline-offset-2 hover:underline"
         onClick={() => setShowUrlInput((open) => !open)}
       >
-        {showUrlInput ? "Ocultar URL externa" : "Pegar URL externa"}
+        {showUrlInput ? copy.hideUrl : copy.showUrl}
       </button>
 
       {showUrlInput ? (
@@ -169,7 +239,10 @@ export function ImageUploadField({
 
       {!compact ? (
         <p className="text-xs text-neutral-400">
-          Se convierte a WebP (máx. 1200×1600 px). JPG/PNG/WebP/GIF hasta 8 MB.
+          {copy.helper(
+            IMAGE_PRESETS.product.maxWidth,
+            IMAGE_PRESETS.product.maxHeight,
+          )}
         </p>
       ) : null}
     </div>

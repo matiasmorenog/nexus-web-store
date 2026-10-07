@@ -222,10 +222,6 @@ export const adminProducts = {
   es: {
     title: "Productos",
     catalogTitle: "Catálogo",
-    catalogAwaitingDescription:
-      "Elegí un filtro del panel o buscá por nombre para ver productos.",
-    catalogEmptyAwaiting:
-      "Usá los filtros del panel o la búsqueda para listar productos.",
     catalogEmptyNoProducts:
       "No hay productos en el catálogo. Creá el primero con «Nuevo producto».",
     noMatchFilters: "Ningún producto coincide con los filtros.",
@@ -248,6 +244,8 @@ export const adminProducts = {
     statusFeatured: "Destacado",
     statusNormal: "Normal",
     statusPromo2x1: "2x1",
+    statusInactive: "Desactivado",
+    statusInactiveFilter: "Desactivados",
     clearFilters: "Limpiar filtros",
     /** Template with `{label}` — plain string so Server Components can pass it to Client. */
     removeFilterAria: "Quitar filtro {label}",
@@ -284,7 +282,7 @@ export const adminProducts = {
       "variantes-desc": "Más variantes",
     },
     headerCatalog: (total: number) =>
-      `${total} ${productWord("es", total)} en el catálogo — filtrá o buscá para ver el listado`,
+      `${total} ${productWord("es", total)} ${total === 1 ? "activo" : "activos"} en el catálogo`,
     headerFiltered: (shown: number, total: number) =>
       `${shown} de ${total} ${productWord("es", total)} con los filtros actuales`,
     catalogCountPartial: (loaded: number, total: number) =>
@@ -295,10 +293,6 @@ export const adminProducts = {
   it: {
     title: "Prodotti",
     catalogTitle: "Catalogo",
-    catalogAwaitingDescription:
-      "Scegli un filtro dal pannello o cerca per nome per vedere i prodotti.",
-    catalogEmptyAwaiting:
-      "Usa i filtri del pannello o la ricerca per elencare i prodotti.",
     catalogEmptyNoProducts:
       "Non ci sono prodotti nel catalogo. Creane il primo con «Nuovo prodotto».",
     noMatchFilters: "Nessun prodotto corrisponde ai filtri.",
@@ -322,6 +316,8 @@ export const adminProducts = {
     statusFeatured: "In evidenza",
     statusNormal: "Normale",
     statusPromo2x1: "2x1",
+    statusInactive: "Disattivato",
+    statusInactiveFilter: "Disattivati",
     clearFilters: "Cancella filtri",
     /** Template with `{label}` — plain string so Server Components can pass it to Client. */
     removeFilterAria: "Rimuovi filtro {label}",
@@ -358,7 +354,7 @@ export const adminProducts = {
       "variantes-desc": "Più varianti",
     },
     headerCatalog: (total: number) =>
-      `${total} ${productWord("it", total)} nel catalogo — filtra o cerca per vedere l'elenco`,
+      `${total} ${productWord("it", total)} ${total === 1 ? "attivo" : "attivi"} nel catalogo`,
     headerFiltered: (shown: number, total: number) =>
       `${shown} di ${total} ${productWord("it", total)} con i filtri attuali`,
     catalogCountPartial: (loaded: number, total: number) =>
@@ -375,3 +371,39 @@ export function getAdminProductsCopy(
 ): AdminProductsCopy {
   return adminProducts[locale];
 }
+
+/** `ImageUploadField`: estado, ayuda y errores de subida. */
+export const adminImageUpload = {
+  es: {
+    uploading: "Comprimiendo y subiendo…",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Se optimiza una sola vez en el navegador y se guarda como WebP (máx. ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF hasta 4 MB).`,
+    showUrl: "Pegar URL externa",
+    hideUrl: "Ocultar URL externa",
+    preview: "Vista previa",
+    tooLarge:
+      "La imagen es demasiado grande (máx. 4 MB después de comprimir). Probá con una foto más chica.",
+    timeout:
+      "La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.",
+    network: "No se pudo conectar con el servidor. Intentá de nuevo.",
+    generic: "Error al subir la imagen",
+    genericStatus: (status: number) =>
+      `Error al subir la imagen (código ${status})`,
+  },
+  it: {
+    uploading: "Compressione e caricamento…",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Viene ottimizzata una sola volta nel browser e salvata come WebP (max ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF fino a 4 MB).`,
+    showUrl: "Incolla URL esterno",
+    hideUrl: "Nascondi URL esterno",
+    preview: "Anteprima",
+    tooLarge:
+      "L'immagine è troppo grande (max 4 MB dopo la compressione). Prova con una foto più piccola.",
+    timeout:
+      "Il caricamento ha impiegato troppo tempo. Controlla la connessione e riprova.",
+    network: "Impossibile contattare il server. Riprova.",
+    generic: "Errore nel caricamento dell'immagine",
+    genericStatus: (status: number) =>
+      `Errore nel caricamento dell'immagine (codice ${status})`,
+  },
+} as const;

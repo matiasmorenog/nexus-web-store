@@ -18,8 +18,6 @@ import { AdminProductsSection } from "@/components/admin/admin-products-section"
 import { AdminActiveFilterChips } from "@/components/admin/admin-active-filter-chips";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminProductsToolbar } from "@/components/admin/admin-products-toolbar";
-import { AdminCard } from "@/components/admin/admin-card";
-import { AdminEmptyState } from "@/components/admin/admin-surface";
 import { AdminSkeletonFiltersPanel } from "@/components/admin/admin-skeleton";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { ProductsFiltersPanel } from "@/components/admin/products-filters-panel";
@@ -70,15 +68,16 @@ export default async function AdminProductsPage({
     orden: params.orden,
   };
 
-  const summary = await getAdminProductsSummary(storeId);
-  const listQueryActive = hasAdminProductListQuery(filters);
-  const page = await getAdminProductsPage(storeId, 1, filters);
-  const categories = await getStoreCategories(storeId);
+  const [summary, page, categories, couponsEnabled] = await Promise.all([
+    getAdminProductsSummary(storeId),
+    getAdminProductsPage(storeId, 1, filters),
+    getStoreCategories(storeId),
+    storeHasModule(storeId, "coupons"),
+  ]);
   const promo2x1Selectable =
-    getStorefrontConfig().features.promo2x1 &&
-    (await storeHasModule(storeId, "coupons"));
+    getStorefrontConfig().features.promo2x1 && couponsEnabled;
 
-  const hasFilters = listQueryActive;
+  const hasFilters = hasAdminProductListQuery(filters);
 
   const description = hasFilters
     ? copy.headerFiltered(page.total, summary.totalProducts)
@@ -127,41 +126,17 @@ export default async function AdminProductsPage({
             />
           </Suspense>
 
-          {summary.totalProducts === 0 ? (
-            <AdminCard>
-              <AdminEmptyState>
-                {copy.catalogEmptyNoProducts}
-              </AdminEmptyState>
-            </AdminCard>
-          ) : !listQueryActive ? (
-            <AdminProductsSection
-              awaitingFilters
-              initialProducts={[]}
-              total={0}
-              hasMore={false}
-              filters={filters}
-              promo2x1Selectable={promo2x1Selectable}
-              canManage={canManageProducts}
-              categories={categories}
-            />
-          ) : page.total === 0 ? (
-            <AdminCard>
-              <AdminEmptyState>
-                {copy.noMatchFilters}
-              </AdminEmptyState>
-            </AdminCard>
-          ) : (
-            <AdminProductsSection
-              key={adminProductsFilterKey(filters)}
-              initialProducts={page.products}
-              total={page.total}
-              hasMore={page.hasMore}
-              filters={filters}
-              promo2x1Selectable={promo2x1Selectable}
-              canManage={canManageProducts}
-              categories={categories}
-            />
-          )}
+          <AdminProductsSection
+            key={adminProductsFilterKey(filters)}
+            initialProducts={page.products}
+            total={page.total}
+            hasMore={page.hasMore}
+            filters={filters}
+            hasFilters={hasFilters}
+            promo2x1Selectable={promo2x1Selectable}
+            canManage={canManageProducts}
+            categories={categories}
+          />
         </div>
 
         <aside className={adminFiltersAsideClass}>

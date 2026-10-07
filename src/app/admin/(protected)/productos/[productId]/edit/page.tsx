@@ -67,6 +67,7 @@ export default async function AdminProductEditPage({
           audience: product.audience,
           featured: product.featured,
           promo2x1: product.promo2x1,
+          active: product.active,
           hasSize: product.hasSize,
         }}
         promo2x1Selectable={promo2x1Selectable}

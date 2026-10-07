@@ -54,14 +54,15 @@ export async function fulfillPaidOrder(orderId: string) {
     return { alreadyFulfilled: true as const, orderId };
   }
 
-  const wasAlreadyPaid = order.status === "PAID";
+  let markedPaid = false;
 
-  if (!wasAlreadyPaid) {
-    await db.$transaction(async (tx) => {
-      await tx.order.update({
-        where: { id: orderId },
+  if (order.status !== "PAID") {
+    markedPaid = await db.$transaction(async (tx) => {
+      const { count } = await tx.order.updateMany({
+        where: { id: orderId, status: { not: "PAID" } },
         data: { status: "PAID" },
       });
+      if (count === 0) return false;
 
       for (const item of order.items) {
         await tx.productVariant.update({
@@ -76,16 +77,18 @@ export async function fulfillPaidOrder(orderId: string) {
           data: { usedCount: { increment: 1 } },
         });
       }
-    });
 
+      return true;
+    });
+  }
+
+  if (markedPaid) {
     const productSlugs = [
       ...new Set(order.items.map((item) => item.variant.product.slug)),
     ];
     revalidateStorefrontStockSurfaces(productSlugs);
     revalidateAdminDashboardCache(order.storeId);
-  }
 
-  if (!wasAlreadyPaid) {
     const queuedInvoiceStatus = await queueAfipInvoiceForPaidOrder(order.id);
     const webhookData = buildOrderPaidWebhookData({
       ...order,

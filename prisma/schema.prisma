@@ -79,6 +79,7 @@ enum CheckoutPaymentMethod {
   MERCADO_PAGO
   TRANSFER
   CASH
+  CARD
 }
 
 model Store {
@@ -145,6 +146,10 @@ model StorePaymentSettings {
   mercadopagoTokenHint      String?
   transferEnabled           Boolean  @default(false)
   transferInstructions      String?
+  stripeEnabled             Boolean  @default(false)
+  stripeSecretKeyEnc        String?
+  stripeSecretKeyHint       String?
+  stripeWebhookSecretEnc    String?
   updatedAt                 DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -341,6 +346,8 @@ model Product {
   promo2x1    Boolean  @default(false)
   /** When false, product sells without a size/formato option axis (single size sentinel). */
   hasSize     Boolean  @default(true)
+  /** When false, hidden from storefront and checkout; admin shows it only under the "desactivado" filter. */
+  active      Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -351,6 +358,7 @@ model Product {
   @@unique([storeId, slug])
   @@index([storeId, createdAt(sort: Desc)])
   @@index([storeId, featured])
+  @@index([storeId, active, createdAt(sort: Desc)])
 }
 
 model ProductVariant {
@@ -399,6 +407,8 @@ model Order {
   shippingZip     String
   mpPreferenceId            String?
   mpPaymentId               String?
+  stripeSessionId           String?
+  stripePaymentIntentId     String?
   meShipmentId              String?
   meTrackingNumber          String?
   meTrackingUrl             String?

@@ -342,7 +342,7 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
         items: [
           "Articoli già disponibili: spediti entro 2 giorni lavorativi dalla conferma del pagamento.",
           "Creazioni su ordinazione o personalizzate: i tempi dipendono dalla quantità richiesta. Te li comunichiamo via email dopo l'ordine.",
-          "Le creazioni personalizzate possono avere un costo aggiuntivo, che ti comunichiamo prima di realizzarle.",
+          "Le creazioni personalizzate (ad esempio i portachiavi a piedino per baby shower) possono avere un costo diverso, che ti comunichiamo prima di realizzarle.",
         ],
       },
       { type: "heading", text: "Tempi di consegna" },

@@ -342,6 +342,7 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
         items: [
           "Articoli già disponibili: spediti entro 2 giorni lavorativi dalla conferma del pagamento.",
           "Creazioni su ordinazione o personalizzate: i tempi dipendono dalla quantità richiesta. Te li comunichiamo via email dopo l'ordine.",
+          "Le creazioni personalizzate possono avere un costo aggiuntivo, che ti comunichiamo prima di realizzarle.",
         ],
       },
       { type: "heading", text: "Tempi di consegna" },
@@ -357,7 +358,15 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
       { type: "heading", text: "Ritiro di persona" },
       {
         type: "paragraph",
-        text: "Puoi ritirare il tuo ordine gratuitamente in Viale della Resistenza 59, 62027 San Severino Marche (MC). Scegli \"Ritiro in sede\" al checkout: ti avvisiamo su WhatsApp quando l'ordine è pronto.",
+        text: "Puoi ritirare il tuo ordine gratuitamente a San Severino Marche (MC). Scegli \"Ritiro in sede\" al checkout: quando l'ordine è pronto ti avvisiamo su WhatsApp e ti mandiamo l'indirizzo.",
+      },
+      { type: "heading", text: "Imballaggio" },
+      {
+        type: "list",
+        items: [
+          "Portachiavi e piccoli accessori: spediti in sacchetto.",
+          "Candele: spedite in scatola, per arrivare intatte.",
+        ],
       },
       { type: "heading", text: "Tracciamento" },
       {

@@ -327,10 +327,40 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
     "Resi",
     "Le condizioni di reso di {{storeName}} saranno pubblicate prima degli ordini.",
   ),
-  envios: preparationPage(
-    "Consegne",
-    "Zone e tempi di consegna di {{storeName}} saranno definiti prima degli ordini.",
-  ),
+  envios: {
+    kind: "info",
+    title: "Consegne",
+    description: "Zone, costi e tempi di consegna delle creazioni {{storeName}}.",
+    sections: [
+      {
+        type: "paragraph",
+        text: "Ogni creazione {{storeName}} è realizzata a mano. Spediamo in tutta Italia.",
+      },
+      { type: "heading", text: "Tempi di preparazione" },
+      {
+        type: "list",
+        items: [
+          "Articoli già disponibili: spediti entro 2 giorni lavorativi dalla conferma del pagamento.",
+          "Creazioni su ordinazione o personalizzate: i tempi dipendono dalla quantità richiesta. Te li comunichiamo via email dopo l'ordine.",
+        ],
+      },
+      { type: "heading", text: "Costi di spedizione" },
+      {
+        type: "paragraph",
+        text: "Il costo della spedizione dipende dal peso del pacco e dal numero di articoli. Dopo l'ordine ti comunichiamo il costo esatto, prima di spedire.",
+      },
+      { type: "heading", text: "Tracciamento" },
+      {
+        type: "paragraph",
+        text: "Quando il pacco parte ti inviamo via email il codice di tracciamento, se disponibile.",
+      },
+      { type: "heading", text: "Domande" },
+      {
+        type: "paragraph",
+        text: "Per qualsiasi dubbio sulla consegna scrivici dalla pagina Contatti.",
+      },
+    ],
+  },
   "guia-de-talles": preparationPage(
     "Misure",
     "Le indicazioni su misure e formati saranno pubblicate con la collezione definitiva.",

@@ -18,6 +18,7 @@ export async function getCheckoutPaymentConfig(
       transferEnabled: true,
       transferInstructions: true,
       transferDiscountEnabled: true,
+      cashEnabled: true,
       stripeEnabled: true,
       stripeSecretKeyEnc: true,
       stripeWebhookSecretEnc: true,
@@ -29,7 +30,7 @@ export async function getCheckoutPaymentConfig(
   const hideMp = storeHidesMercadoPago();
   const mercadopagoAvailable = !hideMp;
   const transferAvailable = transferEnabled && instructions.length > 0;
-  const cashAvailable = hideMp;
+  const cashAvailable = hideMp && (row?.cashEnabled ?? false);
   const cardAvailable = Boolean(
     row?.stripeEnabled && row.stripeSecretKeyEnc && row.stripeWebhookSecretEnc,
   );

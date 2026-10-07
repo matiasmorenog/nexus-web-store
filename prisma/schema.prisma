@@ -147,6 +147,7 @@ model StorePaymentSettings {
   transferEnabled           Boolean  @default(false)
   transferInstructions      String?
   transferDiscountEnabled   Boolean  @default(true)
+  cashEnabled               Boolean  @default(false)
   stripeEnabled             Boolean  @default(false)
   stripeSecretKeyEnc        String?
   stripeSecretKeyHint       String?

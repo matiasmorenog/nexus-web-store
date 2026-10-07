@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AdminCashPaymentForm } from "@/components/admin/admin-cash-payment-form";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPaymentSettingsForm } from "@/components/admin/admin-payment-settings-form";
@@ -59,6 +60,9 @@ export default async function AdminCobrosPage() {
               transferDiscountEnabled: paymentSettings.transferDiscountEnabled,
             }}
           />
+          {hideMercadoPago ? (
+            <AdminCashPaymentForm initialEnabled={paymentSettings.cashEnabled} />
+          ) : null}
         </div>
       </AdminDashboardReveal>
     </div>

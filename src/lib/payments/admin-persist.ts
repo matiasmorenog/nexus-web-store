@@ -37,6 +37,7 @@ export async function getStorePaymentSettingsForAdmin(
       transferEnabled: true,
       transferInstructions: true,
       transferDiscountEnabled: true,
+      cashEnabled: true,
       stripeEnabled: true,
       stripeSecretKeyHint: true,
       stripeWebhookSecretEnc: true,
@@ -57,6 +58,7 @@ export async function getStorePaymentSettingsForAdmin(
     transferEnabled: row?.transferEnabled ?? false,
     transferInstructions: row?.transferInstructions ?? "",
     transferDiscountEnabled: row?.transferDiscountEnabled ?? true,
+    cashEnabled: row?.cashEnabled ?? false,
     stripeEnabled: row?.stripeEnabled ?? false,
     stripeSecretKeyHint: row?.stripeSecretKeyHint ?? null,
     stripeWebhookSecretConfigured: Boolean(row?.stripeWebhookSecretEnc),
@@ -160,6 +162,16 @@ export async function saveStorePaymentSettings(
 ): Promise<void> {
   if (hasStripeInput(input)) {
     await saveStripeSettings(storeId, input, locale);
+    revalidatePaymentPaths(storeId);
+    return;
+  }
+
+  if (input.cashEnabled !== undefined) {
+    await db.storePaymentSettings.upsert({
+      where: { storeId },
+      create: { storeId, cashEnabled: input.cashEnabled },
+      update: { cashEnabled: input.cashEnabled },
+    });
     revalidatePaymentPaths(storeId);
     return;
   }

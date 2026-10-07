@@ -7,6 +7,7 @@ export type StorePaymentSettingsAdminData = {
   transferEnabled: boolean;
   transferInstructions: string;
   transferDiscountEnabled: boolean;
+  cashEnabled: boolean;
   stripeEnabled: boolean;
   stripeSecretKeyHint: string | null;
   stripeWebhookSecretConfigured: boolean;
@@ -18,6 +19,7 @@ export type StorePaymentSettingsSaveInput = {
   transferEnabled?: boolean;
   transferInstructions?: string;
   transferDiscountEnabled?: boolean;
+  cashEnabled?: boolean;
   stripeEnabled?: boolean;
   stripeSecretKey?: string;
   stripeWebhookSecret?: string;

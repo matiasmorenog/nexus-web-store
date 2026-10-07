@@ -371,3 +371,39 @@ export function getAdminProductsCopy(
 ): AdminProductsCopy {
   return adminProducts[locale];
 }
+
+/** `ImageUploadField`: estado, ayuda y errores de subida. */
+export const adminImageUpload = {
+  es: {
+    uploading: "Comprimiendo y subiendo…",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Se optimiza una sola vez en el navegador y se guarda como WebP (máx. ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF hasta 4 MB).`,
+    showUrl: "Pegar URL externa",
+    hideUrl: "Ocultar URL externa",
+    preview: "Vista previa",
+    tooLarge:
+      "La imagen es demasiado grande (máx. 4 MB después de comprimir). Probá con una foto más chica.",
+    timeout:
+      "La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.",
+    network: "No se pudo conectar con el servidor. Intentá de nuevo.",
+    generic: "Error al subir la imagen",
+    genericStatus: (status: number) =>
+      `Error al subir la imagen (código ${status})`,
+  },
+  it: {
+    uploading: "Compressione e caricamento…",
+    helper: (maxWidth: number, maxHeight: number) =>
+      `Viene ottimizzata una sola volta nel browser e salvata come WebP (max ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF fino a 4 MB).`,
+    showUrl: "Incolla URL esterno",
+    hideUrl: "Nascondi URL esterno",
+    preview: "Anteprima",
+    tooLarge:
+      "L'immagine è troppo grande (max 4 MB dopo la compressione). Prova con una foto più piccola.",
+    timeout:
+      "Il caricamento ha impiegato troppo tempo. Controlla la connessione e riprova.",
+    network: "Impossibile contattare il server. Riprova.",
+    generic: "Errore nel caricamento dell'immagine",
+    genericStatus: (status: number) =>
+      `Errore nel caricamento dell'immagine (codice ${status})`,
+  },
+} as const;

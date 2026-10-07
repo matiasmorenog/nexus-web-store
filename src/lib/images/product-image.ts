@@ -1,18 +1,13 @@
+import {
+  IMAGE_PRESETS,
+  PRODUCT_IMAGE,
+  type ImagePreset,
+} from "@/lib/images/presets";
+
+export { IMAGE_PRESETS, PRODUCT_IMAGE };
+
 export const DEFAULT_PRODUCT_IMAGE =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
-
-export const PRODUCT_IMAGE = {
-  maxInputBytes: 8 * 1024 * 1024,
-  maxWidth: 1200,
-  maxHeight: 1600,
-  webpQuality: 82,
-  allowedMimeTypes: new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ]),
-} as const;
 
 export function parseProductImageUrl(
   raw: FormDataEntryValue | null,
@@ -29,15 +24,35 @@ export function normalizeProductImageUrl(raw: FormDataEntryValue | null): string
   return parseProductImageUrl(raw) ?? DEFAULT_PRODUCT_IMAGE;
 }
 
-export async function optimizeProductImage(buffer: Buffer): Promise<Buffer> {
+/**
+ * Uploads already matching the final spec (e.g. encoded in the browser) are
+ * returned untouched so the image is never lossy-encoded twice.
+ */
+export async function optimizeProductImage(
+  buffer: Buffer,
+  preset: ImagePreset = IMAGE_PRESETS.product,
+): Promise<Buffer> {
   // Lazy: product server actions import this module but never need the native binary.
   const { default: sharp } = await import("sharp");
+
+  const meta = await sharp(buffer).metadata();
+  const alreadyFinal =
+    meta.format === "webp" &&
+    !!meta.width &&
+    !!meta.height &&
+    meta.width <= preset.maxWidth &&
+    meta.height <= preset.maxHeight &&
+    (meta.pages ?? 1) <= 1 &&
+    (meta.orientation ?? 1) === 1 &&
+    !meta.exif;
+  if (alreadyFinal) return buffer;
+
   return sharp(buffer)
     .rotate()
-    .resize(PRODUCT_IMAGE.maxWidth, PRODUCT_IMAGE.maxHeight, {
+    .resize(preset.maxWidth, preset.maxHeight, {
       fit: "inside",
       withoutEnlargement: true,
     })
-    .webp({ quality: PRODUCT_IMAGE.webpQuality, effort: 4 })
+    .webp({ quality: preset.quality, effort: 4 })
     .toBuffer();
 }

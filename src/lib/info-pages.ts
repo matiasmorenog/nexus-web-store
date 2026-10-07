@@ -358,7 +358,7 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
       {
         type: "list",
         items: [
-          "Se la creazione arriva danneggiata, scrivici con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto. La spedizione è a carico del cliente.",
+          "Se la creazione arriva danneggiata, scrivici entro 12 ore dalla consegna con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto e la spedizione è a carico nostro.",
           "Non si accettano resi né cambi per prodotti arrivati integri.",
           "Le creazioni personalizzate non possono essere restituite.",
         ],
@@ -377,7 +377,7 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
       {
         type: "list",
         items: [
-          "Se la creazione arriva danneggiata, scrivici dalla pagina Contatti con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto. La spedizione è a carico del cliente.",
+          "Se la creazione arriva danneggiata, scrivici dalla pagina Contatti entro 12 ore dalla consegna, con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto e la spedizione è a carico nostro.",
           "Non si accettano resi né cambi per prodotti arrivati integri.",
           "Le creazioni personalizzate non possono essere restituite.",
         ],

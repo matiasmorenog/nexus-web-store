@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     const variants = await db.productVariant.findMany({
       where: {
         id: { in: items.map((i) => i.variantId) },
-        product: { storeId },
+        product: { storeId, active: true },
       },
       include: { product: true },
     });

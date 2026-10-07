@@ -20,6 +20,7 @@ type ProductEditSectionsProps = {
     audience: string;
     featured: boolean;
     promo2x1: boolean;
+    active: boolean;
     hasSize: boolean;
   };
   promo2x1Selectable?: boolean;

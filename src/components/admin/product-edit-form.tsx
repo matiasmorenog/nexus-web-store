@@ -27,6 +27,7 @@ type ProductEditFormProps = {
     audience: string;
     featured: boolean;
     promo2x1: boolean;
+    active: boolean;
   };
   open: boolean;
   onToggle: () => void;
@@ -51,6 +52,7 @@ export function ProductEditForm({
   const [saved, setSaved] = useState(false);
 
   const collapsedDescription = [
+    product.active ? null : "Desactivado",
     getProductTaxonomyLabel(product.category, product.audience, categories),
     product.featured ? "Destacado" : null,
     product.promo2x1 ? "2x1" : null,
@@ -85,7 +87,7 @@ export function ProductEditForm({
       title="Datos del producto"
       description={
         open
-          ? "Nombre, género, categoría, descripción y visibilidad en el home."
+          ? "Nombre, género, categoría, descripción y visibilidad en la tienda."
           : `${product.name} · ${collapsedDescription}`
       }
       contentClassName="p-4 sm:p-6"
@@ -115,6 +117,21 @@ export function ProductEditForm({
               defaultValue={product.description}
               required
             />
+          </div>
+          <div className="flex items-start gap-2.5 sm:col-span-2">
+            <Switch
+              id="active"
+              name="active"
+              defaultChecked={product.active}
+            />
+            <div>
+              <Label htmlFor="active" className="cursor-pointer">
+                Activo
+              </Label>
+              <p className="text-xs text-neutral-500">
+                Si lo desactivás, deja de verse en la tienda y no se puede comprar.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2.5 sm:col-span-2">
             <Switch

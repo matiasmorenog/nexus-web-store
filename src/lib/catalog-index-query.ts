@@ -65,7 +65,7 @@ const getCachedCatalogIndex = (storeId: string) =>
   unstable_cache(
     async (): Promise<CatalogIndexData> => {
       const products = await db.product.findMany({
-        where: { storeId },
+        where: { storeId, active: true },
         include: productInclude,
         orderBy: { createdAt: "desc" },
       });

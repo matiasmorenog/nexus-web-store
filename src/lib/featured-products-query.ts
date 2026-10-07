@@ -22,7 +22,7 @@ const getCachedFeaturedProducts = (storeId: string) =>
   unstable_cache(
     async (): Promise<FeaturedProductCard[]> => {
       const featuredProducts = await db.product.findMany({
-        where: { storeId, featured: true },
+        where: { storeId, featured: true, active: true },
         include: {
           variants: {
             orderBy: { price: "asc" },

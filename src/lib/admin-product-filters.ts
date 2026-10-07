@@ -34,6 +34,7 @@ function productEstadoLabels(locale: AdminLocale): Record<string, string> {
     destacado: copy.statusFeatured,
     "2x1": copy.statusPromo2x1,
     normal: copy.statusNormal,
+    desactivado: copy.statusInactiveFilter,
   };
 }
 

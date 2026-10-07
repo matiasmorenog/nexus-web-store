@@ -315,18 +315,75 @@ function preparationPage(title: string, description: string): InfoPageContent {
 }
 
 const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
-  terminos: preparationPage(
-    "Condizioni",
-    "Le condizioni di vendita di {{storeName}} saranno pubblicate prima degli ordini.",
-  ),
+  terminos: {
+    kind: "info",
+    title: "Condizioni di vendita",
+    description: "Condizioni per gli acquisti sul sito {{storeName}}.",
+    sections: [
+      { type: "heading", text: "Chi vende" },
+      {
+        type: "paragraph",
+        text: "Le creazioni {{storeName}} sono realizzate a mano e vendute da Raquel Noemi Moreno, San Severino Marche (MC), come attività artigianale occasionale, senza partita IVA. Per qualsiasi comunicazione usa la pagina Contatti.",
+      },
+      { type: "heading", text: "Prodotti" },
+      {
+        type: "paragraph",
+        text: "Ogni creazione è fatta a mano: le foto sono indicative e dimensioni e colori possono variare leggermente da un pezzo all'altro.",
+      },
+      { type: "heading", text: "Ordini" },
+      {
+        type: "list",
+        items: [
+          "Le creazioni sono realizzate su ordinazione.",
+          "Se non possiamo realizzare un articolo, te lo comunichiamo prima del pagamento.",
+          "Le creazioni personalizzate possono avere un costo diverso, che ti comunichiamo prima di realizzarle.",
+        ],
+      },
+      { type: "heading", text: "Prezzi e pagamento" },
+      {
+        type: "list",
+        items: [
+          "I prezzi sono in euro. Non viene applicata l'IVA.",
+          "Il pagamento avviene con bonifico istantaneo al momento della conferma dell'ordine.",
+          "L'ordine viene preparato solo dopo aver ricevuto il pagamento.",
+          "Non accettiamo pagamenti in contanti.",
+        ],
+      },
+      { type: "heading", text: "Spedizione" },
+      {
+        type: "paragraph",
+        text: "Le spese di spedizione sono a carico del cliente. Tempi, costi e ritiro di persona sono descritti nella pagina Consegne.",
+      },
+      { type: "heading", text: "Prodotti danneggiati, resi e cambi" },
+      {
+        type: "list",
+        items: [
+          "Se la creazione arriva danneggiata, scrivici con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto. La spedizione è a carico del cliente.",
+          "Non si accettano resi né cambi per prodotti arrivati integri.",
+          "Le creazioni personalizzate non possono essere restituite.",
+        ],
+      },
+    ],
+  },
   privacidad: preparationPage(
     "Privacy",
     "L'informativa privacy di {{storeName}} sarà pubblicata prima degli ordini.",
   ),
-  "cambios-y-devoluciones": preparationPage(
-    "Resi",
-    "Le condizioni di reso di {{storeName}} saranno pubblicate prima degli ordini.",
-  ),
+  "cambios-y-devoluciones": {
+    kind: "info",
+    title: "Resi",
+    description: "Cosa fare se una creazione {{storeName}} arriva danneggiata.",
+    sections: [
+      {
+        type: "list",
+        items: [
+          "Se la creazione arriva danneggiata, scrivici dalla pagina Contatti con una foto del pacco e del prodotto: ti inviamo un nuovo prodotto. La spedizione è a carico del cliente.",
+          "Non si accettano resi né cambi per prodotti arrivati integri.",
+          "Le creazioni personalizzate non possono essere restituite.",
+        ],
+      },
+    ],
+  },
   envios: {
     kind: "info",
     title: "Consegne",

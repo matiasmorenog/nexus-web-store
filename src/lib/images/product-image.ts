@@ -1,18 +1,9 @@
+import { PRODUCT_IMAGE } from "@/lib/images/product-image-spec";
+
+export { PRODUCT_IMAGE };
+
 export const DEFAULT_PRODUCT_IMAGE =
   "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
-
-export const PRODUCT_IMAGE = {
-  maxInputBytes: 8 * 1024 * 1024,
-  maxWidth: 1200,
-  maxHeight: 1600,
-  webpQuality: 82,
-  allowedMimeTypes: new Set([
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ]),
-} as const;
 
 export function parseProductImageUrl(
   raw: FormDataEntryValue | null,
@@ -29,9 +20,26 @@ export function normalizeProductImageUrl(raw: FormDataEntryValue | null): string
   return parseProductImageUrl(raw) ?? DEFAULT_PRODUCT_IMAGE;
 }
 
+/**
+ * Uploads already matching the final spec (e.g. encoded in the browser) are
+ * returned untouched so the image is never lossy-encoded twice.
+ */
 export async function optimizeProductImage(buffer: Buffer): Promise<Buffer> {
   // Lazy: product server actions import this module but never need the native binary.
   const { default: sharp } = await import("sharp");
+
+  const meta = await sharp(buffer).metadata();
+  const alreadyFinal =
+    meta.format === "webp" &&
+    !!meta.width &&
+    !!meta.height &&
+    meta.width <= PRODUCT_IMAGE.maxWidth &&
+    meta.height <= PRODUCT_IMAGE.maxHeight &&
+    (meta.pages ?? 1) <= 1 &&
+    (meta.orientation ?? 1) === 1 &&
+    !meta.exif;
+  if (alreadyFinal) return buffer;
+
   return sharp(buffer)
     .rotate()
     .resize(PRODUCT_IMAGE.maxWidth, PRODUCT_IMAGE.maxHeight, {

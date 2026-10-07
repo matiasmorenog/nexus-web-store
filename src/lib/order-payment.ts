@@ -14,11 +14,23 @@ type OrderPaymentInput = {
   status: string;
   mpPaymentId: string | null;
   mpPreferenceId: string | null;
-  paymentMethod?: "MERCADO_PAGO" | "TRANSFER" | "CASH";
+  paymentMethod?: "MERCADO_PAGO" | "TRANSFER" | "CASH" | "CARD";
   transferDiscount?: number | Decimal | null;
 };
 
 export function getOrderPaymentInfo(order: OrderPaymentInput): OrderPaymentInfo {
+  if (order.paymentMethod === "CARD") {
+    const copy = getLocaleCopy(getStorefrontConfig().locale);
+    const provider = `${copy.cardMethodTitle} (Stripe)`;
+    if (order.status === "PAID" || order.status === "SHIPPED") {
+      return { provider, statusLabel: copy.purchaseConfirmed };
+    }
+    if (order.status === "CANCELLED") {
+      return { provider, statusLabel: "Cancelado" };
+    }
+    return { provider, statusLabel: copy.paymentPending };
+  }
+
   if (order.paymentMethod === "CASH") {
     const copy = getLocaleCopy(getStorefrontConfig().locale);
     if (order.status === "PAID" || order.status === "SHIPPED") {

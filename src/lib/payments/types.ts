@@ -6,6 +6,9 @@ export type StorePaymentSettingsAdminData = {
   mercadopagoSource: MercadoPagoTokenSource;
   transferEnabled: boolean;
   transferInstructions: string;
+  stripeEnabled: boolean;
+  stripeSecretKeyHint: string | null;
+  stripeWebhookSecretConfigured: boolean;
 };
 
 export type StorePaymentSettingsSaveInput = {
@@ -13,17 +16,23 @@ export type StorePaymentSettingsSaveInput = {
   clearMercadopagoToken?: boolean;
   transferEnabled?: boolean;
   transferInstructions?: string;
+  stripeEnabled?: boolean;
+  stripeSecretKey?: string;
+  stripeWebhookSecret?: string;
+  clearStripeKeys?: boolean;
 };
 
-export type CheckoutPaymentMethodOption = "mercadopago" | "transfer" | "cash";
+export type CheckoutPaymentMethodOption = "mercadopago" | "transfer" | "cash" | "card";
 
 export type CheckoutPaymentConfig = {
-  /** Mostrar selector de métodos en checkout (MP, transferencia y/o efectivo). */
+  /** Mostrar selector de métodos en checkout (MP, transferencia, efectivo y/o tarjeta). */
   showPaymentMethods: boolean;
   mercadopagoAvailable: boolean;
   transferAvailable: boolean;
   /** Efectivo / contanti — Manoviva (sin Mercado Pago). */
   cashAvailable: boolean;
+  /** Tarjeta / wallets vía Stripe Checkout. */
+  cardAvailable: boolean;
   transferDiscountPercent: number;
   transferInstructions: string | null;
 };

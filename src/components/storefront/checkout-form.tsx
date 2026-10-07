@@ -280,9 +280,9 @@ export function CheckoutForm({
         throw new Error(result.error ?? "Error al procesar el checkout");
       }
 
-      if (result.initPoint) {
+      if (result.initPoint || result.redirectUrl) {
         clearCart();
-        window.location.href = result.initPoint;
+        window.location.href = result.redirectUrl ?? result.initPoint;
       } else if (result.transferMode || result.cashMode) {
         clearCart();
         router.push(`${getStorefrontPaths().checkoutPending}?order=${result.orderId}`);
@@ -501,11 +501,37 @@ export function CheckoutForm({
                 paymentConfig.mercadopagoAvailable,
                 paymentConfig.transferAvailable,
                 paymentConfig.cashAvailable,
+                paymentConfig.cardAvailable,
               ].filter(Boolean).length > 1
                 ? "sm:grid-cols-2"
                 : "sm:grid-cols-1",
             )}
           >
+            {paymentConfig.cardAvailable ? (
+            <label
+              className={cn(
+                "cursor-pointer rounded-lg border p-4 transition-colors",
+                paymentMethod === "card"
+                  ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]/40"
+                  : "border-neutral-200 hover:border-neutral-300",
+              )}
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="card"
+                checked={paymentMethod === "card"}
+                onChange={() => setPaymentMethod("card")}
+                className="sr-only"
+              />
+              <p className="font-medium text-neutral-900">
+                {localeCopy.cardMethodTitle}
+              </p>
+              <p className="mt-1 text-xs text-neutral-500">
+                {localeCopy.cardMethodDetail}
+              </p>
+            </label>
+            ) : null}
             {paymentConfig.cashAvailable ? (
             <label
               className={cn(
@@ -645,7 +671,9 @@ export function CheckoutForm({
             ? transferCopy.confirmButton
             : paymentMethod === "cash"
               ? localeCopy.cashConfirmButton
-              : localeCopy.payWithMercadoPago}
+              : paymentMethod === "card"
+                ? localeCopy.payWithCard
+                : localeCopy.payWithMercadoPago}
       </Button>
     </form>
   );

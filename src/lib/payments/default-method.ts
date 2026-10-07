@@ -3,10 +3,11 @@ import type {
   CheckoutPaymentMethodOption,
 } from "@/lib/payments/types";
 
-/** Prefer cash (Manoviva), then transfer-only, else Mercado Pago. */
+/** Card when Stripe replaces MP (Manoviva), then cash, transfer-only, else Mercado Pago. */
 export function defaultCheckoutPaymentMethod(
   config: CheckoutPaymentConfig,
 ): CheckoutPaymentMethodOption {
+  if (config.cardAvailable && !config.mercadopagoAvailable) return "card";
   if (config.cashAvailable) return "cash";
   if (config.transferAvailable && !config.mercadopagoAvailable) return "transfer";
   return "mercadopago";

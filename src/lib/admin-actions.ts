@@ -171,6 +171,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
       promo2x1: formData.get("promo2x1") === "on",
+      active: formData.get("active") === "on",
     },
   });
 

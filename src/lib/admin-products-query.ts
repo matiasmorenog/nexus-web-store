@@ -28,7 +28,9 @@ export type AdminProductsFilterParams = {
   orden?: string;
 };
 
-/** Panel o búsqueda — sin esto no se consulta el listado de productos. */
+export const ADMIN_PRODUCT_ESTADO_INACTIVE = "desactivado";
+
+/** Search or facet filters applied on top of the default (active) catalog. */
 export function hasAdminProductListQuery(
   params: AdminProductsFilterParams,
 ) {
@@ -41,23 +43,20 @@ export function hasAdminProductListQuery(
   );
 }
 
-export function emptyAdminProductsPage(page = 1) {
-  return {
-    products: [] as AdminProductRow[],
-    total: 0,
-    page,
-    hasMore: false,
-  };
-}
-
 const VALID_CATEGORIES = new Set(
   PRODUCT_CATEGORIES.map((category) => category.slug),
 );
 
 const VALID_AUDIENCES = new Set(STORE_AUDIENCES.map((audience) => audience.slug));
 
+const listVariantSelect = { imageUrl: true, price: true } as const;
+
 const productInclude = {
-  variants: { orderBy: { price: "asc" as const }, take: 1 },
+  variants: {
+    orderBy: { price: "asc" as const },
+    take: 1,
+    select: listVariantSelect,
+  },
   _count: { select: { variants: true } },
 } as const;
 
@@ -69,7 +68,10 @@ export function buildAdminProductsWhere(
   storeId: string,
   params: AdminProductsFilterParams,
 ): Prisma.ProductWhereInput {
-  const where: Prisma.ProductWhereInput = { storeId };
+  const where: Prisma.ProductWhereInput = {
+    storeId,
+    active: params.estado !== ADMIN_PRODUCT_ESTADO_INACTIVE,
+  };
 
   if (params.categoria && VALID_CATEGORIES.has(params.categoria as never)) {
     where.category = params.categoria;
@@ -128,7 +130,7 @@ async function fetchAdminProductsBatch(
     const all = await db.product.findMany({
       where,
       include: {
-        variants: { orderBy: { price: "asc" } },
+        variants: { orderBy: { price: "asc" }, select: listVariantSelect },
         _count: { select: { variants: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -136,7 +138,9 @@ async function fetchAdminProductsBatch(
 
     const sorted = sortAdminProducts(all, orden);
     const skip = adminListSkip(page);
-    return sorted.slice(skip, skip + ADMIN_PRODUCTS_PAGE_SIZE);
+    return sorted
+      .slice(skip, skip + ADMIN_PRODUCTS_PAGE_SIZE)
+      .map((product) => ({ ...product, variants: product.variants.slice(0, 1) }));
   }
 
   return db.product.findMany({
@@ -157,6 +161,7 @@ export function mapAdminProductRow(product: ProductWithRelations): AdminProductR
     audience: product.audience,
     featured: product.featured,
     promo2x1: product.promo2x1,
+    active: product.active,
     variants: product.variants.map((variant) => ({
       imageUrl: variant.imageUrl,
       price: Number(variant.price),
@@ -170,14 +175,12 @@ export async function getAdminProductsPage(
   page = 1,
   params: AdminProductsFilterParams = {},
 ) {
-  if (!hasAdminProductListQuery(params)) {
-    return emptyAdminProductsPage(page);
-  }
-
   const where = buildAdminProductsWhere(storeId, params);
 
-  const products = await fetchAdminProductsBatch(storeId, page, params);
-  const total = await db.product.count({ where });
+  const [products, total] = await Promise.all([
+    fetchAdminProductsBatch(storeId, page, params),
+    db.product.count({ where }),
+  ]);
 
   const rows = products.map(mapAdminProductRow);
 
@@ -191,25 +194,29 @@ export async function getAdminProductsPage(
 
 async function fetchAdminProductsSummary(storeId: string) {
   return db.$transaction(async (tx) => {
-    const totalProducts = await tx.product.count({ where: { storeId } });
+    const activeWhere = { storeId, active: true };
+    const totalProducts = await tx.product.count({ where: activeWhere });
     const categoryGroups = await tx.product.groupBy({
       by: ["category"],
-      where: { storeId },
+      where: activeWhere,
       _count: { _all: true },
     });
     const audienceGroups = await tx.product.groupBy({
       by: ["audience"],
-      where: { storeId },
+      where: activeWhere,
       _count: { _all: true },
     });
     const destacado = await tx.product.count({
-      where: { storeId, featured: true },
+      where: { ...activeWhere, featured: true },
     });
     const promo2x1 = await tx.product.count({
-      where: { storeId, promo2x1: true },
+      where: { ...activeWhere, promo2x1: true },
     });
     const normal = await tx.product.count({
-      where: { storeId, featured: false, promo2x1: false },
+      where: { ...activeWhere, featured: false, promo2x1: false },
+    });
+    const desactivado = await tx.product.count({
+      where: { storeId, active: false },
     });
 
     const categoryCounts = Object.fromEntries(
@@ -236,6 +243,7 @@ async function fetchAdminProductsSummary(storeId: string) {
         destacado,
         promo2x1,
         normal,
+        desactivado,
       },
     };
   });

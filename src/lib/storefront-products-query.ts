@@ -34,6 +34,7 @@ const getCachedStorefrontProducts = (
       const products = await db.product.findMany({
         where: {
           storeId,
+          active: true,
           ...(featuredOnly ? { featured: true } : {}),
         },
         include: {

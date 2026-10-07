@@ -334,7 +334,7 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
     sections: [
       {
         type: "paragraph",
-        text: "Ogni creazione {{storeName}} è realizzata a mano. Spediamo in tutta Italia.",
+        text: "Ogni creazione {{storeName}} è realizzata a mano. Spediamo in tutta Italia con Poste Italiane.",
       },
       { type: "heading", text: "Tempi di preparazione" },
       {
@@ -344,10 +344,20 @@ const ITALIAN_INFO_PAGES: Record<InfoPageSlug, PageContent> = {
           "Creazioni su ordinazione o personalizzate: i tempi dipendono dalla quantità richiesta. Te li comunichiamo via email dopo l'ordine.",
         ],
       },
+      { type: "heading", text: "Tempi di consegna" },
+      {
+        type: "paragraph",
+        text: "Dopo la spedizione, il pacco arriva di solito in circa una settimana, secondo i tempi di Poste Italiane.",
+      },
       { type: "heading", text: "Costi di spedizione" },
       {
         type: "paragraph",
         text: "Il costo della spedizione dipende dal peso del pacco e dal numero di articoli. Dopo l'ordine ti comunichiamo il costo esatto, prima di spedire.",
+      },
+      { type: "heading", text: "Ritiro di persona" },
+      {
+        type: "paragraph",
+        text: "Puoi ritirare il tuo ordine gratuitamente in Viale della Resistenza 59, 62027 San Severino Marche (MC). Scegli \"Ritiro in sede\" al checkout: ti avvisiamo su WhatsApp quando l'ordine è pronto.",
       },
       { type: "heading", text: "Tracciamento" },
       {

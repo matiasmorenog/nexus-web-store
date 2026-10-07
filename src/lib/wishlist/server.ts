@@ -6,7 +6,7 @@ export async function addWishlistItem(
   productId: string,
 ): Promise<void> {
   const product = await db.product.findFirst({
-    where: { id: productId, storeId },
+    where: { id: productId, storeId, active: true },
     select: { id: true },
   });
 
@@ -42,7 +42,7 @@ export async function syncCustomerWishlist(
   if (uniqueIds.length === 0) return;
 
   const validProducts = await db.product.findMany({
-    where: { storeId, id: { in: uniqueIds } },
+    where: { storeId, active: true, id: { in: uniqueIds } },
     select: { id: true },
   });
 

@@ -26,6 +26,7 @@ type ProductsFiltersPanelProps = {
     destacado: number;
     promo2x1: number;
     normal: number;
+    desactivado: number;
   };
   categories?: readonly ProductCategoryDef[];
   className?: string;
@@ -182,6 +183,16 @@ export function ProductsFiltersPanel({
             count={estadoCounts.normal}
             onClick={() =>
               navigate({ estado: activeEstado === "normal" ? "" : "normal" })
+            }
+          />
+          <AdminFilterButton
+            active={activeEstado === "desactivado"}
+            label={copy.statusInactiveFilter}
+            count={estadoCounts.desactivado}
+            onClick={() =>
+              navigate({
+                estado: activeEstado === "desactivado" ? "" : "desactivado",
+              })
             }
           />
         </AdminFilterSection>

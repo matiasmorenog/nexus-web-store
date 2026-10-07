@@ -36,6 +36,7 @@ export type AdminProductRow = {
   audience: string;
   featured: boolean;
   promo2x1: boolean;
+  active: boolean;
   variants: { imageUrl: string; price: number }[];
   _count: { variants: number };
 };
@@ -45,8 +46,7 @@ type AdminProductsSectionProps = {
   total: number;
   hasMore: boolean;
   filters: AdminProductsFilterParams;
-  /** Sin filtros activos: no se cargó el listado desde la DB. */
-  awaitingFilters?: boolean;
+  hasFilters?: boolean;
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
   canManage?: boolean;
@@ -58,7 +58,7 @@ export function AdminProductsSection({
   total,
   hasMore: initialHasMore,
   filters,
-  awaitingFilters = false,
+  hasFilters = false,
   promo2x1Selectable = false,
   canManage = true,
   categories,
@@ -79,6 +79,7 @@ export function AdminProductsSection({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [prevListSeed, setPrevListSeed] = useState({
     initialProducts,
     initialHasMore,
@@ -106,7 +107,7 @@ export function AdminProductsSection({
   };
 
   const loadMore = async () => {
-    if (loading || !hasMore || awaitingFilters) return;
+    if (loading || !hasMore) return;
 
     setLoading(true);
     try {
@@ -133,16 +134,17 @@ export function AdminProductsSection({
       setProducts((current) => [...current, ...data.products]);
       setPage(data.page);
       setHasMore(data.hasMore);
+      setLoadFailed(false);
     } catch (error) {
       console.error(error);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const catalogDescription = awaitingFilters
-    ? copy.catalogAwaitingDescription
-    : hasMore || products.length < total
+  const catalogDescription =
+    hasMore || products.length < total
       ? copy.catalogCountPartial(products.length, total)
       : copy.catalogCountAll(total);
 
@@ -193,8 +195,8 @@ export function AdminProductsSection({
             <AdminDataTable columns={[...productColumns]}>
             {products.length === 0 ? (
               <AdminTableEmpty colSpan={productColumns.length}>
-                {awaitingFilters
-                  ? copy.catalogEmptyAwaiting
+                {hasFilters
+                  ? copy.noMatchFilters
                   : copy.catalogEmptyNoProducts}
               </AdminTableEmpty>
             ) : (
@@ -231,6 +233,9 @@ export function AdminProductsSection({
                 <AdminTableCell>{product._count.variants}</AdminTableCell>
                 <AdminTableCell>
                   <div className="flex flex-wrap gap-1">
+                    {!product.active && (
+                      <Badge variant="warning">{copy.statusInactive}</Badge>
+                    )}
                     {product.promo2x1 && (
                       <Badge variant="success">{copy.statusPromo2x1}</Badge>
                     )}
@@ -266,8 +271,9 @@ export function AdminProductsSection({
           <AdminLoadMore
             loaded={products.length}
             total={total}
-            hasMore={hasMore && !awaitingFilters}
+            hasMore={hasMore}
             loading={loading}
+            autoLoad={!loadFailed}
             onLoadMore={loadMore}
             label={copy.loadMore}
             loadingLabel={copy.loading}

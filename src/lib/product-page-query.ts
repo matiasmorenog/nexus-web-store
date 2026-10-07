@@ -16,7 +16,7 @@ export type StorefrontProduct = Prisma.ProductGetPayload<{
 const getCachedStorefrontProduct = unstable_cache(
   async (storeId: string, slug: string): Promise<StorefrontProduct | null> =>
     db.product.findFirst({
-      where: { storeId, slug },
+      where: { storeId, slug, active: true },
       include: productInclude,
     }),
   ["storefront-product"],
@@ -29,7 +29,7 @@ export async function getStorefrontProduct(storeId: string, slug: string) {
 
 export async function getStorefrontProductSlugs(storeId: string) {
   return db.product.findMany({
-    where: { storeId },
+    where: { storeId, active: true },
     select: { slug: true },
   });
 }

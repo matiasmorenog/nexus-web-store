@@ -36,6 +36,8 @@ export type TransferAdminCopy = {
   title: string;
   description: (discountLabel: string) => string;
   enableLabel: string;
+  discountToggleLabel: (discountLabel: string) => string;
+  discountToggleHint: string;
   instructionsLabel: string;
   instructionsPlaceholder: string;
   instructionsHint: string;
@@ -53,8 +55,12 @@ const transferAdminCopy: Record<
     es: {
       title: "Transferencia bancaria",
       description: (discountLabel) =>
-        `Ofrecé pago por transferencia con ${discountLabel} de descuento automático en productos.`,
+        `Ofrecé pago por transferencia, con ${discountLabel} de descuento opcional en productos.`,
       enableLabel: "Activar transferencia en checkout",
+      discountToggleLabel: (discountLabel) =>
+        `Ofrecer ${discountLabel} de descuento por transferencia`,
+      discountToggleHint:
+        "Si lo desactivás, el cliente paga el precio normal al elegir transferencia.",
       instructionsLabel: "Datos para transferir",
       instructionsPlaceholder: AR_INSTRUCTIONS_PLACEHOLDER,
       instructionsHint:
@@ -67,8 +73,12 @@ const transferAdminCopy: Record<
     it: {
       title: "Bonifico bancario",
       description: (discountLabel) =>
-        `Offri il pagamento con bonifico e ${discountLabel} di sconto automatico sui prodotti.`,
+        `Offri il pagamento con bonifico, con ${discountLabel} di sconto opzionale sui prodotti.`,
       enableLabel: "Attiva bonifico in checkout",
+      discountToggleLabel: (discountLabel) =>
+        `Offri ${discountLabel} di sconto con bonifico`,
+      discountToggleHint:
+        "Se lo disattivi, chi paga con bonifico paga il prezzo pieno.",
       instructionsLabel: "Dati per il bonifico",
       instructionsPlaceholder: AR_INSTRUCTIONS_PLACEHOLDER,
       instructionsHint:
@@ -83,8 +93,12 @@ const transferAdminCopy: Record<
     es: {
       title: "Bonifico bancario",
       description: (discountLabel) =>
-        `Ofrecé pago por bonifico con ${discountLabel} de descuento automático en productos.`,
+        `Ofrecé pago por bonifico, con ${discountLabel} de descuento opcional en productos.`,
       enableLabel: "Activar bonifico en checkout",
+      discountToggleLabel: (discountLabel) =>
+        `Ofrecer ${discountLabel} de descuento por transferencia`,
+      discountToggleHint:
+        "Si lo desactivás, el cliente paga el precio normal al elegir transferencia.",
       instructionsLabel: "Datos bancarios (IBAN)",
       instructionsPlaceholder: IT_INSTRUCTIONS_PLACEHOLDER,
       instructionsHint:
@@ -97,8 +111,12 @@ const transferAdminCopy: Record<
     it: {
       title: "Bonifico bancario",
       description: (discountLabel) =>
-        `Offri il pagamento con bonifico e ${discountLabel} di sconto automatico sui prodotti.`,
+        `Offri il pagamento con bonifico, con ${discountLabel} di sconto opzionale sui prodotti.`,
       enableLabel: "Attiva bonifico in checkout",
+      discountToggleLabel: (discountLabel) =>
+        `Offri ${discountLabel} di sconto con bonifico`,
+      discountToggleHint:
+        "Se lo disattivi, chi paga con bonifico paga il prezzo pieno.",
       instructionsLabel: "Dati bancari (IBAN)",
       instructionsPlaceholder: IT_INSTRUCTIONS_PLACEHOLDER,
       instructionsHint:
@@ -139,7 +157,9 @@ export function getTransferStorefrontPaymentCopy(
     return {
       methodTitle: "Bonifico bancario",
       methodDetail: (discountPercent) =>
-        `${discountPercent}% di sconto sui prodotti. Paghi con bonifico bancario (IBAN).`,
+        discountPercent > 0
+          ? `${discountPercent}% di sconto sui prodotti. Paghi con bonifico bancario (IBAN).`
+          : "Paghi con bonifico bancario (IBAN).",
       confirmButton: "Conferma ordine con bonifico",
       cartDiscountLabel: "Bonifico (10% off)",
       providerName: "Bonifico",
@@ -156,7 +176,9 @@ export function getTransferStorefrontPaymentCopy(
   return {
     methodTitle: "Transferencia",
     methodDetail: (discountPercent) =>
-      `${discountPercent}% off en productos. Pagás por transferencia bancaria.`,
+      discountPercent > 0
+        ? `${discountPercent}% off en productos. Pagás por transferencia bancaria.`
+        : "Pagás por transferencia bancaria.",
     confirmButton: "Confirmar pedido por transferencia",
     cartDiscountLabel: "Transferencia (10% off)",
     providerName: "Transferencia",

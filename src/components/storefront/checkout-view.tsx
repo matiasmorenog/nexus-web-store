@@ -63,7 +63,10 @@ export function CheckoutView({
   const couponDiscount = appliedCoupon?.discount ?? 0;
   const transferDiscount =
     paymentMethod === "transfer"
-      ? calculateTransferPaymentDiscount(subtotal)
+      ? calculateTransferPaymentDiscount(
+          subtotal,
+          paymentConfig.transferDiscountPercent,
+        )
       : 0;
   const subtotalAfterCoupon = Math.max(
     0,

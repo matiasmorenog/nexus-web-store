@@ -234,7 +234,10 @@ export async function POST(request: NextRequest) {
     const { rawSubtotal, promoDiscount, subtotal } = promoPricing;
 
     const transferDiscount = isTransfer
-      ? calculateTransferPaymentDiscount(subtotal)
+      ? calculateTransferPaymentDiscount(
+          subtotal,
+          paymentConfig.transferDiscountPercent,
+        )
       : 0;
     const subtotalForCoupon = Math.max(0, subtotal - transferDiscount);
 

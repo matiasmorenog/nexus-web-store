@@ -56,6 +56,7 @@ export default async function AdminCobrosPage() {
             initialSettings={{
               transferEnabled: paymentSettings.transferEnabled,
               transferInstructions: paymentSettings.transferInstructions,
+              transferDiscountEnabled: paymentSettings.transferDiscountEnabled,
             }}
           />
         </div>

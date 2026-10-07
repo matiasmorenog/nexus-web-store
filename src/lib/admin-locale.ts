@@ -377,7 +377,7 @@ export const adminImageUpload = {
   es: {
     uploading: "Comprimiendo y subiendo…",
     helper:
-      "Se optimiza en el navegador y se guarda como WebP (máx. 1200×1600 px). JPG, PNG, WebP o GIF (GIF hasta 4 MB).",
+      "Se optimiza en el navegador y se guarda como WebP (máx. 1500×2000 px). JPG, PNG, WebP o GIF (GIF hasta 4 MB).",
     showUrl: "Pegar URL externa",
     hideUrl: "Ocultar URL externa",
     preview: "Vista previa",
@@ -393,7 +393,7 @@ export const adminImageUpload = {
   it: {
     uploading: "Compressione e caricamento…",
     helper:
-      "Viene ottimizzata nel browser e salvata come WebP (max 1200×1600 px). JPG, PNG, WebP o GIF (GIF fino a 4 MB).",
+      "Viene ottimizzata nel browser e salvata come WebP (max 1500×2000 px). JPG, PNG, WebP o GIF (GIF fino a 4 MB).",
     showUrl: "Incolla URL esterno",
     hideUrl: "Nascondi URL esterno",
     preview: "Anteprima",

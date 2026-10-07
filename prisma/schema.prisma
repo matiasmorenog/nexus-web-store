@@ -146,6 +146,7 @@ model StorePaymentSettings {
   mercadopagoTokenHint      String?
   transferEnabled           Boolean  @default(false)
   transferInstructions      String?
+  transferDiscountEnabled   Boolean  @default(true)
   stripeEnabled             Boolean  @default(false)
   stripeSecretKeyEnc        String?
   stripeSecretKeyHint       String?

@@ -6,6 +6,7 @@ export type StorePaymentSettingsAdminData = {
   mercadopagoSource: MercadoPagoTokenSource;
   transferEnabled: boolean;
   transferInstructions: string;
+  transferDiscountEnabled: boolean;
   stripeEnabled: boolean;
   stripeSecretKeyHint: string | null;
   stripeWebhookSecretConfigured: boolean;
@@ -16,6 +17,7 @@ export type StorePaymentSettingsSaveInput = {
   clearMercadopagoToken?: boolean;
   transferEnabled?: boolean;
   transferInstructions?: string;
+  transferDiscountEnabled?: boolean;
   stripeEnabled?: boolean;
   stripeSecretKey?: string;
   stripeWebhookSecret?: string;

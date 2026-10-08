@@ -85,8 +85,8 @@ export const app1Config: VerticalConfig = {
     productSizeToggle: false,
   },
   variantLabels: {
-    primary: "Color",
-    secondary: "Talle",
+    primary: "Modelo",
+    secondary: "Tamaño",
     primaryInitial: "Negro",
     secondaryInitial: "M",
   },
@@ -133,7 +133,7 @@ export const app1Config: VerticalConfig = {
     {
       param: "talle",
       type: "variantSize",
-      label: "Talle",
+      label: "Tamaño",
       options: ["XS", "S", "M", "L", "XL"],
     },
     {

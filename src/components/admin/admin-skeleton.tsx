@@ -318,7 +318,7 @@ function skeletonCellForColumn(column: string, colIndex: number, colCount: numbe
 
   const widthByColumn: Record<string, string> = {
     Color: "w-24",
-    "Talle / Color": "w-28",
+    "Tamaño / Modelo": "w-28",
     SKU: "w-20",
     Precio: "w-16",
     Stock: "w-10",

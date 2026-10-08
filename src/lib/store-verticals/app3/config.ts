@@ -46,8 +46,8 @@ export const app3Config: VerticalConfig = {
     productSizeToggle: true,
   },
   variantLabels: {
-    primary: "Finitura",
-    secondary: "Formato",
+    primary: "Modello",
+    secondary: "Misura",
     primaryInitial: "Personalizzato",
     secondaryInitial: "Unico",
   },
@@ -91,7 +91,7 @@ export const app3Config: VerticalConfig = {
     {
       param: "talle",
       type: "variantSize",
-      label: "Formato",
+      label: "Misura",
     },
     {
       param: "precioMax",

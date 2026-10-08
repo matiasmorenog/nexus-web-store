@@ -61,21 +61,21 @@ export function getActiveCatalogFilterChips(
   if (params.talle) {
     chips.push({
       param: "talle",
-      label: `Talle ${params.talle}`,
+      label: `Tamaño ${params.talle}`,
     });
   }
 
   if (params.nicotina) {
     chips.push({
       param: "nicotina",
-      label: `Nicotina ${params.nicotina}`,
+      label: `Tamaño ${params.nicotina}`,
     });
   }
 
   if (params.sabor) {
     chips.push({
       param: "sabor",
-      label: `Sabor ${params.sabor}`,
+      label: `Modelo ${params.sabor}`,
     });
   }
 

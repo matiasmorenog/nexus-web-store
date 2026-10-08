@@ -1,5 +1,6 @@
 "use client";
 
+import { throwIfAdminActionError } from "@/lib/admin-action-result";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
@@ -196,7 +197,7 @@ function NewColorRow({
     setError(null);
 
     try {
-      await upsertProductColor(productId, new FormData(e.currentTarget));
+      throwIfAdminActionError(await upsertProductColor(productId, new FormData(e.currentTarget)));
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
@@ -267,7 +268,7 @@ function ColorEditRow({
     setError(null);
 
     try {
-      await upsertProductColor(productId, new FormData(e.currentTarget));
+      throwIfAdminActionError(await upsertProductColor(productId, new FormData(e.currentTarget)));
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
@@ -281,7 +282,7 @@ function ColorEditRow({
     setLoading(true);
     setError(null);
     try {
-      await deleteProductColor(productId, color);
+      throwIfAdminActionError(await deleteProductColor(productId, color));
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
@@ -722,7 +723,7 @@ function NewVariantRow({
     setLoading(true);
     setError(null);
     try {
-      await createVariant(productId, new FormData(e.currentTarget));
+      throwIfAdminActionError(await createVariant(productId, new FormData(e.currentTarget)));
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
@@ -783,7 +784,7 @@ function VariantEditRow({
     setLoading(true);
     setError(null);
     try {
-      await updateVariant(variant.id, new FormData(e.currentTarget));
+      throwIfAdminActionError(await updateVariant(variant.id, new FormData(e.currentTarget)));
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
@@ -797,7 +798,7 @@ function VariantEditRow({
     setLoading(true);
     setError(null);
     try {
-      await deleteVariant(variant.id);
+      throwIfAdminActionError(await deleteVariant(variant.id));
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
@@ -964,7 +965,7 @@ export function VariantManager({
     setSizeBusy(true);
     setSizeError(null);
     try {
-      await updateProductHasSize(productId, next);
+      throwIfAdminActionError(await updateProductHasSize(productId, next));
       onHasSizeChange?.(next);
       await onVariantsReload?.();
     } catch (err) {

@@ -15,7 +15,7 @@ Estado actual: workflow `.github/workflows/ci.yml` — job `lint-and-typecheck` 
 - `prisma generate` con `DATABASE_URL` dummy (sin Neon en CI)
 - Node 24 (alineado con Vercel)
 
-## Fase 1.5 — hecho (NEX-11)
+## Fase 1.5 — hecho
 
 Lint limpio (0 errors / 0 warnings). Check `lint-and-typecheck` requerido en branch protection de `development`.
 
@@ -31,9 +31,9 @@ Cuándo evaluarla (app más profesional, ventas reales activas, mayor rigor pre-
 
 Hasta entonces: **build = responsabilidad de Vercel**; Actions = `typecheck` + `lint` solamente.
 
-Referencia: `docs/ci.md` · Linear NEX-7
+Referencia: `docs/ci.md` · `TODO.md`
 
-## Fase 3 — branch protection — hecho (NEX-11)
+## Fase 3 — branch protection — hecho
 
 - `development`: Require status checks → `lint-and-typecheck`
 - **No** exigir checks Vercel en branch protection (Ignored Build Step puede omitir previews).

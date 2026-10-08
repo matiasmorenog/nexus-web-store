@@ -1,8 +1,15 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { unstable_rethrow } from "next/navigation";
 import type { AdminActionResult } from "@/lib/admin-action-result";
+import { ADMIN_LOCALE_COOKIE, parseAdminLocale } from "@/lib/admin-locale";
+import {
+  getAdminProductErrors,
+  type AdminProductErrorKey,
+} from "@/lib/admin-product-errors";
 import { assertAdminPermission } from "@/lib/admin-session";
 import {
   revalidateAdminDashboardCache,
@@ -29,7 +36,7 @@ import {
   resolveVariantSize,
   SIZELESS_SIZE_VALUE,
 } from "@/lib/product-size";
-import { getVariantLabels } from "@/lib/variant-labels";
+import { getAdminVariantLabels, getVariantLabels } from "@/lib/variant-labels";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 
 async function requireAdminStoreId(permission: AdminPermission) {
@@ -37,14 +44,52 @@ async function requireAdminStoreId(permission: AdminPermission) {
   return session.user.storeId;
 }
 
+async function productErrorCopy() {
+  const cookieStore = await cookies();
+  const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
+  return getAdminProductErrors(locale, getAdminVariantLabels(locale));
+}
+
+async function productError(key: AdminProductErrorKey): Promise<Error> {
+  return new Error((await productErrorCopy())[key]);
+}
+
+async function readRequiredText(
+  formData: FormData,
+  field: string,
+  errorKey: AdminProductErrorKey,
+): Promise<string> {
+  const value = String(formData.get(field) ?? "").trim();
+  if (!value) throw await productError(errorKey);
+  return value;
+}
+
+async function readPrice(formData: FormData): Promise<number> {
+  const raw = String(formData.get("price") ?? "").trim().replace(",", ".");
+  const value = Number(raw);
+  if (!raw || !Number.isFinite(value) || value < 0) {
+    throw await productError("priceInvalid");
+  }
+  return value;
+}
+
+async function readStock(formData: FormData): Promise<number> {
+  const raw = String(formData.get("stock") ?? "").trim();
+  const value = Number(raw);
+  if (!raw || !Number.isInteger(value) || value < 0) {
+    throw await productError("stockInvalid");
+  }
+  return value;
+}
+
 async function requireValidProductCategory(storeId: string, category: string) {
   const slug = category.trim();
   if (!slug) {
-    throw new Error("Seleccioná una categoría");
+    throw await productError("categoryRequired");
   }
   const valid = await storeHasCategorySlug(storeId, slug);
   if (!valid) {
-    throw new Error("Categoría inválida");
+    throw await productError("categoryInvalid");
   }
   return slug;
 }
@@ -61,9 +106,19 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath("/admin/pedidos");
 }
 
-async function uniqueProductSlug(storeId: string, base: string): Promise<string> {
+/** Same name is allowed: later products get `name-2`, `name-3`, … */
+async function uniqueProductSlug(
+  storeId: string,
+  name: string,
+  excludeProductId?: string,
+): Promise<string> {
+  const base = slugify(name) || "producto";
   const taken = await db.product.findMany({
-    where: { storeId, slug: { startsWith: base } },
+    where: {
+      storeId,
+      slug: { startsWith: base },
+      ...(excludeProductId ? { NOT: { id: excludeProductId } } : {}),
+    },
     select: { slug: true },
   });
   const slugs = new Set(taken.map((row) => row.slug));
@@ -75,12 +130,20 @@ async function uniqueProductSlug(storeId: string, base: string): Promise<string>
 
 async function createProductImpl(formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
-  const name = formData.get("name") as string;
-  const slug = await uniqueProductSlug(storeId, slugify(name));
+  const name = await readRequiredText(formData, "name", "nameRequired");
+  const description = await readRequiredText(
+    formData,
+    "description",
+    "descriptionRequired",
+  );
+  const color = await readRequiredText(formData, "color", "primaryRequired");
+  const price = await readPrice(formData);
+  const stock = await readStock(formData);
   const category = await requireValidProductCategory(
     storeId,
     String(formData.get("category") ?? ""),
   );
+  const slug = await uniqueProductSlug(storeId, name);
   const labels = getVariantLabels();
   const sizeToggle = getStorefrontConfig().features.productSizeToggle;
   const hasSize = sizeToggle
@@ -97,7 +160,7 @@ async function createProductImpl(formData: FormData) {
       storeId,
       name,
       slug,
-      description: formData.get("description") as string,
+      description,
       category,
       audience: (formData.get("audience") as string) || "unisex",
       featured: formData.get("featured") === "on",
@@ -106,10 +169,10 @@ async function createProductImpl(formData: FormData) {
       variants: {
         create: {
           size,
-          color: formData.get("color") as string,
-          sku: `${slug}-${size}-${formData.get("color")}`.toUpperCase(),
-          stock: parseInt(formData.get("stock") as string) || 0,
-          price: parseFloat(formData.get("price") as string) || 0,
+          color,
+          sku: `${slug}-${size}-${color}`.toUpperCase(),
+          stock,
+          price,
           imageUrl: normalizeProductImageUrl(formData.get("imageUrl")),
         },
       },
@@ -153,27 +216,23 @@ async function assertProductOwnership(productId: string, storeId: string) {
   const product = await db.product.findFirst({
     where: { id: productId, storeId },
   });
-  if (!product) throw new Error("Producto no encontrado");
+  if (!product) throw await productError("productNotFound");
   return product;
 }
 
 async function updateProductImpl(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
-  await assertProductOwnership(productId, storeId);
+  const product = await assertProductOwnership(productId, storeId);
 
-  const name = formData.get("name") as string;
-  const slug = slugify(name);
+  const name = await readRequiredText(formData, "name", "nameRequired");
   const category = await requireValidProductCategory(
     storeId,
     String(formData.get("category") ?? ""),
   );
-
-  const slugConflict = await db.product.findFirst({
-    where: { storeId, slug, NOT: { id: productId } },
-  });
-  if (slugConflict) {
-    throw new Error("Ya existe otro producto con ese nombre");
-  }
+  const slug =
+    name === product.name
+      ? product.slug
+      : await uniqueProductSlug(storeId, name, productId);
 
   await db.product.update({
     where: { id: productId },
@@ -193,6 +252,7 @@ async function updateProductImpl(productId: string, formData: FormData) {
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${productId}/edit`);
   revalidateStorefrontProductSurfaces(slug);
+  if (slug !== product.slug) revalidateStorefrontProductSurfaces(product.slug);
 }
 
 async function updateProductHasSizeImpl(productId: string, hasSize: boolean) {
@@ -200,7 +260,7 @@ async function updateProductHasSizeImpl(productId: string, hasSize: boolean) {
   const product = await assertProductOwnership(productId, storeId);
 
   if (!getStorefrontConfig().features.productSizeToggle) {
-    throw new Error("Esta tienda no permite desactivar el tamaño");
+    throw await productError("sizeToggleUnavailable");
   }
 
   if (!hasSize) {
@@ -210,9 +270,7 @@ async function updateProductHasSizeImpl(productId: string, hasSize: boolean) {
     });
     const sizes = distinctSizes(variants.map((v) => v.size));
     if (sizes.length > 1) {
-      throw new Error(
-        "No se puede desactivar el tamaño mientras haya más de un valor. Unificá o eliminá variantes primero.",
-      );
+      throw await productError("sizeToggleMultiple");
     }
 
     const keepSize = sizes[0] ?? SIZELESS_SIZE_VALUE;
@@ -246,11 +304,11 @@ async function upsertProductColorImpl(productId: string, formData: FormData) {
   const product = await assertProductOwnership(productId, storeId);
 
   const color = (formData.get("color") as string)?.trim();
-  if (!color) throw new Error("Ingresá el nombre del color");
+  if (!color) throw await productError("primaryRequired");
 
   const originalColor = (formData.get("originalColor") as string)?.trim() || null;
   const imageUrl = parseProductImageUrl(formData.get("imageUrl"));
-  if (!imageUrl) throw new Error("Subí una imagen para el color");
+  if (!imageUrl) throw await productError("primaryImageRequired");
 
   const lookupColor = originalColor ?? color;
 
@@ -263,7 +321,7 @@ async function upsertProductColorImpl(productId: string, formData: FormData) {
 
   if (existingVariants.length > 0) {
     if (originalColor === null) {
-      throw new Error("Ya existe un color con ese nombre");
+      throw await productError("primaryDuplicate");
     }
 
     const oldImageUrl = existingVariants[0]?.imageUrl;
@@ -279,7 +337,7 @@ async function upsertProductColorImpl(productId: string, formData: FormData) {
         },
       });
       if (nameConflict) {
-        throw new Error("Ya existe un color con ese nombre");
+        throw await productError("primaryDuplicate");
       }
 
       for (const variant of existingVariants) {
@@ -305,7 +363,7 @@ async function upsertProductColorImpl(productId: string, formData: FormData) {
       },
     });
     if (nameConflict) {
-      throw new Error("Ya existe un color con ese nombre");
+      throw await productError("primaryDuplicate");
     }
 
     const template = await db.productVariant.findFirst({
@@ -344,7 +402,7 @@ async function deleteProductColorImpl(productId: string, color: string) {
   const product = await assertProductOwnership(productId, storeId);
 
   const trimmedColor = color.trim();
-  if (!trimmedColor) throw new Error("Color no válido");
+  if (!trimmedColor) throw await productError("primaryNotFound");
 
   const variantsForColor = await db.productVariant.findMany({
     where: {
@@ -357,26 +415,24 @@ async function deleteProductColorImpl(productId: string, color: string) {
   });
 
   if (variantsForColor.length === 0) {
-    throw new Error("Color no encontrado");
+    throw await productError("primaryNotFound");
   }
 
   if (variantsForColor.length > 1) {
-    throw new Error(
-      "No se puede eliminar el color mientras tenga variantes. Eliminá primero los talles en la sección Variantes.",
-    );
+    throw await productError("primaryHasVariants");
   }
 
   const [variant] = variantsForColor;
 
   if (variant._count.orderItems > 0) {
-    throw new Error("No se puede eliminar: el color tiene pedidos asociados");
+    throw await productError("primaryHasOrders");
   }
 
   const totalVariants = await db.productVariant.count({
     where: { productId },
   });
   if (totalVariants <= 1) {
-    throw new Error("El producto debe tener al menos una variante");
+    throw await productError("lastVariant");
   }
 
   const orphanedImageUrl = variant.imageUrl;
@@ -401,7 +457,9 @@ async function createVariantImpl(productId: string, formData: FormData) {
     formData.get("size") as string | null,
     labels.secondaryInitial ?? "M",
   );
-  const color = formData.get("color") as string;
+  const color = await readRequiredText(formData, "color", "primaryRequired");
+  const price = await readPrice(formData);
+  const stock = await readStock(formData);
 
   const duplicate = await db.productVariant.findFirst({
     where: {
@@ -411,12 +469,12 @@ async function createVariantImpl(productId: string, formData: FormData) {
     },
   });
   if (duplicate) {
-    throw new Error("Ya existe ese talle para este color. Editá la fila existente.");
+    throw await productError("variantDuplicate");
   }
 
   const imageUrl = await findProductColorImage(productId, color);
   if (!imageUrl) {
-    throw new Error("Ese color no tiene imagen. Agregalo en la sección Colores.");
+    throw await productError("variantMissingImage");
   }
 
   await db.productVariant.create({
@@ -425,8 +483,8 @@ async function createVariantImpl(productId: string, formData: FormData) {
       size,
       color,
       sku: `${product.slug}-${size}-${color}`.toUpperCase(),
-      stock: parseInt(formData.get("stock") as string) || 0,
-      price: parseFloat(formData.get("price") as string) || 0,
+      stock,
+      price,
       imageUrl,
     },
   });
@@ -444,7 +502,7 @@ async function updateVariantImpl(variantId: string, formData: FormData) {
     where: { id: variantId, product: { storeId } },
     include: { product: true },
   });
-  if (!variant) throw new Error("Variante no encontrada");
+  if (!variant) throw await productError("variantNotFound");
 
   const labels = getVariantLabels();
   const size = resolveVariantSize(
@@ -452,7 +510,9 @@ async function updateVariantImpl(variantId: string, formData: FormData) {
     formData.get("size") as string | null,
     labels.secondaryInitial ?? "M",
   );
-  const color = formData.get("color") as string;
+  const color = await readRequiredText(formData, "color", "primaryRequired");
+  const price = await readPrice(formData);
+  const stock = await readStock(formData);
 
   const duplicate = await db.productVariant.findFirst({
     where: {
@@ -463,12 +523,12 @@ async function updateVariantImpl(variantId: string, formData: FormData) {
     },
   });
   if (duplicate) {
-    throw new Error("Ya existe ese talle para este color.");
+    throw await productError("variantDuplicate");
   }
 
   const imageUrl = await findProductColorImage(variant.productId, color);
   if (!imageUrl) {
-    throw new Error("Ese color no tiene imagen. Agregalo en la sección Colores.");
+    throw await productError("variantMissingImage");
   }
 
   const previousImageUrl = variant.imageUrl;
@@ -479,8 +539,8 @@ async function updateVariantImpl(variantId: string, formData: FormData) {
       size,
       color,
       sku: `${variant.product.slug}-${size}-${color}`.toUpperCase(),
-      stock: parseInt(formData.get("stock") as string) || 0,
-      price: parseFloat(formData.get("price") as string) || 0,
+      stock,
+      price,
       imageUrl,
     },
   });
@@ -503,17 +563,17 @@ async function deleteVariantImpl(variantId: string) {
       _count: { select: { orderItems: true } },
     },
   });
-  if (!variant) throw new Error("Variante no encontrada");
+  if (!variant) throw await productError("variantNotFound");
 
   if (variant._count.orderItems > 0) {
-    throw new Error("No se puede eliminar: la variante tiene pedidos asociados");
+    throw await productError("variantHasOrders");
   }
 
   const variantCount = await db.productVariant.count({
     where: { productId: variant.productId },
   });
   if (variantCount <= 1) {
-    throw new Error("El producto debe tener al menos una variante");
+    throw await productError("lastVariant");
   }
 
   const orphanedImageUrl = variant.imageUrl;
@@ -536,12 +596,26 @@ async function asAdminActionResult(
     return undefined;
   } catch (error) {
     unstable_rethrow(error);
-    // Plain Error = our validation messages; Prisma/system errors stay opaque.
+    // Plain Error = our validation messages; Prisma/system details stay in the logs.
     if (error instanceof Error && error.constructor === Error) {
       return { error: error.message };
     }
-    throw error;
+    console.error("Admin product action failed:", error);
+    return { error: (await productErrorCopy())[unexpectedErrorKey(error)] };
   }
+}
+
+function unexpectedErrorKey(error: unknown): AdminProductErrorKey {
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return "dbUnavailable";
+  }
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") return "duplicate";
+    if (["P1001", "P1002", "P1017", "P2024"].includes(error.code)) {
+      return "dbUnavailable";
+    }
+  }
+  return "unexpected";
 }
 
 export async function createProduct(

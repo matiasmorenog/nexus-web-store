@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { throwIfAdminActionError } from "@/lib/admin-action-result";
+import {
+  adminActionErrorMessage,
+  throwIfAdminActionError,
+} from "@/lib/admin-action-result";
+import { getAdminProductErrors } from "@/lib/admin-product-errors";
 import { createProduct } from "@/lib/admin-actions";
 import { AdminCard } from "@/components/admin/admin-card";
 import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
@@ -45,10 +49,12 @@ export function ProductCreateForm({
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const locale = readAdminLocaleFromDocument();
   const optionsCopy = adminProductOptions[locale];
   const productsCopy = getAdminProductsCopy(locale);
   const variantLabels = getAdminVariantLabels(locale);
+  const errorsCopy = getAdminProductErrors(locale, variantLabels);
   const sizeToggle = getClientStorefrontConfig().features.productSizeToggle;
   const [hasSize, setHasSize] = useState(!sizeToggle);
   const showPromo2x1 = promo2x1Selectable;
@@ -63,7 +69,7 @@ export function ProductCreateForm({
       onClose();
       form.reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : productsCopy.createError);
+      setError(adminActionErrorMessage(err, errorsCopy));
     } finally {
       setLoading(false);
     }
@@ -155,6 +161,7 @@ export function ProductCreateForm({
                   name="imageUrl"
                   id="imageUrl"
                   label={`Imagen del ${variantLabels.primary.toLowerCase()}`}
+                  onUploadingChange={setImageUploading}
                 />
                 <div className="flex items-center gap-2.5 sm:col-span-2">
                   <Switch id="featured" name="featured" />
@@ -178,8 +185,12 @@ export function ProductCreateForm({
                 <Button type="button" size="sm" variant="outline" onClick={onClose}>
                   Cancelar
                 </Button>
-                <Button type="submit" size="sm" disabled={loading}>
-                  {loading ? "Guardando..." : "Crear producto"}
+                <Button type="submit" size="sm" disabled={loading || imageUploading}>
+                  {imageUploading
+                    ? errorsCopy.waitForUpload
+                    : loading
+                      ? "Guardando..."
+                      : "Crear producto"}
                 </Button>
               </AdminFormActions>
             </AdminForm>

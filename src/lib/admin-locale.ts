@@ -227,6 +227,7 @@ export const adminProducts = {
     noMatchFilters: "Ningún producto coincide con los filtros.",
     newProduct: "Nuevo producto",
     createDescription: "Completá los datos del producto y su primera variante.",
+    createError: "No se pudo crear el producto. Probá de nuevo.",
     searchPlaceholder: "Buscar por nombre, slug, SKU...",
     searchAria: "Buscar productos",
     clearSearchAria: "Limpiar búsqueda",
@@ -299,6 +300,7 @@ export const adminProducts = {
     newProduct: "Nuovo prodotto",
     createDescription:
       "Compila i dati del prodotto e della sua prima variante.",
+    createError: "Non è stato possibile creare il prodotto. Riprova.",
     searchPlaceholder: "Cerca per nome, slug, SKU...",
     searchAria: "Cerca prodotti",
     clearSearchAria: "Cancella ricerca",

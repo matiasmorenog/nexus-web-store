@@ -61,10 +61,22 @@ export async function updateOrderStatus(orderId: string, status: string) {
   revalidatePath("/admin/pedidos");
 }
 
-export async function createProduct(formData: FormData) {
+async function uniqueProductSlug(storeId: string, base: string): Promise<string> {
+  const taken = await db.product.findMany({
+    where: { storeId, slug: { startsWith: base } },
+    select: { slug: true },
+  });
+  const slugs = new Set(taken.map((row) => row.slug));
+  if (!slugs.has(base)) return base;
+  let suffix = 2;
+  while (slugs.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
+async function createProductImpl(formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const name = formData.get("name") as string;
-  const slug = slugify(name);
+  const slug = await uniqueProductSlug(storeId, slugify(name));
   const category = await requireValidProductCategory(
     storeId,
     String(formData.get("category") ?? ""),
@@ -530,6 +542,12 @@ async function asAdminActionResult(
     }
     throw error;
   }
+}
+
+export async function createProduct(
+  ...args: Parameters<typeof createProductImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => createProductImpl(...args));
 }
 
 export async function updateProduct(

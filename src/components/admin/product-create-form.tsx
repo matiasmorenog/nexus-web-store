@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { throwIfAdminActionError } from "@/lib/admin-action-result";
 import { createProduct } from "@/lib/admin-actions";
 import { AdminCard } from "@/components/admin/admin-card";
 import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
 import {
   AdminForm,
   AdminFormActions,
+  AdminFormAlert,
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
@@ -42,6 +44,7 @@ export function ProductCreateForm({
   categories,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const locale = readAdminLocaleFromDocument();
   const optionsCopy = adminProductOptions[locale];
   const productsCopy = getAdminProductsCopy(locale);
@@ -52,12 +55,18 @@ export function ProductCreateForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    await createProduct(formData);
-    setLoading(false);
-    onClose();
-    (e.target as HTMLFormElement).reset();
+    setError(null);
+    try {
+      throwIfAdminActionError(await createProduct(new FormData(form)));
+      onClose();
+      form.reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : productsCopy.createError);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -162,6 +171,8 @@ export function ProductCreateForm({
                   </div>
                 ) : null}
               </AdminFormGrid>
+
+              {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
 
               <AdminFormActions>
                 <Button type="button" size="sm" variant="outline" onClick={onClose}>

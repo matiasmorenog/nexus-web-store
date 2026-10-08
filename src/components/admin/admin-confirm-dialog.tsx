@@ -58,6 +58,9 @@ export function AdminConfirmDialog({
 
   if (!open || !mounted) return null;
 
+  // Brand CSS variables live on the admin root, not on <body>.
+  const portalRoot = document.querySelector("[data-admin-ui]") ?? document.body;
+
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <button
@@ -120,6 +123,6 @@ export function AdminConfirmDialog({
         </div>
       </div>
     </div>,
-    document.body,
+    portalRoot,
   );
 }

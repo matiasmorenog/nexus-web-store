@@ -1,6 +1,10 @@
 "use client";
 
-import { throwIfAdminActionError } from "@/lib/admin-action-result";
+import {
+  adminActionErrorMessage,
+  throwIfAdminActionError,
+} from "@/lib/admin-action-result";
+import { readAdminProductErrors } from "@/lib/admin-product-errors";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
@@ -121,6 +125,8 @@ function ColorFormPanel({
   blockedHint?: number;
   primaryLabel: string;
 }) {
+  const [imageUploading, setImageUploading] = useState(false);
+
   return (
     <BlockedEditHint blockedHint={blockedHint}>
       <RowEditEnter>
@@ -148,14 +154,23 @@ function ColorFormPanel({
             key={`${formId}-${values?.imageUrl ?? "new"}`}
             id={`${formId}-image`}
             name="imageUrl"
-            label="Imagen del color"
+            label={`Imagen del ${primaryLabel.toLowerCase()}`}
             defaultValue={values?.imageUrl ?? ""}
+            onUploadingChange={setImageUploading}
           />
         </div>
 
         <AdminFormActions sticky>
-          <Button type="submit" size="sm" disabled={disabled || loading}>
-            {loading ? "Guardando..." : "Guardar"}
+          <Button
+            type="submit"
+            size="sm"
+            disabled={disabled || loading || imageUploading}
+          >
+            {imageUploading
+              ? readAdminProductErrors().waitForUpload
+              : loading
+                ? "Guardando..."
+                : "Guardar"}
           </Button>
           <Button
             type="button"
@@ -201,7 +216,7 @@ function NewColorRow({
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -272,7 +287,7 @@ function ColorEditRow({
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -286,7 +301,7 @@ function ColorEditRow({
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -727,7 +742,7 @@ function NewVariantRow({
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear variante");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -788,7 +803,7 @@ function VariantEditRow({
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -802,7 +817,7 @@ function VariantEditRow({
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -969,9 +984,7 @@ export function VariantManager({
       onHasSizeChange?.(next);
       await onVariantsReload?.();
     } catch (err) {
-      setSizeError(
-        err instanceof Error ? err.message : "No se pudo actualizar el tamaño",
-      );
+      setSizeError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setSizeBusy(false);
     }

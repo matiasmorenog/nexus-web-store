@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import {
+  adminActionErrorMessage,
+  throwIfAdminActionError,
+} from "@/lib/admin-action-result";
+import { getAdminProductErrors } from "@/lib/admin-product-errors";
 import { createProduct } from "@/lib/admin-actions";
 import { AdminCard } from "@/components/admin/admin-card";
 import { adminBlockedEditShellClass } from "@/components/admin/admin-surface";
 import {
   AdminForm,
   AdminFormActions,
+  AdminFormAlert,
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
@@ -42,22 +48,31 @@ export function ProductCreateForm({
   categories,
 }: ProductCreateFormProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const locale = readAdminLocaleFromDocument();
   const optionsCopy = adminProductOptions[locale];
   const productsCopy = getAdminProductsCopy(locale);
   const variantLabels = getAdminVariantLabels(locale);
+  const errorsCopy = getAdminProductErrors(locale, variantLabels);
   const sizeToggle = getClientStorefrontConfig().features.productSizeToggle;
   const [hasSize, setHasSize] = useState(!sizeToggle);
   const showPromo2x1 = promo2x1Selectable;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    await createProduct(formData);
-    setLoading(false);
-    onClose();
-    (e.target as HTMLFormElement).reset();
+    setError(null);
+    try {
+      throwIfAdminActionError(await createProduct(new FormData(form)));
+      onClose();
+      form.reset();
+    } catch (err) {
+      setError(adminActionErrorMessage(err, errorsCopy));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -146,6 +161,7 @@ export function ProductCreateForm({
                   name="imageUrl"
                   id="imageUrl"
                   label={`Imagen del ${variantLabels.primary.toLowerCase()}`}
+                  onUploadingChange={setImageUploading}
                 />
                 <div className="flex items-center gap-2.5 sm:col-span-2">
                   <Switch id="featured" name="featured" />
@@ -163,12 +179,18 @@ export function ProductCreateForm({
                 ) : null}
               </AdminFormGrid>
 
+              {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
+
               <AdminFormActions>
                 <Button type="button" size="sm" variant="outline" onClick={onClose}>
                   Cancelar
                 </Button>
-                <Button type="submit" size="sm" disabled={loading}>
-                  {loading ? "Guardando..." : "Crear producto"}
+                <Button type="submit" size="sm" disabled={loading || imageUploading}>
+                  {imageUploading
+                    ? errorsCopy.waitForUpload
+                    : loading
+                      ? "Guardando..."
+                      : "Crear producto"}
                 </Button>
               </AdminFormActions>
             </AdminForm>

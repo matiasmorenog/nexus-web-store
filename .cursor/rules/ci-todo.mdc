@@ -36,6 +36,7 @@ Referencia: `docs/ci.md` · `TODO.md`
 ## Fase 3 — branch protection — hecho
 
 - `development`: Require status checks → `lint-and-typecheck`
+- Rulesets: `main` = solo merge commit vía PR + `lint-and-typecheck`; `development` = solo squash vía PR. Sin deletion/force push.
 - **No** exigir checks Vercel en branch protection (Ignored Build Step puede omitir previews).
 
 ## Prioridad de previews Vercel (día a día)

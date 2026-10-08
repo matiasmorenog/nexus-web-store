@@ -83,8 +83,8 @@ export const app2Config: VerticalConfig = {
     productSizeToggle: false,
   },
   variantLabels: {
-    primary: "Sabor",
-    secondary: "Nicotina",
+    primary: "Modelo",
+    secondary: "Tamaño",
     primaryInitial: "Mango",
     secondaryInitial: "35mg",
   },
@@ -102,8 +102,8 @@ export const app2Config: VerticalConfig = {
   },
   catalogFacets: [
     { param: "categoria", type: "category", label: "Categoría" },
-    { param: "nicotina", type: "variantSize", label: "Nicotina" },
-    { param: "sabor", type: "variantColor", label: "Sabor" },
+    { param: "nicotina", type: "variantSize", label: "Tamaño" },
+    { param: "sabor", type: "variantColor", label: "Modelo" },
     {
       param: "precioMax",
       type: "priceMax",

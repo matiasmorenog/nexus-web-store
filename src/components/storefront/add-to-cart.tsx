@@ -43,7 +43,7 @@ export function AddToCart({
   promo2x1 = false,
   showSizeGuideLink = false,
   hasSize = true,
-  variantLabels = { primary: "Color", secondary: "Talle" },
+  variantLabels = { primary: "Modelo", secondary: "Tamaño" },
   variants,
 }: AddToCartProps) {
   const copy = getStorefrontCopy();
@@ -114,7 +114,7 @@ export function AddToCart({
           <Promo2x1Badge size="md" className="shrink-0" />
           <p className="text-sm text-neutral-700">
             Promoción <strong>2x1</strong>: agregá dos unidades del mismo
-            producto (cualquier talle o color) y pagá una.
+            producto (cualquier modelo o tamaño) y pagá una.
           </p>
         </div>
       )}

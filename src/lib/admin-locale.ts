@@ -195,14 +195,14 @@ export const APP3_ADMIN_VARIANT_LABELS: Record<
   }
 > = {
   es: {
-    primary: "Acabado",
+    primary: "Modelo",
     secondary: "Tamaño",
     primaryInitial: "Personalizado",
     secondaryInitial: "Único",
   },
   it: {
-    primary: "Finitura",
-    secondary: "Formato",
+    primary: "Modello",
+    secondary: "Misura",
     primaryInitial: "Personalizzato",
     secondaryInitial: "Unico",
   },

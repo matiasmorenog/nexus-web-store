@@ -18,7 +18,7 @@ export function getClientVariantLabels(): VariantLabels {
 
 /**
  * Admin UI labels: Manoviva (app3) follows admin_locale so Spanish admins
- * do not see leftover Italian Formato/Finitura/Unico.
+ * do not see leftover Italian Modello/Misura/Unico.
  */
 export function getAdminVariantLabels(
   locale: AdminLocale = readAdminLocaleFromDocument(),

@@ -47,19 +47,19 @@ No marcar los checks Vercel como required en branch protection: el Ignored Build
 
 ## Roadmap / tech debt
 
-### Fase 1.5 — Lint + branch protection (hecho, NEX-11)
+### Fase 1.5 — Lint + branch protection (hecho)
 
 `npm run lint` = `eslint src --max-warnings=0`. Check `lint-and-typecheck` requerido en `development`. Ver `.cursor/rules/ci-todo.mdc`.
 
 ### Fase 2 — `npm run build` en CI (opcional, futuro)
 
-**Pendiente para cuando la app esté en producción activa** y quieras un pipeline más estricto. Hoy el build en desarrollo lo cubre Vercel. Linear: NEX-7.
+**Pendiente para cuando la app esté en producción activa** y quieras un pipeline más estricto. Hoy el build en desarrollo lo cubre Vercel. Ver `TODO.md`.
 
 - Env dummy o secrets mínimos para `next build`
 - Evaluar si alguna ruta consulta DB en build time
 - No es prioridad mientras el producto siga en fase demo/desarrollo
 
-### Fase 3 — Branch protection (hecho con NEX-11)
+### Fase 3 — Branch protection (hecho)
 
 GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 

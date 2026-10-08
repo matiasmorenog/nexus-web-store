@@ -156,23 +156,17 @@ Guía completa en [`DEPLOY.md`](DEPLOY.md): Neon pooler, env vars en Vercel, `db
 
 ## Roadmap
 
-**Fuente de verdad:** [Linear — proyecto nexus-store](https://linear.app/nexus-development/project/nexus-store-f605d6fc70b0)
-
-| Recurso | Link |
-|---------|------|
-| Proyecto | [nexus-store](https://linear.app/nexus-development/project/nexus-store-f605d6fc70b0) |
-| Documento roadmap | [Roadmap — Nexus Web Store](https://linear.app/nexus-development/document/roadmap-nexus-web-store-d97cb2b6d115) |
-| Backlog activo | Issues abiertas en el proyecto (NEX-6 … NEX-11) |
+**Fuente de verdad:** [`TODO.md`](TODO.md) — backlog y pendientes.
 
 ### Fases (resumen)
 
 | Fase | Objetivo | Estado |
 |------|----------|--------|
 | **A** | Un negocio real (1 tienda) | Casi completa — pendiente MP prod/AFIP |
-| **B** | Tienda Nube lite | Mayoría hecha — pendiente categorías dinámicas |
+| **B** | Tienda Nube lite | Hecha |
 | **C** | SaaS multi-tienda | Onboarding + billing |
 
-Al cerrar una tarea: marcar la issue en **Linear** como Done (no editar listas aquí).
+Al cerrar una tarea: actualizar `TODO.md` en el mismo PR.
 
 Reglas de desarrollo para agentes: `.cursor/rules/`
 

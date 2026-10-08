@@ -11,9 +11,9 @@ export type ProductCategoryDef = {
 };
 
 export type VariantLabels = {
-  /** Segundo eje de variante en UI (talle / nicotina). */
+  /** Segundo eje de variante en UI (Tamaño / Misura en todas las tiendas). */
   secondary: string;
-  /** Primer eje de variante en UI (color / sabor). */
+  /** Primer eje de variante en UI (Modelo / Modello en todas las tiendas). */
   primary: string;
   secondaryInitial?: string;
   primaryInitial?: string;

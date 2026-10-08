@@ -95,8 +95,7 @@ type VariantFormValues = {
 type ColorEdit = { type: "new" } | { type: "edit"; color: string } | null;
 
 function pluralPrimaryLabel(label: string) {
-  if (label === "Color") return "Colores";
-  if (label === "Sabor") return "Sabores";
+  if (label === "Modello") return "Modelli";
   return `${label}s`;
 }
 
@@ -141,7 +140,7 @@ function ColorFormPanel({
               id={`${formId}-color`}
               name="color"
               defaultValue={values?.color ?? ""}
-              placeholder="Ej. Negro, Verde oliva..."
+              placeholder="Ej. Negro, Mare, Clásico..."
               required
               disabled={disabled || loading}
             />
@@ -338,7 +337,7 @@ function ColorEditRow({
         <AdminTableCell>
           <AdminTableActions>
             <AdminTableIconAction
-              label={`Editar color ${color}`}
+              label={`Editar ${variantLabels.primary.toLowerCase()} ${color}`}
               icon={Pencil}
               onClick={() => {
                 if (editDisabled) {
@@ -353,7 +352,7 @@ function ColorEditRow({
             />
             {canDelete ? (
               <AdminTableIconAction
-                label={`Eliminar color ${color}`}
+                label={`Eliminar ${variantLabels.primary.toLowerCase()} ${color}`}
                 icon={Trash2}
                 onClick={() => {
                   if (editDisabled) {
@@ -373,8 +372,8 @@ function ColorEditRow({
       </AdminTableRow>
       <AdminConfirmDialog
         open={confirmOpen}
-        title="Eliminar color"
-        description={`¿Eliminar el color "${color}"? Esta acción no se puede deshacer.`}
+        title={`Eliminar ${variantLabels.primary.toLowerCase()}`}
+        description={`¿Eliminar "${color}"? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         loading={loading}
         onConfirm={() => void handleDelete()}

@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
+import type { AdminActionResult } from "@/lib/admin-action-result";
 import { assertAdminPermission } from "@/lib/admin-session";
 import {
   revalidateAdminDashboardCache,
@@ -143,7 +145,7 @@ async function assertProductOwnership(productId: string, storeId: string) {
   return product;
 }
 
-export async function updateProduct(productId: string, formData: FormData) {
+async function updateProductImpl(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   await assertProductOwnership(productId, storeId);
 
@@ -181,7 +183,7 @@ export async function updateProduct(productId: string, formData: FormData) {
   revalidateStorefrontProductSurfaces(slug);
 }
 
-export async function updateProductHasSize(productId: string, hasSize: boolean) {
+async function updateProductHasSizeImpl(productId: string, hasSize: boolean) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
@@ -227,7 +229,7 @@ export async function updateProductHasSize(productId: string, hasSize: boolean) 
   revalidateStorefrontProductSurfaces(product.slug);
 }
 
-export async function upsertProductColor(productId: string, formData: FormData) {
+async function upsertProductColorImpl(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
@@ -325,7 +327,7 @@ export async function upsertProductColor(productId: string, formData: FormData) 
   revalidateStorefrontProductSurfaces(product.slug);
 }
 
-export async function deleteProductColor(productId: string, color: string) {
+async function deleteProductColorImpl(productId: string, color: string) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
@@ -377,7 +379,7 @@ export async function deleteProductColor(productId: string, color: string) {
   revalidateStorefrontProductSurfaces(product.slug);
 }
 
-export async function createVariant(productId: string, formData: FormData) {
+async function createVariantImpl(productId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
   const product = await assertProductOwnership(productId, storeId);
 
@@ -423,7 +425,7 @@ export async function createVariant(productId: string, formData: FormData) {
   revalidateStorefrontProductSurfaces(product.slug);
 }
 
-export async function updateVariant(variantId: string, formData: FormData) {
+async function updateVariantImpl(variantId: string, formData: FormData) {
   const storeId = await requireAdminStoreId("products:manage");
 
   const variant = await db.productVariant.findFirst({
@@ -479,7 +481,7 @@ export async function updateVariant(variantId: string, formData: FormData) {
   revalidateStorefrontProductSurfaces(variant.product.slug);
 }
 
-export async function deleteVariant(variantId: string) {
+async function deleteVariantImpl(variantId: string) {
   const storeId = await requireAdminStoreId("products:manage");
 
   const variant = await db.productVariant.findFirst({
@@ -512,4 +514,62 @@ export async function deleteVariant(variantId: string) {
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${variant.productId}/edit`);
   revalidateStorefrontProductSurfaces(variant.product.slug);
+}
+
+async function asAdminActionResult(
+  run: () => Promise<unknown>,
+): Promise<AdminActionResult> {
+  try {
+    await run();
+    return undefined;
+  } catch (error) {
+    unstable_rethrow(error);
+    // Plain Error = our validation messages; Prisma/system errors stay opaque.
+    if (error instanceof Error && error.constructor === Error) {
+      return { error: error.message };
+    }
+    throw error;
+  }
+}
+
+export async function updateProduct(
+  ...args: Parameters<typeof updateProductImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => updateProductImpl(...args));
+}
+
+export async function updateProductHasSize(
+  ...args: Parameters<typeof updateProductHasSizeImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => updateProductHasSizeImpl(...args));
+}
+
+export async function upsertProductColor(
+  ...args: Parameters<typeof upsertProductColorImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => upsertProductColorImpl(...args));
+}
+
+export async function deleteProductColor(
+  ...args: Parameters<typeof deleteProductColorImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => deleteProductColorImpl(...args));
+}
+
+export async function createVariant(
+  ...args: Parameters<typeof createVariantImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => createVariantImpl(...args));
+}
+
+export async function updateVariant(
+  ...args: Parameters<typeof updateVariantImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => updateVariantImpl(...args));
+}
+
+export async function deleteVariant(
+  ...args: Parameters<typeof deleteVariantImpl>
+): Promise<AdminActionResult> {
+  return asAdminActionResult(() => deleteVariantImpl(...args));
 }

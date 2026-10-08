@@ -1,5 +1,6 @@
 "use client";
 
+import { throwIfAdminActionError } from "@/lib/admin-action-result";
 import { useState } from "react";
 import { updateProduct } from "@/lib/admin-actions";
 import { AdminCollapsibleCard } from "@/components/admin/admin-collapsible-card";
@@ -68,7 +69,7 @@ export function ProductEditForm({
 
     try {
       const formData = new FormData(e.currentTarget);
-      await updateProduct(product.id, formData);
+      throwIfAdminActionError(await updateProduct(product.id, formData));
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al guardar");

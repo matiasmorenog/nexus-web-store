@@ -12,13 +12,14 @@ import Image from "next/image";
 import {
   adminImageUpload,
   readAdminLocaleFromDocument,
+  type AdminImageUploadErrorCode,
   type AdminLocale,
 } from "@/lib/admin-locale";
 import {
   compressImageForUpload,
   MAX_UPLOAD_BYTES,
 } from "@/lib/images/compress-image-client";
-import { IMAGE_PRESETS } from "@/lib/images/presets";
+import { IMAGE_PRESETS, PRODUCT_IMAGE } from "@/lib/images/presets";
 import { discardStagedProductImage } from "@/lib/images/discard-staged-product-image";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,8 @@ type ImageUploadFieldProps = {
   /** Layout horizontal para formularios inline (ej. variantes en tabla). */
   compact?: boolean;
   className?: string;
+  /** Lets the parent form block submit until the upload finishes. */
+  onUploadingChange?: (uploading: boolean) => void;
 };
 
 const UPLOAD_TIMEOUT_MS = 60_000;
@@ -42,6 +45,7 @@ const serverLocale = (): AdminLocale => "es";
 type UploadResponse = {
   url?: string;
   error?: string;
+  code?: AdminImageUploadErrorCode;
   savedPercent?: number;
 };
 
@@ -60,6 +64,7 @@ export function ImageUploadField({
   defaultValue = "",
   compact = false,
   className,
+  onUploadingChange,
 }: ImageUploadFieldProps) {
   const autoId = useId();
   const fieldId = id ?? autoId;
@@ -98,17 +103,26 @@ export function ImageUploadField({
     void discardStagedProductImage(url);
   }
 
+  function setUploadingState(value: boolean) {
+    setUploading(value);
+    onUploadingChange?.(value);
+  }
+
   async function handleFile(file: File) {
     setError(null);
-    setUploading(true);
+    setUploadingState(true);
 
     const controller = new AbortController();
     let timeoutId: number | undefined;
 
     try {
       const upload = await compressImageForUpload(file);
+      if (!PRODUCT_IMAGE.allowedMimeTypes.has(upload.type)) {
+        setError(copy.errors.unsupportedFormat);
+        return;
+      }
       if (upload.size > MAX_UPLOAD_BYTES) {
-        setError(copy.tooLarge);
+        setError(copy.errors.tooLarge);
         return;
       }
 
@@ -137,12 +151,15 @@ export function ImageUploadField({
       const data = await readUploadResponse(response);
 
       if (!response.ok) {
-        if (data?.error) {
-          setError(data.error);
+        console.error("Image upload rejected:", response.status, data?.error);
+        if (data?.code && data.code in copy.errors) {
+          setError(copy.errors[data.code]);
         } else if (response.status === 413) {
-          setError(copy.tooLarge);
+          setError(copy.errors.tooLarge);
+        } else if (response.status === 401) {
+          setError(copy.errors.unauthorized);
         } else {
-          setError(copy.genericStatus(response.status));
+          setError(copy.errors.failed);
         }
         return;
       }
@@ -153,17 +170,14 @@ export function ImageUploadField({
         setImageUrl(data.url);
         setShowUrlInput(false);
       } else {
-        setError(copy.generic);
+        setError(copy.errors.failed);
       }
     } catch (uploadError) {
-      setError(
-        uploadError instanceof Error && uploadError.message
-          ? uploadError.message
-          : copy.generic,
-      );
+      console.error("Image upload failed:", uploadError);
+      setError(copy.unreadable);
     } finally {
       window.clearTimeout(timeoutId);
-      setUploading(false);
+      setUploadingState(false);
     }
   }
 

@@ -1,6 +1,6 @@
 # AFIP — preparación e integración
 
-Estado: **scaffolding listo**, emisión real de comprobantes pendiente ([NEX-6](https://linear.app/nexus-development)).
+Estado: **scaffolding listo**, emisión real de comprobantes pendiente (ver [`TODO.md`](../TODO.md)).
 
 ## Qué hay hoy
 
@@ -102,7 +102,7 @@ Incluye `customerTaxId`, `invoiceStatus`, ítems con SKU.
 - **CUIT comercio** + **punto de venta**: requeridos si AFIP está activo.
 - Activar encola facturación; aún no llama al WS.
 
-## Próxima implementación (NEX-6)
+## Próxima implementación
 
 Archivos a extender:
 

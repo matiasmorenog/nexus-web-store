@@ -42,6 +42,8 @@ Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesa
 - Mergear a `development` cuando el check esté verde (`gh pr checks`). Si lint falla por deuda previa (Fase 1.5 en `ci-todo.mdc`), mergear solo con **typecheck** en verde hasta cerrar esa deuda.
 - Previews Vercel: **`goat-indumentaria` (app1) = principal**; **`vaporx-store` (app2) = complementario** (hoy app1 es la demo más completa). No exigir ambos en branch protection — Ignored Build Step puede omitir builds. Detalle en `docs/ci.md` / `ci-todo.mdc`.
 - Merge estándar a `development`: **squash** + borrado de branch (local y remoto).
+- Release a `main`: **merge commit** (`gh pr merge --merge`), nunca squash/rebase.
+- Enforced en GitHub con rulesets: `main` solo acepta merge commit vía PR + check `lint-and-typecheck`; `development` solo squash vía PR. Ambas sin borrado ni force push.
 
 ## Buenas prácticas (obligatorio)
 
@@ -124,6 +126,7 @@ Solo cuando el usuario lo pida y `development` esté estable:
 
 ```bash
 gh pr create --base main --head development --title "release: development → main"
+gh pr merge <número> --merge   # merge commit (el ruleset rechaza squash/rebase)
 ```
 
 ## Checklist agente (inicio de tarea)

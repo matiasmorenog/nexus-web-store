@@ -1,6 +1,10 @@
 "use client";
 
-import { throwIfAdminActionError } from "@/lib/admin-action-result";
+import {
+  adminActionErrorMessage,
+  throwIfAdminActionError,
+} from "@/lib/admin-action-result";
+import { readAdminProductErrors } from "@/lib/admin-product-errors";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
@@ -91,8 +95,7 @@ type VariantFormValues = {
 type ColorEdit = { type: "new" } | { type: "edit"; color: string } | null;
 
 function pluralPrimaryLabel(label: string) {
-  if (label === "Color") return "Colores";
-  if (label === "Sabor") return "Sabores";
+  if (label === "Modello") return "Modelli";
   return `${label}s`;
 }
 
@@ -121,6 +124,8 @@ function ColorFormPanel({
   blockedHint?: number;
   primaryLabel: string;
 }) {
+  const [imageUploading, setImageUploading] = useState(false);
+
   return (
     <BlockedEditHint blockedHint={blockedHint}>
       <RowEditEnter>
@@ -135,7 +140,7 @@ function ColorFormPanel({
               id={`${formId}-color`}
               name="color"
               defaultValue={values?.color ?? ""}
-              placeholder="Ej. Negro, Verde oliva..."
+              placeholder="Ej. Negro, Mare, Clásico..."
               required
               disabled={disabled || loading}
             />
@@ -148,14 +153,23 @@ function ColorFormPanel({
             key={`${formId}-${values?.imageUrl ?? "new"}`}
             id={`${formId}-image`}
             name="imageUrl"
-            label="Imagen del color"
+            label={`Imagen del ${primaryLabel.toLowerCase()}`}
             defaultValue={values?.imageUrl ?? ""}
+            onUploadingChange={setImageUploading}
           />
         </div>
 
         <AdminFormActions sticky>
-          <Button type="submit" size="sm" disabled={disabled || loading}>
-            {loading ? "Guardando..." : "Guardar"}
+          <Button
+            type="submit"
+            size="sm"
+            disabled={disabled || loading || imageUploading}
+          >
+            {imageUploading
+              ? readAdminProductErrors().waitForUpload
+              : loading
+                ? "Guardando..."
+                : "Guardar"}
           </Button>
           <Button
             type="button"
@@ -201,7 +215,7 @@ function NewColorRow({
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -272,7 +286,7 @@ function ColorEditRow({
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -286,7 +300,7 @@ function ColorEditRow({
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar el color");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -323,7 +337,7 @@ function ColorEditRow({
         <AdminTableCell>
           <AdminTableActions>
             <AdminTableIconAction
-              label={`Editar color ${color}`}
+              label={`Editar ${variantLabels.primary.toLowerCase()} ${color}`}
               icon={Pencil}
               onClick={() => {
                 if (editDisabled) {
@@ -338,7 +352,7 @@ function ColorEditRow({
             />
             {canDelete ? (
               <AdminTableIconAction
-                label={`Eliminar color ${color}`}
+                label={`Eliminar ${variantLabels.primary.toLowerCase()} ${color}`}
                 icon={Trash2}
                 onClick={() => {
                   if (editDisabled) {
@@ -358,8 +372,8 @@ function ColorEditRow({
       </AdminTableRow>
       <AdminConfirmDialog
         open={confirmOpen}
-        title="Eliminar color"
-        description={`¿Eliminar el color "${color}"? Esta acción no se puede deshacer.`}
+        title={`Eliminar ${variantLabels.primary.toLowerCase()}`}
+        description={`¿Eliminar "${color}"? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         loading={loading}
         onConfirm={() => void handleDelete()}
@@ -727,7 +741,7 @@ function NewVariantRow({
       await onVariantsReload?.();
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear variante");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -788,7 +802,7 @@ function VariantEditRow({
       await onVariantsReload?.();
       onCancelEdit();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -802,7 +816,7 @@ function VariantEditRow({
       await onVariantsReload?.();
       setConfirmOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al eliminar");
+      setError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setLoading(false);
     }
@@ -969,9 +983,7 @@ export function VariantManager({
       onHasSizeChange?.(next);
       await onVariantsReload?.();
     } catch (err) {
-      setSizeError(
-        err instanceof Error ? err.message : "No se pudo actualizar el tamaño",
-      );
+      setSizeError(adminActionErrorMessage(err, readAdminProductErrors()));
     } finally {
       setSizeBusy(false);
     }

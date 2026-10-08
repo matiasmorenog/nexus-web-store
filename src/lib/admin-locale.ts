@@ -195,14 +195,14 @@ export const APP3_ADMIN_VARIANT_LABELS: Record<
   }
 > = {
   es: {
-    primary: "Acabado",
+    primary: "Modelo",
     secondary: "Tamaño",
     primaryInitial: "Personalizado",
     secondaryInitial: "Único",
   },
   it: {
-    primary: "Finitura",
-    secondary: "Formato",
+    primary: "Modello",
+    secondary: "Misura",
     primaryInitial: "Personalizzato",
     secondaryInitial: "Unico",
   },
@@ -381,14 +381,25 @@ export const adminImageUpload = {
     showUrl: "Pegar URL externa",
     hideUrl: "Ocultar URL externa",
     preview: "Vista previa",
-    tooLarge:
-      "La imagen es demasiado grande (máx. 4 MB después de comprimir). Probá con una foto más chica.",
     timeout:
       "La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.",
-    network: "No se pudo conectar con el servidor. Intentá de nuevo.",
-    generic: "Error al subir la imagen",
-    genericStatus: (status: number) =>
-      `Error al subir la imagen (código ${status})`,
+    network:
+      "No hay conexión con el servidor. Revisá tu internet y probá de nuevo.",
+    unreadable:
+      "No se pudo leer la imagen. Puede estar dañada: probá con otra foto o sacale una captura de pantalla y subí la captura.",
+    errors: {
+      unauthorized:
+        "Tu sesión expiró. Recargá la página, volvé a iniciar sesión y subí la foto de nuevo.",
+      missingFile: "No se recibió ninguna foto. Elegí la imagen de nuevo.",
+      unsupportedFormat:
+        "Formato no compatible. Usá JPG, PNG, WebP o GIF. Si es una foto de iPhone (HEIC), sacale una captura de pantalla y subí la captura, o en el iPhone activá Ajustes › Cámara › Formatos › «Más compatible».",
+      tooLarge:
+        "La foto es demasiado pesada, incluso comprimida. Probá con una foto más chica o sacale una captura de pantalla.",
+      storageConfig:
+        "Hay un problema de configuración del almacenamiento de fotos. Avisale al desarrollador.",
+      failed:
+        "No se pudo guardar la foto en el servidor. Esperá un minuto y probá de nuevo; si sigue fallando, mandá una captura.",
+    },
   },
   it: {
     uploading: "Compressione e caricamento…",
@@ -397,13 +408,26 @@ export const adminImageUpload = {
     showUrl: "Incolla URL esterno",
     hideUrl: "Nascondi URL esterno",
     preview: "Anteprima",
-    tooLarge:
-      "L'immagine è troppo grande (max 4 MB dopo la compressione). Prova con una foto più piccola.",
     timeout:
       "Il caricamento ha impiegato troppo tempo. Controlla la connessione e riprova.",
-    network: "Impossibile contattare il server. Riprova.",
-    generic: "Errore nel caricamento dell'immagine",
-    genericStatus: (status: number) =>
-      `Errore nel caricamento dell'immagine (codice ${status})`,
+    network:
+      "Nessuna connessione con il server. Controlla internet e riprova.",
+    unreadable:
+      "Impossibile leggere l'immagine. Potrebbe essere danneggiata: prova con un'altra foto oppure fai uno screenshot e carica quello.",
+    errors: {
+      unauthorized:
+        "La sessione è scaduta. Ricarica la pagina, accedi di nuovo e carica di nuovo la foto.",
+      missingFile: "Nessuna foto ricevuta. Scegli di nuovo l'immagine.",
+      unsupportedFormat:
+        "Formato non supportato. Usa JPG, PNG, WebP o GIF. Se è una foto di iPhone (HEIC), fai uno screenshot e carica quello, oppure sull'iPhone attiva Impostazioni › Fotocamera › Formati › «Più compatibile».",
+      tooLarge:
+        "La foto è troppo pesante, anche compressa. Prova con una foto più piccola o fai uno screenshot.",
+      storageConfig:
+        "C'è un problema di configurazione dell'archivio foto. Avvisa lo sviluppatore.",
+      failed:
+        "Impossibile salvare la foto sul server. Aspetta un minuto e riprova; se continua, manda uno screenshot.",
+    },
   },
 } as const;
+
+export type AdminImageUploadErrorCode = keyof (typeof adminImageUpload)["es"]["errors"];

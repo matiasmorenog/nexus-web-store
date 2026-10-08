@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { AdminImageUploadErrorCode } from "@/lib/admin-locale";
 import { auth } from "@/lib/auth";
 import { isStoreProductBlobUrl, uploadProductImage } from "@/lib/images/blob-storage";
 import { cleanupProductImageIfOrphaned } from "@/lib/images/cleanup-product-image";
@@ -7,10 +8,14 @@ import {
   PRODUCT_IMAGE,
 } from "@/lib/images/product-image";
 
+function uploadError(code: AdminImageUploadErrorCode, error: string, status: number) {
+  return NextResponse.json({ code, error }, { status });
+}
+
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.storeId || !session.user.storeSlug) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    return uploadError("unauthorized", "No autorizado", 401);
   }
 
   try {
@@ -18,21 +23,19 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: "Archivo requerido" }, { status: 400 });
+      return uploadError("missingFile", "Archivo requerido", 400);
     }
 
     if (!PRODUCT_IMAGE.allowedMimeTypes.has(file.type)) {
-      return NextResponse.json(
-        { error: "Formato no permitido (JPG, PNG, WebP o GIF)" },
-        { status: 400 },
+      return uploadError(
+        "unsupportedFormat",
+        "Formato no permitido (JPG, PNG, WebP o GIF)",
+        400,
       );
     }
 
     if (file.size > PRODUCT_IMAGE.maxInputBytes) {
-      return NextResponse.json(
-        { error: "Archivo demasiado grande (máx. 8 MB)" },
-        { status: 400 },
-      );
+      return uploadError("tooLarge", "Archivo demasiado grande (máx. 8 MB)", 400);
     }
 
     const inputBytes = file.size;
@@ -56,16 +59,14 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : "No se pudo subir la imagen";
 
     if (raw.includes("private store")) {
-      return NextResponse.json(
-        {
-          error:
-            "El Blob store está en modo Private. Las fotos de producto requieren un store Public (creá uno nuevo en Vercel → Storage → Blob → Public, región gru1). No se puede cambiar después de crearlo.",
-        },
-        { status: 400 },
+      return uploadError(
+        "storageConfig",
+        "El Blob store está en modo Private. Las fotos de producto requieren un store Public (creá uno nuevo en Vercel → Storage → Blob → Public, región gru1). No se puede cambiar después de crearlo.",
+        500,
       );
     }
 
-    return NextResponse.json({ error: raw }, { status: 500 });
+    return uploadError("failed", raw, 500);
   }
 }
 

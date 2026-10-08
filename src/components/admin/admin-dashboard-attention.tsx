@@ -41,7 +41,7 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
       href: buildAdminOutOfStockVariantsHref(),
       icon: PackageX,
       label: `${count} variante${count !== 1 ? "s" : ""} sin stock`,
-      detail: "Revisá talles o colores agotados",
+      detail: "Revisá variantes agotadas",
       tone: "rose",
     });
   }

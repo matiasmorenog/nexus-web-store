@@ -2,7 +2,7 @@
 
 Modelo comercial: **3 planes empaquetados** en USD (Start / Grow / Pro). Precio fijo, **sin comisión** sobre ventas. Los módulos Plus siguen existiendo en código para gating; el cliente **no** los compra a la carta.
 
-Relacionado: [NEX-13](https://linear.app/nexus-development/issue/NEX-13/pricing-tiers-start-grow-pro-usd-sin-take-rate), billing Fase C [NEX-10](https://linear.app/nexus-development/issue/NEX-10/onboarding-tiendas-billing-automatico), multi-tenant en [`multi-store.md`](multi-store.md).
+Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-store.md`](multi-store.md).
 
 ---
 
@@ -107,7 +107,7 @@ model StorePlan {
 }
 ```
 
-Tier → set de `ModuleId` (ver `PLAN_TIERS` en catálogo). `ENABLED_MODULES` queda override para demos. Billing cobra **un tier**, no suma de módulos ([NEX-10](https://linear.app/nexus-development/issue/NEX-10)).
+Tier → set de `ModuleId` (ver `PLAN_TIERS` en catálogo). `ENABLED_MODULES` queda override para demos. Billing cobra **un tier**, no suma de módulos (ver `TODO.md`, Fase C).
 
 ### Gating
 
@@ -157,9 +157,9 @@ Tier → set de `ModuleId` (ver `PLAN_TIERS` en catálogo). `ENABLED_MODULES` qu
 
 ## Orden de implementación
 
-1–13. Módulos producto ✅ (ver historial en git / Linear)
-14. **Pricing comercial** — tiers en docs + catálogo (NEX-13) ← este doc
-15. **Billing + onboarding** — NEX-10 (Fase C)
+1–13. Módulos producto ✅ (ver historial en git)
+14. **Pricing comercial** — tiers en docs + catálogo ← este doc
+15. **Billing + onboarding** — Fase C (`TODO.md`)
 
 ---
 

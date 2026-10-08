@@ -27,3 +27,4 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 - Pricing Start / Grow / Pro.
 - Stripe (Italia), login demo.
 - Manoviva: checkout con retiro + transferencia (descuento opcional) + efectivo opcional + WhatsApp; switch de tamaño por producto; páginas Consegne / Condizioni / Resi; compresión de fotos en el navegador; errores claros en carga de productos.
+- Nombres de variante genéricos en todas las tiendas: Modelo / Tamaño (IT: Modello / Misura).

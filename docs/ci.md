@@ -65,5 +65,6 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
 ## Merge (agente / flujo ágil)
 
+- PRs se crean en **draft**: el workflow no corre en draft (ahorro de minutos). Al pasar a ready (`gh pr ready`, lo hace el usuario o el agente si se lo pide) corre `lint-and-typecheck`.
 - `gh pr checks` → job `lint-and-typecheck` verde → pedir sí del usuario antes de merge.
 - Mientras previews Vercel estén pausados, no esperar checks `Vercel – *` en PRs a `development`.

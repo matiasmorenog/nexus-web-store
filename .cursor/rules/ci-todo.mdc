@@ -9,7 +9,7 @@ Estado actual: workflow `.github/workflows/ci.yml` — job `lint-and-typecheck` 
 
 ## Fase 1 — hecho
 
-- GitHub Actions en PRs/push a `development` y `main`
+- GitHub Actions en PRs/push a `development` y `main` (PRs draft se saltean; corre al pasar a ready)
 - `npm run typecheck` (`tsc --noEmit`)
 - `npm run lint` (`eslint src --max-warnings=0`)
 - `prisma generate` con `DATABASE_URL` dummy (sin Neon en CI)

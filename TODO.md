@@ -6,6 +6,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 
 - [ ] Cobrar envío en checkout según tarifas de Poste Italiane por peso/cantidad (hoy `shippingCost = 0`). Falta que Raquel pase las tarifas.
 - [ ] Cada cambio de schema liberado a producción: `db push` contra Neon `main` (pedir sí antes).
+- [x] Recorte 3:4 al subir/reemplazar fotos de producto (admin, todas las tiendas).
 
 ## Pagos
 

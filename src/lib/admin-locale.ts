@@ -372,15 +372,22 @@ export function getAdminProductsCopy(
   return adminProducts[locale];
 }
 
-/** `ImageUploadField`: estado, ayuda y errores de subida. */
+/** `ImageUploadField`: estado, ayuda, recorte y errores de subida. */
 export const adminImageUpload = {
   es: {
     uploading: "Comprimiendo y subiendo…",
     helper: (maxWidth: number, maxHeight: number) =>
-      `Se optimiza una sola vez en el navegador y se guarda como WebP (máx. ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF hasta 4 MB).`,
+      `Antes de subir vas a recortar en formato vertical (3:4), como se ve en la tienda. Después se guarda como WebP (máx. ${maxWidth}×${maxHeight} px). JPG, PNG, WebP o GIF.`,
     showUrl: "Pegar URL externa",
     hideUrl: "Ocultar URL externa",
     preview: "Vista previa",
+    cropTitle: "Recortar foto",
+    cropHint:
+      "Arrastrá la foto y usá el zoom para centrar el producto. Así se ve en el catálogo (vertical 3:4).",
+    cropZoom: "Zoom",
+    cropCancel: "Cancelar",
+    cropConfirm: "Usar esta foto",
+    cropApplying: "Preparando…",
     timeout:
       "La subida tardó demasiado. Revisá tu conexión e intentá de nuevo.",
     network:
@@ -404,10 +411,17 @@ export const adminImageUpload = {
   it: {
     uploading: "Compressione e caricamento…",
     helper: (maxWidth: number, maxHeight: number) =>
-      `Viene ottimizzata una sola volta nel browser e salvata come WebP (max ${maxWidth}×${maxHeight} px, ~400 KB). JPG, PNG, WebP o GIF (GIF fino a 4 MB).`,
+      `Prima del caricamento ritagli in formato verticale (3:4), come in vetrina. Poi viene salvata come WebP (max ${maxWidth}×${maxHeight} px). JPG, PNG, WebP o GIF.`,
     showUrl: "Incolla URL esterno",
     hideUrl: "Nascondi URL esterno",
     preview: "Anteprima",
+    cropTitle: "Ritaglia foto",
+    cropHint:
+      "Trascina la foto e usa lo zoom per centrare il prodotto. Così si vede nel catalogo (verticale 3:4).",
+    cropZoom: "Zoom",
+    cropCancel: "Annulla",
+    cropConfirm: "Usa questa foto",
+    cropApplying: "Preparazione…",
     timeout:
       "Il caricamento ha impiegato troppo tempo. Controlla la connessione e riprova.",
     network:

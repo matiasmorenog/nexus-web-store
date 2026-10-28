@@ -24,5 +24,5 @@
 
 ## Deploy
 
-- PR a **`development`** (draft hasta que haga falta correr checks). Previews Vercel pausados.
+- PR a **`development`** (draft hasta que haga falta correr checks). Sin deploy Vercel en el PR (solo `main`).
 - Release: PR **`development` → `main`** (merge commit) → producción en los 3 proyectos Vercel.

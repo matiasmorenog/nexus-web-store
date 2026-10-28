@@ -34,16 +34,14 @@ No se duplican: Actions valida el código rápido; Vercel valida que compile y d
 
 ### Previews pausados (×3); Production en `main` activo
 
-Hasta nuevo aviso, las **tres** tiendas usan Ignored Build Step con one-liner (o scripts espejo): **skip** Preview / PRs / `development` / feature branches; **build** solo si `VERCEL_ENV=production` o ref=`main` (release). Cómo reanudar: `DEPLOY.md` → “Reanudar previews (las 3 tiendas)”.
+Las **tres** tiendas deployan Production solo al mergear a git **`main`**. Gate en `vercel.json` (`git.deploymentEnabled`: `main` sí, `**` no) — sin deployment en PRs no hay checks `Vercel – *` engañosos. Ignored Build Step en el dashboard queda de respaldo. Cómo reanudar previews: `DEPLOY.md`.
 
 ### Prioridad de checks en un PR
 
-Orden práctico (mientras previews Vercel estén pausados):
+1. **`lint-and-typecheck`** (GitHub Actions) — gate de código (required). En draft corre el aviso **`lint-and-typecheck (draft)`** (no-op) y el gate queda skipped; al pasar a ready corre el check real.
+2. Checks **`Vercel – *`** — no deberían aparecer en PRs mientras `deploymentEnabled` limite a `main`.
 
-1. **`lint-and-typecheck`** (GitHub Actions) — gate de código
-2. Checks **`Vercel – *`** — **omitidos** (Ignored Build Step) hasta reanudar previews
-
-No marcar los checks Vercel como required en branch protection: el Ignored Build Step saltea deploys a propósito y GitHub trataría el check faltante como bloqueante.
+No marcar checks Vercel como required en branch protection.
 
 ## Roadmap / tech debt
 
@@ -65,6 +63,6 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
 ## Merge (agente / flujo ágil)
 
-- PRs se crean en **draft**: el workflow no corre en draft (ahorro de minutos). Al pasar a ready (`gh pr ready`, lo hace el usuario o el agente si se lo pide) corre `lint-and-typecheck`.
+- PRs se crean en **draft**: el job real no corre (ahorro de minutos). Aparece `lint-and-typecheck (draft)` (aviso no-op) — no es el gate. Al pasar a ready corre `lint-and-typecheck`.
 - `gh pr checks` → job `lint-and-typecheck` verde → pedir sí del usuario antes de merge.
-- Mientras previews Vercel estén pausados, no esperar checks `Vercel – *` en PRs a `development`.
+- No esperar checks `Vercel – *` en PRs (deploys solo en `main`).

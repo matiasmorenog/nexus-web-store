@@ -6,7 +6,7 @@ Repo: `matiasmorenog/nexus-web-store`. **Un proyecto Neon con dos branches** (`m
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **goat-indumentaria** / **vaporx-store** / **manoviva-store**: one-liner live (build solo Production/`main`; previews pausados). Scripts repo espejo: `bash scripts/vercel-should-build-app{1,2,3}.sh`
+- [x] Deploys automáticos solo en git `main` (`vercel.json` → `git.deploymentEnabled`). Las 3 tiendas actualizan Production en el release `development → main`. Ignored Build Step one-liner de respaldo en el dashboard; scripts espejo: `bash scripts/vercel-should-build-app{1,2,3}.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -179,29 +179,35 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 ## Menos builds en Vercel
 
-**Settings → Git → Ignored Build Step** (en cada proyecto):
+**Gate principal (repo):** `vercel.json` → `git.deploymentEnabled`: solo branch **`main`**. PRs / `development` / `feat/*` **no crean** deployment → no aparecen checks `Vercel – *` falsos “Passed” en el PR.
 
-| Proyecto | Comando (dashboard, live ahora) | Scripts en repo (misma política) |
-|----------|----------------------------------|----------------------------------|
+```json
+"git": { "deploymentEnabled": { "main": true, "**": false } }
+```
+
+Regla de resolución de Vercel: si un branch matchea varias reglas y **alguna es true**, deploya. `main` matchea `main: true` y `**: false` → deploya. El resto solo matchea `**` → no deploya.
+
+**Respaldo (dashboard):** Ignored Build Step en las 3 tiendas (por si alguien re-habilita un branch):
+
+| Proyecto | Comando (dashboard) | Scripts en repo |
+|----------|---------------------|-----------------|
 | app1 (`goat-indumentaria`) | one-liner abajo | `bash scripts/vercel-should-build-app1.sh` |
 | app2 (`vaporx-store`) | one-liner abajo | `bash scripts/vercel-should-build-app2.sh` |
 | app3 (`manoviva-store`) | one-liner abajo | `bash scripts/vercel-should-build-app3.sh` |
-
-**One-liner actual (×3):**
 
 ```bash
 if [ "$VERCEL_ENV" = production ] || [ "$VERCEL_GIT_COMMIT_REF" = main ]; then exit 1; else exit 0; fi
 ```
 
-Exit 0 = omitir build · Exit 1 = continuar build. Build solo Production / `main`; **skip** Preview / PRs / `development` / feature branches. El one-liner aplica ya en todos los refs (no depende del script del commit). Los scripts del repo espejan la misma regla; tras merge podés dejar el one-liner o cambiar el dashboard a `bash scripts/vercel-should-build-appN.sh`. Release `development → main` sigue disparando producción ×3.
+Exit 0 = omitir build · Exit 1 = continuar. Release `development → main` → Production ×3.
 
 ### Reanudar previews (las 3 tiendas)
 
-1. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa (docs-only / other-app skips) desde historial git.
-2. En cada proyecto Vercel → Ignored Build Step → `bash scripts/vercel-should-build-appN.sh` (sacar el one-liner de “solo main”).
+1. En `vercel.json`, quitar o ajustar `git.deploymentEnabled` (volver a permitir branches de preview).
+2. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa desde historial git; Ignored Build Step → esos scripts.
 3. Mergear a `development` (y a `main` en el próximo release).
 
-**Prioridad de preview en PRs (cuando se reanuden):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario; Manoviva según cambios de app3. Ver `docs/ci.md`.
+**Prioridad de preview en PRs (cuando se reanuden):** app1 principal; app2 complementario; Manoviva según app3. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 
@@ -211,7 +217,7 @@ Regla completa para el agente: `.cursor/rules/git-workflow.mdc`.
 feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
-- **`development`** — integración y preview. **Una tarea = un branch nuevo** desde acá.
+- **`development`** — integración (sin deploy Vercel). **Una tarea = un branch nuevo** desde acá.
 - **`main`** — producción. Solo release PR desde `development`.
 - Nombres: `feat/`, `fix/`, `refactor/`, `chore/`, `docs/` + `kebab-case`.
 - No mezclar implementaciones en el mismo branch. No PR de features a `main`.

@@ -38,7 +38,7 @@ Las **tres** tiendas deployan Production solo al mergear a git **`main`**. Gate 
 
 ### Prioridad de checks en un PR
 
-1. **`lint-and-typecheck`** (GitHub Actions) — gate de código (required). En draft podés ver también **`lint-and-typecheck (draft)`** skipped: es la corrida salteada al abrir el draft; ignorala. El check real corre al pasar a ready.
+1. **`lint-and-typecheck`** (GitHub Actions) — gate de código (required). En draft corre el aviso **`lint-and-typecheck (draft)`** (no-op) y el gate queda skipped; al pasar a ready corre el check real.
 2. Checks **`Vercel – *`** — no deberían aparecer en PRs mientras `deploymentEnabled` limite a `main`.
 
 No marcar checks Vercel como required en branch protection.
@@ -63,6 +63,6 @@ GitHub → `development` → Require status checks → **`lint-and-typecheck`**.
 
 ## Merge (agente / flujo ágil)
 
-- PRs se crean en **draft**: el job real no corre (ahorro de minutos). Puede aparecer `lint-and-typecheck (draft)` skipped — no es el gate. Al pasar a ready corre `lint-and-typecheck`.
+- PRs se crean en **draft**: el job real no corre (ahorro de minutos). Aparece `lint-and-typecheck (draft)` (aviso no-op) — no es el gate. Al pasar a ready corre `lint-and-typecheck`.
 - `gh pr checks` → job `lint-and-typecheck` verde → pedir sí del usuario antes de merge.
 - No esperar checks `Vercel – *` en PRs (deploys solo en `main`).

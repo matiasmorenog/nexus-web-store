@@ -13,9 +13,10 @@ concurrency:
 
 jobs:
   lint-and-typecheck:
-    # Draft open/sync creates a skipped check; name it clearly so it is not
-    # confused with the real required check that runs when the PR is ready.
-    name: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft && 'lint-and-typecheck (draft)' || 'lint-and-typecheck' }}
+    # Static name — required by branch protection. Do not use a dynamic
+    # `name:` expression: GitHub leaves it unevaluated when the job is skipped
+    # (shows the raw expression as the check name).
+    name: lint-and-typecheck
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -46,3 +47,14 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+  # Separate job with a static name so draft PRs get a clear label.
+  # (A dynamic name on the skipped real job would show the raw expression.)
+  lint-and-typecheck-draft:
+    name: lint-and-typecheck (draft)
+    if: github.event_name == 'pull_request' && github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Draft PR — CI deferred
+        run: echo "Draft PR; lint-and-typecheck runs when marked ready for review."

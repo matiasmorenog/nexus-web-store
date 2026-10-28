@@ -31,7 +31,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.
 
-**Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`). Producción de Manoviva apunta al branch Neon `main`; local, preview y las demos Goat/VAPORX al branch `development` (ver [Neon](#neon-database_url-en-vercel)). No hacer `db push` ni seed contra `main` sin un sí explícito.
+**Manoviva (app3)** es la tienda real, en producción con checkout activo (retiro, transferencia, efectivo opcional, WhatsApp). Goat y Vape siguen siendo demos de portfolio. El formulario de contacto de app3 está cerrado por código (`/api/contact`). Estado y pendientes: [`docs/manoviva-production-todo.md`](docs/manoviva-production-todo.md) y [`TODO.md`](TODO.md). `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`). Producción de Manoviva apunta al branch Neon `main`; local, preview y las demos Goat/VAPORX al branch `development` (ver [Neon](#neon-database_url-en-vercel)). No hacer `db push` ni seed contra `main` sin un sí explícito.
 
 ## Variables por proyecto
 
@@ -140,8 +140,8 @@ Doc Neon: [Neon-Managed](https://neon.com/docs/guides/neon-managed-vercel-integr
 Desde tu máquina (una vez o cuando resetees demo):
 
 ```bash
-npm run db:setup          # schema + ambas tiendas + pedidos demo app1
-npm run db:seed:all       # solo re-seed ambas tiendas
+npm run db:setup          # schema + demos (Goat + VAPORX) + pedidos demo app1
+npm run db:seed:all       # solo re-seed demos (no toca Manoviva)
 npm run db:seed:app1   # solo demo-store
 npm run db:seed:app2      # solo vape-demo
 npm run db:wipe:app1   # borra solo app1 (sin re-seed)
@@ -156,7 +156,7 @@ Tras cambiar env en Vercel → **Redeploy**.
 
 **Resend:** remitente `{nombre tienda} <{email owner en DB}>`. El email del owner debe estar verificado en Resend. Sin `RESEND_API_KEY`, emails solo en logs.
 
-**Vercel Blob:** Storage → Blob → **Public**, región `gru1` recomendada. WebP al subir (máx. 1200×1600). Mismo token en local `.env` si subís fotos en dev.
+**Vercel Blob:** Storage → Blob → **Public**, región `gru1` recomendada. Las fotos se comprimen en el navegador a WebP (máx. 1500×2000) antes de subir. Mismo token en local `.env` si subís fotos en dev.
 
 **Mercado Pago — webhooks (uno por dominio):**
 
@@ -225,8 +225,10 @@ git checkout -b feat/mi-cambio          # branch nuevo, nombre acorde a la tarea
 # ... trabajo y commits cuando corresponda ...
 git fetch origin development && git merge origin/development
 git push -u origin feat/mi-cambio
-gh pr create --base development
+gh pr create --draft --base development
 ```
+
+Los PRs se crean en **draft**: los checks no corren para ahorrar recursos. Pasarlo a ready (`gh pr ready`) cuando haga falta correr checks y mergear.
 
 ### Release a producción
 

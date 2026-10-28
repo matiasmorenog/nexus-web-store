@@ -24,8 +24,8 @@ Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesa
 ### Hacer sin preguntar
 - Comandos de rutina: `npm install` (deps del pedido), `prisma generate`, reiniciar dev server, `tsc`, `lint`, `build`.
 - `prisma db push` **aditivo/seguro** (nueva tabla/columna, índices) — ver `prisma-db-push.mdc`.
-- Al terminar una tarea: `git add` + commit (inglés) + `git push` del branch + `gh pr create --base development`.
-- Mergear el PR a `development` cuando los checks del preview estén verdes: `gh pr merge --squash --delete-branch`.
+- Al terminar una tarea: `git add` + commit (inglés) + `git push` del branch + `gh pr create --draft --base development`.
+- PRs siempre **draft**: los checks no corren para ahorrar recursos. Pasar a ready (`gh pr ready`) solo cuando el usuario lo pida.
 - Validar antes de cerrar: `npx tsc --noEmit` + `npm run lint` (y `build` si el cambio lo amerita).
 - Crear/`pop`/limpiar stashes según la sección de stashes.
 
@@ -39,7 +39,7 @@ Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesa
 ### CI y merge
 - GitHub Actions: job **`lint-and-typecheck`** en cada PR/push a `development` y `main` (ver `.github/workflows/ci.yml`, backlog en `ci-todo.mdc`).
 - **`next build` no corre en Actions** (Fase 2 opcional/futuro); lo hace **Vercel** en preview y producción.
-- Mergear a `development` cuando el check esté verde (`gh pr checks`). Si lint falla por deuda previa (Fase 1.5 en `ci-todo.mdc`), mergear solo con **typecheck** en verde hasta cerrar esa deuda.
+- PR en ready → esperar `gh pr checks` (`lint-and-typecheck` verde) → informar resultado → mergear **solo con sí del usuario** (`gh pr merge --squash --delete-branch`).
 - Previews Vercel: **`goat-indumentaria` (app1) = principal**; **`vaporx-store` (app2) = complementario** (hoy app1 es la demo más completa). No exigir ambos en branch protection — Ignored Build Step puede omitir builds. Detalle en `docs/ci.md` / `ci-todo.mdc`.
 - Merge estándar a `development`: **squash** + borrado de branch (local y remoto).
 - Release a `main`: **merge commit** (`gh pr merge --merge`), nunca squash/rebase.
@@ -96,11 +96,11 @@ git fetch origin development
 git merge origin/development   # o rebase si el usuario prefiere historial lineal
 # validar: npx tsc --noEmit (si aplica)
 git push -u origin HEAD
-gh pr create --base development --head "$(git branch --show-current)"
+gh pr create --draft --base development --head "$(git branch --show-current)"
 ```
 
 - Base del PR: **siempre `development`** (features/fixes/refactors/chore/docs).
-- **Obligatorio:** `gh pr create` debe incluir `--base development`. Sin excepción salvo release.
+- **Obligatorio:** `gh pr create` debe incluir `--draft --base development`. Sin excepción salvo release (que también va en draft).
 - Si un PR quedó con base `main` por error → `gh pr edit <número> --base development`.
 - **Idioma:** título y descripción del PR en **inglés** (seguir `.github/pull_request_template.md`).
 - Usar `.github/pull_request_template.md`.

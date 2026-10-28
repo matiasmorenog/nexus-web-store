@@ -9,7 +9,7 @@
   ·
   <a href="DEPLOY.md">Deploy</a>
   ·
-  <a href="docs/multi-store.md">Dos tiendas</a>
+  <a href="docs/multi-store.md">Multi-tienda</a>
   ·
   <a href="docs/caching-and-routes.md">Cache & rutas</a>
 </p>
@@ -57,7 +57,7 @@ Puntos que prioricé en el diseño (útiles si estás evaluando el repo):
 
 - Home con hero, categorías y destacados
 - Catálogo con filtros por URL y búsqueda por texto
-- Ficha de producto (talle, color, stock, 2x1)
+- Ficha de producto (modelo, tamaño, stock, 2x1)
 - Carrito (drawer + página) con persistencia local
 - Checkout: envío cotizado por CP, retiro en local, Mercado Pago
 - Páginas legales, FAQ, guía de talles y contacto

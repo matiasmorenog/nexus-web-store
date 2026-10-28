@@ -12,11 +12,11 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 |-----------------|------|-----|-------------------|----------------------------|
 | `goat-indumentaria` | `demo-store` | https://goat-indumentaria.vercel.app | app1 | omitido → todos (demo full) |
 | `vaporx-store` | `vape-demo` | https://vaporx-store.vercel.app | app2 | `none` → plan base (activar módulos por env) |
-| `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto. Comercio apagado |
+| `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto. Tienda real en producción (ver [`manoviva-production-todo.md`](manoviva-production-todo.md)) |
 
 App2 usa `vaporx-store` (no `vape-store`): `vape-store.vercel.app` pertenece a otro proyecto ajeno. Ver nota en [`DEPLOY.md`](../DEPLOY.md).
 
-Los módulos Plus están **disponibles para ambas tiendas**; el vertical no los bloquea. Detalle en [`modules-pricing.md`](modules-pricing.md) y `.cursor/rules/modules-gating.mdc`.
+Los módulos Plus están **disponibles para todas las tiendas** (salvo Manoviva, fija en Start); el vertical no los bloquea. Detalle en [`modules-pricing.md`](modules-pricing.md) y `.cursor/rules/modules-gating.mdc`.
 
 ---
 
@@ -103,12 +103,15 @@ Una tarea = branch nuevo desde `development`. Producción solo vía release PR.
 
 Simulá archivos cambiados:
 
+Hoy los scripts buildean solo Production / `main` (previews pausados, ver [`DEPLOY.md`](../DEPLOY.md#menos-builds-en-vercel)):
+
 ```bash
-# Solo docs → ambos proyectos deberían skip (exit 0)
-VERCEL_GIT_PREVIOUS_SHA=HEAD~1 VERCEL_GIT_COMMIT_SHA=HEAD \
+# Preview / development → skip (exit 0)
+VERCEL_ENV=preview VERCEL_GIT_COMMIT_REF=development \
   bash scripts/vercel-should-build-app1.sh; echo "app1 exit: $?"
 
-# Tras un commit que solo toque app2/, app1 skip y app2 build
+# Production → build (exit 1)
+VERCEL_ENV=production bash scripts/vercel-should-build-app3.sh; echo "app3 exit: $?"
 ```
 
 Exit **0** = Vercel **omite** el build. Exit **1** = **ejecuta** build.

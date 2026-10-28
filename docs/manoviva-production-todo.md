@@ -1,18 +1,21 @@
-# Manoviva — datos pendientes de producción
+# Manoviva — estado de producción
 
-La instancia puede publicarse como muestra visual, pero no debe abrir pedidos ni cobros hasta completar esta lista.
+Tienda real en producción (`manoviva-store`, slug `manoviva-italia`, Neon `main`). Pendientes vivos en [`TODO.md`](../TODO.md) § Manoviva.
 
-- ~~Reemplazar email owner~~ — hecho: `morenor127@gmail.com` (seed + DB development).
-- ~~Sustituir la contraseña administrativa inicial~~ — hash en Neon **development** ya actualizado. **Nunca** guardar la contraseña en el repo.
-  - Seed app3: setear `APP3_STORE_OWNER_PASSWORD` (o `MANOVIVA_OWNER_PASSWORD`) en el entorno al correr `db:seed:app3`; sin env usa solo fallback demo local (`admin123`).
-  - Producción (cuando exista Neon `main` / Vercel Production): setear password por canal seguro — reset en admin, o seed one-off con env en Vercel/CI **sin** commitear el valor. No escribir prod DB sin sí explícito.
-  - Si la contraseña estuvo en un commit de GitHub: **rotar** la de la dueña y actualizar el hash en DB.
-- Definir ciudad, dirección comercial y horarios.
-- Incorporar el número real de WhatsApp y obtener autorización para publicarlo.
-- Confirmar zonas, costos y transportista para entregas.
-- Confirmar si habrá retiro y cuál será el punto de entrega.
-- Configurar la cuenta Stripe propia de Manoviva y validar webhooks.
-- Completar razón social, identificación fiscal, privacidad, condiciones y devoluciones aplicables en Italia.
-- Activar el formulario de contacto, checkout, pagos y entregas solamente después de validar los puntos anteriores.
+## Activo
 
-Mientras estos datos sean provisionales, la web debe mostrar el aviso “Sito in preparazione” y mantener desactivados los flujos comerciales.
+- Checkout con retiro, transferencia (descuento opcional), efectivo opcional y WhatsApp.
+- Páginas Consegne / Condizioni / Resi con contenido real.
+- Owner `morenor127@gmail.com`. Contraseña **nunca** en el repo; reset por admin o seed one-off con env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`). Si una contraseña llegó a un commit: rotarla y actualizar el hash.
+- Plan Start fijo (`marketing`, `seo`); menú Plan y módulos oculto.
+
+## Comportamiento a tener en cuenta
+
+- Formulario de contacto: `/api/contact` responde 503 para app3 (cerrado por código). El contacto va por WhatsApp/email.
+- Envío: `shippingCost = 0` hasta cargar tarifas Poste Italiane (ver `TODO.md`).
+- El aviso “Sito in preparazione” solo aparece si el email de la tienda termina en `.example`.
+
+## Base de datos
+
+- Cambios de schema liberados a producción requieren `db push` contra Neon `main` con sí explícito.
+- `db:seed:app3` borra la tienda: no se corre contra `main` sin sí explícito.

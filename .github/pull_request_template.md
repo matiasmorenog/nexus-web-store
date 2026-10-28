@@ -15,14 +15,14 @@
 
 - [ ] App1 (`demo-store`)
 - [ ] App2 (`vape-demo`)
-- [ ] Compartido (ambas)
+- [ ] App3 (`manoviva-italia`, tienda real)
+- [ ] Compartido (todas)
 
 ## Cómo probar
 
-- [ ] Local: `npm run dev:app1` y/o `npm run dev:app2`
-- [ ] Preview Vercel (links en checks del PR)
+- [ ] Local: `npm run dev:app1` / `dev:app2` / `dev:app3`
 
 ## Deploy
 
-- PR a **`development`** → preview en Vercel (no producción).
-- Release: PR **`development` → `main`** → producción en ambos proyectos Vercel.
+- PR a **`development`** (draft hasta que haga falta correr checks). Previews Vercel pausados.
+- Release: PR **`development` → `main`** (merge commit) → producción en los 3 proyectos Vercel.

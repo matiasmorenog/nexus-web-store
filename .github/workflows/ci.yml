@@ -13,7 +13,9 @@ concurrency:
 
 jobs:
   lint-and-typecheck:
-    name: lint-and-typecheck
+    # Draft open/sync creates a skipped check; name it clearly so it is not
+    # confused with the real required check that runs when the PR is ready.
+    name: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft && 'lint-and-typecheck (draft)' || 'lint-and-typecheck' }}
     if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-latest
     timeout-minutes: 10

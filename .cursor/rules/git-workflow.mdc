@@ -40,7 +40,7 @@ Avanzar sin fricción: **no pedir confirmación** para acciones simples y necesa
 - GitHub Actions: job **`lint-and-typecheck`** en cada PR/push a `development` y `main` (ver `.github/workflows/ci.yml`, backlog en `ci-todo.mdc`).
 - **`next build` no corre en Actions** (Fase 2 opcional/futuro); lo hace **Vercel** en preview y producción.
 - PR en ready → esperar `gh pr checks` (`lint-and-typecheck` verde) → informar resultado → mergear **solo con sí del usuario** (`gh pr merge --squash --delete-branch`).
-- Previews Vercel: **`goat-indumentaria` (app1) = principal**; **`vaporx-store` (app2) = complementario** (hoy app1 es la demo más completa). No exigir ambos en branch protection — Ignored Build Step puede omitir builds. Detalle en `docs/ci.md` / `ci-todo.mdc`.
+- Vercel en PRs: no hay deploy (solo `main`). Al reanudar previews: app1 principal, app2 complementario. No exigir checks Vercel en branch protection. Detalle en `docs/ci.md` / `ci-todo.mdc`.
 - Merge estándar a `development`: **squash** + borrado de branch (local y remoto).
 - Release a `main`: **merge commit** (`gh pr merge --merge`), nunca squash/rebase.
 - Enforced en GitHub con rulesets: `main` solo acepta merge commit vía PR + check `lint-and-typecheck`; `development` solo squash vía PR. Ambas sin borrado ni force push.

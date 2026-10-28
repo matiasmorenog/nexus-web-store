@@ -6,7 +6,7 @@ Repo: `matiasmorenog/nexus-web-store`. **Un proyecto Neon con dos branches** (`m
 
 ## Checklist operación (Vercel / GitHub)
 
-- [x] Ignored Build Step en **goat-indumentaria** / **vaporx-store** / **manoviva-store**: one-liner live (build solo Production/`main`; previews pausados). Scripts repo espejo: `bash scripts/vercel-should-build-app{1,2,3}.sh`
+- [x] Deploys automáticos solo en git `main` (`vercel.json` → `git.deploymentEnabled`). Las 3 tiendas actualizan Production en el release `development → main`. Ignored Build Step one-liner de respaldo en el dashboard; scripts espejo: `bash scripts/vercel-should-build-app{1,2,3}.sh`
 - [x] Branch protection: `main` + `development` → Require pull request
 - [x] Default branch en GitHub → `development`
 - [x] GitHub Actions: `lint-and-typecheck` en PRs (ver `.github/workflows/ci.yml`, `docs/ci.md`)
@@ -31,7 +31,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.
 
-**Manoviva (app3)** es la tienda real. Goat y Vape siguen siendo demos de portfolio. Checkout, pagos, envíos, retiro, WhatsApp y el formulario de contacto quedan apagados mientras el email sea `*.example`. `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`). Producción de Manoviva apunta al branch Neon `main`; local, preview y las demos Goat/VAPORX al branch `development` (ver [Neon](#neon-database_url-en-vercel)). No hacer `db push` ni seed contra `main` sin un sí explícito.
+**Manoviva (app3)** es la tienda real, en producción con checkout activo (retiro, transferencia, efectivo opcional, WhatsApp). Goat y Vape siguen siendo demos de portfolio. El formulario de contacto de app3 está cerrado por código (`/api/contact`). Estado y pendientes: [`docs/manoviva-production-todo.md`](docs/manoviva-production-todo.md) y [`TODO.md`](TODO.md). `ENABLED_MODULES` no aplica: el slug queda fijo en plan Start (`marketing`, `seo`) y el menú Plan y módulos no se muestra. Goat y Vape sí lo ven. `npm run db:seed` no toca `manoviva-italia`; `db:seed:app3` borra esa tienda y no se corre sin un sí explícito. El idioma del admin es la cookie `admin_locale` (`es` | `it`). Producción de Manoviva apunta al branch Neon `main`; local, preview y las demos Goat/VAPORX al branch `development` (ver [Neon](#neon-database_url-en-vercel)). No hacer `db push` ni seed contra `main` sin un sí explícito.
 
 ## Variables por proyecto
 
@@ -140,8 +140,8 @@ Doc Neon: [Neon-Managed](https://neon.com/docs/guides/neon-managed-vercel-integr
 Desde tu máquina (una vez o cuando resetees demo):
 
 ```bash
-npm run db:setup          # schema + ambas tiendas + pedidos demo app1
-npm run db:seed:all       # solo re-seed ambas tiendas
+npm run db:setup          # schema + demos (Goat + VAPORX) + pedidos demo app1
+npm run db:seed:all       # solo re-seed demos (no toca Manoviva)
 npm run db:seed:app1   # solo demo-store
 npm run db:seed:app2      # solo vape-demo
 npm run db:wipe:app1   # borra solo app1 (sin re-seed)
@@ -156,7 +156,7 @@ Tras cambiar env en Vercel → **Redeploy**.
 
 **Resend:** remitente `{nombre tienda} <{email owner en DB}>`. El email del owner debe estar verificado en Resend. Sin `RESEND_API_KEY`, emails solo en logs.
 
-**Vercel Blob:** Storage → Blob → **Public**, región `gru1` recomendada. WebP al subir (máx. 1200×1600). Mismo token en local `.env` si subís fotos en dev.
+**Vercel Blob:** Storage → Blob → **Public**, región `gru1` recomendada. Las fotos se comprimen en el navegador a WebP (máx. 1500×2000) antes de subir. Mismo token en local `.env` si subís fotos en dev.
 
 **Mercado Pago — webhooks (uno por dominio):**
 
@@ -179,29 +179,35 @@ Docker Postgres alternativo: ver comentarios en `.env.example`.
 
 ## Menos builds en Vercel
 
-**Settings → Git → Ignored Build Step** (en cada proyecto):
+**Gate principal (repo):** `vercel.json` → `git.deploymentEnabled`: solo branch **`main`**. PRs / `development` / `feat/*` **no crean** deployment → no aparecen checks `Vercel – *` falsos “Passed” en el PR.
 
-| Proyecto | Comando (dashboard, live ahora) | Scripts en repo (misma política) |
-|----------|----------------------------------|----------------------------------|
+```json
+"git": { "deploymentEnabled": { "main": true, "**": false } }
+```
+
+Regla de resolución de Vercel: si un branch matchea varias reglas y **alguna es true**, deploya. `main` matchea `main: true` y `**: false` → deploya. El resto solo matchea `**` → no deploya.
+
+**Respaldo (dashboard):** Ignored Build Step en las 3 tiendas (por si alguien re-habilita un branch):
+
+| Proyecto | Comando (dashboard) | Scripts en repo |
+|----------|---------------------|-----------------|
 | app1 (`goat-indumentaria`) | one-liner abajo | `bash scripts/vercel-should-build-app1.sh` |
 | app2 (`vaporx-store`) | one-liner abajo | `bash scripts/vercel-should-build-app2.sh` |
 | app3 (`manoviva-store`) | one-liner abajo | `bash scripts/vercel-should-build-app3.sh` |
-
-**One-liner actual (×3):**
 
 ```bash
 if [ "$VERCEL_ENV" = production ] || [ "$VERCEL_GIT_COMMIT_REF" = main ]; then exit 1; else exit 0; fi
 ```
 
-Exit 0 = omitir build · Exit 1 = continuar build. Build solo Production / `main`; **skip** Preview / PRs / `development` / feature branches. El one-liner aplica ya en todos los refs (no depende del script del commit). Los scripts del repo espejan la misma regla; tras merge podés dejar el one-liner o cambiar el dashboard a `bash scripts/vercel-should-build-appN.sh`. Release `development → main` sigue disparando producción ×3.
+Exit 0 = omitir build · Exit 1 = continuar. Release `development → main` → Production ×3.
 
 ### Reanudar previews (las 3 tiendas)
 
-1. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa (docs-only / other-app skips) desde historial git.
-2. En cada proyecto Vercel → Ignored Build Step → `bash scripts/vercel-should-build-appN.sh` (sacar el one-liner de “solo main”).
+1. En `vercel.json`, quitar o ajustar `git.deploymentEnabled` (volver a permitir branches de preview).
+2. Restaurar en `scripts/vercel-should-build-app{1,2,3}.sh` la lógica selectiva previa desde historial git; Ignored Build Step → esos scripts.
 3. Mergear a `development` (y a `main` en el próximo release).
 
-**Prioridad de preview en PRs (cuando se reanuden):** `goat-indumentaria` (app1) es el build principal; `vaporx-store` (app2) es complementario; Manoviva según cambios de app3. Ver `docs/ci.md`.
+**Prioridad de preview en PRs (cuando se reanuden):** app1 principal; app2 complementario; Manoviva según app3. Ver `docs/ci.md`.
 
 ## Git: branches y PRs
 
@@ -211,7 +217,7 @@ Regla completa para el agente: `.cursor/rules/git-workflow.mdc`.
 feat|fix|refactor|chore|docs/*  ──PR──►  development  ──PR──►  main  ──►  producción (Vercel ×3)
 ```
 
-- **`development`** — integración y preview. **Una tarea = un branch nuevo** desde acá.
+- **`development`** — integración (sin deploy Vercel). **Una tarea = un branch nuevo** desde acá.
 - **`main`** — producción. Solo release PR desde `development`.
 - Nombres: `feat/`, `fix/`, `refactor/`, `chore/`, `docs/` + `kebab-case`.
 - No mezclar implementaciones en el mismo branch. No PR de features a `main`.
@@ -225,8 +231,10 @@ git checkout -b feat/mi-cambio          # branch nuevo, nombre acorde a la tarea
 # ... trabajo y commits cuando corresponda ...
 git fetch origin development && git merge origin/development
 git push -u origin feat/mi-cambio
-gh pr create --base development
+gh pr create --draft --base development
 ```
+
+Los PRs se crean en **draft**: los checks no corren para ahorrar recursos. Pasarlo a ready (`gh pr ready`) cuando haga falta correr checks y mergear.
 
 ### Release a producción
 

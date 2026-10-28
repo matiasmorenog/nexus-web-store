@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import Image from "next/image";
+import type { Area } from "react-easy-crop";
 import {
   adminImageUpload,
   readAdminLocaleFromDocument,
@@ -19,9 +20,11 @@ import {
   compressImageForUpload,
   MAX_UPLOAD_BYTES,
 } from "@/lib/images/compress-image-client";
+import { cropImageToFile } from "@/lib/images/crop-image-client";
 import { IMAGE_PRESETS, PRODUCT_IMAGE } from "@/lib/images/presets";
 import { discardStagedProductImage } from "@/lib/images/discard-staged-product-image";
 import { cn } from "@/lib/utils";
+import { ImageCropDialog } from "@/components/admin/image-crop-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -47,6 +50,11 @@ type UploadResponse = {
   error?: string;
   code?: AdminImageUploadErrorCode;
   savedPercent?: number;
+};
+
+type PendingCrop = {
+  file: File;
+  objectUrl: string;
 };
 
 async function readUploadResponse(response: Response): Promise<UploadResponse | null> {
@@ -78,6 +86,8 @@ export function ImageUploadField({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(Boolean(defaultValue));
+  const [pendingCrop, setPendingCrop] = useState<PendingCrop | null>(null);
+  const [cropApplying, setCropApplying] = useState(false);
   const committedUrlRef = useRef(defaultValue);
   const sessionUploadsRef = useRef(new Set<string>());
 
@@ -97,6 +107,12 @@ export function ImageUploadField({
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (pendingCrop) URL.revokeObjectURL(pendingCrop.objectUrl);
+    };
+  }, [pendingCrop]);
+
   function discardSessionUpload(url: string | undefined) {
     if (!url || !sessionUploadsRef.current.has(url)) return;
     sessionUploadsRef.current.delete(url);
@@ -108,7 +124,15 @@ export function ImageUploadField({
     onUploadingChange?.(value);
   }
 
-  async function handleFile(file: File) {
+  function clearPendingCrop() {
+    setPendingCrop((current) => {
+      if (current) URL.revokeObjectURL(current.objectUrl);
+      return null;
+    });
+    setCropApplying(false);
+  }
+
+  async function uploadPreparedFile(file: File) {
     setError(null);
     setUploadingState(true);
 
@@ -181,6 +205,42 @@ export function ImageUploadField({
     }
   }
 
+  function handleFileSelected(file: File) {
+    setError(null);
+
+    // Animated GIFs keep the existing path (crop would flatten them).
+    if (file.type === "image/gif") {
+      void uploadPreparedFile(file);
+      return;
+    }
+
+    clearPendingCrop();
+    const objectUrl = URL.createObjectURL(file);
+    setPendingCrop({ file, objectUrl });
+  }
+
+  async function handleCropConfirm(croppedAreaPixels: Area) {
+    if (!pendingCrop) return;
+
+    setCropApplying(true);
+    setUploadingState(true);
+
+    try {
+      const cropped = await cropImageToFile(
+        pendingCrop.objectUrl,
+        croppedAreaPixels,
+        pendingCrop.file.name,
+      );
+      clearPendingCrop();
+      await uploadPreparedFile(cropped);
+    } catch (cropError) {
+      console.error("Image crop failed:", cropError);
+      setError(copy.unreadable);
+      clearPendingCrop();
+      setUploadingState(false);
+    }
+  }
+
   const preview = (
     <div
       className={cn(
@@ -209,17 +269,19 @@ export function ImageUploadField({
     </div>
   );
 
+  const busy = uploading || Boolean(pendingCrop);
+
   const controls = (
     <div className={cn("min-w-0 space-y-2", compact && "flex-1")}>
       <input
         id={fieldId}
         type="file"
         accept="image/jpeg,image/png,image/webp,image/gif"
-        disabled={uploading}
+        disabled={busy}
         className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-neutral-700 hover:file:bg-neutral-200"
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) void handleFile(file);
+          if (file) handleFileSelected(file);
           event.target.value = "";
         }}
       />
@@ -284,6 +346,24 @@ export function ImageUploadField({
           <div className="min-w-0 flex-1">{controls}</div>
         </div>
       )}
+
+      <ImageCropDialog
+        open={Boolean(pendingCrop)}
+        imageSrc={pendingCrop?.objectUrl ?? ""}
+        applying={cropApplying}
+        copy={{
+          title: copy.cropTitle,
+          hint: copy.cropHint,
+          zoom: copy.cropZoom,
+          cancel: copy.cropCancel,
+          confirm: copy.cropConfirm,
+          applying: copy.cropApplying,
+        }}
+        onCancel={clearPendingCrop}
+        onConfirm={(area) => {
+          void handleCropConfirm(area);
+        }}
+      />
     </div>
   );
 }

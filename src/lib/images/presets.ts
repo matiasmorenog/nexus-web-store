@@ -21,6 +21,8 @@ export const PRODUCT_IMAGE = {
   maxWidth: IMAGE_PRESETS.product.maxWidth,
   maxHeight: IMAGE_PRESETS.product.maxHeight,
   webpQuality: IMAGE_PRESETS.product.quality,
+  /** Storefront cards/PDP use aspect-[3/4] + object-cover. */
+  aspectRatio: 3 / 4,
   allowedMimeTypes: new Set([
     "image/jpeg",
     "image/png",

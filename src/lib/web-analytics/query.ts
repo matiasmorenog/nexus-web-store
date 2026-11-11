@@ -45,7 +45,6 @@ function emptyReport(
     series: [],
     seriesBy: partial.seriesBy ?? "day",
     topProductPages: [],
-    topPages: [],
     topReferrers: [],
     devices: [],
     countries: [],
@@ -60,6 +59,25 @@ function asNumber(value: unknown): number {
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value : value == null ? "" : String(value);
+}
+
+/**
+ * `visits/count` floors since/until to UTC day starts; `until` is exclusive.
+ * Passing `until=now` becomes today 00:00 UTC and drops today's traffic.
+ * Bump to next UTC midnight so the current day is included.
+ */
+function countExclusiveUntil(until: Date): string {
+  return new Date(
+    Date.UTC(
+      until.getUTCFullYear(),
+      until.getUTCMonth(),
+      until.getUTCDate() + 1,
+    ),
+  ).toISOString();
+}
+
+function sumSeriesPageviews(points: WebAnalyticsDayPoint[]): number {
+  return points.reduce((sum, point) => sum + point.pageviews, 0);
 }
 
 async function vercelGet(
@@ -203,6 +221,13 @@ async function fetchWebAnalyticsReport(
     since: sinceIso,
     until: untilIso,
   };
+  // Count is day-grained; exclusive until must be next UTC midnight.
+  const countParams = {
+    projectId: env.projectId,
+    teamId: env.teamId ?? undefined,
+    since: sinceIso,
+    until: countExclusiveUntil(until),
+  };
 
   try {
     // External HTTP — parallel OK (not Neon pooler).
@@ -211,7 +236,6 @@ async function fetchWebAnalyticsReport(
     const [
       countJson,
       seriesJson,
-      pathsJson,
       productsJson,
       referrersJson,
       devicesJson,
@@ -219,22 +243,13 @@ async function fetchWebAnalyticsReport(
       browsersJson,
       osJson,
     ] = await Promise.all([
-      vercelGet("/visits/count", baseParams, env.token),
+      vercelGet("/visits/count", countParams, env.token),
       vercelGet(
         "/visits/aggregate",
         {
           ...baseParams,
           by: seriesBy,
           limit: seriesLimit,
-        },
-        env.token,
-      ),
-      vercelGet(
-        "/visits/aggregate",
-        {
-          ...baseParams,
-          by: "requestPath",
-          limit: TOP_LIMIT,
         },
         env.token,
       ),
@@ -305,13 +320,15 @@ async function fetchWebAnalyticsReport(
         ? (countJson.data as Record<string, unknown>)
         : {};
 
+    const series = parseSeriesRows(aggregateRows(seriesJson), seriesBy);
+    const seriesPageviews = sumSeriesPageviews(series);
+    // Prefer count visitors (unique). Pageviews: count when non-zero, else
+    // series sum (guards day-truncation / empty count edge cases).
+    const countPageviews = asNumber(countData.pageviews);
     const totals: WebAnalyticsTotals = {
       visitors: asNumber(countData.visitors),
-      pageviews: asNumber(countData.pageviews),
+      pageviews: countPageviews > 0 ? countPageviews : seriesPageviews,
     };
-
-    const series = parseSeriesRows(aggregateRows(seriesJson), seriesBy);
-    const topPages = parsePathRows(aggregateRows(pathsJson), "requestPath");
     const topProductPages = parsePathRows(
       aggregateRows(productsJson),
       "requestPath",
@@ -345,7 +362,7 @@ async function fetchWebAnalyticsReport(
     if (
       totals.visitors === 0 &&
       totals.pageviews === 0 &&
-      topPages.length === 0 &&
+      topProductPages.length === 0 &&
       series.length === 0
     ) {
       return emptyReport({
@@ -367,7 +384,6 @@ async function fetchWebAnalyticsReport(
       series,
       seriesBy,
       topProductPages,
-      topPages,
       topReferrers,
       devices,
       countries,
@@ -397,7 +413,7 @@ function getCachedWebAnalyticsReport(
 ) {
   return unstable_cache(
     () => fetchWebAnalyticsReport(period),
-    ["web-analytics-report", period, projectId, "v5-traffic-periods"],
+    ["web-analytics-report", period, projectId, "v6-count-until"],
     { revalidate: CACHE_TTL_SECONDS },
   )();
 }

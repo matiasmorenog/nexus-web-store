@@ -216,59 +216,55 @@ export function AdminStoreUsersPanel({
           description="Creá un usuario staff con email, contraseña y rol."
         >
           <AdminForm onSubmit={handleInvite} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="staff-name">Nombre</Label>
-                <Input
-                  id="staff-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="staff-email">Email</Label>
-                <Input
-                  id="staff-email"
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="staff-name">Nombre</Label>
+              <Input
+                id="staff-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+              />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="staff-password">Contraseña temporal</Label>
-                <Input
-                  id="staff-password"
-                  type="password"
-                  minLength={8}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="staff-role">Rol</Label>
-                <select
-                  id="staff-role"
-                  value={staffRole}
-                  onChange={(event) =>
-                    setStaffRole(event.target.value as StoreStaffRole)
-                  }
-                  className={adminSelectClass}
-                >
-                  {STORE_STAFF_ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {STORE_STAFF_ROLE_LABELS[role]}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-neutral-500">
-                  {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="staff-email">Email</Label>
+              <Input
+                id="staff-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="staff-password">Contraseña temporal</Label>
+              <Input
+                id="staff-password"
+                type="password"
+                minLength={8}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="staff-role">Rol</Label>
+              <select
+                id="staff-role"
+                value={staffRole}
+                onChange={(event) =>
+                  setStaffRole(event.target.value as StoreStaffRole)
+                }
+                className={adminSelectClass}
+              >
+                {STORE_STAFF_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {STORE_STAFF_ROLE_LABELS[role]}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-neutral-500">
+                {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
+              </p>
             </div>
 
             {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}

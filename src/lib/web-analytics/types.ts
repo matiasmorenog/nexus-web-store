@@ -41,7 +41,6 @@ export type WebAnalyticsReport = {
   series: WebAnalyticsDayPoint[];
   seriesBy: "hour" | "day";
   topProductPages: WebAnalyticsPathRow[];
-  topPages: WebAnalyticsPathRow[];
   topReferrers: WebAnalyticsNamedRow[];
   devices: WebAnalyticsNamedRow[];
   countries: WebAnalyticsNamedRow[];

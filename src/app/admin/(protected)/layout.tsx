@@ -20,13 +20,15 @@ export default async function AdminProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await requireAdminSession();
-  const store = await getStore();
+  const [session, store, cookieStore] = await Promise.all([
+    requireAdminSession(),
+    getStore(),
+    cookies(),
+  ]);
   const brandPrefix = getBrandPrefix(store.name);
   const enabledModuleIds = await getEnabledModuleIds(store.id);
   const accessContext = getAdminAccessContext(session);
   const navModel = buildFilteredAdminNavModel(accessContext, enabledModuleIds);
-  const cookieStore = await cookies();
   const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
   const localizedNavModel = {
     mainItems: navModel.mainItems.map((item) =>

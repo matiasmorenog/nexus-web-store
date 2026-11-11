@@ -199,9 +199,36 @@ function AdminSkeletonCohortGrid() {
 }
 
 /** Skeleton del módulo /admin/modulos/analytics (no confundir con el del dashboard). */
-export function AdminSkeletonAdvancedAnalytics() {
+export function AdminSkeletonWebTraffic() {
   return (
-    <AdminSkeletonRegion label="Cargando analytics" className="space-y-8">
+    <AdminSkeletonRegion label="Cargando tráfico web" className="space-y-6">
+      <AdminSkeleton className="h-4 w-full max-w-xl" />
+      <div className="grid auto-rows-fr gap-4 sm:grid-cols-2">
+        <AdminSkeletonCardShell titleWidth="w-28" className="h-full">
+          <AdminSkeleton className="h-9 w-24" />
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell titleWidth="w-36" className="h-full">
+          <AdminSkeleton className="h-9 w-28" />
+        </AdminSkeletonCardShell>
+      </div>
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+        {Array.from({ length: 4 }, (_, index) => (
+          <AdminSkeletonCardShell
+            key={index}
+            titleWidth="w-40"
+            descriptionWidth="w-56"
+          >
+            <AdminSkeletonRankedList rows={4} />
+          </AdminSkeletonCardShell>
+        ))}
+      </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+export function AdminSkeletonSalesAnalytics() {
+  return (
+    <AdminSkeletonRegion label="Cargando analytics de ventas" className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <AdminSkeleton className="h-4 w-full max-w-md" />
         <div className="flex flex-wrap items-center gap-2">
@@ -247,6 +274,15 @@ export function AdminSkeletonAdvancedAnalytics() {
           </AdminSkeletonCardShell>
         </div>
       </div>
+    </AdminSkeletonRegion>
+  );
+}
+
+export function AdminSkeletonAdvancedAnalytics() {
+  return (
+    <AdminSkeletonRegion label="Cargando analytics" className="space-y-8">
+      <AdminSkeletonWebTraffic />
+      <AdminSkeletonSalesAnalytics />
     </AdminSkeletonRegion>
   );
 }

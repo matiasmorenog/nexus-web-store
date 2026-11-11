@@ -12,6 +12,7 @@ import {
   upsertGoogleAccount,
 } from "@/lib/auth-google";
 import {
+  ADMIN_MEMBERSHIP_RECHECK_SECONDS,
   ADMIN_SESSION_MAX_AGE,
   AUTH_CONTEXT_COOKIE,
   AUTH_REMEMBER_COOKIE,
@@ -29,6 +30,7 @@ import {
   isDemoLoginEnabled,
 } from "@/lib/demo-login";
 import { getDemoPersonaById } from "@/lib/demo-personas";
+import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
 import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 
 function applySessionExpiry(
@@ -258,9 +260,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               );
               token.storeId = access.allowed ? access.storeId : null;
               token.storeSlug = access.allowed ? access.storeSlug : null;
+              token.membershipCheckedAt = Date.now();
             } else {
               token.storeId = null;
               token.storeSlug = null;
+              delete token.membershipCheckedAt;
             }
           }
         }
@@ -280,6 +284,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.storeId = user.storeId;
         token.storeSlug = user.storeSlug;
+        if (isAdminRole(user.role)) {
+          token.membershipCheckedAt = Date.now();
+        } else {
+          delete token.membershipCheckedAt;
+        }
 
         const { context, remember } = await readAuthIntent();
         const resolvedContext: AuthLoginContext =
@@ -298,14 +307,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.role === "CUSTOMER") {
         token.storeId = null;
         token.storeSlug = null;
+        delete token.membershipCheckedAt;
         return token;
       }
 
-      // Re-bind every request to the deploy store; drop store if no membership.
+      const checkedAt =
+        typeof token.membershipCheckedAt === "number"
+          ? token.membershipCheckedAt
+          : 0;
+      const recheckDue =
+        Date.now() - checkedAt >= ADMIN_MEMBERSHIP_RECHECK_SECONDS * 1000;
+
+      // Trust JWT bound to this deploy until the periodic membership re-check.
+      if (
+        typeof token.storeId === "string" &&
+        token.storeSlug === DEFAULT_STORE_SLUG &&
+        !recheckDue
+      ) {
+        return token;
+      }
+
       const access = await adminMayAccessCurrentStore(
         token.sub,
         String(token.role ?? ""),
       );
+      token.membershipCheckedAt = Date.now();
       if (!access.allowed) {
         token.storeId = null;
         token.storeSlug = null;

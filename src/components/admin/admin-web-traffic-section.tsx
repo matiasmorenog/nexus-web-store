@@ -204,31 +204,31 @@ export function AdminWebTrafficSection({
             </AdminCard>
             <AdminCard
               title="UTM source"
-              description="utm_source de campañas"
+              description="utm_source (requiere Web Analytics Plus en Vercel)"
             >
               <RankList
                 rows={report.utmSources}
-                empty="Sin UTM source en el período."
+                empty="Sin UTM source (plan Hobby no incluye UTM, o no hubo campañas)."
                 valueKey="visitors"
               />
             </AdminCard>
             <AdminCard
               title="UTM medium"
-              description="utm_medium de campañas"
+              description="utm_medium (requiere Web Analytics Plus en Vercel)"
             >
               <RankList
                 rows={report.utmMediums}
-                empty="Sin UTM medium en el período."
+                empty="Sin UTM medium (plan Hobby no incluye UTM, o no hubo campañas)."
                 valueKey="visitors"
               />
             </AdminCard>
             <AdminCard
               title="UTM campaign"
-              description="utm_campaign de campañas"
+              description="utm_campaign (requiere Web Analytics Plus en Vercel)"
             >
               <RankList
                 rows={report.utmCampaigns}
-                empty="Sin UTM campaign en el período."
+                empty="Sin UTM campaign (plan Hobby no incluye UTM, o no hubo campañas)."
                 valueKey="visitors"
               />
             </AdminCard>

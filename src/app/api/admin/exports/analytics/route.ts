@@ -24,10 +24,9 @@ export async function GET(request: NextRequest) {
       request.nextUrl.searchParams.get("period") ?? undefined,
     );
 
-    const [report, periodAnalytics] = await Promise.all([
-      getAdvancedAnalyticsReport(storeId, period),
-      getActivityPeriodAnalytics(storeId, period),
-    ]);
+    // Neon pooler connection_limit=1 — serialize (no Promise.all).
+    const report = await getAdvancedAnalyticsReport(storeId, period);
+    const periodAnalytics = await getActivityPeriodAnalytics(storeId, period);
 
     const csv = buildAnalyticsReportCsv(report, periodAnalytics.topProducts);
 

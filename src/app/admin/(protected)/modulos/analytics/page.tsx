@@ -1,9 +1,7 @@
-import { Suspense } from "react";
 import { AdminAdvancedAnalyticsSections } from "@/components/admin/admin-advanced-analytics-sections";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminExportsPanel } from "@/components/admin/admin-exports-panel";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { AdminSkeletonAdvancedAnalytics } from "@/components/admin/admin-skeleton";
 import { parseActivityPeriod } from "@/lib/admin-analytics";
 import { getDefaultAdminOrdersDateRange } from "@/lib/admin-orders-query";
 import { requireAdminModuleView } from "@/lib/admin-session";
@@ -36,12 +34,11 @@ export default async function AdminAnalyticsPage({
         />
       </AdminDashboardReveal>
 
-      <Suspense fallback={<AdminSkeletonAdvancedAnalytics />}>
-        <AdminAdvancedAnalyticsSections
-          storeId={session.user.storeId}
-          period={period}
-        />
-      </Suspense>
+      {/* Nested Suspense: Vercel traffic vs Neon sales stream independently. */}
+      <AdminAdvancedAnalyticsSections
+        storeId={session.user.storeId}
+        period={period}
+      />
 
       <AdminDashboardReveal index={5}>
         <AdminExportsPanel defaultDesde={desde} defaultHasta={hasta} />

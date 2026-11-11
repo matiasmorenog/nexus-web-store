@@ -24,30 +24,29 @@ async function fetchPeriodMetrics(
   storeId: string,
   range: { start: Date; end: Date },
 ): Promise<AnalyticsPeriodMetrics> {
-  const [totals, paid, cancelled] = await Promise.all([
-    db.order.count({
-      where: {
-        storeId,
-        createdAt: { gte: range.start, lte: range.end },
-      },
-    }),
-    db.order.aggregate({
-      where: {
-        storeId,
-        createdAt: { gte: range.start, lte: range.end },
-        status: { in: ["PAID", "SHIPPED"] },
-      },
-      _count: { _all: true },
-      _sum: { total: true },
-    }),
-    db.order.count({
-      where: {
-        storeId,
-        createdAt: { gte: range.start, lte: range.end },
-        status: "CANCELLED",
-      },
-    }),
-  ]);
+  // Neon pooler connection_limit=1 — serialize (no Promise.all).
+  const totals = await db.order.count({
+    where: {
+      storeId,
+      createdAt: { gte: range.start, lte: range.end },
+    },
+  });
+  const paid = await db.order.aggregate({
+    where: {
+      storeId,
+      createdAt: { gte: range.start, lte: range.end },
+      status: { in: ["PAID", "SHIPPED"] },
+    },
+    _count: { _all: true },
+    _sum: { total: true },
+  });
+  const cancelled = await db.order.count({
+    where: {
+      storeId,
+      createdAt: { gte: range.start, lte: range.end },
+      status: "CANCELLED",
+    },
+  });
 
   const paidOrders = paid._count._all;
   const revenue = Number(paid._sum.total?.toString() ?? "0");
@@ -174,14 +173,12 @@ async function fetchAdvancedAnalyticsReport(
   period: ActivityPeriod,
 ): Promise<AdvancedAnalyticsReport> {
   const ranges = getAnalyticsPeriodRanges(period);
-  const [current, previous, cohort, loyalCustomers, topCategories] =
-    await Promise.all([
-      fetchPeriodMetrics(storeId, ranges.current),
-      fetchPeriodMetrics(storeId, ranges.previous),
-      fetchCustomerCohort(storeId, ranges.current),
-      fetchLoyalCustomers(storeId, ranges.current),
-      fetchTopCategories(storeId, ranges.current),
-    ]);
+  // Neon pooler connection_limit=1 — one query family at a time.
+  const current = await fetchPeriodMetrics(storeId, ranges.current);
+  const previous = await fetchPeriodMetrics(storeId, ranges.previous);
+  const cohort = await fetchCustomerCohort(storeId, ranges.current);
+  const loyalCustomers = await fetchLoyalCustomers(storeId, ranges.current);
+  const topCategories = await fetchTopCategories(storeId, ranges.current);
 
   return {
     period,

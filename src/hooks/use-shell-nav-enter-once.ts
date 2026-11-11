@@ -49,9 +49,10 @@ export function useShellNavEnterOnce(enabled = true): ShellNavEnterState {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    // Async setSettled — avoid react-hooks/set-state-in-effect sync call.
     if (reducedMotion) {
-      setSettled(true);
-      return;
+      const frame = requestAnimationFrame(() => setSettled(true));
+      return () => cancelAnimationFrame(frame);
     }
 
     const timer = window.setTimeout(() => setSettled(true), SHELL_NAV_SETTLE_MS);

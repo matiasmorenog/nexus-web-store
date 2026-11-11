@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -174,21 +174,25 @@ function ConfigNavGroup({
   });
   const [manualOpen, setManualOpen] = useState(false);
   const open = pathInGroup || manualOpen;
-  /** Open during page-load cascade → keep main nth-child delays (no re-anim after settle). */
-  const openedBeforeSettleRef = useRef(false);
+  /**
+   * Open during page-load cascade → keep main nth-child delays (no re-anim after settle).
+   * State (not ref) so render can read it under react-hooks/refs.
+   */
+  const [openedBeforeSettle, setOpenedBeforeSettle] = useState(false);
 
   useLayoutEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- sync open-vs-settle flag before paint */
     if (!shellSettled && open) {
-      openedBeforeSettleRef.current = true;
+      setOpenedBeforeSettle(true);
     }
     if (!open) {
-      openedBeforeSettleRef.current = false;
+      setOpenedBeforeSettle(false);
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [shellSettled, open]);
 
   // Fast local stagger after shell settled (click expand / navigate into Config).
-  const useSubmenuEnter =
-    shellSettled && open && !openedBeforeSettleRef.current;
+  const useSubmenuEnter = shellSettled && open && !openedBeforeSettle;
 
   if (items.length === 0) return null;
 

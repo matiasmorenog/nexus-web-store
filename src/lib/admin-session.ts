@@ -4,9 +4,11 @@ import type { StoreStaffRole } from "@prisma/client";
 import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
 import type { ModuleId } from "@/lib/modules/catalog";
-import { getStoreId } from "@/lib/store-context";
 import { storefrontPath } from "@/lib/storefront-paths";
-import { getStoreStaffRoleForUser } from "@/lib/store-users/membership";
+import {
+  adminMayAccessCurrentStore,
+  getStoreStaffRoleForUser,
+} from "@/lib/store-users/membership";
 import {
   canAccessAdminPath,
   canManageAdminModule,
@@ -61,7 +63,7 @@ export async function requireAdminModuleView(
   return session;
 }
 
-/** Gate único para `/admin/(protected)/*`: sesión válida + usuario y tienda en DB. */
+/** Gate único para `/admin/(protected)/*`: sesión + membership en la tienda del deploy. */
 export const requireAdminSession = cache(async (): Promise<AdminSession> => {
   const session = await auth();
 
@@ -81,17 +83,25 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     redirect("/admin/logout");
   }
 
-  let storeId: string;
-  try {
-    storeId = await getStoreId();
-  } catch {
+  const access = await adminMayAccessCurrentStore(
+    session.user.id,
+    session.user.role,
+  );
+
+  if (!access.allowed || !access.storeId) {
     redirect("/admin/logout");
   }
+
+  const storeId = access.storeId;
 
   const staffRole =
     session.user.role === "STORE_STAFF"
       ? await getStoreStaffRoleForUser(storeId, session.user.id)
       : null;
+
+  if (session.user.role === "STORE_STAFF" && !staffRole) {
+    redirect("/admin/logout");
+  }
 
   return {
     ...session,

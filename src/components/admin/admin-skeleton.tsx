@@ -3,7 +3,6 @@ import {
   adminCardClass,
   adminCardHeaderClass,
   adminCardInsetClass,
-  adminCardShadowClass,
   adminSurfaceClass,
 } from "@/components/admin/admin-surface";
 import {
@@ -908,15 +907,15 @@ export function AdminSkeletonModuleCouponsPage() {
         titleWidth="w-48"
         descriptionWidth="w-full max-w-2xl"
       />
-      <div className="space-y-6">
-        <div className="max-w-3xl">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="min-w-0 w-full max-w-3xl">
           <AdminSkeletonModuleFormCard
             titleWidth="w-32"
             descriptionWidth="w-56"
             fields={4}
           />
         </div>
-        <div className="max-w-lg">
+        <div className="w-full shrink-0 lg:w-80">
           <AdminSkeletonModuleFormCard
             titleWidth="w-36"
             descriptionWidth="w-48"
@@ -1183,12 +1182,7 @@ export function AdminSkeletonTabs({ className }: { className?: string }) {
       label="Cargando selector de período"
       className={className}
     >
-      <div
-        className={cn(
-          "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
-          adminCardShadowClass,
-        )}
-      >
+      <div className="flex gap-1 rounded-lg border border-neutral-200 bg-transparent p-1">
         <AdminSkeleton className="h-8 w-16 rounded-md sm:w-[4.25rem]" />
         <AdminSkeleton className="h-8 w-14 rounded-md sm:w-16" />
         <AdminSkeleton className="h-8 w-12 rounded-md sm:w-14" />

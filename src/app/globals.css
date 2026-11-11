@@ -248,6 +248,84 @@ button:not(:disabled),
   min-height: 0;
 }
 
+/* Form field show/hide (coupon type / active toggle). */
+@keyframes form-collapsible-expand {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0.35;
+  }
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes form-collapsible-collapse {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0.35;
+  }
+}
+
+.form-collapsible {
+  display: grid;
+  overflow: hidden;
+}
+
+.form-collapsible-open {
+  grid-template-rows: 1fr;
+  animation: form-collapsible-expand 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.form-collapsible-exit {
+  grid-template-rows: 0fr;
+  animation: form-collapsible-collapse 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
+}
+
+.form-collapsible-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-collapsible-open,
+  .form-collapsible-exit {
+    animation: none;
+  }
+}
+
+/* Coupon create: named morphs when type / active toggle reflows the grid. */
+@supports (view-transition-name: none) {
+  .admin-coupon-vt-form {
+    view-transition-name: admin-coupon-form;
+  }
+
+  .admin-coupon-vt-value {
+    view-transition-name: admin-coupon-value;
+  }
+
+  .admin-coupon-vt-usage {
+    view-transition-name: admin-coupon-usage;
+  }
+
+  .admin-coupon-vt-expires {
+    view-transition-name: admin-coupon-expires;
+  }
+}
+
+::view-transition-group(admin-coupon-form),
+::view-transition-group(admin-coupon-value),
+::view-transition-group(admin-coupon-usage),
+::view-transition-group(admin-coupon-expires) {
+  animation-duration: 0.28s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @keyframes admin-row-edit-in {
   from {
     opacity: 0;
@@ -683,7 +761,9 @@ button:not(:disabled),
   .cart-drawer-backdrop,
   .cart-drawer-panel,
   .cart-drawer-body-enter,
-  .checkout-delivery-enter {
+  .checkout-delivery-enter,
+  .admin-picker-float-enter,
+  .admin-picker-float-exit {
     animation: none;
   }
 }
@@ -707,6 +787,37 @@ button:not(:disabled),
 
 .storefront-content-bottom {
   padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Admin date/datetime picker panel float (Rocha pattern). */
+@keyframes admin-picker-float-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-picker-float-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+}
+
+.admin-picker-float-enter {
+  animation: admin-picker-float-enter 0.2s ease-out backwards;
+}
+
+.admin-picker-float-exit {
+  animation: admin-picker-float-exit 0.2s ease-in forwards;
 }
 
 .admin-table-scroll {

@@ -20,7 +20,7 @@ const filterPillClass = "rounded-lg bg-[var(--brand-primary)]";
 
 function filterButtonClass(active: boolean) {
   return cn(
-    "relative z-[1] flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+    "relative z-[1] flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
     active
       ? "text-white"
       : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
@@ -29,7 +29,7 @@ function filterButtonClass(active: boolean) {
 
 function sizeButtonClass(active: boolean) {
   return cn(
-    "relative z-[1] flex min-w-[2.5rem] flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+    "relative z-[1] flex min-w-[2.5rem] select-none flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
       ? "border-[var(--brand-primary)] text-white"
       : "border-neutral-200 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
@@ -188,7 +188,7 @@ export function ProductFilters({
             type="button"
             onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
             className={cn(
-              "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+              "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
               activeDestacados
                 ? "bg-[var(--brand-primary)] text-white"
                 : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
@@ -202,7 +202,7 @@ export function ProductFilters({
               type="button"
               onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
               className={cn(
-                "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+                "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
                 activePromo2x1
                   ? "bg-[var(--brand-primary)] text-white"
                   : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",

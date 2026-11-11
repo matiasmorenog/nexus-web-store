@@ -6,7 +6,10 @@ import {
   getDashboardMonthPeriodMeta,
   type DashboardMonthPeriod,
 } from "@/lib/admin-analytics-shared";
-import { adminCardShadowClass } from "@/components/admin/admin-surface";
+import {
+  segmentedItemClassName,
+  segmentedTrackClassName,
+} from "@/components/ui/form-segmented-control";
 import { cn } from "@/lib/utils";
 
 const PERIODS: DashboardMonthPeriod[] = ["previous", "current"];
@@ -26,32 +29,38 @@ function buildPeriodHref(
   return qs ? `/admin?${qs}` : "/admin";
 }
 
+/** Lives in chart card header — white track, no outer shadow. */
 export function AdminActivityPeriodTabs({ period }: AdminActivityPeriodTabsProps) {
   const searchParams = useSearchParams();
 
   return (
-    <div
-      className={cn(
-        "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
-        adminCardShadowClass,
-      )}
-    >
-      {PERIODS.map((value) => (
-        <Link
-          key={value}
-          href={buildPeriodHref(value, searchParams)}
-          scroll={false}
-          aria-current={period === value ? "page" : undefined}
-          className={cn(
-            "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
-            period === value
-              ? "bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
-              : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
-          )}
-        >
-          {getDashboardMonthPeriodMeta(value).short}
-        </Link>
-      ))}
+    <div className={segmentedTrackClassName("card")}>
+      {PERIODS.map((value) => {
+        const active = period === value;
+        const className = cn(segmentedItemClassName(active));
+        const label = getDashboardMonthPeriodMeta(value).short;
+        if (active) {
+          return (
+            <span
+              key={value}
+              aria-current="page"
+              className={className}
+            >
+              {label}
+            </span>
+          );
+        }
+        return (
+          <Link
+            key={value}
+            href={buildPeriodHref(value, searchParams)}
+            scroll={false}
+            className={className}
+          >
+            {label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

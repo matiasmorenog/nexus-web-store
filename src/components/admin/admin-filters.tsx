@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
@@ -12,10 +13,17 @@ type AdminSearchFieldProps = {
   value: string;
   onChange: (value: string) => void;
   onClear: () => void;
-  onSubmit: () => void;
+  onSubmit?: () => void;
+  id?: string;
   placeholder?: string;
   ariaLabel?: string;
   clearAriaLabel?: string;
+  className?: string;
+  /**
+   * Field only (no nested `<form>`). Use inside a parent form so Enter
+   * submits the parent. When false, wraps its own form and calls onSubmit.
+   */
+  bare?: boolean;
 };
 
 export function AdminSearchField({
@@ -23,43 +31,54 @@ export function AdminSearchField({
   onChange,
   onClear,
   onSubmit,
+  id,
   placeholder = "Buscar...",
   ariaLabel = "Buscar",
   clearAriaLabel = "Limpiar búsqueda",
+  className,
+  bare = false,
 }: AdminSearchFieldProps) {
+  const field = (
+    <div className={cn("relative", className)}>
+      <Search
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
+        aria-hidden
+      />
+      <Input
+        id={id}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="pl-9 pr-8"
+        aria-label={ariaLabel}
+        autoComplete="off"
+      />
+      {value ? (
+        <button
+          type="button"
+          onClick={onClear}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
+          aria-label={clearAriaLabel}
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      ) : null}
+    </div>
+  );
+
+  if (bare) return field;
+
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit();
+        onSubmit?.();
       }}
       className="space-y-3"
       role="search"
     >
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400"
-          aria-hidden
-        />
-        <Input
-          type="search"
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="pl-9 pr-8"
-          aria-label={ariaLabel}
-        />
-        {value ? (
-          <button
-            type="button"
-            onClick={onClear}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-neutral-400 hover:text-neutral-700"
-            aria-label={clearAriaLabel}
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        ) : null}
-      </div>
+      {field}
     </form>
   );
 }
@@ -89,40 +108,22 @@ export function AdminDateRangeField({
       }}
       className="space-y-3"
     >
-      <div className="grid gap-3">
-        <div>
-          <Label
-            htmlFor="admin-orders-desde"
-            className="mb-1.5 block text-sm text-neutral-600"
-          >
-            Desde
-          </Label>
-          <Input
-            id="admin-orders-desde"
-            type="date"
-            value={desde}
-            onChange={(event) =>
-              onChange({ desde: event.target.value, hasta })
-            }
-          />
-        </div>
-        <div>
-          <Label
-            htmlFor="admin-orders-hasta"
-            className="mb-1.5 block text-sm text-neutral-600"
-          >
-            Hasta
-          </Label>
-          <Input
-            id="admin-orders-hasta"
-            type="date"
-            value={hasta}
-            min={desde || undefined}
-            onChange={(event) =>
-              onChange({ desde, hasta: event.target.value })
-            }
-          />
-        </div>
+      <div>
+        <Label
+          htmlFor="admin-orders-date-range"
+          className="mb-1.5 block text-sm text-neutral-600"
+        >
+          Rango
+        </Label>
+        <DateRangePicker
+          id="admin-orders-date-range"
+          from={desde}
+          to={hasta}
+          onChange={(nextFrom, nextTo) =>
+            onChange({ desde: nextFrom, hasta: nextTo })
+          }
+          aria-label="Rango de fechas"
+        />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -175,7 +176,7 @@ export function AdminFilterButton({
       onClick={onClick}
       data-sliding-selected={active ? "true" : undefined}
       className={cn(
-        "relative z-[1] flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
+        "relative z-[1] flex w-full select-none items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
         active
           ? "font-medium text-[var(--brand-primary)]"
           : "text-neutral-700 hover:bg-neutral-50",

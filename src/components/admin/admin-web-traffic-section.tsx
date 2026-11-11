@@ -46,7 +46,7 @@ export function AdminWebTrafficSection({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+        <div className="select-none">
           <h2 className="text-lg font-semibold text-neutral-900">
             Tráfico del sitio
           </h2>
@@ -117,6 +117,7 @@ export function AdminWebTrafficSection({
               <AdminWebTrafficRankList
                 rows={report.topProductPages}
                 empty="Nadie visitó fichas de producto en este período."
+                linkPaths
               />
             </AdminCard>
             <AdminCard

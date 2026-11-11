@@ -349,7 +349,7 @@ export function AdminWebTrafficDailyChart({
   }
 
   return (
-    <div>
+    <div className="select-none">
       <p className="mb-2 text-xs text-neutral-400">
         Pasá el mouse sobre un punto para ver vistas y visitantes.
       </p>

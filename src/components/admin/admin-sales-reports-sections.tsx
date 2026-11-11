@@ -35,13 +35,13 @@ export async function AdminSalesReportsSections({
     <div className="space-y-8">
       <AdminDashboardReveal index={1}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-neutral-500">
+          <p className="select-none text-sm text-neutral-500">
             Comparación contra el período anterior ({periodLabels.summary}).
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <AdminAnalyticsExportButton period={period} />
             <Suspense fallback={<AdminSkeletonTabs />}>
-              <AdminAnalyticsPeriodTabs period={period} />
+              <AdminAnalyticsPeriodTabs period={period} surface="page" />
             </Suspense>
           </div>
         </div>

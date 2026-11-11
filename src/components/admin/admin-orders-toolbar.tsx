@@ -5,7 +5,7 @@ import { AdminSearchField } from "@/components/admin/admin-filters";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -49,63 +49,40 @@ export function AdminOrdersToolbar({
     setDraftHasta(hastaProp);
   }
 
-  const navigate = (updates: {
-    q?: string;
-    desde?: string;
-    hasta?: string;
-  }) => {
+  const applyFilters = () => {
     const params = readSearchParams();
+    const trimmedQ = query.trim();
+    if (trimmedQ) params.set("q", trimmedQ);
+    else params.delete("q");
 
-    if (updates.q !== undefined) {
-      const trimmed = updates.q.trim();
-      if (trimmed) params.set("q", trimmed);
-      else params.delete("q");
-    }
+    let desde = draftDesde.trim();
+    let hasta = draftHasta.trim();
 
-    if (updates.desde !== undefined) {
-      if (updates.desde) {
-        params.set("desde", updates.desde);
-        params.delete("todos");
-      } else {
-        params.delete("desde");
+    if (!desde && !hasta) {
+      params.delete("desde");
+      params.delete("hasta");
+      params.set("todos", "1");
+    } else {
+      if (!desde) desde = hasta;
+      if (!hasta) hasta = desde;
+      if (hasta < desde) {
+        [desde, hasta] = [hasta, desde];
       }
-    }
-
-    if (updates.hasta !== undefined) {
-      if (updates.hasta) {
-        params.set("hasta", updates.hasta);
-        params.delete("todos");
-      } else {
-        params.delete("hasta");
-      }
+      params.set("desde", desde);
+      params.set("hasta", hasta);
+      params.delete("todos");
     }
 
     const qs = params.toString();
     navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos");
   };
 
-  const applyDateFilter = () => {
-    let desde = draftDesde.trim();
-    let hasta = draftHasta.trim();
-
-    if (!desde && !hasta) {
-      const params = readSearchParams();
-      params.delete("desde");
-      params.delete("hasta");
-      params.set("todos", "1");
-      const qs = params.toString();
-      navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos?todos=1");
-      return;
-    }
-
-    if (!desde) desde = hasta;
-    if (!hasta) hasta = desde;
-
-    if (hasta < desde) {
-      [desde, hasta] = [hasta, desde];
-    }
-
-    navigate({ desde, hasta });
+  const clearSearch = () => {
+    setQuery("");
+    const params = readSearchParams();
+    params.delete("q");
+    const qs = params.toString();
+    navigateCatalog(qs ? `/admin/pedidos?${qs}` : "/admin/pedidos");
   };
 
   return (
@@ -116,64 +93,58 @@ export function AdminOrdersToolbar({
         className,
       )}
     >
-      <div className="flex flex-col gap-4">
-        <div className="w-full">
+      <form
+        className="flex flex-col gap-3 sm:flex-row sm:items-end"
+        onSubmit={(event) => {
+          event.preventDefault();
+          applyFilters();
+        }}
+      >
+        <div className="min-w-0 flex-1">
+          <Label
+            htmlFor="admin-orders-search"
+            className="mb-1.5 block text-sm text-neutral-600"
+          >
+            Buscar
+          </Label>
           <AdminSearchField
+            bare
+            id="admin-orders-search"
             value={query}
             onChange={setQuery}
-            onClear={() => {
-              setQuery("");
-              navigate({ q: "" });
-            }}
-            onSubmit={() => navigate({ q: query })}
-            placeholder="Buscar por cliente, email o nº de pedido..."
+            onClear={clearSearch}
+            placeholder="Cliente, email o nº de pedido..."
             ariaLabel="Buscar pedidos"
           />
         </div>
 
-        <form
-          className="flex flex-col gap-3 sm:flex-row sm:items-end"
-          onSubmit={(event) => {
-            event.preventDefault();
-            applyDateFilter();
-          }}
+        <div className="min-w-0 sm:w-[16rem] sm:shrink-0">
+          <Label
+            htmlFor="admin-orders-date-range-toolbar"
+            className="mb-1.5 block text-sm text-neutral-600"
+          >
+            Rango
+          </Label>
+          <DateRangePicker
+            id="admin-orders-date-range-toolbar"
+            from={draftDesde}
+            to={draftHasta}
+            onChange={(nextFrom, nextTo) => {
+              setDraftDesde(nextFrom);
+              setDraftHasta(nextTo);
+            }}
+            aria-label="Rango de fechas de pedidos"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          variant="secondary"
+          className="h-10 shrink-0 rounded-md px-4"
         >
-          <div className="grid flex-1 gap-3 sm:grid-cols-2">
-            <div>
-              <Label
-                htmlFor="admin-orders-desde-toolbar"
-                className="mb-1.5 block text-sm text-neutral-600"
-              >
-                Desde
-              </Label>
-              <Input
-                id="admin-orders-desde-toolbar"
-                type="date"
-                value={draftDesde}
-                onChange={(event) => setDraftDesde(event.target.value)}
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="admin-orders-hasta-toolbar"
-                className="mb-1.5 block text-sm text-neutral-600"
-              >
-                Hasta
-              </Label>
-              <Input
-                id="admin-orders-hasta-toolbar"
-                type="date"
-                value={draftHasta}
-                min={draftDesde || undefined}
-                onChange={(event) => setDraftHasta(event.target.value)}
-              />
-            </div>
-          </div>
-          <Button type="submit" variant="secondary" className="h-10 shrink-0 rounded-md px-4">
-            Aplicar fecha
-          </Button>
-        </form>
-      </div>
+          Aplicar filtro
+        </Button>
+      </form>
     </div>
   );
 }

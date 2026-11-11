@@ -29,6 +29,7 @@ import {
   isDemoLoginEnabled,
 } from "@/lib/demo-login";
 import { getDemoPersonaById } from "@/lib/demo-personas";
+import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
 import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 
 function applySessionExpiry(
@@ -301,7 +302,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return token;
       }
 
-      // Re-bind every request to the deploy store; drop store if no membership.
+      // Trust JWT bound to this deploy — skip Neon on every session poll.
+      // Re-check only when store missing or slug ≠ current DEFAULT_STORE_SLUG.
+      if (
+        typeof token.storeId === "string" &&
+        token.storeSlug === DEFAULT_STORE_SLUG
+      ) {
+        return token;
+      }
+
       const access = await adminMayAccessCurrentStore(
         token.sub,
         String(token.role ?? ""),

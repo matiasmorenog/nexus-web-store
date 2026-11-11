@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import {
-  adminMayAccessCurrentStore,
-  getStoreStaffRoleForUser,
-} from "@/lib/store-users/membership";
+import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 import { canManageStoreUsers } from "@/lib/store-users/permissions";
 
 export async function requireStoreOwnerSession() {
@@ -25,15 +22,10 @@ export async function requireStoreOwnerSession() {
     };
   }
 
-  const staffRole =
-    session.user.role === "STORE_STAFF"
-      ? await getStoreStaffRoleForUser(access.storeId, session.user.id)
-      : null;
-
   if (
     !canManageStoreUsers({
       role: session.user.role,
-      staffRole,
+      staffRole: access.staffRole,
     })
   ) {
     return {

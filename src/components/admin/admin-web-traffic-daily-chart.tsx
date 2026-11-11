@@ -50,7 +50,7 @@ export function AdminWebTrafficDailyChart({
             >
               <div
                 className={cn(
-                  "w-full rounded-t-sm bg-neutral-900/80 transition-colors group-hover:bg-neutral-900",
+                  "w-full rounded-t-sm bg-[var(--brand-primary)]/85 transition-opacity group-hover:opacity-100",
                 )}
                 style={{ height: `${height}%` }}
               />

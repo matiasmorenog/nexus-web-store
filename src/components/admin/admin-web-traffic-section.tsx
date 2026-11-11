@@ -79,7 +79,7 @@ function RankList({
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
               <div
-                className={cn("h-full rounded-full bg-neutral-900/80")}
+                className={cn("h-full rounded-full bg-[var(--brand-primary)]")}
                 style={{ width: `${width}%` }}
               />
             </div>
@@ -155,7 +155,7 @@ export function AdminWebTrafficSection({
             />
           </AdminCard>
 
-          <div className="grid items-start gap-6 lg:grid-cols-2">
+          <div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <AdminCard
               title="Productos más vistos"
               description="PDP con más pageviews en el período"
@@ -172,6 +172,16 @@ export function AdminWebTrafficSection({
               <RankList
                 rows={report.topPages}
                 empty="Sin páginas con visitas en este período."
+              />
+            </AdminCard>
+            <AdminCard
+              title="Dispositivos"
+              description="Cómo navegan tus clientes"
+            >
+              <RankList
+                rows={report.devices}
+                empty="Sin datos de dispositivo."
+                valueKey="visitors"
               />
             </AdminCard>
             <AdminCard
@@ -211,16 +221,6 @@ export function AdminWebTrafficSection({
               <RankList
                 rows={report.operatingSystems}
                 empty="Sin datos de sistema operativo."
-                valueKey="visitors"
-              />
-            </AdminCard>
-            <AdminCard
-              title="Dispositivos"
-              description="Cómo navegan tus clientes"
-            >
-              <RankList
-                rows={report.devices}
-                empty="Sin datos de dispositivo."
                 valueKey="visitors"
               />
             </AdminCard>

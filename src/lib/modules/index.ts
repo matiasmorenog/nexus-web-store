@@ -14,17 +14,24 @@ export {
 } from "@/lib/modules/access";
 export { moduleErrorResponse } from "@/lib/modules/api-error";
 export {
+  ADMIN_CONFIG_SUBMENU_MODULE_IDS,
   ADMIN_CORE_NAV_ITEMS,
   ADMIN_MODULE_NAV_ITEMS,
   ADMIN_PLAN_NAV_ITEM,
   buildAdminNavItems,
+  buildAdminNavModel,
+  isAdminNavItemActive,
+  isConfigSubmenuModuleId,
+  isConfigSubmenuPathActive,
   isModuleNavItemEnabled,
   listModulesInSidebarOrder,
   splitAdminNavItems,
+  type AdminConfigSubmenuModuleId,
   type AdminCoreNavItem,
   type AdminModuleNavItem,
   type AdminNavIconKey,
   type AdminNavItem,
+  type AdminNavModel,
   type AdminPlanNavItem,
 } from "@/lib/modules/admin-nav";
 export {

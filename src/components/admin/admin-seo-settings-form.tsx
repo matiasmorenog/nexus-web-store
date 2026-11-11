@@ -66,7 +66,7 @@ export function AdminSeoSettingsForm({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-lg space-y-6">
       <AdminCard
         title="Meta y Open Graph"
         description="Descripción global y imagen para compartir en redes."

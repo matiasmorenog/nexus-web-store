@@ -56,11 +56,8 @@ export function StorefrontSkeletonProductCard() {
   return (
     <div
       className={cn(
-        "storefront-card overflow-hidden bg-white",
-        uiId === "app3" && "border border-[#202523]/12",
-        uiId === "app1" && "border border-neutral-200",
-        uiId === "app2" &&
-          "border border-neutral-200/90 shadow-sm ring-1 ring-neutral-900/[0.04]",
+        "storefront-card overflow-hidden border bg-white shadow-sm",
+        uiId === "app3" ? "border-[#202523]/12" : "border-neutral-200",
       )}
     >
       <StorefrontSkeleton className="aspect-[3/4] w-full" />

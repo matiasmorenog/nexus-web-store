@@ -1,15 +1,13 @@
 import { createHash, randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { validatePasswordLength } from "@/lib/password-policy";
 
-export const PASSWORD_MIN_LENGTH = 6;
+export { PASSWORD_MIN_LENGTH } from "@/lib/password-policy";
 export const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 export function validatePassword(password: string): string | null {
-  if (password.length < PASSWORD_MIN_LENGTH) {
-    return `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`;
-  }
-  return null;
+  return validatePasswordLength(password);
 }
 
 export function hashResetToken(plainToken: string): string {

@@ -1,8 +1,13 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export const adminSurfaceClass =
-  "rounded-xl border border-neutral-200/80 bg-white shadow-sm";
+/** Single elevation for admin panels/cards/toolbars app-wide. */
+export const adminCardShadowClass = "shadow-sm";
+
+export const adminSurfaceClass = cn(
+  "rounded-xl border border-neutral-200/80 bg-white",
+  adminCardShadowClass,
+);
 
 export const adminCardClass = cn(adminSurfaceClass, "overflow-hidden");
 

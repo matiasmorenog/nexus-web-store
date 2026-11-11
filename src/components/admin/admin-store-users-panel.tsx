@@ -142,7 +142,7 @@ export function AdminStoreUsersPanel({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-lg space-y-6">
       <AdminCard
         title="Usuarios staff"
         description="Personas con acceso al panel admin además del owner."

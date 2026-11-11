@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { resetPasswordWithToken } from "@/lib/password-reset";
+import {
+  PASSWORD_MIN_LENGTH,
+  passwordTooShortMessage,
+} from "@/lib/password-policy";
 import { storefrontPath } from "@/lib/storefront-paths";
 
 const resetSchema = z.object({
   token: z.string().min(1, "Token inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, passwordTooShortMessage("es")),
 });
 
 export async function POST(request: Request) {

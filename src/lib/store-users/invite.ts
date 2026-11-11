@@ -6,6 +6,7 @@ import type {
 } from "@/lib/store-users/types";
 import { isStoreStaffRole } from "@/lib/store-users/permissions";
 import { db } from "@/lib/db";
+import { validatePasswordLength } from "@/lib/password-policy";
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -36,8 +37,9 @@ export async function inviteStoreStaffMember(
     throw new Error("Ingresá el nombre del usuario.");
   }
 
-  if (password.length < 8) {
-    throw new Error("La contraseña debe tener al menos 8 caracteres.");
+  const passwordError = validatePasswordLength(password);
+  if (passwordError) {
+    throw new Error(passwordError);
   }
 
   const existing = await db.user.findUnique({

@@ -7,6 +7,7 @@ import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PASSWORD_MIN_LENGTH, passwordMinHint } from "@/lib/password-policy";
 import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { cn } from "@/lib/utils";
 
@@ -131,7 +132,7 @@ export function ChangePasswordForm({
         name="newPassword"
         label={copy?.newPassword ?? "Nueva contraseña"}
         autoComplete="new-password"
-        minLength={6}
+        minLength={PASSWORD_MIN_LENGTH}
         className={fieldClass}
         showLabel={showLabel}
         hideLabel={hideLabel}
@@ -141,8 +142,8 @@ export function ChangePasswordForm({
         name="confirmPassword"
         label={copy?.confirmPassword ?? "Confirmar nueva contraseña"}
         autoComplete="new-password"
-        minLength={6}
-        hint={copy?.minPassword ?? "Mínimo 6 caracteres"}
+        minLength={PASSWORD_MIN_LENGTH}
+        hint={copy?.minPassword ?? passwordMinHint("es")}
         className={fieldClass}
         showLabel={showLabel}
         hideLabel={hideLabel}

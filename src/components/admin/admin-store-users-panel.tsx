@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PASSWORD_MIN_LENGTH } from "@/lib/password-policy";
 import {
   STORE_STAFF_ROLE_DESCRIPTIONS,
   STORE_STAFF_ROLE_LABELS,
@@ -240,7 +241,7 @@ export function AdminStoreUsersPanel({
               <Input
                 id="staff-password"
                 type="password"
-                minLength={8}
+                minLength={PASSWORD_MIN_LENGTH}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required

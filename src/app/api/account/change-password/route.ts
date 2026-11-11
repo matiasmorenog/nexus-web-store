@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { changeUserPassword } from "@/lib/password-reset";
+import {
+  PASSWORD_MIN_LENGTH,
+  passwordTooShortMessage,
+} from "@/lib/password-policy";
 
 const changeSchema = z.object({
   currentPassword: z.string().min(1, "Ingresá tu contraseña actual"),
-  newPassword: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  newPassword: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, passwordTooShortMessage("es")),
 });
 
 export async function POST(request: Request) {

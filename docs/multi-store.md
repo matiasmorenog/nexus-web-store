@@ -27,7 +27,7 @@ Los módulos Plus están **disponibles para todas las tiendas** (salvo Manoviva,
 | Registry slug → config | `src/lib/store-slugs.ts`, `src/lib/store-verticals/index.ts` |
 | Config app1 / app2 | `src/lib/store-verticals/app1/config.ts`, `.../app2/config.ts` |
 | Homes y layout por tienda | `src/themes/app1/`, `src/themes/app2/` |
-| Componentes compartidos | `src/components/storefront/` (catálogo, carrito, checkout, header) |
+| Componentes compartidos | `src/components/storefront/` (catálogo, carrito, checkout, header, Web Analytics) |
 | Store por deploy | `src/lib/store-env.ts`, `src/lib/store-context.ts` |
 | Seed multi-tienda | `prisma/seed-env.ts` → `SEED_STORES` |
 | Dev local | `scripts/dev-store.sh`, `npm run dev:app1` / `dev:app2` / `dev:both` |

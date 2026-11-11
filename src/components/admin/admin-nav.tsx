@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  ChevronDown,
   CreditCard,
   ExternalLink,
   Gift,
@@ -32,9 +33,12 @@ import {
 } from "@/components/ui/sliding-indicator";
 import { adminChrome, type AdminLocale } from "@/lib/admin-locale";
 import {
+  isAdminNavItemActive,
+  isConfigSubmenuPathActive,
   isModuleNavItemEnabled,
   type AdminNavIconKey,
   type AdminNavItem,
+  type AdminNavModel,
   type ModuleId,
 } from "@/lib/modules";
 import { moduleUpgradeHref } from "@/lib/modules/access";
@@ -65,7 +69,7 @@ type AdminNavProps = {
   userName?: string | null;
   userEmail?: string | null;
   enabledModuleIds: ModuleId[];
-  navItems: AdminNavItem[];
+  navModel: AdminNavModel;
   locale?: AdminLocale;
 };
 
@@ -80,15 +84,7 @@ function AdminNavIcon({
   return <Icon className={className} />;
 }
 
-function isActive(pathname: string, href: string, exact?: boolean) {
-  if (exact) return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function navItemHref(
-  item: AdminNavItem,
-  enabledModuleIds: ModuleId[],
-) {
+function navItemHref(item: AdminNavItem, enabledModuleIds: ModuleId[]) {
   if (item.kind === "module" && !isModuleNavItemEnabled(item, enabledModuleIds)) {
     return moduleUpgradeHref(item.moduleId);
   }
@@ -101,14 +97,16 @@ function DesktopNavLink({
   pathname,
   onNavigate,
   staticActive = false,
+  nested = false,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
   pathname: string;
   onNavigate?: () => void;
   staticActive?: boolean;
+  nested?: boolean;
 }) {
-  const active = isActive(pathname, item.href, item.exact);
+  const active = isAdminNavItemActive(pathname, item);
 
   return (
     <Link
@@ -116,7 +114,8 @@ function DesktopNavLink({
       onClick={onNavigate}
       aria-current={active && !staticActive ? "page" : undefined}
       className={cn(
-        "relative z-[1] flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+        "relative z-[1] flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-200",
+        nested ? "px-3 pl-9" : "px-3",
         active
           ? staticActive
             ? "bg-white/10 text-white"
@@ -137,12 +136,102 @@ function DesktopNavLink({
   );
 }
 
+function ConfigNavGroup({
+  hub,
+  items,
+  enabledModuleIds,
+  pathname,
+  locale,
+  onNavigate,
+}: {
+  hub: AdminNavItem;
+  items: AdminNavItem[];
+  enabledModuleIds: ModuleId[];
+  pathname: string;
+  locale: AdminLocale;
+  onNavigate?: () => void;
+}) {
+  const copy = adminChrome[locale];
+  const pathInGroup = isConfigSubmenuPathActive(pathname, {
+    configHub: hub as AdminNavModel["configHub"],
+    configChildren: items,
+  });
+  /** Manual expand when not already on a config route (path routes stay open). */
+  const [manualOpen, setManualOpen] = useState(false);
+  const open = pathInGroup || manualOpen;
+
+  const hubActive = isAdminNavItemActive(pathname, hub);
+  const showChildren = items.length > 0;
+
+  return (
+    <div className="space-y-1">
+      <div className="relative z-[1] flex items-center gap-0.5">
+        <Link
+          href={hub.href}
+          onClick={onNavigate}
+          aria-current={hubActive ? "page" : undefined}
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+            hubActive || pathInGroup
+              ? "text-white"
+              : "text-neutral-400 hover:bg-white/5 hover:text-white",
+            hubActive ? "bg-white/10" : null,
+          )}
+        >
+          <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
+          <span className="truncate">{hub.label}</span>
+        </Link>
+        {showChildren ? (
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls="admin-config-submenu"
+            aria-label={open ? copy.collapseConfig : copy.expandConfig}
+            onClick={() => {
+              if (pathInGroup) return;
+              setManualOpen((value) => !value);
+            }}
+            className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 transition-transform duration-200",
+                open ? "rotate-180" : "rotate-0",
+              )}
+            />
+          </button>
+        ) : null}
+      </div>
+
+      {showChildren && open ? (
+        <div
+          id="admin-config-submenu"
+          role="group"
+          aria-label={copy.configSubmenu}
+          className="space-y-1"
+        >
+          {items.map((item) => (
+            <DesktopNavLink
+              key={item.href}
+              item={item}
+              enabledModuleIds={enabledModuleIds}
+              pathname={pathname}
+              onNavigate={onNavigate}
+              nested
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 type AdminSidebarPanelProps = {
   brandPrefix: string;
   userName?: string | null;
   userEmail?: string | null;
   enabledModuleIds: ModuleId[];
-  navItems: AdminNavItem[];
+  navModel: AdminNavModel;
   pathname: string;
   locale: AdminLocale;
   onNavigate?: () => void;
@@ -155,7 +244,7 @@ function AdminSidebarPanel({
   userName,
   userEmail,
   enabledModuleIds,
-  navItems,
+  navModel,
   pathname,
   locale,
   onNavigate,
@@ -163,8 +252,6 @@ function AdminSidebarPanel({
   onClose,
 }: AdminSidebarPanelProps) {
   const copy = adminChrome[locale];
-  const planItem = navItems.find((item) => item.kind === "plan");
-  const mainItems = navItems.filter((item) => item.kind !== "plan");
   const { listRef, indicator, animate } = useSlidingIndicator(pathname);
 
   return (
@@ -201,7 +288,7 @@ function AdminSidebarPanel({
             animate={animate}
             className="rounded-lg bg-white/10"
           />
-          {mainItems.map((item) => (
+          {navModel.mainItems.map((item) => (
             <DesktopNavLink
               key={item.href}
               item={item}
@@ -210,22 +297,15 @@ function AdminSidebarPanel({
               onNavigate={onNavigate}
             />
           ))}
+          <ConfigNavGroup
+            hub={navModel.configHub}
+            items={navModel.configChildren}
+            enabledModuleIds={enabledModuleIds}
+            pathname={pathname}
+            locale={locale}
+            onNavigate={onNavigate}
+          />
         </nav>
-
-        {planItem ? (
-          <nav
-            aria-label={copy.plan}
-            className="shrink-0 space-y-1 border-t border-white/10 p-4"
-          >
-            <DesktopNavLink
-              item={planItem}
-              enabledModuleIds={enabledModuleIds}
-              pathname={pathname}
-              onNavigate={onNavigate}
-              staticActive
-            />
-          </nav>
-        ) : null}
       </div>
 
       <div className="shrink-0 space-y-3 border-t border-white/10 p-4">
@@ -265,7 +345,7 @@ function AdminMobileNav({
   userName,
   userEmail,
   enabledModuleIds,
-  navItems,
+  navModel,
   pathname,
   locale = "es",
 }: AdminMobileNavProps) {
@@ -343,7 +423,7 @@ function AdminMobileNav({
               userName={userName}
               userEmail={userEmail}
               enabledModuleIds={enabledModuleIds}
-              navItems={navItems}
+              navModel={navModel}
               pathname={pathname}
               locale={locale}
               onNavigate={closeMobileNav}
@@ -362,7 +442,7 @@ export function AdminNav({
   userName,
   userEmail,
   enabledModuleIds,
-  navItems,
+  navModel,
   locale = "es",
 }: AdminNavProps) {
   const pathname = usePathname();
@@ -376,7 +456,7 @@ export function AdminNav({
           userName={userName}
           userEmail={userEmail}
           enabledModuleIds={enabledModuleIds}
-          navItems={navItems}
+          navModel={navModel}
           pathname={pathname}
           locale={locale}
         />
@@ -388,7 +468,7 @@ export function AdminNav({
         userName={userName}
         userEmail={userEmail}
         enabledModuleIds={enabledModuleIds}
-        navItems={navItems}
+        navModel={navModel}
         pathname={pathname}
         locale={locale}
       />

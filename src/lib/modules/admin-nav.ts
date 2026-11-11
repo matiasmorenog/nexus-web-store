@@ -44,6 +44,15 @@ export type AdminNavItem =
   | AdminModuleNavItem
   | AdminPlanNavItem;
 
+export type AdminNavModel = {
+  /** Day-to-day sidebar items (excludes Config hub + set-and-forget children). */
+  mainItems: AdminNavItem[];
+  /** Store settings hub (`/admin/configuracion`). */
+  configHub: AdminCoreNavItem;
+  /** Accordion children under Config (plan, SEO, marketing, users, API). */
+  configChildren: AdminNavItem[];
+};
+
 const CORE_NAV_BY_HREF = {
   "/admin": {
     kind: "core" as const,
@@ -90,9 +99,32 @@ const CORE_NAV_BY_HREF = {
   },
 } satisfies Record<string, AdminCoreNavItem>;
 
-/** Orden único del sidebar: operación diaria → crecimiento → integraciones → ajustes. */
-const ADMIN_SIDEBAR_ORDER: Array<
-  { kind: "core"; href: keyof typeof CORE_NAV_BY_HREF } | { kind: "module"; moduleId: ModuleId }
+/**
+ * Set-and-forget modules live under Configuración accordion (not top-level).
+ * Wishlist stays in the main sidebar (E1 without wishlist).
+ */
+export const ADMIN_CONFIG_SUBMENU_MODULE_IDS = [
+  "seo",
+  "marketing",
+  "multiUser",
+  "api",
+] as const satisfies readonly ModuleId[];
+
+export type AdminConfigSubmenuModuleId =
+  (typeof ADMIN_CONFIG_SUBMENU_MODULE_IDS)[number];
+
+export function isConfigSubmenuModuleId(
+  moduleId: ModuleId,
+): moduleId is AdminConfigSubmenuModuleId {
+  return (ADMIN_CONFIG_SUBMENU_MODULE_IDS as readonly ModuleId[]).includes(
+    moduleId,
+  );
+}
+
+/** Orden único del sidebar principal: operación diaria → crecimiento → config hub. */
+const ADMIN_MAIN_SIDEBAR_ORDER: Array<
+  | { kind: "core"; href: keyof typeof CORE_NAV_BY_HREF }
+  | { kind: "module"; moduleId: ModuleId }
 > = [
   { kind: "core", href: "/admin" },
   { kind: "core", href: "/admin/pedidos" },
@@ -104,11 +136,35 @@ const ADMIN_SIDEBAR_ORDER: Array<
   { kind: "module", moduleId: "analytics" },
   { kind: "module", moduleId: "coupons" },
   { kind: "module", moduleId: "homeEditor" },
-  { kind: "module", moduleId: "marketing" },
-  { kind: "module", moduleId: "seo" },
   { kind: "module", moduleId: "wishlist" },
+  { kind: "core", href: "/admin/configuracion" },
+];
+
+/** Orden del acordeón Config (después del hub). */
+const ADMIN_CONFIG_CHILDREN_ORDER: Array<
+  | { kind: "plan" }
+  | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
+> = [
+  { kind: "plan" },
+  { kind: "module", moduleId: "seo" },
+  { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "api" },
+];
+
+/** Orden completo (plan page / docs): main modules + config submenu modules. */
+const ADMIN_SIDEBAR_ORDER: Array<
+  | { kind: "core"; href: keyof typeof CORE_NAV_BY_HREF }
+  | { kind: "module"; moduleId: ModuleId }
+> = [
+  ...ADMIN_MAIN_SIDEBAR_ORDER.filter(
+    (entry) =>
+      !(entry.kind === "core" && entry.href === "/admin/configuracion"),
+  ),
+  ...ADMIN_CONFIG_SUBMENU_MODULE_IDS.map((moduleId) => ({
+    kind: "module" as const,
+    moduleId,
+  })),
   { kind: "core", href: "/admin/configuracion" },
 ];
 
@@ -120,7 +176,7 @@ export const ADMIN_PLAN_NAV_ITEM: AdminPlanNavItem = {
   iconKey: "plan",
 };
 
-/** @deprecated Usar buildAdminNavItems. Mantenido por compatibilidad. */
+/** @deprecated Usar buildAdminNavModel. Mantenido por compatibilidad. */
 export const ADMIN_CORE_NAV_ITEMS: AdminCoreNavItem[] = ADMIN_SIDEBAR_ORDER.filter(
   (entry): entry is { kind: "core"; href: keyof typeof CORE_NAV_BY_HREF } =>
     entry.kind === "core",
@@ -139,19 +195,21 @@ function buildModuleNavItem(moduleId: ModuleId): AdminModuleNavItem {
   };
 }
 
-/** @deprecated Usar buildAdminNavItems. Orden alfabético por MODULE_IDS ya no aplica. */
+/** @deprecated Usar buildAdminNavModel. */
 export const ADMIN_MODULE_NAV_ITEMS: AdminModuleNavItem[] = ADMIN_SIDEBAR_ORDER.filter(
-  (entry): entry is { kind: "module"; moduleId: ModuleId } => entry.kind === "module",
+  (entry): entry is { kind: "module"; moduleId: ModuleId } =>
+    entry.kind === "module",
 ).map((entry) => buildModuleNavItem(entry.moduleId));
 
-export function buildAdminNavItems(
+export function buildAdminNavModel(
   enabledModuleIds: readonly ModuleId[],
-): AdminNavItem[] {
+): AdminNavModel {
   const enabled = new Set(enabledModuleIds);
   const mainItems: AdminNavItem[] = [];
 
-  for (const entry of ADMIN_SIDEBAR_ORDER) {
+  for (const entry of ADMIN_MAIN_SIDEBAR_ORDER) {
     if (entry.kind === "core") {
+      if (entry.href === "/admin/configuracion") continue;
       mainItems.push(CORE_NAV_BY_HREF[entry.href]);
       continue;
     }
@@ -161,13 +219,42 @@ export function buildAdminNavItems(
     }
   }
 
-  return [...mainItems, ADMIN_PLAN_NAV_ITEM];
+  const configChildren: AdminNavItem[] = [];
+  for (const entry of ADMIN_CONFIG_CHILDREN_ORDER) {
+    if (entry.kind === "plan") {
+      configChildren.push(ADMIN_PLAN_NAV_ITEM);
+      continue;
+    }
+    if (enabled.has(entry.moduleId)) {
+      configChildren.push(buildModuleNavItem(entry.moduleId));
+    }
+  }
+
+  return {
+    mainItems,
+    configHub: CORE_NAV_BY_HREF["/admin/configuracion"],
+    configChildren,
+  };
+}
+
+/** Flat list for legacy callers (main + config hub + children). */
+export function buildAdminNavItems(
+  enabledModuleIds: readonly ModuleId[],
+): AdminNavItem[] {
+  const model = buildAdminNavModel(enabledModuleIds);
+  return [
+    ...model.mainItems,
+    model.configHub,
+    ...model.configChildren,
+  ];
 }
 
 export function splitAdminNavItems(enabledModuleIds: readonly ModuleId[]) {
+  const model = buildAdminNavModel(enabledModuleIds);
   const items = buildAdminNavItems(enabledModuleIds);
   const planItem =
-    items.find((item) => item.kind === "plan") ?? ADMIN_PLAN_NAV_ITEM;
+    model.configChildren.find((item) => item.kind === "plan") ??
+    ADMIN_PLAN_NAV_ITEM;
   const mainItems = items.filter((item) => item.kind !== "plan");
 
   return {
@@ -175,12 +262,17 @@ export function splitAdminNavItems(enabledModuleIds: readonly ModuleId[]) {
     planItem,
     coreItems: mainItems.filter((item) => item.kind === "core"),
     moduleItems: mainItems.filter((item) => item.kind === "module"),
+    configHub: model.configHub,
+    configChildren: model.configChildren,
   };
 }
 
-export function listModulesInSidebarOrder(): Array<(typeof MODULE_CATALOG)[ModuleId]> {
+export function listModulesInSidebarOrder(): Array<
+  (typeof MODULE_CATALOG)[ModuleId]
+> {
   return ADMIN_SIDEBAR_ORDER.filter(
-    (entry): entry is { kind: "module"; moduleId: ModuleId } => entry.kind === "module",
+    (entry): entry is { kind: "module"; moduleId: ModuleId } =>
+      entry.kind === "module",
   ).map((entry) => MODULE_CATALOG[entry.moduleId]);
 }
 
@@ -189,4 +281,22 @@ export function isModuleNavItemEnabled(
   enabledModuleIds: readonly ModuleId[],
 ): boolean {
   return enabledModuleIds.includes(item.moduleId);
+}
+
+export function isAdminNavItemActive(
+  pathname: string,
+  item: Pick<AdminNavItem, "href" | "exact">,
+): boolean {
+  if (item.exact) return pathname === item.href;
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+export function isConfigSubmenuPathActive(
+  pathname: string,
+  model: Pick<AdminNavModel, "configHub" | "configChildren">,
+): boolean {
+  if (isAdminNavItemActive(pathname, model.configHub)) return true;
+  return model.configChildren.some((item) =>
+    isAdminNavItemActive(pathname, item),
+  );
 }

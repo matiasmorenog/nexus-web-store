@@ -13,7 +13,7 @@ import {
 } from "@/lib/admin-session";
 import { getEnabledModuleIds } from "@/lib/modules";
 import { getBrandPrefix, getStore } from "@/lib/store-context";
-import { buildFilteredAdminNavItems } from "@/lib/store-users/admin-nav-access";
+import { buildFilteredAdminNavModel } from "@/lib/store-users/admin-nav-access";
 
 export default async function AdminProtectedLayout({
   children,
@@ -25,10 +25,18 @@ export default async function AdminProtectedLayout({
   const brandPrefix = getBrandPrefix(store.name);
   const enabledModuleIds = await getEnabledModuleIds(store.id);
   const accessContext = getAdminAccessContext(session);
-  const navItems = buildFilteredAdminNavItems(accessContext, enabledModuleIds);
+  const navModel = buildFilteredAdminNavModel(accessContext, enabledModuleIds);
   const cookieStore = await cookies();
   const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
-  const localizedNav = navItems.map((item) => localizeAdminNavItem(item, locale));
+  const localizedNavModel = {
+    mainItems: navModel.mainItems.map((item) =>
+      localizeAdminNavItem(item, locale),
+    ),
+    configHub: localizeAdminNavItem(navModel.configHub, locale),
+    configChildren: navModel.configChildren.map((item) =>
+      localizeAdminNavItem(item, locale),
+    ),
+  };
 
   return (
     <>
@@ -42,7 +50,7 @@ export default async function AdminProtectedLayout({
           userName={session.user.name}
           userEmail={session.user.email}
           enabledModuleIds={enabledModuleIds}
-          navItems={localizedNav}
+          navModel={localizedNavModel}
           locale={locale}
         />
         <AdminContentScrollArea className="admin-content-bottom min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8 lg:pt-8">

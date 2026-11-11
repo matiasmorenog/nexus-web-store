@@ -54,7 +54,7 @@ const MODULE_LIST = [
     id: "analytics",
     name: "Analytics y reportes",
     description:
-      "Comparación de períodos, embudo, clientes fieles, tops y export CSV (reporte, pedidos y catálogo).",
+      "Tráfico del sitio (visitas, productos más vistos, referrers), comparación de períodos, embudo, clientes fieles, tops y export CSV.",
     monthlyPriceUsd: 0,
     includedInPlans: ["pro"],
     category: "operations",

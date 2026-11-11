@@ -8,7 +8,9 @@ on:
     branches: [development, main]
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # Bump group key if Actions leaves zombie "queued" runs that cannot cancel
+  # (new runs would wait forever on the old group).
+  group: ci-v2-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

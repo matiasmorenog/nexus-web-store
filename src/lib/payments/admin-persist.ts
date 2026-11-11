@@ -270,7 +270,7 @@ export async function saveStorePaymentSettings(
 
 function revalidatePaymentPaths(storeId: string) {
   revalidateAdminDashboardCache(storeId);
-  revalidatePath("/admin/modulos/cobros");
+  revalidatePath("/admin/configuracion/cobros");
   revalidatePath("/checkout");
   revalidatePath("/carrito");
 }

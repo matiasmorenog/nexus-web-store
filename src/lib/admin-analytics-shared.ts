@@ -152,11 +152,11 @@ export function buildAdminOutOfStockVariantsHref() {
 }
 
 export function buildAdminPaymentSettingsHref() {
-  return "/admin/modulos/cobros";
+  return "/admin/configuracion/cobros";
 }
 
 export function buildAdminShippingCarriersHref() {
-  return "/admin/modulos/shippingCarriers";
+  return "/admin/configuracion/envios";
 }
 
 function isoDateLocal(date: Date): string {

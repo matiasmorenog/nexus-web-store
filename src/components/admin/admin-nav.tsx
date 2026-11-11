@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -108,6 +114,7 @@ function DesktopNavLink({
   id,
   className,
   subIndex,
+  configLast = false,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
@@ -118,8 +125,11 @@ function DesktopNavLink({
   className?: string;
   /** When set, plays fast submenu cascade (after shell settled). */
   subIndex?: number;
+  /** Marks last Config child for scroll-into-view measurement. */
+  configLast?: boolean;
 }) {
   const active = isAdminNavItemActive(pathname, item);
+  const isPlan = item.kind === "plan";
 
   return (
     <Link
@@ -128,26 +138,45 @@ function DesktopNavLink({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       data-sub-i={subIndex != null ? String(subIndex) : undefined}
+      data-config-last={configLast ? "true" : undefined}
       className={cn(
         "relative z-[1] flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-200",
         nested ? "px-3 pl-9" : "px-3",
-        active
-          ? "text-white"
-          : "text-neutral-400 hover:bg-white/5 hover:text-white",
+        isPlan
+          ? cn(
+              "font-semibold text-[var(--brand-primary)]",
+              active
+                ? "bg-[var(--brand-primary)]/15"
+                : "hover:bg-[var(--brand-primary)]/10",
+            )
+          : active
+            ? "text-white"
+            : "text-neutral-400 hover:bg-white/5 hover:text-white",
         subIndex != null && "shell-nav-submenu-enter",
         className,
       )}
     >
       <AdminNavIcon iconKey={item.iconKey} className="h-4 w-4 shrink-0" />
-      <span className="flex min-w-0 items-center gap-2">
-        <span className="truncate">{item.label}</span>
-        {item.kind === "plan" ? (
-          <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--brand-primary)]">
-            Plus
-          </span>
-        ) : null}
-      </span>
+      <span className="truncate">{item.label}</span>
     </Link>
+  );
+}
+
+function navScrollBehavior(): ScrollBehavior {
+  if (typeof window === "undefined") return "smooth";
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+}
+
+function measureConfigSubmenuHeight(nav: HTMLElement): number {
+  const first = nav.querySelector<HTMLElement>("#admin-config-submenu");
+  const last = nav.querySelector<HTMLElement>("[data-config-last='true']");
+  if (!first || !last) return 0;
+  const gap = 4; // matches nav `gap-1`
+  return Math.max(
+    0,
+    last.getBoundingClientRect().bottom - first.getBoundingClientRect().top + gap,
   );
 }
 
@@ -159,6 +188,7 @@ function ConfigNavGroup({
   locale,
   onNavigate,
   shellSettled,
+  navScrollRef,
 }: {
   hub: AdminNavItem;
   items: AdminNavItem[];
@@ -168,6 +198,7 @@ function ConfigNavGroup({
   onNavigate?: () => void;
   /** After page-load cascade: submenu uses short local stagger. */
   shellSettled: boolean;
+  navScrollRef: RefObject<HTMLElement | null>;
 }) {
   const copy = adminChrome[locale];
   const pathInGroup = isConfigSubmenuPathActive(pathname, {
@@ -176,6 +207,8 @@ function ConfigNavGroup({
   });
   const [manualOpen, setManualOpen] = useState(false);
   const open = pathInGroup || manualOpen;
+  const [scrollOpenPending, setScrollOpenPending] = useState(false);
+  const closingRef = useRef(false);
   /**
    * Open during page-load cascade → keep main nth-child delays (no re-anim after settle).
    * State (not ref) so render can read it under react-hooks/refs.
@@ -193,10 +226,76 @@ function ConfigNavGroup({
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [shellSettled, open]);
 
+  useEffect(() => {
+    if (!scrollOpenPending || !open) return;
+    const nav = navScrollRef.current;
+    if (!nav) {
+      setScrollOpenPending(false);
+      return;
+    }
+
+    let cancelled = false;
+    const frame = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        if (cancelled) return;
+        nav.scrollTo({ top: nav.scrollHeight, behavior: navScrollBehavior() });
+        setScrollOpenPending(false);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+    };
+  }, [scrollOpenPending, open, navScrollRef]);
+
   // Fast local stagger after shell settled (click expand / navigate into Config).
   const useSubmenuEnter = shellSettled && open && !openedBeforeSettle;
 
   if (items.length === 0) return null;
+
+  function collapseManual() {
+    closingRef.current = false;
+    setManualOpen(false);
+  }
+
+  function onConfigToggle() {
+    if (pathInGroup || closingRef.current) return;
+
+    if (open) {
+      const nav = navScrollRef.current;
+      if (!nav) {
+        setManualOpen(false);
+        return;
+      }
+
+      const submenuHeight = measureConfigSubmenuHeight(nav);
+      const nextMax = Math.max(0, nav.scrollHeight - submenuHeight - nav.clientHeight);
+
+      if (nav.scrollTop <= nextMax + 2) {
+        setManualOpen(false);
+        return;
+      }
+
+      closingRef.current = true;
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        nav.removeEventListener("scrollend", onScrollEnd);
+        window.clearTimeout(fallback);
+        collapseManual();
+      };
+      const onScrollEnd = () => finish();
+      nav.addEventListener("scrollend", onScrollEnd);
+      const fallback = window.setTimeout(finish, 400);
+      nav.scrollTo({ top: nextMax, behavior: navScrollBehavior() });
+      return;
+    }
+
+    setManualOpen(true);
+    setScrollOpenPending(true);
+  }
 
   // Fragment: keep Config button + children as direct nav kids so cascade nth-child works.
   return (
@@ -206,10 +305,7 @@ function ConfigNavGroup({
         aria-expanded={open}
         aria-controls={open ? "admin-config-submenu" : undefined}
         aria-label={open ? copy.collapseConfig : copy.expandConfig}
-        onClick={() => {
-          if (pathInGroup) return;
-          setManualOpen((value) => !value);
-        }}
+        onClick={onConfigToggle}
         className={cn(
           "relative z-[1] flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors duration-200",
           pathInGroup
@@ -231,6 +327,7 @@ function ConfigNavGroup({
               onNavigate={onNavigate}
               nested
               subIndex={useSubmenuEnter ? index : undefined}
+              configLast={index === items.length - 1}
             />
           ))
         : null}
@@ -334,6 +431,7 @@ function AdminSidebarPanel({
             locale={locale}
             onNavigate={onNavigate}
             shellSettled={shellSettled}
+            navScrollRef={listRef}
           />
         </nav>
       </div>

@@ -9,6 +9,11 @@ export const CUSTOMER_SESSION_MAX_AGE = 24 * 60 * 60;
 export const REMEMBER_SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 /** 8 hours — admin default session */
 export const ADMIN_SESSION_MAX_AGE = 8 * 60 * 60;
+/**
+ * How often JWT re-checks UserStore membership for the deploy store.
+ * 5 min: revoke mid-session without Neon on every `/api/auth/session` poll.
+ */
+export const ADMIN_MEMBERSHIP_RECHECK_SECONDS = 5 * 60;
 
 export type AuthLoginContext = "customer" | "customer_register" | "admin";
 

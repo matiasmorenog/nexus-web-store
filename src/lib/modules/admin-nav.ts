@@ -10,6 +10,7 @@ export type AdminNavIconKey =
   | "config"
   | "language"
   | "security"
+  | "qr"
   | "plan"
   | "reportes"
   | ModuleId;
@@ -116,6 +117,14 @@ const CORE_NAV_BY_HREF = {
     iconKey: "security" as const,
     exact: true,
   },
+  "/admin/configuracion/qr": {
+    kind: "core" as const,
+    href: "/admin/configuracion/qr",
+    label: "Código QR",
+    shortLabel: "QR",
+    iconKey: "qr" as const,
+    exact: true,
+  },
 } satisfies Record<string, AdminCoreNavItem>;
 
 /**
@@ -161,15 +170,22 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
 
 /**
  * Orden bajo Configuración (toggle only):
- * idioma → seguridad → gente → canales → SEO → técnico → plan.
+ * idioma → seguridad → QR → gente → canales → SEO → técnico → plan.
  */
 const ADMIN_CONFIG_CHILDREN_ORDER: Array<
   | { kind: "plan" }
-  | { kind: "core"; href: "/admin/configuracion/idioma" | "/admin/configuracion/seguridad" }
+  | {
+      kind: "core";
+      href:
+        | "/admin/configuracion/idioma"
+        | "/admin/configuracion/seguridad"
+        | "/admin/configuracion/qr";
+    }
   | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
 > = [
   { kind: "core", href: "/admin/configuracion/idioma" },
   { kind: "core", href: "/admin/configuracion/seguridad" },
+  { kind: "core", href: "/admin/configuracion/qr" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "seo" },
@@ -188,6 +204,7 @@ const ADMIN_SIDEBAR_ORDER: Array<
   ),
   { kind: "core", href: "/admin/configuracion/idioma" },
   { kind: "core", href: "/admin/configuracion/seguridad" },
+  { kind: "core", href: "/admin/configuracion/qr" },
   ...ADMIN_CONFIG_SUBMENU_MODULE_IDS.map((moduleId) => ({
     kind: "module" as const,
     moduleId,

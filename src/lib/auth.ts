@@ -6,14 +6,13 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { resolveAdminStoreId } from "@/lib/admin-store";
 import {
   loadUserByEmailForToken,
-  loadUserForToken,
   mapUserToTokenFields,
   upsertGoogleAccount,
 } from "@/lib/auth-google";
 import {
+  ADMIN_MEMBERSHIP_RECHECK_SECONDS,
   ADMIN_SESSION_MAX_AGE,
   AUTH_CONTEXT_COOKIE,
   AUTH_REMEMBER_COOKIE,
@@ -31,6 +30,8 @@ import {
   isDemoLoginEnabled,
 } from "@/lib/demo-login";
 import { getDemoPersonaById } from "@/lib/demo-personas";
+import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
+import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 
 function applySessionExpiry(
   token: JWT,
@@ -66,23 +67,6 @@ async function readAuthIntent(): Promise<{
   return { context: undefined, remember: false };
 }
 
-async function hydrateTokenFromDbUser(token: JWT, userId: string) {
-  const dbUser = await loadUserForToken(userId);
-  if (!dbUser) {
-    token.storeId = null;
-    token.storeSlug = null;
-    return;
-  }
-
-  const mapped = mapUserToTokenFields(dbUser);
-  token.sub = mapped.id;
-  token.role = mapped.role;
-  token.email = mapped.email;
-  token.name = mapped.name;
-  token.storeId = mapped.storeId;
-  token.storeSlug = mapped.storeSlug;
-}
-
 const providers: NextAuthConfig["providers"] = [
   Credentials({
     credentials: {
@@ -114,6 +98,16 @@ const providers: NextAuthConfig["providers"] = [
       );
 
       if (!valid) return null;
+
+      if (isAdminRole(user.role)) {
+        const access = await adminMayAccessCurrentStore(user.id, user.role);
+        if (!access.allowed) return null;
+        return {
+          ...mapUserToTokenFields(user),
+          storeId: access.storeId,
+          storeSlug: access.storeSlug,
+        };
+      }
 
       return mapUserToTokenFields(user);
     },
@@ -153,6 +147,16 @@ const providers: NextAuthConfig["providers"] = [
 
       if (persona.kind === "staff" && !isAdminRole(user.role)) return null;
       if (persona.kind === "customer" && user.role !== "CUSTOMER") return null;
+
+      if (persona.kind === "staff") {
+        const access = await adminMayAccessCurrentStore(user.id, user.role);
+        if (!access.allowed) return null;
+        return {
+          ...mapUserToTokenFields(user),
+          storeId: access.storeId,
+          storeSlug: access.storeSlug,
+        };
+      }
 
       return mapUserToTokenFields(user);
     },
@@ -205,6 +209,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!dbUser || !isAdminRole(dbUser.role)) {
           return "/admin/login?error=google_not_admin";
         }
+        const access = await adminMayAccessCurrentStore(dbUser.id, dbUser.role);
+        if (!access.allowed) {
+          return "/admin/login?error=google_not_admin";
+        }
       } else if (isCustomerAuthContext(context)) {
         if (dbUser && dbUser.role !== "CUSTOMER") {
           return `${customerAuthErrorPath(context)}?error=google_admin`;
@@ -245,8 +253,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.role = mapped.role;
             token.email = mapped.email;
             token.name = mapped.name;
-            token.storeId = mapped.storeId;
-            token.storeSlug = mapped.storeSlug;
+            if (isAdminRole(mapped.role)) {
+              const access = await adminMayAccessCurrentStore(
+                mapped.id,
+                mapped.role,
+              );
+              token.storeId = access.allowed ? access.storeId : null;
+              token.storeSlug = access.allowed ? access.storeSlug : null;
+              token.membershipCheckedAt = Date.now();
+            } else {
+              token.storeId = null;
+              token.storeSlug = null;
+              delete token.membershipCheckedAt;
+            }
           }
         }
 
@@ -265,6 +284,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role;
         token.storeId = user.storeId;
         token.storeSlug = user.storeSlug;
+        if (isAdminRole(user.role)) {
+          token.membershipCheckedAt = Date.now();
+        } else {
+          delete token.membershipCheckedAt;
+        }
 
         const { context, remember } = await readAuthIntent();
         const resolvedContext: AuthLoginContext =
@@ -283,27 +307,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.role === "CUSTOMER") {
         token.storeId = null;
         token.storeSlug = null;
+        delete token.membershipCheckedAt;
         return token;
       }
 
+      const checkedAt =
+        typeof token.membershipCheckedAt === "number"
+          ? token.membershipCheckedAt
+          : 0;
+      const recheckDue =
+        Date.now() - checkedAt >= ADMIN_MEMBERSHIP_RECHECK_SECONDS * 1000;
+
+      // Trust JWT bound to this deploy until the periodic membership re-check.
       if (
         typeof token.storeId === "string" &&
-        typeof token.storeSlug === "string"
+        token.storeSlug === DEFAULT_STORE_SLUG &&
+        !recheckDue
       ) {
         return token;
       }
 
-      await hydrateTokenFromDbUser(token, token.sub);
-
-      if (
-        typeof token.storeId !== "string" ||
-        typeof token.storeSlug !== "string"
-      ) {
-        const { storeId, storeSlug } = await resolveAdminStoreId(token.sub);
-        token.storeId = storeId;
-        token.storeSlug = storeSlug;
+      const access = await adminMayAccessCurrentStore(
+        token.sub,
+        String(token.role ?? ""),
+      );
+      token.membershipCheckedAt = Date.now();
+      if (!access.allowed) {
+        token.storeId = null;
+        token.storeSlug = null;
+        return token;
       }
 
+      token.storeId = access.storeId;
+      token.storeSlug = access.storeSlug;
       return token;
     },
     async session({ session, token }) {

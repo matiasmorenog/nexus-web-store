@@ -5,6 +5,7 @@ import { listStoreStaffMembers } from "@/lib/store-users/query";
 import type { InviteStoreStaffInput } from "@/lib/store-users/types";
 import { isStoreStaffRole } from "@/lib/store-users/permissions";
 import { requireStoreOwnerSession } from "@/lib/store-users/admin-auth";
+import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 import { assertModule, moduleErrorResponse } from "@/lib/modules";
 import { getStoreId } from "@/lib/store-context";
 
@@ -22,7 +23,15 @@ async function requireModuleAccess() {
 
 async function requireAdminSession() {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!session?.user?.id || !session.user.storeId) {
+    return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }) };
+  }
+
+  const access = await adminMayAccessCurrentStore(
+    session.user.id,
+    session.user.role,
+  );
+  if (!access.allowed) {
     return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }) };
   }
 

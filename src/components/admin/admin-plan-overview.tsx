@@ -227,15 +227,6 @@ export function AdminPlanOverview({
           <li>Pedí el cambio por email (botón Solicitar en el módulo).</li>
           <li>Activamos los módulos del tier en tu tienda.</li>
         </ol>
-        <p className="mt-4 text-sm text-neutral-500">
-          En desarrollo local:{" "}
-          <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs">
-            ENABLED_MODULES=none
-          </code>{" "}
-          o un subconjunto en{" "}
-          <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs">.env</code>
-          . Por defecto demo = todos activos (Pro).
-        </p>
       </AdminCard>
     </div>
   );

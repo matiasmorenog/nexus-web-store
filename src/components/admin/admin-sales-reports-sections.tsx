@@ -17,20 +17,19 @@ import {
 } from "@/lib/admin-analytics";
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
 
-type AdminAdvancedAnalyticsSectionsProps = {
+type AdminSalesReportsSectionsProps = {
   storeId: string;
   period: ActivityPeriod;
 };
 
-export async function AdminAdvancedAnalyticsSections({
+export async function AdminSalesReportsSections({
   storeId,
   period,
-}: AdminAdvancedAnalyticsSectionsProps) {
+}: AdminSalesReportsSectionsProps) {
   const periodLabels = ACTIVITY_PERIOD_LABELS[period];
-  const [report, periodAnalytics] = await Promise.all([
-    getAdvancedAnalyticsReport(storeId, period),
-    getActivityPeriodAnalytics(storeId, period),
-  ]);
+  // Neon pooler connection_limit=1 — serialize report + activity (no Promise.all).
+  const report = await getAdvancedAnalyticsReport(storeId, period);
+  const periodAnalytics = await getActivityPeriodAnalytics(storeId, period);
 
   return (
     <div className="space-y-8">

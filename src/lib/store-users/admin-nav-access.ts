@@ -1,6 +1,7 @@
 import {
-  buildAdminNavItems,
+  buildAdminNavModel,
   type AdminNavItem,
+  type AdminNavModel,
 } from "@/lib/modules/admin-nav";
 import { storeHidesPlanCatalog } from "@/lib/modules/access";
 import type { ModuleId } from "@/lib/modules/catalog";
@@ -44,13 +45,46 @@ export function filterAdminNavItems(
   });
 }
 
+export function filterAdminNavModel(
+  model: AdminNavModel,
+  context: AdminAccessContext,
+  enabledModuleIds: readonly ModuleId[],
+): AdminNavModel {
+  const mainItems = filterAdminNavItems(
+    model.mainItems,
+    context,
+    enabledModuleIds,
+  );
+  const configChildren = filterAdminNavItems(
+    model.configChildren,
+    context,
+    enabledModuleIds,
+  );
+  const hubAllowed = canAccessAdminPath(context, model.configHub.href);
+
+  return {
+    mainItems,
+    configHub: model.configHub,
+    configChildren: hubAllowed ? configChildren : [],
+  };
+}
+
+export function buildFilteredAdminNavModel(
+  context: AdminAccessContext,
+  enabledModuleIds: readonly ModuleId[],
+): AdminNavModel {
+  return filterAdminNavModel(
+    buildAdminNavModel(enabledModuleIds),
+    context,
+    enabledModuleIds,
+  );
+}
+
+/** @deprecated Prefer buildFilteredAdminNavModel. */
 export function buildFilteredAdminNavItems(
   context: AdminAccessContext,
   enabledModuleIds: readonly ModuleId[],
 ): AdminNavItem[] {
-  return filterAdminNavItems(
-    buildAdminNavItems(enabledModuleIds),
-    context,
-    enabledModuleIds,
-  );
+  const model = buildFilteredAdminNavModel(context, enabledModuleIds);
+  return [...model.mainItems, model.configHub, ...model.configChildren];
 }

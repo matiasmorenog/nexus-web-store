@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getStoreId } from "@/lib/store-context";
-import { getStoreStaffRoleForUser } from "@/lib/store-users/membership";
+import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 import { canManageStoreUsers } from "@/lib/store-users/permissions";
 
 export async function requireStoreOwnerSession() {
@@ -12,24 +11,21 @@ export async function requireStoreOwnerSession() {
     };
   }
 
-  let storeId: string;
-  try {
-    storeId = await getStoreId();
-  } catch {
+  const access = await adminMayAccessCurrentStore(
+    session.user.id,
+    session.user.role,
+  );
+
+  if (!access.allowed || !access.storeId) {
     return {
       error: NextResponse.json({ error: "No autorizado" }, { status: 401 }),
     };
   }
 
-  const staffRole =
-    session.user.role === "STORE_STAFF"
-      ? await getStoreStaffRoleForUser(storeId, session.user.id)
-      : null;
-
   if (
     !canManageStoreUsers({
       role: session.user.role,
-      staffRole,
+      staffRole: access.staffRole,
     })
   ) {
     return {

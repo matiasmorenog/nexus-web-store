@@ -18,3 +18,6 @@ export const ADMIN_DASHBOARD_CACHE_REVALIDATE_SECONDS = 300;
 
 /** Facetas del listado de productos en admin. Invalidación: tag al editar catálogo. */
 export const ADMIN_PRODUCTS_SUMMARY_CACHE_REVALIDATE_SECONDS = 600;
+
+/** Facetas / KPIs del listado de pedidos admin. Invalidación: tag al cambiar pedido o pago. */
+export const ADMIN_ORDERS_SUMMARY_CACHE_REVALIDATE_SECONDS = 60;

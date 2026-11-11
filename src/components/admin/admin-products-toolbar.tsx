@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
+import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Label } from "@/components/ui/label";
 import {
@@ -57,7 +58,8 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm",
+        adminSurfaceClass,
+        "p-4",
         className,
       )}
     >

@@ -19,6 +19,8 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
   "/admin/categorias": { es: "Categorías", it: "Categorie", shortEs: "Categorías", shortIt: "Categorie" },
   "/admin/modulos/cobros": { es: "Cobros", it: "Pagamenti", shortEs: "Cobros", shortIt: "Pagamenti" },
   "/admin/configuracion": { es: "Configuración", it: "Impostazioni", shortEs: "Config", shortIt: "Impostazioni" },
+  "/admin/configuracion/idioma": { es: "Idioma", it: "Lingua", shortEs: "Idioma", shortIt: "Lingua" },
+  "/admin/configuracion/seguridad": { es: "Seguridad", it: "Sicurezza", shortEs: "Seguridad", shortIt: "Sicurezza" },
   "/admin/plan": { es: "Plan y módulos", it: "Piano e moduli", shortEs: "Plan", shortIt: "Piano" },
   "/admin/modulos/coupons": {
     es: "Cupones y promociones",
@@ -151,6 +153,8 @@ export const adminChrome = {
     signOut: "Cerrar sesión",
     language: "Idioma",
     languageHint: "El panel y el inicio de sesión usan este idioma en este navegador.",
+    security: "Seguridad",
+    securityHint: "Seguridad de tu cuenta admin.",
   },
   it: {
     viewStore: "Vedi negozio",
@@ -166,6 +170,8 @@ export const adminChrome = {
     signOut: "Esci",
     language: "Lingua",
     languageHint: "Il pannello e l'accesso usano questa lingua in questo browser.",
+    security: "Sicurezza",
+    securityHint: "Sicurezza del tuo account admin.",
   },
 } as const;
 

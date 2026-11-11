@@ -8,6 +8,8 @@ export type AdminNavIconKey =
   | "orders"
   | "cobros"
   | "config"
+  | "language"
+  | "security"
   | "plan"
   | ModuleId;
 
@@ -47,9 +49,9 @@ export type AdminNavItem =
 export type AdminNavModel = {
   /** Day-to-day sidebar items (excludes Config hub + set-and-forget children). */
   mainItems: AdminNavItem[];
-  /** Store settings hub (`/admin/configuracion`). */
+  /** Config group toggle only (not a page). Path prefix for open state. */
   configHub: AdminCoreNavItem;
-  /** Accordion children under Config (plan, SEO, marketing, users, API). */
+  /** Children under Config (idioma, seguridad, modules, plan). */
   configChildren: AdminNavItem[];
 };
 
@@ -97,6 +99,22 @@ const CORE_NAV_BY_HREF = {
     shortLabel: "Config",
     iconKey: "config" as const,
   },
+  "/admin/configuracion/idioma": {
+    kind: "core" as const,
+    href: "/admin/configuracion/idioma",
+    label: "Idioma",
+    shortLabel: "Idioma",
+    iconKey: "language" as const,
+    exact: true,
+  },
+  "/admin/configuracion/seguridad": {
+    kind: "core" as const,
+    href: "/admin/configuracion/seguridad",
+    label: "Seguridad",
+    shortLabel: "Seguridad",
+    iconKey: "security" as const,
+    exact: true,
+  },
 } satisfies Record<string, AdminCoreNavItem>;
 
 /**
@@ -141,13 +159,16 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
 ];
 
 /**
- * Orden bajo Configuración (después del hub idioma/seguridad):
- * gente → canales → SEO → técnico → plan/billing al final (menos frecuente).
+ * Orden bajo Configuración (toggle only):
+ * idioma → seguridad → gente → canales → SEO → técnico → plan.
  */
 const ADMIN_CONFIG_CHILDREN_ORDER: Array<
   | { kind: "plan" }
+  | { kind: "core"; href: "/admin/configuracion/idioma" | "/admin/configuracion/seguridad" }
   | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
 > = [
+  { kind: "core", href: "/admin/configuracion/idioma" },
+  { kind: "core", href: "/admin/configuracion/seguridad" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "seo" },
@@ -164,11 +185,12 @@ const ADMIN_SIDEBAR_ORDER: Array<
     (entry) =>
       !(entry.kind === "core" && entry.href === "/admin/configuracion"),
   ),
+  { kind: "core", href: "/admin/configuracion/idioma" },
+  { kind: "core", href: "/admin/configuracion/seguridad" },
   ...ADMIN_CONFIG_SUBMENU_MODULE_IDS.map((moduleId) => ({
     kind: "module" as const,
     moduleId,
   })),
-  { kind: "core", href: "/admin/configuracion" },
 ];
 
 export const ADMIN_PLAN_NAV_ITEM: AdminPlanNavItem = {
@@ -226,6 +248,10 @@ export function buildAdminNavModel(
   for (const entry of ADMIN_CONFIG_CHILDREN_ORDER) {
     if (entry.kind === "plan") {
       configChildren.push(ADMIN_PLAN_NAV_ITEM);
+      continue;
+    }
+    if (entry.kind === "core") {
+      configChildren.push(CORE_NAV_BY_HREF[entry.href]);
       continue;
     }
     if (enabled.has(entry.moduleId)) {
@@ -298,7 +324,8 @@ export function isConfigSubmenuPathActive(
   pathname: string,
   model: Pick<AdminNavModel, "configHub" | "configChildren">,
 ): boolean {
-  if (isAdminNavItemActive(pathname, model.configHub)) return true;
+  if (pathname === model.configHub.href) return true;
+  if (pathname.startsWith(`${model.configHub.href}/`)) return true;
   return model.configChildren.some((item) =>
     isAdminNavItemActive(pathname, item),
   );

@@ -11,7 +11,9 @@ import {
   Gift,
   Heart,
   Home,
+  Languages,
   LayoutTemplate,
+  Lock,
   Megaphone,
   Menu,
   Package,
@@ -34,6 +36,7 @@ import { useShellNavEnterOnce } from "@/hooks/use-shell-nav-enter-once";
 import { adminChrome, type AdminLocale } from "@/lib/admin-locale";
 import {
   isAdminNavItemActive,
+  isConfigSubmenuPathActive,
   isModuleNavItemEnabled,
   type AdminNavIconKey,
   type AdminNavItem,
@@ -49,6 +52,8 @@ const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
   categories: Tags,
   orders: ShoppingCart,
   config: Settings,
+  language: Languages,
+  security: Lock,
   plan: Sparkles,
   coupons: Gift,
   homeEditor: Home,
@@ -131,6 +136,70 @@ function DesktopNavLink({
   );
 }
 
+function ConfigNavGroup({
+  hub,
+  items,
+  enabledModuleIds,
+  pathname,
+  locale,
+  onNavigate,
+}: {
+  hub: AdminNavItem;
+  items: AdminNavItem[];
+  enabledModuleIds: ModuleId[];
+  pathname: string;
+  locale: AdminLocale;
+  onNavigate?: () => void;
+}) {
+  const copy = adminChrome[locale];
+  const pathInGroup = isConfigSubmenuPathActive(pathname, {
+    configHub: hub as AdminNavModel["configHub"],
+    configChildren: items,
+  });
+  const [manualOpen, setManualOpen] = useState(false);
+  const open = pathInGroup || manualOpen;
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="space-y-1">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls="admin-config-submenu"
+        aria-label={open ? copy.collapseConfig : copy.expandConfig}
+        onClick={() => {
+          if (pathInGroup) return;
+          setManualOpen((value) => !value);
+        }}
+        className={cn(
+          "relative z-[1] flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors duration-200",
+          pathInGroup
+            ? "text-white"
+            : "text-neutral-400 hover:bg-white/5 hover:text-white",
+        )}
+      >
+        <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
+        <span className="truncate">{hub.label}</span>
+      </button>
+      {open ? (
+        <div id="admin-config-submenu" role="group" aria-label={copy.configSubmenu} className="space-y-1">
+          {items.map((item) => (
+            <DesktopNavLink
+              key={item.href}
+              item={item}
+              enabledModuleIds={enabledModuleIds}
+              pathname={pathname}
+              onNavigate={onNavigate}
+              nested
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 type AdminSidebarPanelProps = {
   brandPrefix: string;
   userName?: string | null;
@@ -207,22 +276,14 @@ function AdminSidebarPanel({
               onNavigate={onNavigate}
             />
           ))}
-          <DesktopNavLink
-            item={navModel.configHub}
+          <ConfigNavGroup
+            hub={navModel.configHub}
+            items={navModel.configChildren}
             enabledModuleIds={enabledModuleIds}
             pathname={pathname}
+            locale={locale}
             onNavigate={onNavigate}
           />
-          {navModel.configChildren.map((item) => (
-            <DesktopNavLink
-              key={item.href}
-              item={item}
-              enabledModuleIds={enabledModuleIds}
-              pathname={pathname}
-              onNavigate={onNavigate}
-              nested
-            />
-          ))}
         </nav>
       </div>
 

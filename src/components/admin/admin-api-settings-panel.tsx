@@ -149,7 +149,7 @@ export function AdminApiSettingsPanel({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-lg space-y-6">
       <AdminCard
         title="Claves de API"
         description="Usá Bearer auth en /api/v1/*. La clave completa solo se muestra al crearla."

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PASSWORD_MIN_LENGTH } from "@/lib/password-policy";
 import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { storefrontPath } from "@/lib/storefront-paths";
 
@@ -88,7 +89,7 @@ export function ResetPasswordForm({
           name="password"
           type="password"
           autoComplete="new-password"
-          minLength={6}
+          minLength={PASSWORD_MIN_LENGTH}
           required
         />
       </div>
@@ -99,7 +100,7 @@ export function ResetPasswordForm({
           name="confirmPassword"
           type="password"
           autoComplete="new-password"
-          minLength={6}
+          minLength={PASSWORD_MIN_LENGTH}
           required
         />
         <p className="mt-1 text-xs text-neutral-500">{copy.minPassword}</p>

@@ -64,7 +64,7 @@ export function AdminLocaleSwitcher({
           aria-pressed={locale === "es"}
           onClick={() => choose("es")}
         >
-          {copy.spanish}
+          Español
         </button>
         <button
           type="button"
@@ -72,7 +72,7 @@ export function AdminLocaleSwitcher({
           aria-pressed={locale === "it"}
           onClick={() => choose("it")}
         >
-          {copy.italian}
+          Italiano
         </button>
       </div>
     </div>

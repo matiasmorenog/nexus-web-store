@@ -47,7 +47,7 @@ export function ProductCard({
     >
       <article
         className={cn(
-          "storefront-card flex h-full flex-col overflow-hidden border bg-white",
+          "storefront-card flex h-full flex-col overflow-hidden border bg-white shadow-sm",
           atelierCard ? "border-[#202523]/12" : "border-neutral-200",
           !inStock && "opacity-95",
         )}

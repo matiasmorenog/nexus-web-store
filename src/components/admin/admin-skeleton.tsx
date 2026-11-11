@@ -3,6 +3,7 @@ import {
   adminCardClass,
   adminCardHeaderClass,
   adminCardInsetClass,
+  adminSurfaceClass,
 } from "@/components/admin/admin-surface";
 import {
   AdminTableScroll,
@@ -15,7 +16,7 @@ import {
 } from "@/components/admin/admin-table";
 import {
   adminFiltersAsideClass,
-  adminFiltersPanelScrollClass,
+  adminFiltersPanelShellClass,
   adminListLayoutRowClass,
   adminListMainColumnClass,
   adminOrdersMainColumnClass,
@@ -1209,12 +1210,7 @@ export function AdminSkeletonListToolbar({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm",
-        className,
-      )}
-    >
+    <div className={cn(adminSurfaceClass, "p-4", className)}>
       <div
         className={cn(
           "flex flex-col gap-3",
@@ -1261,7 +1257,7 @@ export function AdminSkeletonFiltersPanel({
           ? "Cargando filtros de productos"
           : "Cargando filtros de pedidos"
       }
-      className={cn(adminFiltersPanelScrollClass, className)}
+      className={cn(adminFiltersPanelShellClass, className)}
     >
       {variant === "products" ? (
         <AdminSkeletonFacetFiltersCard

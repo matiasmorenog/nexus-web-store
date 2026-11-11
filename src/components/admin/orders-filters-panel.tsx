@@ -11,7 +11,10 @@ import {
   AdminFilterSection,
 } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
-import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
+import {
+  adminFiltersPanelScrollClass,
+  adminFiltersPanelShellClass,
+} from "@/lib/admin-list-layout";
 import { hasAdminOrderFacetFilters } from "@/lib/admin-order-filters";
 import { cn } from "@/lib/utils";
 
@@ -47,31 +50,33 @@ export function OrdersFiltersPanel({
   });
 
   return (
-    <div className={cn(adminFiltersPanelScrollClass, className)}>
+    <div className={cn(adminFiltersPanelShellClass, className)}>
       <AdminCard title="Filtros" description="Estado del pedido." padding={false}>
-        <AdminFilterSection title="Por estado" activeKey={activeStatus || "__all__"}>
-          <AdminFilterButton
-            active={!activeStatus}
-            label="Todos"
-            count={totalOrders}
-            onClick={() => navigate({ estado: "" })}
-          />
-          {ORDER_STATUSES.map((status) => (
+        <div className={adminFiltersPanelScrollClass}>
+          <AdminFilterSection title="Por estado" activeKey={activeStatus || "__all__"}>
             <AdminFilterButton
-              key={status}
-              active={activeStatus === status}
-              label={getOrderStatusLabel(status)}
-              count={counts[status]}
-              onClick={() =>
-                navigate({ estado: activeStatus === status ? "" : status })
-              }
+              active={!activeStatus}
+              label="Todos"
+              count={totalOrders}
+              onClick={() => navigate({ estado: "" })}
             />
-          ))}
-        </AdminFilterSection>
+            {ORDER_STATUSES.map((status) => (
+              <AdminFilterButton
+                key={status}
+                active={activeStatus === status}
+                label={getOrderStatusLabel(status)}
+                count={counts[status]}
+                onClick={() =>
+                  navigate({ estado: activeStatus === status ? "" : status })
+                }
+              />
+            ))}
+          </AdminFilterSection>
 
-        {hasFacetFilters ? (
-          <AdminClearFiltersButton onClick={() => navigate({ estado: "" })} />
-        ) : null}
+          {hasFacetFilters ? (
+            <AdminClearFiltersButton onClick={() => navigate({ estado: "" })} />
+          ) : null}
+        </div>
       </AdminCard>
     </div>
   );

@@ -2,11 +2,17 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import {
+  PASSWORD_MIN_LENGTH,
+  passwordTooShortMessage,
+} from "@/lib/password-policy";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, "Ingresá tu nombre"),
   email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, passwordTooShortMessage("es")),
 });
 
 export async function POST(request: Request) {

@@ -20,6 +20,33 @@ export type SlidingIndicatorBox = {
 const SELECTED_SELECTOR =
   '[data-sliding-selected="true"], [aria-current="page"]';
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+/**
+ * Measure active item relative to the list (works for nested links under Config).
+ */
+function measureSelectedBox(
+  list: HTMLElement,
+): SlidingIndicatorBox | null {
+  const active = list.querySelector<HTMLElement>(SELECTED_SELECTOR);
+  if (!active) return null;
+
+  const listRect = list.getBoundingClientRect();
+  const activeRect = active.getBoundingClientRect();
+
+  return {
+    top: activeRect.top - listRect.top + list.scrollTop,
+    left: activeRect.left - listRect.left + list.scrollLeft,
+    width: activeRect.width,
+    height: activeRect.height,
+  };
+}
+
 export function useSlidingIndicator(activeKey: string): {
   listRef: RefObject<HTMLElement | null>;
   indicator: SlidingIndicatorBox | null;
@@ -35,17 +62,7 @@ export function useSlidingIndicator(activeKey: string): {
     if (!list) return;
 
     const update = () => {
-      const active = list.querySelector<HTMLElement>(SELECTED_SELECTOR);
-      if (!active) {
-        setIndicator(null);
-        return;
-      }
-      setIndicator({
-        top: active.offsetTop,
-        left: active.offsetLeft,
-        width: active.offsetWidth,
-        height: active.offsetHeight,
-      });
+      setIndicator(measureSelectedBox(list));
     };
 
     update();
@@ -54,23 +71,24 @@ export function useSlidingIndicator(activeKey: string): {
     if (!readyRef.current) {
       readyRef.current = true;
       frame = requestAnimationFrame(() => {
-        setAnimate(
-          !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-        );
+        setAnimate(!prefersReducedMotion());
       });
+    } else {
+      setAnimate(!prefersReducedMotion());
     }
 
     const observer = new ResizeObserver(update);
     observer.observe(list);
-    for (const child of list.querySelectorAll<HTMLElement>(
-      ":scope > a, :scope > button",
-    )) {
+    for (const child of list.querySelectorAll<HTMLElement>("a, button")) {
       observer.observe(child);
     }
+
+    list.addEventListener("scroll", update, { passive: true });
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
       observer.disconnect();
+      list.removeEventListener("scroll", update);
     };
   }, [activeKey]);
 
@@ -82,26 +100,33 @@ export function SlidingIndicatorPill({
   animate,
   className,
   style,
+  skipEnterReveal = false,
 }: {
   indicator: SlidingIndicatorBox | null;
   animate: boolean;
   className?: string;
   style?: CSSProperties;
+  /** Absolute pill — skip shell-nav-reveal stagger on sidebar first paint. */
+  skipEnterReveal?: boolean;
 }) {
-  if (!indicator) return null;
-
+  // Always mount a skip node so nth-child cascade delays stay stable when the
+  // measured pill appears after the first layout pass.
   return (
     <span
       aria-hidden
       className={cn(
         "pointer-events-none absolute top-0 left-0 z-0",
-        animate && "sliding-indicator-animate",
+        animate && indicator && "sliding-indicator-animate",
+        skipEnterReveal && "shell-nav-reveal-skip",
+        !indicator && "opacity-0",
         className,
       )}
       style={{
-        width: indicator.width,
-        height: indicator.height,
-        transform: `translate(${indicator.left}px, ${indicator.top}px)`,
+        width: indicator?.width ?? 0,
+        height: indicator?.height ?? 0,
+        transform: indicator
+          ? `translate(${indicator.left}px, ${indicator.top}px)`
+          : undefined,
         ...style,
       }}
     />

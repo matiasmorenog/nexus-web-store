@@ -12,7 +12,10 @@ import {
   getAdminProductsCopy,
   readAdminLocaleFromDocument,
 } from "@/lib/admin-locale";
-import { adminFiltersPanelScrollClass } from "@/lib/admin-list-layout";
+import {
+  adminFiltersPanelScrollClass,
+  adminFiltersPanelShellClass,
+} from "@/lib/admin-list-layout";
 import { hasAdminProductFacetFilters } from "@/lib/admin-product-filters";
 import { PRODUCT_CATEGORIES, STORE_AUDIENCES } from "@/lib/categories";
 import type { ProductCategoryDef } from "@/lib/store-verticals/types";
@@ -91,12 +94,13 @@ export function ProductsFiltersPanel({
   });
 
   return (
-    <div className={cn(adminFiltersPanelScrollClass, className)}>
+    <div className={cn(adminFiltersPanelShellClass, className)}>
       <AdminCard
         title={copy.filtersTitle}
         description={copy.filtersDescription}
         padding={false}
       >
+        <div className={adminFiltersPanelScrollClass}>
         <AdminFilterSection
           title={copy.categorySection}
           activeKey={activeCategory || "__all__"}
@@ -205,6 +209,7 @@ export function ProductsFiltersPanel({
             }
           />
         ) : null}
+        </div>
       </AdminCard>
     </div>
   );

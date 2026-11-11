@@ -64,6 +64,7 @@ export function AdminAfipSettingsPanel({
     <AdminCard
       title="Facturación AFIP"
       description="Preparación para emitir comprobantes al confirmar el pago. El WS de AFIP se integrará en una fase posterior (NEX-6)."
+      className="max-w-lg"
     >
       <AdminForm onSubmit={handleSubmit} className="space-y-4">
         <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">

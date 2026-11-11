@@ -11,6 +11,7 @@ import {
 import { RememberMeCheckbox } from "@/components/auth/remember-me-checkbox";
 import { setAuthIntentCookies } from "@/lib/auth-client";
 import { resolveCustomerCallbackUrl } from "@/lib/customer-auth-redirect";
+import { PASSWORD_MIN_LENGTH } from "@/lib/password-policy";
 import { getLocaleCopy } from "@/lib/storefront-locale-copy";
 import { storefrontPath } from "@/lib/storefront-paths";
 import { Button } from "@/components/ui/button";
@@ -237,7 +238,7 @@ export function CustomerRegisterForm({
           name="password"
           type="password"
           autoComplete="new-password"
-          minLength={6}
+          minLength={PASSWORD_MIN_LENGTH}
           required
         />
         <p className="mt-1 text-xs text-neutral-500">{copy.minPassword}</p>

@@ -1,40 +1,20 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
-
-/** Survives AdminNav remounts (mobile drawer / layout). */
-let shellNavEnterPlayed = false;
+import { useState } from "react";
 
 export type ShellNavEnterState = {
   /** Sidebar content can render (skip opacity gate). */
   ready: boolean;
-  /** Play enter motion on this mount; latched so layout does not flip after. */
+  /** Play enter motion on this document load / mount. */
   animate: boolean;
 };
 
 /**
- * Sidebar enter motion once per session when admin nav first appears.
- * `enabled=false` does not consume the flag.
+ * Cascade enter for the admin sidebar.
+ * Plays on each full page load (fresh mount of the desktop shell).
+ * Pass `enabled=false` for the mobile drawer so opening it does not re-cascade.
  */
 export function useShellNavEnterOnce(enabled = true): ShellNavEnterState {
-  const [latched, setLatched] = useState(false);
-  const [ready, setReady] = useState(() => !enabled);
-
-  useLayoutEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect -- layout sync for sidebar reveal gate */
-    if (!enabled) {
-      setReady(true);
-      return;
-    }
-    if (!shellNavEnterPlayed) {
-      shellNavEnterPlayed = true;
-      setLatched(true);
-    }
-    setReady(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [enabled]);
-
-  const animate = latched || (enabled && !shellNavEnterPlayed);
-
-  return { ready, animate };
+  const [animate] = useState(enabled);
+  return { ready: true, animate };
 }

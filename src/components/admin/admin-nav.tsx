@@ -211,6 +211,8 @@ type AdminSidebarPanelProps = {
   onNavigate?: () => void;
   showCloseButton?: boolean;
   onClose?: () => void;
+  /** Desktop shell: cascade on page load. Mobile drawer: false. */
+  cascadeEnter?: boolean;
 };
 
 function AdminSidebarPanel({
@@ -224,10 +226,11 @@ function AdminSidebarPanel({
   onNavigate,
   showCloseButton = false,
   onClose,
+  cascadeEnter = true,
 }: AdminSidebarPanelProps) {
   const copy = adminChrome[locale];
   const { listRef, indicator, animate } = useSlidingIndicator(pathname);
-  const { animate: staggerEnter } = useShellNavEnterOnce(true);
+  const { animate: staggerEnter } = useShellNavEnterOnce(cascadeEnter);
 
   return (
     <>
@@ -408,6 +411,7 @@ function AdminMobileNav({
               onNavigate={closeMobileNav}
               showCloseButton
               onClose={closeMobileNav}
+              cascadeEnter={false}
             />
           </aside>
         </div>

@@ -35,7 +35,7 @@ export default async function AdminTrafficPage({
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="Tráfico"
-          description="Visitas reales del storefront: totales, tendencia, páginas, país, browser y dispositivos."
+          description="Visitas reales de tu tienda: totales, tendencia, páginas, país, browser y dispositivos."
         />
       </AdminDashboardReveal>
 

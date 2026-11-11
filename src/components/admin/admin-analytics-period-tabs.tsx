@@ -6,6 +6,7 @@ import {
   ACTIVITY_PERIOD_LABELS,
   type ActivityPeriod,
 } from "@/lib/admin-analytics-shared";
+import { adminCardShadowClass } from "@/components/admin/admin-surface";
 import { cn } from "@/lib/utils";
 
 const PERIODS: ActivityPeriod[] = ["week", "month", "year"];
@@ -29,7 +30,12 @@ export function AdminAnalyticsPeriodTabs({ period }: AdminAnalyticsPeriodTabsPro
   const searchParams = useSearchParams();
 
   return (
-    <div className="flex gap-1 rounded-lg border border-neutral-200 bg-white p-1">
+    <div
+      className={cn(
+        "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
+        adminCardShadowClass,
+      )}
+    >
       {PERIODS.map((value) => (
         <Link
           key={value}

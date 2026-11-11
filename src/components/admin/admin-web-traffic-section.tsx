@@ -19,10 +19,18 @@ function formatCount(value: number): string {
   return new Intl.NumberFormat("es-AR").format(value);
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({
+  label,
+  description,
+  value,
+}: {
+  label: string;
+  description: string;
+  value: string;
+}) {
   return (
-    <AdminCard title={label} className="h-full">
-      <p className="text-3xl font-bold tracking-tight text-neutral-900">
+    <AdminCard title={label} description={description} className="h-full">
+      <p className="text-3xl font-bold tracking-tight tabular-nums text-neutral-900">
         {value}
       </p>
     </AdminCard>
@@ -43,7 +51,7 @@ export function AdminWebTrafficSection({
             Tráfico del sitio
           </h2>
           <p className="mt-1 text-sm text-neutral-500">
-            Visitas reales del storefront ({periodLabel}
+            Visitas reales de tu tienda ({periodLabel}
             {report.clampedToHobbyWindow
               ? ", ventana máxima del plan Vercel"
               : ""}
@@ -65,34 +73,39 @@ export function AdminWebTrafficSection({
         </AdminCard>
       ) : (
         <>
-          <div className="grid auto-rows-fr gap-4 sm:grid-cols-2">
-            <MetricCard
-              label="Visitantes"
-              value={formatCount(report.totals.visitors)}
-            />
-            <MetricCard
-              label="Vistas de página"
-              value={formatCount(report.totals.pageviews)}
-            />
-          </div>
+          <div className="grid items-stretch gap-4 lg:grid-cols-[1.4fr_1fr]">
+            <AdminCard
+              className="h-full overflow-visible"
+              title={
+                report.seriesBy === "hour"
+                  ? "Tendencia por hora"
+                  : "Tendencia diaria"
+              }
+              description={
+                report.seriesBy === "hour"
+                  ? "Pageviews por hora (últimas 24 h)"
+                  : "Pageviews por día en el período"
+              }
+            >
+              <AdminWebTrafficDailyChart
+                points={report.series}
+                seriesBy={report.seriesBy}
+              />
+            </AdminCard>
 
-          <AdminCard
-            title={
-              report.seriesBy === "hour"
-                ? "Tendencia por hora"
-                : "Tendencia diaria"
-            }
-            description={
-              report.seriesBy === "hour"
-                ? "Pageviews por hora (últimas 24 h)"
-                : "Pageviews por día en el período"
-            }
-          >
-            <AdminWebTrafficDailyChart
-              points={report.series}
-              seriesBy={report.seriesBy}
-            />
-          </AdminCard>
+            <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              <MetricCard
+                label="Visitantes"
+                description="Personas únicas que entraron al sitio en el período"
+                value={formatCount(report.totals.visitors)}
+              />
+              <MetricCard
+                label="Vistas de página"
+                description="Cantidad total de páginas vistas (una persona puede sumar varias)"
+                value={formatCount(report.totals.pageviews)}
+              />
+            </div>
+          </div>
 
           {/* CSS columns = masonry: short cards stack under tall neighbors (no row gaps). */}
           <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">

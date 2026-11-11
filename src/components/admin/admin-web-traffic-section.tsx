@@ -1,15 +1,21 @@
+import { Suspense } from "react";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminWebTrafficDailyChart } from "@/components/admin/admin-web-traffic-daily-chart";
-import { ACTIVITY_PERIOD_LABELS, type ActivityPeriod } from "@/lib/admin-analytics";
+import { AdminWebTrafficPeriodTabs } from "@/components/admin/admin-web-traffic-period-tabs";
 import type {
   WebAnalyticsNamedRow,
   WebAnalyticsPathRow,
   WebAnalyticsReport,
 } from "@/lib/web-analytics";
+import {
+  WEB_TRAFFIC_PERIOD_LABELS,
+  type WebTrafficPeriod,
+} from "@/lib/web-analytics/period";
 import { cn } from "@/lib/utils";
 
 type AdminWebTrafficSectionProps = {
-  period: ActivityPeriod;
+  period: WebTrafficPeriod;
   report: WebAnalyticsReport;
 };
 
@@ -88,21 +94,26 @@ export function AdminWebTrafficSection({
   period,
   report,
 }: AdminWebTrafficSectionProps) {
-  const periodLabel = ACTIVITY_PERIOD_LABELS[period].summary;
+  const periodLabel = WEB_TRAFFIC_PERIOD_LABELS[period].summary;
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-neutral-900">
-          Tráfico del sitio
-        </h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Visitas reales del storefront ({periodLabel}
-          {report.clampedToHobbyWindow
-            ? ", ventana máxima del plan Vercel"
-            : ""}
-          ). País, browser, OS y tendencia diaria vía Web Analytics.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Tráfico del sitio
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Visitas reales del storefront ({periodLabel}
+            {report.clampedToHobbyWindow
+              ? ", ventana máxima del plan Vercel"
+              : ""}
+            ). País, browser, OS y tendencia vía Web Analytics.
+          </p>
+        </div>
+        <Suspense fallback={<AdminSkeletonTabs />}>
+          <AdminWebTrafficPeriodTabs period={period} />
+        </Suspense>
       </div>
 
       {report.status === "unconfigured" ||
@@ -127,10 +138,21 @@ export function AdminWebTrafficSection({
           </div>
 
           <AdminCard
-            title="Tendencia diaria"
-            description="Pageviews por día en el período"
+            title={
+              report.seriesBy === "hour"
+                ? "Tendencia por hora"
+                : "Tendencia diaria"
+            }
+            description={
+              report.seriesBy === "hour"
+                ? "Pageviews por hora (últimas 24 h)"
+                : "Pageviews por día en el período"
+            }
           >
-            <AdminWebTrafficDailyChart points={report.daily} />
+            <AdminWebTrafficDailyChart
+              points={report.series}
+              seriesBy={report.seriesBy}
+            />
           </AdminCard>
 
           <div className="grid items-start gap-6 lg:grid-cols-2">

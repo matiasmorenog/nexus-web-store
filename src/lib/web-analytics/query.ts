@@ -1,17 +1,20 @@
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
 import { getWebAnalyticsEnv } from "@/lib/web-analytics/env";
 import {
   formatCountryLabel,
   formatDayLabel,
   formatDeviceLabel,
+  formatHourLabel,
   formatProductPathLabel,
   formatReferrerLabel,
   formatTechLabel,
   getWebAnalyticsDateRange,
-  WEB_ANALYTICS_HOBBY_MAX_DAYS,
 } from "@/lib/web-analytics/format";
+import type {
+  WebTrafficPeriod,
+  WebTrafficSeriesGranularity,
+} from "@/lib/web-analytics/period";
 import type {
   WebAnalyticsDayPoint,
   WebAnalyticsNamedRow,
@@ -33,12 +36,14 @@ function emptyTotals(): WebAnalyticsTotals {
 function emptyReport(
   partial: Pick<WebAnalyticsReport, "status" | "message" | "since" | "until"> & {
     clampedToHobbyWindow?: boolean;
+    seriesBy?: WebTrafficSeriesGranularity;
   },
 ): WebAnalyticsReport {
   return {
     ...partial,
     totals: emptyTotals(),
-    daily: [],
+    series: [],
+    seriesBy: partial.seriesBy ?? "day",
     topProductPages: [],
     topPages: [],
     topReferrers: [],
@@ -134,30 +139,48 @@ function parseNamedRows(
     .sort((a, b) => b.visitors - a.visitors || b.pageviews - a.pageviews);
 }
 
-function parseDailyRows(rows: AggregateRow[]): WebAnalyticsDayPoint[] {
-  const byDate = new Map<string, WebAnalyticsDayPoint>();
+function parseSeriesRows(
+  rows: AggregateRow[],
+  seriesBy: WebTrafficSeriesGranularity,
+): WebAnalyticsDayPoint[] {
+  const byKey = new Map<string, WebAnalyticsDayPoint>();
 
   for (const row of rows) {
-    const stamp = asString(row.timestamp || row.day);
+    const stamp = asString(row.timestamp || row.day || row.hour);
     if (!stamp) continue;
-    const date = stamp.slice(0, 10);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-    byDate.set(date, {
-      date,
-      label: formatDayLabel(date),
+
+    if (seriesBy === "hour") {
+      const date = new Date(stamp);
+      if (Number.isNaN(date.getTime())) continue;
+      date.setUTCMinutes(0, 0, 0);
+      const key = date.toISOString();
+      byKey.set(key, {
+        date: key,
+        label: formatHourLabel(key),
+        visitors: asNumber(row.visitors),
+        pageviews: asNumber(row.pageviews),
+      });
+      continue;
+    }
+
+    const day = stamp.slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue;
+    byKey.set(day, {
+      date: day,
+      label: formatDayLabel(day),
       visitors: asNumber(row.visitors),
       pageviews: asNumber(row.pageviews),
     });
   }
 
-  return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  return [...byKey.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
 async function fetchWebAnalyticsReport(
-  period: ActivityPeriod,
+  period: WebTrafficPeriod,
 ): Promise<WebAnalyticsReport> {
   const env = getWebAnalyticsEnv();
-  const { since, until, clampedToHobbyWindow } =
+  const { since, until, clampedToHobbyWindow, seriesBy } =
     getWebAnalyticsDateRange(period);
   const sinceIso = since.toISOString();
   const untilIso = until.toISOString();
@@ -170,6 +193,7 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       clampedToHobbyWindow,
+      seriesBy,
     });
   }
 
@@ -183,9 +207,10 @@ async function fetchWebAnalyticsReport(
   try {
     // External HTTP — parallel OK (not Neon pooler).
     // No UTM dims: require Vercel Analytics Plus (not on Hobby).
+    const seriesLimit = seriesBy === "hour" ? 28 : 32;
     const [
       countJson,
-      dailyJson,
+      seriesJson,
       pathsJson,
       productsJson,
       referrersJson,
@@ -199,8 +224,8 @@ async function fetchWebAnalyticsReport(
         "/visits/aggregate",
         {
           ...baseParams,
-          by: "day",
-          limit: WEB_ANALYTICS_HOBBY_MAX_DAYS + 2,
+          by: seriesBy,
+          limit: seriesLimit,
         },
         env.token,
       ),
@@ -285,7 +310,7 @@ async function fetchWebAnalyticsReport(
       pageviews: asNumber(countData.pageviews),
     };
 
-    const daily = parseDailyRows(aggregateRows(dailyJson));
+    const series = parseSeriesRows(aggregateRows(seriesJson), seriesBy);
     const topPages = parsePathRows(aggregateRows(pathsJson), "requestPath");
     const topProductPages = parsePathRows(
       aggregateRows(productsJson),
@@ -321,7 +346,7 @@ async function fetchWebAnalyticsReport(
       totals.visitors === 0 &&
       totals.pageviews === 0 &&
       topPages.length === 0 &&
-      daily.length === 0
+      series.length === 0
     ) {
       return emptyReport({
         status: "empty",
@@ -330,6 +355,7 @@ async function fetchWebAnalyticsReport(
         since: sinceIso,
         until: untilIso,
         clampedToHobbyWindow,
+        seriesBy,
       });
     }
 
@@ -338,7 +364,8 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       totals,
-      daily,
+      series,
+      seriesBy,
       topProductPages,
       topPages,
       topReferrers,
@@ -359,23 +386,27 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       clampedToHobbyWindow,
+      seriesBy,
     });
   }
 }
 
-function getCachedWebAnalyticsReport(period: ActivityPeriod, projectId: string) {
+function getCachedWebAnalyticsReport(
+  period: WebTrafficPeriod,
+  projectId: string,
+) {
   return unstable_cache(
     () => fetchWebAnalyticsReport(period),
-    ["web-analytics-report", period, projectId, "v4-no-utm"],
+    ["web-analytics-report", period, projectId, "v5-traffic-periods"],
     { revalidate: CACHE_TTL_SECONDS },
   )();
 }
 
 export const getWebAnalyticsReport = cache(
-  async (period: ActivityPeriod = "week"): Promise<WebAnalyticsReport> => {
+  async (period: WebTrafficPeriod = "7d"): Promise<WebAnalyticsReport> => {
     const env = getWebAnalyticsEnv();
     if (!env) {
-      const { since, until, clampedToHobbyWindow } =
+      const { since, until, clampedToHobbyWindow, seriesBy } =
         getWebAnalyticsDateRange(period);
       return emptyReport({
         status: "unconfigured",
@@ -384,6 +415,7 @@ export const getWebAnalyticsReport = cache(
         since: since.toISOString(),
         until: until.toISOString(),
         clampedToHobbyWindow,
+        seriesBy,
       });
     }
     return getCachedWebAnalyticsReport(period, env.projectId);

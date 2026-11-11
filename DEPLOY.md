@@ -31,7 +31,7 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 El storefront (las 3 tiendas) incluye `@vercel/analytics` en `StorefrontMarketingShell`. Meta Pixel sigue aparte (ads / conversiones).
 
-**Dashboard admin (plan Pro / módulo `analytics`):** `/admin/modulos/analytics` muestra tráfico del sitio (visitantes, pageviews, productos más vistos, páginas top, referrers, dispositivos) vía Web Analytics API.
+**Dashboard admin (plan Pro / módulo `analytics`):** `/admin/modulos/trafico` (visitas Vercel) y `/admin/modulos/reportes` (ventas + CSV). Legacy `/admin/modulos/analytics` redirige a Tráfico.
 
 Por cada proyecto Vercel (`goat-indumentaria`, `vaporx-store`, `manoviva-store`):
 

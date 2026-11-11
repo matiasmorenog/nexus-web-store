@@ -22,7 +22,7 @@ function buildPeriodHref(
   if (next === "week") params.delete("period");
   else params.set("period", next);
   const qs = params.toString();
-  return qs ? `/admin/modulos/analytics?${qs}` : "/admin/modulos/analytics";
+  return qs ? `/admin/modulos/reportes?${qs}` : "/admin/modulos/reportes";
 }
 
 export function AdminAnalyticsPeriodTabs({ period }: AdminAnalyticsPeriodTabsProps) {

@@ -11,6 +11,7 @@ export type AdminNavIconKey =
   | "language"
   | "security"
   | "plan"
+  | "reportes"
   | ModuleId;
 
 export type AdminCoreNavItem = {
@@ -220,6 +221,28 @@ function buildModuleNavItem(moduleId: ModuleId): AdminModuleNavItem {
   };
 }
 
+/** Analytics Plus = two sidebar entries, one ModuleId. */
+function buildAnalyticsNavItems(): AdminModuleNavItem[] {
+  return [
+    {
+      kind: "module",
+      moduleId: "analytics",
+      href: "/admin/modulos/trafico",
+      label: "Tráfico",
+      shortLabel: "Tráfico",
+      iconKey: "analytics",
+    },
+    {
+      kind: "module",
+      moduleId: "analytics",
+      href: "/admin/modulos/reportes",
+      label: "Reportes",
+      shortLabel: "Reportes",
+      iconKey: "reportes",
+    },
+  ];
+}
+
 /** @deprecated Usar buildAdminNavModel. */
 export const ADMIN_MODULE_NAV_ITEMS: AdminModuleNavItem[] = ADMIN_SIDEBAR_ORDER.filter(
   (entry): entry is { kind: "module"; moduleId: ModuleId } =>
@@ -240,7 +263,11 @@ export function buildAdminNavModel(
     }
 
     if (enabled.has(entry.moduleId)) {
-      mainItems.push(buildModuleNavItem(entry.moduleId));
+      if (entry.moduleId === "analytics") {
+        mainItems.push(...buildAnalyticsNavItems());
+      } else {
+        mainItems.push(buildModuleNavItem(entry.moduleId));
+      }
     }
   }
 

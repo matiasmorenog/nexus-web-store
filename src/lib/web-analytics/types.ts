@@ -18,7 +18,7 @@ export type WebAnalyticsNamedRow = {
 };
 
 export type WebAnalyticsDayPoint = {
-  /** UTC calendar day `YYYY-MM-DD` */
+  /** Series key: `YYYY-MM-DD` (day) or ISO hour stamp */
   date: string;
   label: string;
   visitors: number;
@@ -37,7 +37,9 @@ export type WebAnalyticsReport = {
   since: string;
   until: string;
   totals: WebAnalyticsTotals;
-  daily: WebAnalyticsDayPoint[];
+  /** Hourly (24h) or daily (7d/30d) pageview series */
+  series: WebAnalyticsDayPoint[];
+  seriesBy: "hour" | "day";
   topProductPages: WebAnalyticsPathRow[];
   topPages: WebAnalyticsPathRow[];
   topReferrers: WebAnalyticsNamedRow[];

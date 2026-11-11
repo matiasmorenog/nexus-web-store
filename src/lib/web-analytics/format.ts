@@ -1,26 +1,46 @@
-import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
+import type {
+  WebTrafficPeriod,
+  WebTrafficSeriesGranularity,
+} from "@/lib/web-analytics/period";
 
 /** Hobby Web Analytics retention window (days). Pro/Enterprise allow more. */
 export const WEB_ANALYTICS_HOBBY_MAX_DAYS = 31;
 
 export function getWebAnalyticsDateRange(
-  period: ActivityPeriod,
+  period: WebTrafficPeriod,
   now = new Date(),
-): { since: Date; until: Date; clampedToHobbyWindow: boolean } {
+): {
+  since: Date;
+  until: Date;
+  clampedToHobbyWindow: boolean;
+  seriesBy: WebTrafficSeriesGranularity;
+} {
   const until = new Date(now);
+
+  if (period === "24h") {
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    return {
+      since,
+      until,
+      clampedToHobbyWindow: false,
+      seriesBy: "hour",
+    };
+  }
+
   const since = new Date(now);
-
-  let days = 7;
-  if (period === "month") days = 30;
-  if (period === "year") days = 365;
-
+  const days = period === "30d" ? 30 : 7;
   const clampedToHobbyWindow = days > WEB_ANALYTICS_HOBBY_MAX_DAYS;
   const effectiveDays = Math.min(days, WEB_ANALYTICS_HOBBY_MAX_DAYS);
   since.setUTCDate(since.getUTCDate() - (effectiveDays - 1));
   since.setUTCHours(0, 0, 0, 0);
   until.setUTCHours(23, 59, 59, 999);
 
-  return { since, until, clampedToHobbyWindow };
+  return {
+    since,
+    until,
+    clampedToHobbyWindow,
+    seriesBy: "day",
+  };
 }
 
 export function formatProductPathLabel(path: string): string {
@@ -81,6 +101,17 @@ export function formatDayLabel(isoDate: string): string {
   return new Intl.DateTimeFormat("es-AR", {
     day: "numeric",
     month: "short",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+export function formatHourLabel(isoStamp: string): string {
+  const date = new Date(isoStamp);
+  if (Number.isNaN(date.getTime())) return isoStamp;
+  return new Intl.DateTimeFormat("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
     timeZone: "UTC",
   }).format(date);
 }

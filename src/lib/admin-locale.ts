@@ -35,10 +35,22 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
     shortIt: "Home",
   },
   "/admin/modulos/analytics": {
-    es: "Analytics y reportes",
-    it: "Analytics e report",
-    shortEs: "Analytics",
-    shortIt: "Analytics",
+    es: "Tráfico",
+    it: "Traffico",
+    shortEs: "Tráfico",
+    shortIt: "Traffico",
+  },
+  "/admin/modulos/trafico": {
+    es: "Tráfico",
+    it: "Traffico",
+    shortEs: "Tráfico",
+    shortIt: "Traffico",
+  },
+  "/admin/modulos/reportes": {
+    es: "Reportes",
+    it: "Report",
+    shortEs: "Reportes",
+    shortIt: "Report",
   },
   "/admin/modulos/crm": {
     es: "CRM lite",

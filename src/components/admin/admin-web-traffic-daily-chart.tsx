@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 type AdminWebTrafficDailyChartProps = {
   points: WebAnalyticsDayPoint[];
+  seriesBy: "hour" | "day";
 };
 
 function formatCount(value: number): string {
@@ -11,17 +12,27 @@ function formatCount(value: number): string {
 
 export function AdminWebTrafficDailyChart({
   points,
+  seriesBy,
 }: AdminWebTrafficDailyChartProps) {
   if (points.length === 0) {
     return (
       <p className="text-sm text-neutral-500">
-        Sin serie diaria en este período.
+        Sin serie en este período.
       </p>
     );
   }
 
   const maxPageviews = Math.max(...points.map((point) => point.pageviews), 1);
-  const labelStep = points.length > 14 ? 3 : points.length > 8 ? 2 : 1;
+  const labelStep =
+    seriesBy === "hour"
+      ? points.length > 12
+        ? 3
+        : 2
+      : points.length > 14
+        ? 3
+        : points.length > 8
+          ? 2
+          : 1;
 
   return (
     <div className="space-y-3">
@@ -60,7 +71,8 @@ export function AdminWebTrafficDailyChart({
         ))}
       </div>
       <p className="text-xs text-neutral-500">
-        Barras = pageviews por día. Hover para visitantes.
+        Barras = pageviews por {seriesBy === "hour" ? "hora" : "día"}. Hover
+        para visitantes.
       </p>
     </div>
   );

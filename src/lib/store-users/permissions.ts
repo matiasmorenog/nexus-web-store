@@ -213,6 +213,14 @@ export function canAccessAdminPath(
     return permissions.has("staff:manage");
   }
 
+  if (
+    pathname.startsWith("/admin/modulos/trafico") ||
+    pathname.startsWith("/admin/modulos/reportes") ||
+    pathname.startsWith("/admin/modulos/analytics")
+  ) {
+    return canViewAdminModule(context, "analytics");
+  }
+
   const moduleMatch = pathname.match(/^\/admin\/modulos\/([^/?]+)/);
   if (moduleMatch?.[1]) {
     const moduleId = moduleMatch[1] as ModuleId;

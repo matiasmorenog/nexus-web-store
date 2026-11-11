@@ -8,55 +8,32 @@ import { AdminAnalyticsLoyalCustomers } from "@/components/admin/admin-analytics
 import { AdminAnalyticsTopCategories } from "@/components/admin/admin-analytics-top-categories";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import {
-  AdminSkeletonSalesAnalytics,
-  AdminSkeletonTabs,
-  AdminSkeletonWebTraffic,
-} from "@/components/admin/admin-skeleton";
+import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
-import { AdminWebTrafficSection } from "@/components/admin/admin-web-traffic-section";
 import {
   ACTIVITY_PERIOD_LABELS,
   getActivityPeriodAnalytics,
   type ActivityPeriod,
 } from "@/lib/admin-analytics";
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
-import { getWebAnalyticsReport } from "@/lib/web-analytics";
 
-type AdminAdvancedAnalyticsSectionsProps = {
+type AdminSalesReportsSectionsProps = {
   storeId: string;
   period: ActivityPeriod;
 };
 
-async function AdminWebTrafficAnalyticsBlock({
-  period,
-}: {
-  period: ActivityPeriod;
-}) {
-  const webTraffic = await getWebAnalyticsReport(period);
-
-  return (
-    <AdminDashboardReveal index={1}>
-      <AdminWebTrafficSection period={period} report={webTraffic} />
-    </AdminDashboardReveal>
-  );
-}
-
-async function AdminSalesAnalyticsBlock({
+export async function AdminSalesReportsSections({
   storeId,
   period,
-}: {
-  storeId: string;
-  period: ActivityPeriod;
-}) {
+}: AdminSalesReportsSectionsProps) {
   const periodLabels = ACTIVITY_PERIOD_LABELS[period];
   // Neon pooler connection_limit=1 — serialize report + activity (no Promise.all).
   const report = await getAdvancedAnalyticsReport(storeId, period);
   const periodAnalytics = await getActivityPeriodAnalytics(storeId, period);
 
   return (
-    <>
-      <AdminDashboardReveal index={2}>
+    <div className="space-y-8">
+      <AdminDashboardReveal index={1}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-500">
             Comparación contra el período anterior ({periodLabels.summary}).
@@ -71,7 +48,7 @@ async function AdminSalesAnalyticsBlock({
         <AdminAnalyticsComparisonCards comparison={report.comparison} />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={3}>
+      <AdminDashboardReveal index={2}>
         <AdminAnalyticsInsightsGrid
           metrics={report.comparison.current}
           cohort={report.cohort}
@@ -79,7 +56,7 @@ async function AdminSalesAnalyticsBlock({
       </AdminDashboardReveal>
 
       <AdminDashboardReveal
-        index={4}
+        index={3}
         className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <div className="space-y-6">
@@ -116,23 +93,6 @@ async function AdminSalesAnalyticsBlock({
           <AdminAnalyticsTopCategories categories={report.topCategories} />
         </div>
       </AdminDashboardReveal>
-    </>
-  );
-}
-
-/** Sync shell: web (Vercel API) and sales (Neon) stream in separate Suspense trees. */
-export function AdminAdvancedAnalyticsSections({
-  storeId,
-  period,
-}: AdminAdvancedAnalyticsSectionsProps) {
-  return (
-    <div className="space-y-8">
-      <Suspense fallback={<AdminSkeletonWebTraffic />}>
-        <AdminWebTrafficAnalyticsBlock period={period} />
-      </Suspense>
-      <Suspense fallback={<AdminSkeletonSalesAnalytics />}>
-        <AdminSalesAnalyticsBlock storeId={storeId} period={period} />
-      </Suspense>
     </div>
   );
 }

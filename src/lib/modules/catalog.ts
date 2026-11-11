@@ -52,13 +52,13 @@ const MODULE_LIST = [
   },
   {
     id: "analytics",
-    name: "Analytics y reportes",
+    name: "Tráfico y reportes",
     description:
-      "Tráfico del sitio (visitas, productos más vistos, referrers), comparación de períodos, embudo, clientes fieles, tops y export CSV.",
+      "Tráfico del sitio (visitas, país, browser, OS) y reportes de ventas (comparación, embudo, tops, export CSV).",
     monthlyPriceUsd: 0,
     includedInPlans: ["pro"],
     category: "operations",
-    adminRoutes: ["/admin/modulos/analytics"],
+    adminRoutes: ["/admin/modulos/trafico", "/admin/modulos/reportes"],
   },
   {
     id: "crm",

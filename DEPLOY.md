@@ -27,6 +27,18 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 **Alias legacy (siguen vivos):** `nexus-web-store.vercel.app` → Goat; `nexus-vape-store.vercel.app` → VAPORX.
 
+### Web Analytics (visitas al sitio)
+
+El storefront (las 3 tiendas) incluye `@vercel/analytics` en `StorefrontMarketingShell` — código compartido; el admin no manda pageviews ahí. Meta Pixel sigue aparte (ads / conversiones).
+
+Por cada proyecto Vercel (`goat-indumentaria`, `vaporx-store`, `manoviva-store`):
+
+1. Abrí el proyecto → **Analytics** (o **Speed Insights** no hace falta para esto).
+2. Activá **Web Analytics** si todavía no está on.
+3. Tras el release a `main`, mirá visitantes / pageviews / top páginas ahí (cada proyecto = una tienda).
+
+Sin el toggle en el dashboard, el script no acumula datos aunque el package esté en el código.
+
 **Por qué `vaporx-store` (no `vape-store`):** el hostname global `vape-store.vercel.app` ya está tomado por otra cuenta (sitio “Smoke & Vape Co.” / Colorado Springs). Renombrar el proyecto a `vape-store` no reclama ese alias. Elegimos `vaporx-store` (marca VAPORX, hostname libre). No usar `https://vape-store.vercel.app` en env ni docs.
 
 Admin: `/admin/login` — demos Goat/Vape: credenciales en `prisma/seed-env.ts`. **Manoviva:** email en seed; password **solo** vía env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`) al seedear, o reset admin — nunca en git.

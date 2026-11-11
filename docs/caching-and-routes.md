@@ -244,6 +244,10 @@ No usan ISR. Cada llamada es en vivo.
 
 - Índice cliente en listado admin (si catálogo > ~100)
 
+## Hecho (streaming productos)
+
+`/admin/productos`: shell con summary cacheado + filtros; listado en `Suspense` (`AdminSkeletonProductsCatalogAwaiting`). Neon `connection_limit=1` — queries en serie.
+
 ## Hecho (pedidos summary cache)
 
 `getAdminOrdersSummary` → `unstable_cache` ~60s, tag `admin-orders-summary-{storeId}`. Página: summary cache + listado en serie. Invalidación: cambio de estado / pago.

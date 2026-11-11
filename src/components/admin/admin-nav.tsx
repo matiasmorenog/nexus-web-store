@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  ClipboardList,
   CreditCard,
   ExternalLink,
   Gift,
@@ -58,6 +59,7 @@ const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {
   coupons: Gift,
   homeEditor: Home,
   analytics: BarChart3,
+  reportes: ClipboardList,
   cobros: CreditCard,
   crm: Users,
   shippingCarriers: Truck,

@@ -1,14 +1,22 @@
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import type { ActivityPeriod } from "@/lib/admin-analytics-shared";
 import { getWebAnalyticsEnv } from "@/lib/web-analytics/env";
 import {
+  formatCountryLabel,
+  formatDayLabel,
   formatDeviceLabel,
+  formatHourLabel,
   formatProductPathLabel,
   formatReferrerLabel,
+  formatTechLabel,
   getWebAnalyticsDateRange,
 } from "@/lib/web-analytics/format";
 import type {
+  WebTrafficPeriod,
+  WebTrafficSeriesGranularity,
+} from "@/lib/web-analytics/period";
+import type {
+  WebAnalyticsDayPoint,
   WebAnalyticsNamedRow,
   WebAnalyticsPathRow,
   WebAnalyticsReport,
@@ -28,15 +36,21 @@ function emptyTotals(): WebAnalyticsTotals {
 function emptyReport(
   partial: Pick<WebAnalyticsReport, "status" | "message" | "since" | "until"> & {
     clampedToHobbyWindow?: boolean;
+    seriesBy?: WebTrafficSeriesGranularity;
   },
 ): WebAnalyticsReport {
   return {
     ...partial,
     totals: emptyTotals(),
+    series: [],
+    seriesBy: partial.seriesBy ?? "day",
     topProductPages: [],
     topPages: [],
     topReferrers: [],
     devices: [],
+    countries: [],
+    browsers: [],
+    operatingSystems: [],
   };
 }
 
@@ -72,6 +86,18 @@ async function vercelGet(
   }
 
   return response.json();
+}
+
+function aggregateRows(json: unknown): AggregateRow[] {
+  if (
+    json &&
+    typeof json === "object" &&
+    "data" in json &&
+    Array.isArray(json.data)
+  ) {
+    return json.data as AggregateRow[];
+  }
+  return [];
 }
 
 function parsePathRows(
@@ -113,11 +139,48 @@ function parseNamedRows(
     .sort((a, b) => b.visitors - a.visitors || b.pageviews - a.pageviews);
 }
 
+function parseSeriesRows(
+  rows: AggregateRow[],
+  seriesBy: WebTrafficSeriesGranularity,
+): WebAnalyticsDayPoint[] {
+  const byKey = new Map<string, WebAnalyticsDayPoint>();
+
+  for (const row of rows) {
+    const stamp = asString(row.timestamp || row.day || row.hour);
+    if (!stamp) continue;
+
+    if (seriesBy === "hour") {
+      const date = new Date(stamp);
+      if (Number.isNaN(date.getTime())) continue;
+      date.setUTCMinutes(0, 0, 0);
+      const key = date.toISOString();
+      byKey.set(key, {
+        date: key,
+        label: formatHourLabel(key),
+        visitors: asNumber(row.visitors),
+        pageviews: asNumber(row.pageviews),
+      });
+      continue;
+    }
+
+    const day = stamp.slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue;
+    byKey.set(day, {
+      date: day,
+      label: formatDayLabel(day),
+      visitors: asNumber(row.visitors),
+      pageviews: asNumber(row.pageviews),
+    });
+  }
+
+  return [...byKey.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
 async function fetchWebAnalyticsReport(
-  period: ActivityPeriod,
+  period: WebTrafficPeriod,
 ): Promise<WebAnalyticsReport> {
   const env = getWebAnalyticsEnv();
-  const { since, until, clampedToHobbyWindow } =
+  const { since, until, clampedToHobbyWindow, seriesBy } =
     getWebAnalyticsDateRange(period);
   const sinceIso = since.toISOString();
   const untilIso = until.toISOString();
@@ -130,6 +193,7 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       clampedToHobbyWindow,
+      seriesBy,
     });
   }
 
@@ -141,48 +205,96 @@ async function fetchWebAnalyticsReport(
   };
 
   try {
-    const [countJson, pathsJson, productsJson, referrersJson, devicesJson] =
-      await Promise.all([
-        vercelGet("/visits/count", baseParams, env.token),
-        vercelGet(
-          "/visits/aggregate",
-          {
-            ...baseParams,
-            by: "requestPath",
-            limit: TOP_LIMIT,
-          },
-          env.token,
-        ),
-        vercelGet(
-          "/visits/aggregate",
-          {
-            ...baseParams,
-            by: "requestPath",
-            limit: TOP_LIMIT,
-            filter:
-              "startswith(requestPath,'/producto/') or startswith(requestPath,'/prodotto/')",
-          },
-          env.token,
-        ),
-        vercelGet(
-          "/visits/aggregate",
-          {
-            ...baseParams,
-            by: "referrerHostname",
-            limit: TOP_LIMIT,
-          },
-          env.token,
-        ),
-        vercelGet(
-          "/visits/aggregate",
-          {
-            ...baseParams,
-            by: "deviceType",
-            limit: TOP_LIMIT,
-          },
-          env.token,
-        ),
-      ]);
+    // External HTTP — parallel OK (not Neon pooler).
+    // No UTM dims: require Vercel Analytics Plus (not on Hobby).
+    const seriesLimit = seriesBy === "hour" ? 28 : 32;
+    const [
+      countJson,
+      seriesJson,
+      pathsJson,
+      productsJson,
+      referrersJson,
+      devicesJson,
+      countriesJson,
+      browsersJson,
+      osJson,
+    ] = await Promise.all([
+      vercelGet("/visits/count", baseParams, env.token),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: seriesBy,
+          limit: seriesLimit,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "requestPath",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "requestPath",
+          limit: TOP_LIMIT,
+          filter:
+            "startswith(requestPath,'/producto/') or startswith(requestPath,'/prodotto/')",
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "referrerHostname",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "deviceType",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "country",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "browserName",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+      vercelGet(
+        "/visits/aggregate",
+        {
+          ...baseParams,
+          by: "osName",
+          limit: TOP_LIMIT,
+        },
+        env.token,
+      ),
+    ]);
 
     const countData =
       countJson &&
@@ -198,48 +310,43 @@ async function fetchWebAnalyticsReport(
       pageviews: asNumber(countData.pageviews),
     };
 
-    const pathData =
-      pathsJson &&
-      typeof pathsJson === "object" &&
-      "data" in pathsJson &&
-      Array.isArray(pathsJson.data)
-        ? (pathsJson.data as AggregateRow[])
-        : [];
-    const productData =
-      productsJson &&
-      typeof productsJson === "object" &&
-      "data" in productsJson &&
-      Array.isArray(productsJson.data)
-        ? (productsJson.data as AggregateRow[])
-        : [];
-    const referrerData =
-      referrersJson &&
-      typeof referrersJson === "object" &&
-      "data" in referrersJson &&
-      Array.isArray(referrersJson.data)
-        ? (referrersJson.data as AggregateRow[])
-        : [];
-    const deviceData =
-      devicesJson &&
-      typeof devicesJson === "object" &&
-      "data" in devicesJson &&
-      Array.isArray(devicesJson.data)
-        ? (devicesJson.data as AggregateRow[])
-        : [];
-
-    const topPages = parsePathRows(pathData, "requestPath");
-    const topProductPages = parsePathRows(productData, "requestPath");
+    const series = parseSeriesRows(aggregateRows(seriesJson), seriesBy);
+    const topPages = parsePathRows(aggregateRows(pathsJson), "requestPath");
+    const topProductPages = parsePathRows(
+      aggregateRows(productsJson),
+      "requestPath",
+    );
     const topReferrers = parseNamedRows(
-      referrerData,
+      aggregateRows(referrersJson),
       "referrerHostname",
       formatReferrerLabel,
     );
-    const devices = parseNamedRows(deviceData, "deviceType", formatDeviceLabel);
+    const devices = parseNamedRows(
+      aggregateRows(devicesJson),
+      "deviceType",
+      formatDeviceLabel,
+    );
+    const countries = parseNamedRows(
+      aggregateRows(countriesJson),
+      "country",
+      formatCountryLabel,
+    );
+    const browsers = parseNamedRows(
+      aggregateRows(browsersJson),
+      "browserName",
+      formatTechLabel,
+    );
+    const operatingSystems = parseNamedRows(
+      aggregateRows(osJson),
+      "osName",
+      formatTechLabel,
+    );
 
     if (
       totals.visitors === 0 &&
       totals.pageviews === 0 &&
-      topPages.length === 0
+      topPages.length === 0 &&
+      series.length === 0
     ) {
       return emptyReport({
         status: "empty",
@@ -248,6 +355,7 @@ async function fetchWebAnalyticsReport(
         since: sinceIso,
         until: untilIso,
         clampedToHobbyWindow,
+        seriesBy,
       });
     }
 
@@ -256,10 +364,15 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       totals,
+      series,
+      seriesBy,
       topProductPages,
       topPages,
       topReferrers,
       devices,
+      countries,
+      browsers,
+      operatingSystems,
       clampedToHobbyWindow,
     };
   } catch (error) {
@@ -273,23 +386,27 @@ async function fetchWebAnalyticsReport(
       since: sinceIso,
       until: untilIso,
       clampedToHobbyWindow,
+      seriesBy,
     });
   }
 }
 
-function getCachedWebAnalyticsReport(period: ActivityPeriod, projectId: string) {
+function getCachedWebAnalyticsReport(
+  period: WebTrafficPeriod,
+  projectId: string,
+) {
   return unstable_cache(
     () => fetchWebAnalyticsReport(period),
-    ["web-analytics-report", period, projectId],
+    ["web-analytics-report", period, projectId, "v5-traffic-periods"],
     { revalidate: CACHE_TTL_SECONDS },
   )();
 }
 
 export const getWebAnalyticsReport = cache(
-  async (period: ActivityPeriod = "week"): Promise<WebAnalyticsReport> => {
+  async (period: WebTrafficPeriod = "7d"): Promise<WebAnalyticsReport> => {
     const env = getWebAnalyticsEnv();
     if (!env) {
-      const { since, until, clampedToHobbyWindow } =
+      const { since, until, clampedToHobbyWindow, seriesBy } =
         getWebAnalyticsDateRange(period);
       return emptyReport({
         status: "unconfigured",
@@ -298,6 +415,7 @@ export const getWebAnalyticsReport = cache(
         since: since.toISOString(),
         until: until.toISOString(),
         clampedToHobbyWindow,
+        seriesBy,
       });
     }
     return getCachedWebAnalyticsReport(period, env.projectId);

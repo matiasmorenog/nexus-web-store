@@ -55,7 +55,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
 | `crm` | CRM lite | | ✓ | ✓ |
 | `multiUser` | Multi-usuario | | ✓ (owner + 2 staff) | ✓ (ilimitado / alto) |
-| `analytics` | Analytics y reportes (ventas + tráfico web Vercel) | | | ✓ |
+| `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 
 **Upgrade ladder:** Start→Grow = promos, home, envíos, CRM, equipo. Grow→Pro = reportes fuertes + API.

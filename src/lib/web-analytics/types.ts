@@ -17,6 +17,14 @@ export type WebAnalyticsNamedRow = {
   pageviews: number;
 };
 
+export type WebAnalyticsDayPoint = {
+  /** Series key: `YYYY-MM-DD` (day) or ISO hour stamp */
+  date: string;
+  label: string;
+  visitors: number;
+  pageviews: number;
+};
+
 export type WebAnalyticsReportStatus =
   | "ok"
   | "unconfigured"
@@ -29,10 +37,16 @@ export type WebAnalyticsReport = {
   since: string;
   until: string;
   totals: WebAnalyticsTotals;
+  /** Hourly (24h) or daily (7d/30d) pageview series */
+  series: WebAnalyticsDayPoint[];
+  seriesBy: "hour" | "day";
   topProductPages: WebAnalyticsPathRow[];
   topPages: WebAnalyticsPathRow[];
   topReferrers: WebAnalyticsNamedRow[];
   devices: WebAnalyticsNamedRow[];
+  countries: WebAnalyticsNamedRow[];
+  browsers: WebAnalyticsNamedRow[];
+  operatingSystems: WebAnalyticsNamedRow[];
   /** True when the query window was clamped to the Vercel Hobby reporting limit. */
   clampedToHobbyWindow?: boolean;
 };

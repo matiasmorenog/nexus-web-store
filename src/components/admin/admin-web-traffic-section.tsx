@@ -1,14 +1,21 @@
+import { Suspense } from "react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { ACTIVITY_PERIOD_LABELS, type ActivityPeriod } from "@/lib/admin-analytics";
+import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
+import { AdminWebTrafficDailyChart } from "@/components/admin/admin-web-traffic-daily-chart";
+import { AdminWebTrafficPeriodTabs } from "@/components/admin/admin-web-traffic-period-tabs";
 import type {
   WebAnalyticsNamedRow,
   WebAnalyticsPathRow,
   WebAnalyticsReport,
 } from "@/lib/web-analytics";
+import {
+  WEB_TRAFFIC_PERIOD_LABELS,
+  type WebTrafficPeriod,
+} from "@/lib/web-analytics/period";
 import { cn } from "@/lib/utils";
 
 type AdminWebTrafficSectionProps = {
-  period: ActivityPeriod;
+  period: WebTrafficPeriod;
   report: WebAnalyticsReport;
 };
 
@@ -46,8 +53,7 @@ function RankList({
       {rows.map((row, index) => {
         const value = row[valueKey];
         const width = Math.max(8, Math.round((value / max) * 100));
-        const title =
-          "path" in row ? row.label : row.label;
+        const title = "path" in row ? row.label : row.label;
         const subtitle = "path" in row ? row.path : null;
 
         return (
@@ -73,7 +79,7 @@ function RankList({
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
               <div
-                className={cn("h-full rounded-full bg-neutral-900/80")}
+                className={cn("h-full rounded-full bg-[var(--brand-primary)]")}
                 style={{ width: `${width}%` }}
               />
             </div>
@@ -88,21 +94,26 @@ export function AdminWebTrafficSection({
   period,
   report,
 }: AdminWebTrafficSectionProps) {
-  const periodLabel = ACTIVITY_PERIOD_LABELS[period].summary;
+  const periodLabel = WEB_TRAFFIC_PERIOD_LABELS[period].summary;
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-neutral-900">
-          Tráfico del sitio
-        </h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Visitas reales del storefront ({periodLabel}
-          {report.clampedToHobbyWindow
-            ? ", ventana máxima del plan Vercel"
-            : ""}
-          ). Ideal para ver qué productos miran y de dónde llegan.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Tráfico del sitio
+          </h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Visitas reales del storefront ({periodLabel}
+            {report.clampedToHobbyWindow
+              ? ", ventana máxima del plan Vercel"
+              : ""}
+            ). País, browser, OS y tendencia vía Web Analytics.
+          </p>
+        </div>
+        <Suspense fallback={<AdminSkeletonTabs />}>
+          <AdminWebTrafficPeriodTabs period={period} />
+        </Suspense>
       </div>
 
       {report.status === "unconfigured" ||
@@ -126,8 +137,28 @@ export function AdminWebTrafficSection({
             />
           </div>
 
-          <div className="grid items-start gap-6 lg:grid-cols-2">
+          <AdminCard
+            title={
+              report.seriesBy === "hour"
+                ? "Tendencia por hora"
+                : "Tendencia diaria"
+            }
+            description={
+              report.seriesBy === "hour"
+                ? "Pageviews por hora (últimas 24 h)"
+                : "Pageviews por día en el período"
+            }
+          >
+            <AdminWebTrafficDailyChart
+              points={report.series}
+              seriesBy={report.seriesBy}
+            />
+          </AdminCard>
+
+          {/* CSS columns = masonry: short cards stack under tall neighbors (no row gaps). */}
+          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Productos más vistos"
               description="PDP con más pageviews en el período"
             >
@@ -137,6 +168,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Páginas top"
               description="Rutas con más tráfico en el storefront"
             >
@@ -146,6 +178,29 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
+              title="Dispositivos"
+              description="Cómo navegan tus clientes"
+            >
+              <RankList
+                rows={report.devices}
+                empty="Sin datos de dispositivo."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              className="mb-6 break-inside-avoid"
+              title="Países"
+              description="Origen geográfico de las visitas"
+            >
+              <RankList
+                rows={report.countries}
+                empty="Sin datos de país todavía."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              className="mb-6 break-inside-avoid"
               title="De dónde llegan"
               description="Referrers / redes / búsqueda"
             >
@@ -156,12 +211,24 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
-              title="Dispositivos"
-              description="Cómo navegan tus clientes"
+              className="mb-6 break-inside-avoid"
+              title="Navegadores"
+              description="Browser de los visitantes"
             >
               <RankList
-                rows={report.devices}
-                empty="Sin datos de dispositivo."
+                rows={report.browsers}
+                empty="Sin datos de browser."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              className="mb-6 break-inside-avoid"
+              title="Sistemas operativos"
+              description="OS de los visitantes"
+            >
+              <RankList
+                rows={report.operatingSystems}
+                empty="Sin datos de sistema operativo."
                 valueKey="visitors"
               />
             </AdminCard>

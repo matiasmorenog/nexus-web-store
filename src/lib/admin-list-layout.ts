@@ -11,5 +11,9 @@ export const adminOrdersMainColumnClass =
 export const adminFiltersAsideClass =
   "hidden w-72 shrink-0 self-start lg:block";
 
+/** Outer wrap — no overflow (overflow here clips AdminCard box-shadow). */
+export const adminFiltersPanelShellClass = "h-fit w-full";
+
+/** Scroll the filter body inside the card so the card shadow stays visible. */
 export const adminFiltersPanelScrollClass =
-  "h-fit w-full lg:max-h-[calc(100svh-4rem)] lg:overflow-y-auto lg:overscroll-contain";
+  "lg:max-h-[calc(100svh-8rem)] lg:overflow-y-auto lg:overscroll-contain";

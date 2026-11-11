@@ -16,7 +16,7 @@ import {
 } from "@/components/admin/admin-table";
 import {
   adminFiltersAsideClass,
-  adminFiltersPanelScrollClass,
+  adminFiltersPanelShellClass,
   adminListLayoutRowClass,
   adminListMainColumnClass,
   adminOrdersMainColumnClass,
@@ -1221,7 +1221,7 @@ export function AdminSkeletonFiltersPanel({
           ? "Cargando filtros de productos"
           : "Cargando filtros de pedidos"
       }
-      className={cn(adminFiltersPanelScrollClass, className)}
+      className={cn(adminFiltersPanelShellClass, className)}
     >
       {variant === "products" ? (
         <AdminSkeletonFacetFiltersCard

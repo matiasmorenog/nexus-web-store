@@ -155,8 +155,10 @@ export function AdminWebTrafficSection({
             />
           </AdminCard>
 
-          <div className="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* CSS columns = masonry: short cards stack under tall neighbors (no row gaps). */}
+          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Productos más vistos"
               description="PDP con más pageviews en el período"
             >
@@ -166,6 +168,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Páginas top"
               description="Rutas con más tráfico en el storefront"
             >
@@ -175,6 +178,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Dispositivos"
               description="Cómo navegan tus clientes"
             >
@@ -185,6 +189,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Países"
               description="Origen geográfico de las visitas"
             >
@@ -195,6 +200,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="De dónde llegan"
               description="Referrers / redes / búsqueda"
             >
@@ -205,6 +211,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Navegadores"
               description="Browser de los visitantes"
             >
@@ -215,6 +222,7 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              className="mb-6 break-inside-avoid"
               title="Sistemas operativos"
               description="OS de los visitantes"
             >

@@ -22,5 +22,7 @@ declare module "next-auth/jwt" {
     role?: string;
     storeId?: string | null;
     storeSlug?: string | null;
+    /** Epoch ms of last admin membership bind / re-check */
+    membershipCheckedAt?: number;
   }
 }

@@ -4,6 +4,7 @@ import type { StoreStaffRole } from "@prisma/client";
 import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
 import type { ModuleId } from "@/lib/modules/catalog";
+import { DEFAULT_STORE_SLUG } from "@/lib/store-env";
 import { storefrontPath } from "@/lib/storefront-paths";
 import {
   adminMayAccessCurrentStore,
@@ -83,6 +84,33 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     redirect("/admin/logout");
   }
 
+  // Fast path: JWT already scoped to this deploy. JWT callback re-checks
+  // membership every ADMIN_MEMBERSHIP_RECHECK_SECONDS and clears store if revoked.
+  if (
+    typeof session.user.storeId === "string" &&
+    session.user.storeSlug === DEFAULT_STORE_SLUG
+  ) {
+    const storeId = session.user.storeId;
+    let staffRole: StoreStaffRole | null = null;
+
+    if (session.user.role === "STORE_STAFF") {
+      staffRole = await getStoreStaffRoleForUser(storeId, session.user.id);
+      if (!staffRole) {
+        redirect("/admin/logout");
+      }
+    }
+
+    return {
+      ...session,
+      user: {
+        ...session.user,
+        id: session.user.id,
+        storeId,
+        staffRole,
+      },
+    };
+  }
+
   const access = await adminMayAccessCurrentStore(
     session.user.id,
     session.user.role,
@@ -92,14 +120,7 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     redirect("/admin/logout");
   }
 
-  const storeId = access.storeId;
-
-  const staffRole =
-    session.user.role === "STORE_STAFF"
-      ? await getStoreStaffRoleForUser(storeId, session.user.id)
-      : null;
-
-  if (session.user.role === "STORE_STAFF" && !staffRole) {
+  if (session.user.role === "STORE_STAFF" && !access.staffRole) {
     redirect("/admin/logout");
   }
 
@@ -108,8 +129,8 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     user: {
       ...session.user,
       id: session.user.id,
-      storeId,
-      staffRole,
+      storeId: access.storeId,
+      staffRole: access.staffRole,
     },
   };
 });

@@ -7,7 +7,7 @@ import { RouteLoadingProvider } from "@/lib/route-loading-context";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <SessionProvider refetchOnWindowFocus={false}>
       <RouteLoadingProvider>
         <Suspense fallback={null}>
           <RouteLoadingOverlay />

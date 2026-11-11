@@ -2,14 +2,17 @@ import { unstable_cache } from "next/cache";
 import type { StoreShippingSettings } from "@prisma/client";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
+import { getEnvMercadoEnviosDedicatedAccessToken } from "@/lib/mercado-envios/api-client";
 import {
-  getMercadoEnviosTokenHintForAdmin,
-  getMercadoEnviosTokenSource,
-} from "@/lib/mercado-envios/resolve-token";
+  isValidMercadoPagoAccessToken,
+  maskMercadoPagoAccessToken,
+} from "@/lib/payments/format";
+import { decryptPaymentSecret } from "@/lib/payments/encryption";
 import { storeHasModule } from "@/lib/modules";
 import { isMercadoEnviosCarrierId } from "@/lib/shipping-carriers/format";
 import {
   DEFAULT_SHIPPING_SETTINGS,
+  type MercadoEnviosTokenSource,
   type StoreCarrierSettingsData,
   type StoreShippingSettingsAdminData,
 } from "@/lib/shipping-carriers/types";
@@ -36,20 +39,63 @@ function serializeCarrierSettings(
   };
 }
 
+function decryptStoredToken(enc: string | null | undefined): string | null {
+  if (!enc) return null;
+  try {
+    const token = decryptPaymentSecret(enc);
+    return isValidMercadoPagoAccessToken(token) ? token : null;
+  } catch (error) {
+    console.error("Failed to decrypt payment/shipping token:", error);
+    return null;
+  }
+}
+
+/**
+ * Admin shipping page: one Store round-trip (shipping + payment hints).
+ * Neon pooler connection_limit=1 — no Promise.all of separate queries.
+ */
 export async function getStoreShippingSettingsForAdmin(
   storeId: string,
 ): Promise<StoreShippingSettingsAdminData> {
-  const [row, store, source, tokenHint] = await Promise.all([
-    db.storeShippingSettings.findUnique({
-      where: { storeId },
-    }),
-    db.store.findUniqueOrThrow({
-      where: { id: storeId },
-      select: { allowPickup: true },
-    }),
-    getMercadoEnviosTokenSource(storeId),
-    getMercadoEnviosTokenHintForAdmin(storeId),
-  ]);
+  const store = await db.store.findUniqueOrThrow({
+    where: { id: storeId },
+    select: {
+      allowPickup: true,
+      shippingSettings: true,
+      paymentSettings: {
+        select: {
+          mercadopagoAccessTokenEnc: true,
+          mercadopagoTokenHint: true,
+        },
+      },
+    },
+  });
+
+  const row = store.shippingSettings;
+  const meToken = decryptStoredToken(row?.mercadoEnviosAccessTokenEnc);
+  const mpToken = decryptStoredToken(
+    store.paymentSettings?.mercadopagoAccessTokenEnc,
+  );
+  const envToken = getEnvMercadoEnviosDedicatedAccessToken();
+
+  let source: MercadoEnviosTokenSource = "none";
+  let tokenHint: string | null = row?.mercadoEnviosTokenHint ?? null;
+
+  if (meToken) {
+    source = "admin";
+  } else if (mpToken) {
+    source = "mp";
+    if (!tokenHint) {
+      tokenHint =
+        store.paymentSettings?.mercadopagoTokenHint ??
+        maskMercadoPagoAccessToken(mpToken);
+    }
+  } else if (envToken && isValidMercadoPagoAccessToken(envToken)) {
+    source = "env";
+    if (!tokenHint) {
+      tokenHint = maskMercadoPagoAccessToken(envToken);
+    }
+  }
 
   return {
     ...serializeCarrierSettings(row),

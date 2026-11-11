@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
-  ChevronDown,
   CreditCard,
   ExternalLink,
   Gift,
@@ -156,54 +155,27 @@ function ConfigNavGroup({
     configHub: hub as AdminNavModel["configHub"],
     configChildren: items,
   });
-  /** Manual expand when not already on a config route (path routes stay open). */
-  const [manualOpen, setManualOpen] = useState(false);
-  const open = pathInGroup || manualOpen;
-
   const hubActive = isAdminNavItemActive(pathname, hub);
-  const showChildren = items.length > 0;
 
   return (
     <div className="space-y-1">
-      <div className="relative z-[1] flex items-center gap-0.5">
-        <Link
-          href={hub.href}
-          onClick={onNavigate}
-          aria-current={hubActive ? "page" : undefined}
-          className={cn(
-            "flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
-            hubActive || pathInGroup
-              ? "text-white"
-              : "text-neutral-400 hover:bg-white/5 hover:text-white",
-            hubActive ? "bg-white/10" : null,
-          )}
-        >
-          <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
-          <span className="truncate">{hub.label}</span>
-        </Link>
-        {showChildren ? (
-          <button
-            type="button"
-            aria-expanded={open}
-            aria-controls="admin-config-submenu"
-            aria-label={open ? copy.collapseConfig : copy.expandConfig}
-            onClick={() => {
-              if (pathInGroup) return;
-              setManualOpen((value) => !value);
-            }}
-            className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
-          >
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 transition-transform duration-200",
-                open ? "rotate-180" : "rotate-0",
-              )}
-            />
-          </button>
-        ) : null}
-      </div>
+      <Link
+        href={hub.href}
+        onClick={onNavigate}
+        aria-current={hubActive ? "page" : undefined}
+        className={cn(
+          "relative z-[1] flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
+          hubActive || pathInGroup
+            ? "text-white"
+            : "text-neutral-400 hover:bg-white/5 hover:text-white",
+          hubActive ? "bg-white/10" : null,
+        )}
+      >
+        <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
+        <span className="truncate">{hub.label}</span>
+      </Link>
 
-      {showChildren && open ? (
+      {items.length > 0 ? (
         <div
           id="admin-config-submenu"
           role="group"

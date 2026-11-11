@@ -104,9 +104,9 @@ const CORE_NAV_BY_HREF = {
  * Wishlist stays in the main sidebar (E1 without wishlist).
  */
 export const ADMIN_CONFIG_SUBMENU_MODULE_IDS = [
-  "seo",
-  "marketing",
   "multiUser",
+  "marketing",
+  "seo",
   "api",
 ] as const satisfies readonly ModuleId[];
 
@@ -140,16 +140,19 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
   { kind: "core", href: "/admin/configuracion" },
 ];
 
-/** Orden del acordeón Config (después del hub). */
+/**
+ * Orden bajo Configuración (después del hub idioma/seguridad):
+ * gente → canales → SEO → técnico → plan/billing al final (menos frecuente).
+ */
 const ADMIN_CONFIG_CHILDREN_ORDER: Array<
   | { kind: "plan" }
   | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
 > = [
-  { kind: "plan" },
-  { kind: "module", moduleId: "seo" },
-  { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "multiUser" },
+  { kind: "module", moduleId: "marketing" },
+  { kind: "module", moduleId: "seo" },
   { kind: "module", moduleId: "api" },
+  { kind: "plan" },
 ];
 
 /** Orden completo (plan page / docs): main modules + config submenu modules. */

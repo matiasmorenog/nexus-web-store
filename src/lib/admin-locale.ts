@@ -151,8 +151,6 @@ export const adminChrome = {
     signOut: "Cerrar sesión",
     language: "Idioma",
     languageHint: "El panel y el inicio de sesión usan este idioma en este navegador.",
-    spanish: "Español",
-    italian: "Italiano",
   },
   it: {
     viewStore: "Vedi negozio",
@@ -168,8 +166,6 @@ export const adminChrome = {
     signOut: "Esci",
     language: "Lingua",
     languageHint: "Il pannello e l'accesso usano questa lingua in questo browser.",
-    spanish: "Spagnolo",
-    italian: "Italiano",
   },
 } as const;
 

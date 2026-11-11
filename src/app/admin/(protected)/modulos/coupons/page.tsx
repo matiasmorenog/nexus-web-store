@@ -36,11 +36,11 @@ export default async function AdminCouponsPage() {
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={1}>
-        <div className="space-y-6">
-          <div className="max-w-3xl">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+          <div className="min-w-0 w-full max-w-3xl">
             <AdminCouponCreateForm />
           </div>
-          <div className="max-w-lg">
+          <div className="w-full shrink-0 lg:w-80">
             <AdminPromotionSettingsForm initialSettings={promotionSettings} />
           </div>
         </div>

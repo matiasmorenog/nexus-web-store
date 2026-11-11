@@ -497,7 +497,7 @@ function AdminMobileNav({
 
   return (
     <>
-      <header className="relative z-30 shrink-0 border-b border-neutral-200 bg-white lg:hidden">
+      <header className="relative z-30 shrink-0 select-none border-b border-neutral-200 bg-white lg:hidden">
         <div className="h-0.5 w-full bg-[var(--brand-primary)]" />
         <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-4">
           <button
@@ -543,7 +543,7 @@ function AdminMobileNav({
             role="dialog"
             aria-modal="true"
             aria-label={copy.menu}
-            className="relative flex h-full w-[min(100%,16rem)] flex-col overflow-hidden bg-zinc-900 shadow-xl"
+            className="relative flex h-full w-[min(100%,16rem)] select-none flex-col overflow-hidden bg-zinc-900 shadow-xl"
           >
             <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
             <AdminSidebarPanel
@@ -578,7 +578,7 @@ export function AdminNav({
 
   return (
     <>
-      <aside className="relative hidden min-h-0 w-64 shrink-0 flex-col overflow-hidden bg-zinc-900 lg:flex lg:h-full">
+      <aside className="relative hidden min-h-0 w-64 shrink-0 select-none flex-col overflow-hidden bg-zinc-900 lg:flex lg:h-full">
         <div className="h-1 w-full shrink-0 bg-[var(--brand-primary)]" />
         <AdminSidebarPanel
           brandPrefix={brandPrefix}

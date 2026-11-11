@@ -394,7 +394,7 @@ export function AdminActivityChart({
       {!hasData ? (
         <p className="py-10 text-center text-sm text-neutral-500">{empty}</p>
       ) : (
-        <div>
+        <div className="select-none">
           <p className="mb-2 text-xs text-neutral-400">
             {showMonthAsWeeks
               ? "Vista por semanas en mobile. Pasá el mouse para detalles o hacé clic en un punto con ventas para ver esos pedidos."

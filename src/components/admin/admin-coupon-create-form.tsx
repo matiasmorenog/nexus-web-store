@@ -8,18 +8,29 @@ import {
   AdminFormActions,
   AdminFormAlert,
   AdminFormGrid,
-  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { DatetimeLocalPicker } from "@/components/ui/datetime-local-picker";
+import { FormCollapsible } from "@/components/ui/form-collapsible";
+import { FormSegmentedControl } from "@/components/ui/form-segmented-control";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { runViewTransition } from "@/lib/view-transition";
+
+const COUPON_TYPE_OPTIONS = [
+  { value: "PERCENTAGE", label: "Porcentaje" },
+  { value: "FIXED_AMOUNT", label: "Monto fijo" },
+] as const;
 
 export function AdminCouponCreateForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [type, setType] = useState<"PERCENTAGE" | "FIXED_AMOUNT">("PERCENTAGE");
+  const [startsAt, setStartsAt] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [activeOnCreate, setActiveOnCreate] = useState(true);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -27,6 +38,9 @@ export function AdminCouponCreateForm() {
     setError(null);
 
     const formData = new FormData(event.currentTarget);
+    if (activeOnCreate) {
+      formData.set("startsAt", "");
+    }
 
     try {
       const response = await fetch("/api/admin/coupons", {
@@ -42,6 +56,9 @@ export function AdminCouponCreateForm() {
 
       event.currentTarget.reset();
       setType("PERCENTAGE");
+      setStartsAt("");
+      setExpiresAt("");
+      setActiveOnCreate(true);
       router.refresh();
     } catch (submitError) {
       setError(
@@ -57,7 +74,7 @@ export function AdminCouponCreateForm() {
   return (
     <AdminCard title="Nuevo cupón">
       <AdminForm onSubmit={handleSubmit}>
-        <AdminFormGrid>
+        <AdminFormGrid className="admin-coupon-vt-form">
           <div>
             <Label htmlFor="coupon-code">Código</Label>
             <Input
@@ -70,19 +87,18 @@ export function AdminCouponCreateForm() {
           </div>
           <div>
             <Label htmlFor="coupon-type">Tipo</Label>
-            <AdminSelect
+            <FormSegmentedControl
               id="coupon-type"
               name="type"
               value={type}
-              onChange={(event) =>
-                setType(event.target.value as "PERCENTAGE" | "FIXED_AMOUNT")
-              }
-            >
-              <option value="PERCENTAGE">Porcentaje (%)</option>
-              <option value="FIXED_AMOUNT">Monto fijo (ARS)</option>
-            </AdminSelect>
+              options={COUPON_TYPE_OPTIONS}
+              onChange={(next) => {
+                runViewTransition(() => setType(next));
+              }}
+              aria-label="Tipo de cupón"
+            />
           </div>
-          <div>
+          <div className="admin-coupon-vt-value">
             <Label htmlFor="coupon-value">
               {type === "PERCENTAGE" ? "Porcentaje" : "Monto (ARS)"}
             </Label>
@@ -107,20 +123,21 @@ export function AdminCouponCreateForm() {
               placeholder="0"
             />
           </div>
-          {type === "PERCENTAGE" ? (
-            <div>
-              <Label htmlFor="coupon-max-discount">Tope de descuento (ARS)</Label>
-              <Input
-                id="coupon-max-discount"
-                name="maxDiscount"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Opcional"
-              />
-            </div>
-          ) : null}
-          <div>
+          <FormCollapsible
+            open={type === "PERCENTAGE"}
+            viewTransitionName="admin-coupon-max"
+          >
+            <Label htmlFor="coupon-max-discount">Tope de descuento (ARS)</Label>
+            <Input
+              id="coupon-max-discount"
+              name="maxDiscount"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Opcional"
+            />
+          </FormCollapsible>
+          <div className="admin-coupon-vt-usage">
             <Label htmlFor="coupon-usage-limit">Límite de usos</Label>
             <Input
               id="coupon-usage-limit"
@@ -131,18 +148,54 @@ export function AdminCouponCreateForm() {
               placeholder="Ilimitado"
             />
           </div>
-          <div>
+          <FormCollapsible
+            open={!activeOnCreate}
+            viewTransitionName="admin-coupon-starts"
+          >
             <Label htmlFor="coupon-starts">Vigencia desde</Label>
-            <Input id="coupon-starts" name="startsAt" type="datetime-local" />
-          </div>
-          <div>
+            <DatetimeLocalPicker
+              id="coupon-starts"
+              name="startsAt"
+              value={startsAt}
+              onChange={setStartsAt}
+              allowReset
+              aria-label="Vigencia desde"
+            />
+          </FormCollapsible>
+          <div className="admin-coupon-vt-expires">
             <Label htmlFor="coupon-expires">Vigencia hasta</Label>
-            <Input id="coupon-expires" name="expiresAt" type="datetime-local" />
+            <DatetimeLocalPicker
+              id="coupon-expires"
+              name="expiresAt"
+              value={expiresAt}
+              onChange={setExpiresAt}
+              min={
+                !activeOnCreate && startsAt
+                  ? startsAt.slice(0, 10)
+                  : undefined
+              }
+              allowReset
+              aria-label="Vigencia hasta"
+            />
           </div>
         </AdminFormGrid>
 
         <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch name="active" defaultChecked />
+          <input
+            type="hidden"
+            name="active"
+            value={activeOnCreate ? "on" : "off"}
+          />
+          <Switch
+            checked={activeOnCreate}
+            onChange={(event) => {
+              const next = event.target.checked;
+              runViewTransition(() => {
+                setActiveOnCreate(next);
+                if (next) setStartsAt("");
+              });
+            }}
+          />
           Activo al crear
         </label>
 

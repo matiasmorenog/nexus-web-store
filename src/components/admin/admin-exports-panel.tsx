@@ -5,6 +5,7 @@ import { Download } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminForm, AdminFormGrid, AdminSelect } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,24 +77,18 @@ export function AdminExportsPanel({
           </label>
 
           <AdminFormGrid>
-            <div>
-              <Label htmlFor="export-desde">Desde</Label>
-              <Input
-                id="export-desde"
-                type="date"
-                value={desde}
+            <div className="sm:col-span-2">
+              <Label htmlFor="export-date-range">Rango</Label>
+              <DateRangePicker
+                id="export-date-range"
+                from={desde}
+                to={hasta}
                 disabled={todos}
-                onChange={(event) => setDesde(event.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="export-hasta">Hasta</Label>
-              <Input
-                id="export-hasta"
-                type="date"
-                value={hasta}
-                disabled={todos}
-                onChange={(event) => setHasta(event.target.value)}
+                onChange={(nextFrom, nextTo) => {
+                  setDesde(nextFrom);
+                  setHasta(nextTo);
+                }}
+                aria-label="Rango de fechas de exportación"
               />
             </div>
             <div>

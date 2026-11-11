@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminStoreQrPreview } from "@/components/admin/admin-store-qr-card";
+import {
+  segmentedItemClassName,
+  segmentedTrackClassName,
+} from "@/components/ui/form-segmented-control";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -51,7 +55,7 @@ function StyleChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
+        "select-none rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
         active
           ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
           : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50",
@@ -101,18 +105,13 @@ export function AdminStoreQrBuilder({
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16.5rem]">
         <div className="space-y-5">
           <div
-            className="flex gap-1 rounded-lg border border-neutral-200 bg-neutral-100 p-1"
+            className={segmentedTrackClassName("card")}
             role="group"
             aria-label="Destino del QR"
           >
             <button
               type="button"
-              className={cn(
-                "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                mode === "home"
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-800",
-              )}
+              className={cn("flex-1", segmentedItemClassName(mode === "home", "md"))}
               aria-pressed={mode === "home"}
               onClick={() => setMode("home")}
             >
@@ -121,10 +120,9 @@ export function AdminStoreQrBuilder({
             <button
               type="button"
               className={cn(
-                "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                mode === "product"
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-800",
+                "flex-1",
+                segmentedItemClassName(mode === "product", "md"),
+                products.length === 0 && "opacity-50",
               )}
               aria-pressed={mode === "product"}
               disabled={products.length === 0}

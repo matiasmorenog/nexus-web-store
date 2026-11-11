@@ -176,9 +176,29 @@ export async function getAdminProductsPage(
   params: AdminProductsFilterParams = {},
 ) {
   const where = buildAdminProductsWhere(storeId, params);
+  const orden = parseAdminProductSort(params.orden);
 
-  const [products, total] = await Promise.all([
-    fetchAdminProductsBatch(storeId, page, params),
+  // Neon pooler: connection_limit=1 — never Promise.all separate connections.
+  if (adminProductSortUsesInMemory(orden)) {
+    const products = await fetchAdminProductsBatch(storeId, page, params);
+    const total = await db.product.count({ where });
+    const rows = products.map(mapAdminProductRow);
+    return {
+      products: rows,
+      total,
+      page,
+      hasMore: adminListSkip(page) + rows.length < total,
+    };
+  }
+
+  const [products, total] = await db.$transaction([
+    db.product.findMany({
+      where,
+      include: productInclude,
+      orderBy: getAdminProductPrismaOrderBy(orden),
+      skip: adminListSkip(page),
+      take: ADMIN_PRODUCTS_PAGE_SIZE,
+    }),
     db.product.count({ where }),
   ]);
 
@@ -193,61 +213,91 @@ export async function getAdminProductsPage(
 }
 
 async function fetchAdminProductsSummary(storeId: string) {
-  return db.$transaction(async (tx) => {
-    const activeWhere = { storeId, active: true };
-    const totalProducts = await tx.product.count({ where: activeWhere });
-    const categoryGroups = await tx.product.groupBy({
+  const activeWhere = { storeId, active: true };
+
+  // Array transaction (one connection). Interactive tx + parallel page queries → P2024.
+  const [
+    totalProducts,
+    categoryGroups,
+    audienceGroups,
+    destacado,
+    promo2x1,
+    normal,
+    desactivado,
+  ] = await db.$transaction([
+    db.product.count({ where: activeWhere }),
+    db.product.groupBy({
       by: ["category"],
       where: activeWhere,
+      orderBy: { category: "asc" },
       _count: { _all: true },
-    });
-    const audienceGroups = await tx.product.groupBy({
+    }),
+    db.product.groupBy({
       by: ["audience"],
       where: activeWhere,
+      orderBy: { audience: "asc" },
       _count: { _all: true },
-    });
-    const destacado = await tx.product.count({
+    }),
+    db.product.count({
       where: { ...activeWhere, featured: true },
-    });
-    const promo2x1 = await tx.product.count({
+    }),
+    db.product.count({
       where: { ...activeWhere, promo2x1: true },
-    });
-    const normal = await tx.product.count({
+    }),
+    db.product.count({
       where: { ...activeWhere, featured: false, promo2x1: false },
-    });
-    const desactivado = await tx.product.count({
+    }),
+    db.product.count({
       where: { storeId, active: false },
-    });
+    }),
+  ]);
 
-    const categoryCounts = Object.fromEntries(
-      PRODUCT_CATEGORIES.map((category) => [
-        category.slug,
-        categoryGroups.find((group) => group.category === category.slug)?._count
-          ._all ?? 0,
-      ]),
-    ) as Record<string, number>;
+  const categoryCounts = Object.fromEntries(
+    PRODUCT_CATEGORIES.map((category) => {
+      const group = categoryGroups.find((row) => row.category === category.slug);
+      const count =
+        group && typeof group._count === "object"
+          ? (group._count._all ?? 0)
+          : 0;
+      return [category.slug, count];
+    }),
+  ) as Record<string, number>;
 
-    const audienceCounts = Object.fromEntries(
-      STORE_AUDIENCES.map((audience) => [
-        audience.slug,
-        audienceGroups.find((group) => group.audience === audience.slug)?._count
-          ._all ?? 0,
-      ]),
-    ) as Record<string, number>;
+  const audienceCounts = Object.fromEntries(
+    STORE_AUDIENCES.map((audience) => {
+      const group = audienceGroups.find((row) => row.audience === audience.slug);
+      const count =
+        group && typeof group._count === "object"
+          ? (group._count._all ?? 0)
+          : 0;
+      return [audience.slug, count];
+    }),
+  ) as Record<string, number>;
 
-    return {
-      totalProducts,
-      categoryCounts,
-      audienceCounts,
-      estadoCounts: {
-        destacado,
-        promo2x1,
-        normal,
-        desactivado,
-      },
-    };
-  });
+  return {
+    totalProducts,
+    categoryCounts,
+    audienceCounts,
+    estadoCounts: {
+      destacado,
+      promo2x1,
+      normal,
+      desactivado,
+    },
+  };
 }
+
+/**
+ * Página productos: summary (cache) + listado en serie.
+ * Neon pooler connection_limit=1 — no Promise.all entre estas queries.
+ */
+export const getAdminProductsPageData = cache(
+  async (storeId: string, params: AdminProductsFilterParams = {}) => {
+    const summary = await getAdminProductsSummary(storeId);
+    const page = await getAdminProductsPage(storeId, 1, params);
+    return { summary, page };
+  },
+);
 
 function getCachedAdminProductsSummary(storeId: string) {
   return unstable_cache(

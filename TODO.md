@@ -14,6 +14,8 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 
 ## Infra & CI
 
+- [x] Gate admin por membership `UserStore` en la tienda del deploy (login + sesión protegida).
+
 - [x] Vercel Web Analytics en storefront compartido (3 tiendas); activar toggle en cada proyecto Vercel (ver `DEPLOY.md`).
 - [x] Admin Pro: panel de tráfico web en `/admin/modulos/analytics` (API Vercel; env `VERCEL_WEB_ANALYTICS_TOKEN` + project/team).
 - [x] Admin: Plan/SEO/Marketing/API/Multi-usuario bajo acordeón Configuración (Wishlist queda top-level).

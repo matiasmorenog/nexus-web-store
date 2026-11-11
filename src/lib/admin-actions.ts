@@ -12,7 +12,7 @@ import {
 } from "@/lib/admin-product-errors";
 import { assertAdminPermission } from "@/lib/admin-session";
 import {
-  revalidateAdminDashboardCache,
+  revalidateAdminOrderDataCaches,
   revalidateAdminProductDataCaches,
 } from "@/lib/revalidate-admin-cache";
 import { revalidateStorefrontProductSurfaces } from "@/lib/revalidate-storefront-products";
@@ -102,7 +102,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
     data: { status: status as "PENDING" | "PAID" | "SHIPPED" | "CANCELLED" },
   });
 
-  revalidateAdminDashboardCache(storeId);
+  revalidateAdminOrderDataCaches(storeId);
   revalidatePath("/admin/pedidos");
 }
 

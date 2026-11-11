@@ -7,7 +7,7 @@ import { sendOrderEmails } from "@/lib/emails/send-order-emails";
 import { getMerchantEmail } from "@/lib/merchant-email";
 import { createOrderShipment } from "@/lib/orders/create-order-shipment";
 import { dispatchStoreWebhook } from "@/lib/store-api/dispatch-webhook";
-import { revalidateAdminDashboardCache } from "@/lib/revalidate-admin-cache";
+import { revalidateAdminOrderDataCaches } from "@/lib/revalidate-admin-cache";
 import { revalidateStorefrontStockSurfaces } from "@/lib/revalidate-storefront-products";
 
 const orderInclude = {
@@ -87,7 +87,7 @@ export async function fulfillPaidOrder(orderId: string) {
       ...new Set(order.items.map((item) => item.variant.product.slug)),
     ];
     revalidateStorefrontStockSurfaces(productSlugs);
-    revalidateAdminDashboardCache(order.storeId);
+    revalidateAdminOrderDataCaches(order.storeId);
 
     const queuedInvoiceStatus = await queueAfipInvoiceForPaidOrder(order.id);
     const webhookData = buildOrderPaidWebhookData({

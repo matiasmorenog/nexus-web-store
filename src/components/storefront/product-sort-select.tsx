@@ -4,11 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { catalogHref } from "@/lib/storefront-paths";
 import { PRODUCT_SORT_OPTIONS, parseProductSort } from "@/lib/product-sort";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
+import { SelectField } from "@/components/ui/select-field";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
-
-const fieldClass =
-  "rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 type ProductSortSelectProps = {
   className?: string;
@@ -40,12 +38,13 @@ export function ProductSortSelect({ className }: ProductSortSelectProps) {
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <label htmlFor="product-sort" className="text-sm text-neutral-500">
+      <label htmlFor="product-sort" className="shrink-0 text-sm text-neutral-500">
         {copy.sort}
       </label>
-      <select
+      <SelectField
         id="product-sort"
-        className={fieldClass}
+        wrapperClassName="w-auto min-w-[10rem]"
+        className="h-9 rounded-lg border-neutral-200 py-1.5 text-neutral-700"
         value={activeSort}
         onChange={(event) => handleChange(event.target.value)}
       >
@@ -54,7 +53,7 @@ export function ProductSortSelect({ className }: ProductSortSelectProps) {
             {labels[option.value]}
           </option>
         ))}
-      </select>
+      </SelectField>
     </div>
   );
 }

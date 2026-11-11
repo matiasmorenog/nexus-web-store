@@ -21,6 +21,7 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
   "/admin/configuracion": { es: "Configuración", it: "Impostazioni", shortEs: "Config", shortIt: "Impostazioni" },
   "/admin/configuracion/idioma": { es: "Idioma", it: "Lingua", shortEs: "Idioma", shortIt: "Lingua" },
   "/admin/configuracion/seguridad": { es: "Seguridad", it: "Sicurezza", shortEs: "Seguridad", shortIt: "Sicurezza" },
+  "/admin/configuracion/qr": { es: "Código QR", it: "Codice QR", shortEs: "QR", shortIt: "QR" },
   "/admin/plan": { es: "Plan y módulos", it: "Piano e moduli", shortEs: "Plan", shortIt: "Piano" },
   "/admin/modulos/coupons": {
     es: "Cupones y promociones",
@@ -167,6 +168,9 @@ export const adminChrome = {
     languageHint: "El panel y el inicio de sesión usan este idioma en este navegador.",
     security: "Seguridad",
     securityHint: "Seguridad de tu cuenta admin.",
+    qr: "Código QR",
+    qrHint:
+      "Generá un QR de la home o de un producto para imprimir, redes o vidriera.",
   },
   it: {
     viewStore: "Vedi negozio",
@@ -184,6 +188,9 @@ export const adminChrome = {
     languageHint: "Il pannello e l'accesso usano questa lingua in questo browser.",
     security: "Sicurezza",
     securityHint: "Sicurezza del tuo account admin.",
+    qr: "Codice QR",
+    qrHint:
+      "Genera un QR della home o di un prodotto da stampare, condividere o esporre.",
   },
 } as const;
 

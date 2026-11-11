@@ -15,6 +15,7 @@ import {
   AdminFormGrid,
   AdminTextarea,
 } from "@/components/admin/admin-form";
+import { AdminStoreQrPreview } from "@/components/admin/admin-store-qr-card";
 import { ProductTaxonomyFields } from "@/components/admin/product-taxonomy-fields";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,12 @@ type ProductEditFormProps = {
   /** 2x1 disponible: vertical con promo + módulo coupons activo. */
   promo2x1Selectable?: boolean;
   categories?: readonly ProductCategoryDef[];
+  qr?: {
+    url: string;
+    filename: string;
+    brandPrefix: string;
+    brandColor?: string;
+  };
 };
 
 export function ProductEditForm({
@@ -51,6 +58,7 @@ export function ProductEditForm({
   onBlockedToggle,
   promo2x1Selectable = false,
   categories,
+  qr,
 }: ProductEditFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,79 +105,98 @@ export function ProductEditForm({
       }
       contentClassName="p-4 sm:p-6"
     >
-      <AdminForm onSubmit={handleSubmit}>
-        {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
-        {saved ? (
-          <AdminFormAlert variant="success">Cambios guardados</AdminFormAlert>
-        ) : null}
+      <div
+        className={
+          qr
+            ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_14rem]"
+            : undefined
+        }
+      >
+        <AdminForm onSubmit={handleSubmit}>
+          {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
+          {saved ? (
+            <AdminFormAlert variant="success">Cambios guardados</AdminFormAlert>
+          ) : null}
 
-        <AdminFormGrid>
-          <div>
-            <Label htmlFor="name">Nombre</Label>
-            <Input id="name" name="name" defaultValue={product.name} required />
-          </div>
-          <ProductTaxonomyFields
-            defaultAudience={product.audience}
-            defaultCategory={product.category}
-            categories={categories}
-          />
-          <div className="sm:col-span-2">
-            <Label htmlFor="description">Descripción</Label>
-            <AdminTextarea
-              id="description"
-              name="description"
-              rows={4}
-              defaultValue={product.description}
-              required
-            />
-          </div>
-          <div className="flex items-start gap-2.5 sm:col-span-2">
-            <Switch
-              id="active"
-              name="active"
-              defaultChecked={product.active}
-            />
+          <AdminFormGrid>
             <div>
-              <Label htmlFor="active" className="cursor-pointer">
-                Activo
-              </Label>
-              <p className="text-xs text-neutral-500">
-                Si lo desactivás, deja de verse en la tienda y no se puede comprar.
-              </p>
+              <Label htmlFor="name">Nombre</Label>
+              <Input id="name" name="name" defaultValue={product.name} required />
             </div>
-          </div>
-          <div className="flex items-center gap-2.5 sm:col-span-2">
-            <Switch
-              id="featured"
-              name="featured"
-              defaultChecked={product.featured}
+            <ProductTaxonomyFields
+              defaultAudience={product.audience}
+              defaultCategory={product.category}
+              categories={categories}
             />
-            <Label htmlFor="featured" className="cursor-pointer">
-              Destacado en home
-            </Label>
-          </div>
-          {promo2x1Selectable ? (
+            <div className="sm:col-span-2">
+              <Label htmlFor="description">Descripción</Label>
+              <AdminTextarea
+                id="description"
+                name="description"
+                rows={4}
+                defaultValue={product.description}
+                required
+              />
+            </div>
+            <div className="flex items-start gap-2.5 sm:col-span-2">
+              <Switch
+                id="active"
+                name="active"
+                defaultChecked={product.active}
+              />
+              <div>
+                <Label htmlFor="active" className="cursor-pointer">
+                  Activo
+                </Label>
+                <p className="text-xs text-neutral-500">
+                  Si lo desactivás, deja de verse en la tienda y no se puede comprar.
+                </p>
+              </div>
+            </div>
             <div className="flex items-center gap-2.5 sm:col-span-2">
               <Switch
-                id="promo2x1"
-                name="promo2x1"
-                defaultChecked={product.promo2x1}
+                id="featured"
+                name="featured"
+                defaultChecked={product.featured}
               />
-              <Label htmlFor="promo2x1" className="cursor-pointer">
-                Promoción 2x1
+              <Label htmlFor="featured" className="cursor-pointer">
+                Destacado en home
               </Label>
             </div>
-          ) : product.promo2x1 ? (
-            <input type="hidden" name="promo2x1" value="on" />
-          ) : null}
-        </AdminFormGrid>
+            {promo2x1Selectable ? (
+              <div className="flex items-center gap-2.5 sm:col-span-2">
+                <Switch
+                  id="promo2x1"
+                  name="promo2x1"
+                  defaultChecked={product.promo2x1}
+                />
+                <Label htmlFor="promo2x1" className="cursor-pointer">
+                  Promoción 2x1
+                </Label>
+              </div>
+            ) : product.promo2x1 ? (
+              <input type="hidden" name="promo2x1" value="on" />
+            ) : null}
+          </AdminFormGrid>
 
-        <AdminFormActions>
-          <Button type="submit" size="sm" disabled={loading}>
-            {loading ? "Guardando..." : "Guardar producto"}
-          </Button>
-        </AdminFormActions>
-      </AdminForm>
+          <AdminFormActions>
+            <Button type="submit" size="sm" disabled={loading}>
+              {loading ? "Guardando..." : "Guardar producto"}
+            </Button>
+          </AdminFormActions>
+        </AdminForm>
+
+        {qr ? (
+          <AdminStoreQrPreview
+            layout="aside"
+            url={qr.url}
+            filename={qr.filename}
+            brandPrefix={qr.brandPrefix}
+            brandColor={qr.brandColor}
+            className="lg:sticky lg:top-4"
+          />
+        ) : null}
+      </div>
     </AdminCollapsibleCard>
   );
 }

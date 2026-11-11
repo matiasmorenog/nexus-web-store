@@ -26,6 +26,12 @@ type ProductEditSectionsProps = {
   promo2x1Selectable?: boolean;
   canManage?: boolean;
   categories?: readonly ProductCategoryDef[];
+  qr?: {
+    url: string;
+    filename: string;
+    brandPrefix: string;
+    brandColor?: string;
+  };
 };
 
 export function ProductEditSections({
@@ -33,6 +39,7 @@ export function ProductEditSections({
   promo2x1Selectable = false,
   canManage = true,
   categories,
+  qr,
 }: ProductEditSectionsProps) {
   const [activeSection, setActiveSection] =
     useState<ProductEditSection | null>("product");
@@ -132,6 +139,7 @@ export function ProductEditSections({
         onBlockedToggle={sectionLocked ? signalBlockedEdit : undefined}
         promo2x1Selectable={promo2x1Selectable}
         categories={categories}
+        qr={qr}
       />
 
       <ProductColorsCard

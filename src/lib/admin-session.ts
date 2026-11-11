@@ -84,8 +84,8 @@ export const requireAdminSession = cache(async (): Promise<AdminSession> => {
     redirect("/admin/logout");
   }
 
-  // Fast path: JWT already scoped to this deploy — skip membership re-check.
-  // Revocation takes effect on next login / JWT expiry (same as typical JWT apps).
+  // Fast path: JWT already scoped to this deploy. JWT callback re-checks
+  // membership every ADMIN_MEMBERSHIP_RECHECK_SECONDS and clears store if revoked.
   if (
     typeof session.user.storeId === "string" &&
     session.user.storeSlug === DEFAULT_STORE_SLUG

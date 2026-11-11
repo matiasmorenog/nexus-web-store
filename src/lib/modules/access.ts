@@ -90,6 +90,7 @@ export async function getEnabledModuleIds(
 
 export function moduleAdminPath(moduleId: ModuleId): string {
   if (moduleId === "analytics") return "/admin/modulos/trafico";
+  if (moduleId === "shippingCarriers") return "/admin/configuracion/envios";
   return `/admin/modulos/${moduleId}`;
 }
 

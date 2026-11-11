@@ -197,12 +197,20 @@ export function canAccessAdminPath(
     return permissions.has("orders:view");
   }
 
+  if (pathname.startsWith("/admin/configuracion/envios")) {
+    return canViewAdminModule(context, "shippingCarriers");
+  }
+
   if (pathname.startsWith("/admin/configuracion")) {
     return permissions.has("config:view");
   }
 
   if (pathname.startsWith("/admin/modulos/cobros")) {
     return permissions.has("config:view");
+  }
+
+  if (pathname.startsWith("/admin/modulos/shippingCarriers")) {
+    return canViewAdminModule(context, "shippingCarriers");
   }
 
   if (pathname.startsWith("/admin/plan")) {

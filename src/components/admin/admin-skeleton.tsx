@@ -990,7 +990,7 @@ export function AdminSkeletonModuleMultiUserPage() {
   );
 }
 
-/** /admin/modulos/cobros */
+/** /admin/configuracion/cobros */
 export function AdminSkeletonModuleCobrosPage() {
   return (
     <AdminSkeletonRegion label="Cargando cobros" className="space-y-8">
@@ -1029,7 +1029,7 @@ export function AdminSkeletonModuleCobrosPage() {
   );
 }
 
-/** /admin/modulos/shippingCarriers */
+/** /admin/configuracion/envios */
 export function AdminSkeletonModuleShippingPage() {
   return (
     <AdminSkeletonRegion label="Cargando envíos" className="space-y-8">

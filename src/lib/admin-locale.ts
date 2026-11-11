@@ -17,11 +17,17 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
   "/admin/pedidos": { es: "Pedidos", it: "Ordini", shortEs: "Pedidos", shortIt: "Ordini" },
   "/admin/productos": { es: "Productos", it: "Prodotti", shortEs: "Productos", shortIt: "Prodotti" },
   "/admin/categorias": { es: "Categorías", it: "Categorie", shortEs: "Categorías", shortIt: "Categorie" },
-  "/admin/modulos/cobros": { es: "Cobros", it: "Pagamenti", shortEs: "Cobros", shortIt: "Pagamenti" },
   "/admin/configuracion": { es: "Configuración", it: "Impostazioni", shortEs: "Config", shortIt: "Impostazioni" },
   "/admin/configuracion/idioma": { es: "Idioma", it: "Lingua", shortEs: "Idioma", shortIt: "Lingua" },
   "/admin/configuracion/seguridad": { es: "Seguridad", it: "Sicurezza", shortEs: "Seguridad", shortIt: "Sicurezza" },
   "/admin/configuracion/qr": { es: "Código QR", it: "Codice QR", shortEs: "QR", shortIt: "QR" },
+  "/admin/configuracion/cobros": { es: "Cobros", it: "Pagamenti", shortEs: "Cobros", shortIt: "Pagamenti" },
+  "/admin/configuracion/envios": {
+    es: "Envíos carrier",
+    it: "Spedizioni carrier",
+    shortEs: "Envíos",
+    shortIt: "Spedizioni",
+  },
   "/admin/plan": { es: "Plan y módulos", it: "Piano e moduli", shortEs: "Plan", shortIt: "Piano" },
   "/admin/modulos/coupons": {
     es: "Cupones y promociones",
@@ -64,7 +70,7 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
     it: "Spedizioni carrier",
     shortEs: "Envíos",
     shortIt: "Spedizioni",
-  },
+  }, // legacy redirect target label
   "/admin/modulos/marketing": {
     es: "WhatsApp y Meta Pixel",
     it: "WhatsApp e Meta Pixel",

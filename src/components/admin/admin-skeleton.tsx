@@ -545,47 +545,85 @@ export function AdminSkeletonDashboardPage() {
 }
 
 /** Catálogo sin filtros activos: card + tabla vacía (estado inicial de /admin/productos). */
-function AdminSkeletonProductsCatalogAwaiting() {
+const PRODUCT_CATALOG_SKELETON_ROWS = 8;
+
+/** Tabla catálogo mientras el listado (Suspense) carga — shell de filtros ya visible. */
+export function AdminSkeletonProductsCatalogAwaiting() {
   return (
-    <div className={cn(adminCardClass, "space-y-0 pb-2")}>
-      <div className={adminCardHeaderClass}>
-        <div className="flex items-center justify-between gap-4">
-          <AdminSkeleton className="h-5 w-20" />
-          <AdminSkeleton className="h-9 w-32 shrink-0 rounded-lg" />
+    <AdminSkeletonRegion label="Cargando listado de productos">
+      <div className={cn(adminCardClass, "space-y-0 pb-2")}>
+        <div className={adminCardHeaderClass}>
+          <div className="flex items-center justify-between gap-4">
+            <AdminSkeleton className="h-5 w-24" />
+            <AdminSkeleton className="h-9 w-36 shrink-0 rounded-lg" />
+          </div>
+          <AdminSkeleton className="mt-1 h-3 w-48 max-w-full" />
         </div>
-        <AdminSkeleton className="mt-1 h-3 w-full max-w-md" />
-      </div>
-      <AdminTableScroll>
-        <table className={adminTableClass}>
-          <thead className={adminTableHeadClass}>
-            <tr>
-              {[
-                "w-16",
-                "w-20",
-                "w-12",
-                "w-16",
-                "w-12",
-                "w-14",
-              ].map((width, index) => (
-                <th key={index} className={adminTableThClass}>
-                  <AdminSkeleton className={cn("h-3", width)} />
-                </th>
+        <AdminTableScroll aria-busy aria-label="Cargando productos">
+          <table className={adminTableClass}>
+            <thead className={adminTableHeadClass}>
+              <tr>
+                {[
+                  "w-20",
+                  "w-16",
+                  "w-14",
+                  "w-16",
+                  "w-14",
+                  "w-12",
+                ].map((width, index) => (
+                  <th key={index} className={adminTableThClass}>
+                    <AdminSkeleton className={cn("h-3", width)} />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className={adminTableBodyClass}>
+              {Array.from({ length: PRODUCT_CATALOG_SKELETON_ROWS }, (_, row) => (
+                <tr key={row} className={adminTableRowClass}>
+                  <td className={adminTableTdClass}>
+                    <div className="flex items-center gap-3">
+                      <AdminSkeleton className="h-12 w-9 shrink-0 rounded-md" />
+                      <div className="min-w-0 space-y-1.5">
+                        <AdminSkeleton
+                          className={cn(
+                            "h-4 max-w-full",
+                            row % 3 === 0 ? "w-40" : row % 3 === 1 ? "w-32" : "w-36",
+                          )}
+                        />
+                        <AdminSkeleton className="h-3 w-24 max-w-full" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className={adminTableTdClass}>
+                    <AdminSkeleton
+                      className={cn("h-4", row % 2 === 0 ? "w-24" : "w-20")}
+                    />
+                  </td>
+                  <td className={adminTableTdClass}>
+                    <AdminSkeleton className="h-4 w-16" />
+                  </td>
+                  <td className={adminTableTdClass}>
+                    <AdminSkeleton className="h-4 w-8" />
+                  </td>
+                  <td className={adminTableTdClass}>
+                    <AdminSkeleton className="h-6 w-16 rounded-full" />
+                  </td>
+                  <td className={adminTableTdClass}>
+                    <div className="flex items-center gap-2">
+                      <AdminSkeleton className="size-8 rounded-lg" />
+                      <AdminSkeleton className="size-8 rounded-lg" />
+                    </div>
+                  </td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody className={adminTableBodyClass}>
-            <tr className={cn(adminTableRowClass, "hover:bg-transparent")}>
-              <td
-                colSpan={6}
-                className={cn(adminTableTdClass, "py-12 text-center")}
-              >
-                <AdminSkeleton className="mx-auto h-4 w-72 max-w-full" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </AdminTableScroll>
-    </div>
+            </tbody>
+          </table>
+        </AdminTableScroll>
+        <div className="flex justify-center border-t border-neutral-100 px-4 py-3">
+          <AdminSkeleton className="h-4 w-40" />
+        </div>
+      </div>
+    </AdminSkeletonRegion>
   );
 }
 

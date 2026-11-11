@@ -25,8 +25,11 @@ Orden de trabajo. No re-explorar el catálogo: ya usa índice cliente.
 ## Backlog (prioridad baja)
 
 - Cache `getAdminOrdersSummary` (~60s TTL)
-- Streaming en `/admin/productos`
 - Índice cliente en listado admin (si catálogo > ~100)
+
+## Cerrado reciente
+
+- Streaming `/admin/productos`: shell (summary cache + filtros) + listado en Suspense
 
 Detalle: `docs/caching-and-routes.md` → **Pendiente (opcional)**.
 

@@ -9,14 +9,12 @@ import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/ty
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
+import { SelectField } from "@/components/ui/select-field";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
-
-const fieldClass =
-  "flex w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1";
 
 const filterPillClass = "rounded-lg bg-[var(--brand-primary)]";
 
@@ -375,9 +373,9 @@ export function ProductFilters({
         <Label htmlFor={`${idPrefix}precio-max`} className={labelClass}>
           {copy.maxPrice}
         </Label>
-        <select
+        <SelectField
           id={`${idPrefix}precio-max`}
-          className={fieldClass}
+          className="rounded-lg border-neutral-200"
           value={searchParams.get("precioMax") ?? ""}
           onChange={(e) =>
             update({
@@ -392,7 +390,7 @@ export function ProductFilters({
               {option.label}
             </option>
           ))}
-        </select>
+        </SelectField>
       </div>
 
       {hasActiveFilters ? (

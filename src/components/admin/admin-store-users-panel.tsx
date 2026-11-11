@@ -8,7 +8,7 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
-  adminSelectClass,
+  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -176,7 +176,7 @@ export function AdminStoreUsersPanel({
                 </div>
                 {canManage ? (
                   <div className="flex flex-wrap items-center gap-2">
-                    <select
+                    <AdminSelect
                       value={member.staffRole}
                       disabled={updatingRoleId === member.id}
                       onChange={(event) =>
@@ -185,7 +185,7 @@ export function AdminStoreUsersPanel({
                           event.target.value as StoreStaffRole,
                         )
                       }
-                      className={adminSelectClass}
+                      wrapperClassName="w-auto min-w-[9rem]"
                       aria-label={`Rol de ${member.name ?? member.email}`}
                     >
                       {STORE_STAFF_ROLES.map((role) => (
@@ -193,7 +193,7 @@ export function AdminStoreUsersPanel({
                           {STORE_STAFF_ROLE_LABELS[role]}
                         </option>
                       ))}
-                    </select>
+                    </AdminSelect>
                     <Button
                       type="button"
                       variant="outline"
@@ -249,20 +249,19 @@ export function AdminStoreUsersPanel({
             </div>
             <div className="space-y-2">
               <Label htmlFor="staff-role">Rol</Label>
-              <select
+              <AdminSelect
                 id="staff-role"
                 value={staffRole}
                 onChange={(event) =>
                   setStaffRole(event.target.value as StoreStaffRole)
                 }
-                className={adminSelectClass}
               >
                 {STORE_STAFF_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {STORE_STAFF_ROLE_LABELS[role]}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
               <p className="text-xs text-neutral-500">
                 {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
               </p>

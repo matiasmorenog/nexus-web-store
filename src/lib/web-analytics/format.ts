@@ -75,14 +75,6 @@ export function formatTechLabel(raw: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function formatUtmLabel(raw: string): string {
-  const value = raw.trim();
-  if (!value || value === "null" || value === "undefined" || value === "-") {
-    return "Sin UTM";
-  }
-  return value;
-}
-
 export function formatDayLabel(isoDate: string): string {
   const date = new Date(`${isoDate}T12:00:00.000Z`);
   if (Number.isNaN(date.getTime())) return isoDate;

@@ -101,7 +101,7 @@ export function AdminWebTrafficSection({
           {report.clampedToHobbyWindow
             ? ", ventana máxima del plan Vercel"
             : ""}
-          ). País, browser, OS, UTM y tendencia diaria vía Web Analytics.
+          ). País, browser, OS y tendencia diaria vía Web Analytics.
         </p>
       </div>
 
@@ -199,36 +199,6 @@ export function AdminWebTrafficSection({
               <RankList
                 rows={report.devices}
                 empty="Sin datos de dispositivo."
-                valueKey="visitors"
-              />
-            </AdminCard>
-            <AdminCard
-              title="UTM source"
-              description="utm_source (requiere Web Analytics Plus en Vercel)"
-            >
-              <RankList
-                rows={report.utmSources}
-                empty="Sin UTM source (plan Hobby no incluye UTM, o no hubo campañas)."
-                valueKey="visitors"
-              />
-            </AdminCard>
-            <AdminCard
-              title="UTM medium"
-              description="utm_medium (requiere Web Analytics Plus en Vercel)"
-            >
-              <RankList
-                rows={report.utmMediums}
-                empty="Sin UTM medium (plan Hobby no incluye UTM, o no hubo campañas)."
-                valueKey="visitors"
-              />
-            </AdminCard>
-            <AdminCard
-              title="UTM campaign"
-              description="utm_campaign (requiere Web Analytics Plus en Vercel)"
-            >
-              <RankList
-                rows={report.utmCampaigns}
-                empty="Sin UTM campaign (plan Hobby no incluye UTM, o no hubo campañas)."
                 valueKey="visitors"
               />
             </AdminCard>

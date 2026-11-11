@@ -45,9 +45,6 @@ export type WebAnalyticsReport = {
   countries: WebAnalyticsNamedRow[];
   browsers: WebAnalyticsNamedRow[];
   operatingSystems: WebAnalyticsNamedRow[];
-  utmSources: WebAnalyticsNamedRow[];
-  utmMediums: WebAnalyticsNamedRow[];
-  utmCampaigns: WebAnalyticsNamedRow[];
   /** True when the query window was clamped to the Vercel Hobby reporting limit. */
   clampedToHobbyWindow?: boolean;
 };

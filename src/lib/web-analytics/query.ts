@@ -9,7 +9,6 @@ import {
   formatProductPathLabel,
   formatReferrerLabel,
   formatTechLabel,
-  formatUtmLabel,
   getWebAnalyticsDateRange,
   WEB_ANALYTICS_HOBBY_MAX_DAYS,
 } from "@/lib/web-analytics/format";
@@ -47,9 +46,6 @@ function emptyReport(
     countries: [],
     browsers: [],
     operatingSystems: [],
-    utmSources: [],
-    utmMediums: [],
-    utmCampaigns: [],
   };
 }
 
@@ -85,24 +81,6 @@ async function vercelGet(
   }
 
   return response.json();
-}
-
-/** Soft-fail for plan-gated dimensions (e.g. UTM needs Analytics Plus). */
-async function vercelGetOptional(
-  path: string,
-  params: Record<string, string | number | undefined>,
-  token: string,
-): Promise<unknown | null> {
-  try {
-    return await vercelGet(path, params, token);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (message.includes("402") || /payment_required|Plus add-on|Enterprise/i.test(message)) {
-      console.warn("[web-analytics] optional dimension skipped:", message.slice(0, 160));
-      return null;
-    }
-    throw error;
-  }
 }
 
 function aggregateRows(json: unknown): AggregateRow[] {
@@ -204,7 +182,7 @@ async function fetchWebAnalyticsReport(
 
   try {
     // External HTTP — parallel OK (not Neon pooler).
-    // UTM dims need Analytics Plus; optional so Hobby 402 does not kill the whole report.
+    // No UTM dims: require Vercel Analytics Plus (not on Hobby).
     const [
       countJson,
       dailyJson,
@@ -215,9 +193,6 @@ async function fetchWebAnalyticsReport(
       countriesJson,
       browsersJson,
       osJson,
-      utmSourceJson,
-      utmMediumJson,
-      utmCampaignJson,
     ] = await Promise.all([
       vercelGet("/visits/count", baseParams, env.token),
       vercelGet(
@@ -294,33 +269,6 @@ async function fetchWebAnalyticsReport(
         },
         env.token,
       ),
-      vercelGetOptional(
-        "/visits/aggregate",
-        {
-          ...baseParams,
-          by: "utmSource",
-          limit: TOP_LIMIT,
-        },
-        env.token,
-      ),
-      vercelGetOptional(
-        "/visits/aggregate",
-        {
-          ...baseParams,
-          by: "utmMedium",
-          limit: TOP_LIMIT,
-        },
-        env.token,
-      ),
-      vercelGetOptional(
-        "/visits/aggregate",
-        {
-          ...baseParams,
-          by: "utmCampaign",
-          limit: TOP_LIMIT,
-        },
-        env.token,
-      ),
     ]);
 
     const countData =
@@ -368,19 +316,6 @@ async function fetchWebAnalyticsReport(
       "osName",
       formatTechLabel,
     );
-    const utmSources = utmSourceJson
-      ? parseNamedRows(aggregateRows(utmSourceJson), "utmSource", formatUtmLabel)
-      : [];
-    const utmMediums = utmMediumJson
-      ? parseNamedRows(aggregateRows(utmMediumJson), "utmMedium", formatUtmLabel)
-      : [];
-    const utmCampaigns = utmCampaignJson
-      ? parseNamedRows(
-          aggregateRows(utmCampaignJson),
-          "utmCampaign",
-          formatUtmLabel,
-        )
-      : [];
 
     if (
       totals.visitors === 0 &&
@@ -411,9 +346,6 @@ async function fetchWebAnalyticsReport(
       countries,
       browsers,
       operatingSystems,
-      utmSources,
-      utmMediums,
-      utmCampaigns,
       clampedToHobbyWindow,
     };
   } catch (error) {
@@ -434,7 +366,7 @@ async function fetchWebAnalyticsReport(
 function getCachedWebAnalyticsReport(period: ActivityPeriod, projectId: string) {
   return unstable_cache(
     () => fetchWebAnalyticsReport(period),
-    ["web-analytics-report", period, projectId, "v3-optional-utm"],
+    ["web-analytics-report", period, projectId, "v4-no-utm"],
     { revalidate: CACHE_TTL_SECONDS },
   )();
 }

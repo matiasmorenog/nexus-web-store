@@ -52,3 +52,43 @@ export function formatReferrerLabel(raw: string): string {
   }
   return value;
 }
+
+export function formatCountryLabel(raw: string): string {
+  const code = raw.trim().toUpperCase();
+  if (!code || code === "NULL" || code === "UNDEFINED" || code === "-") {
+    return "Desconocido";
+  }
+  try {
+    const name = new Intl.DisplayNames(["es"], { type: "region" }).of(code);
+    return name ?? code;
+  } catch {
+    return code;
+  }
+}
+
+export function formatTechLabel(raw: string): string {
+  const value = raw.trim();
+  if (!value || value === "null" || value === "undefined" || value === "-") {
+    return "Otro / desconocido";
+  }
+  if (value.length <= 3) return value.toUpperCase();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+export function formatUtmLabel(raw: string): string {
+  const value = raw.trim();
+  if (!value || value === "null" || value === "undefined" || value === "-") {
+    return "Sin UTM";
+  }
+  return value;
+}
+
+export function formatDayLabel(isoDate: string): string {
+  const date = new Date(`${isoDate}T12:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(date);
+}

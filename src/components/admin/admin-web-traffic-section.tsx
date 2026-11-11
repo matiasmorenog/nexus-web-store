@@ -1,4 +1,5 @@
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminWebTrafficDailyChart } from "@/components/admin/admin-web-traffic-daily-chart";
 import { ACTIVITY_PERIOD_LABELS, type ActivityPeriod } from "@/lib/admin-analytics";
 import type {
   WebAnalyticsNamedRow,
@@ -46,8 +47,7 @@ function RankList({
       {rows.map((row, index) => {
         const value = row[valueKey];
         const width = Math.max(8, Math.round((value / max) * 100));
-        const title =
-          "path" in row ? row.label : row.label;
+        const title = "path" in row ? row.label : row.label;
         const subtitle = "path" in row ? row.path : null;
 
         return (
@@ -101,7 +101,7 @@ export function AdminWebTrafficSection({
           {report.clampedToHobbyWindow
             ? ", ventana máxima del plan Vercel"
             : ""}
-          ). Ideal para ver qué productos miran y de dónde llegan.
+          ). País, browser, OS, UTM y tendencia diaria vía Web Analytics.
         </p>
       </div>
 
@@ -126,6 +126,13 @@ export function AdminWebTrafficSection({
             />
           </div>
 
+          <AdminCard
+            title="Tendencia diaria"
+            description="Pageviews por día en el período"
+          >
+            <AdminWebTrafficDailyChart points={report.daily} />
+          </AdminCard>
+
           <div className="grid items-start gap-6 lg:grid-cols-2">
             <AdminCard
               title="Productos más vistos"
@@ -146,6 +153,16 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              title="Países"
+              description="Origen geográfico de las visitas"
+            >
+              <RankList
+                rows={report.countries}
+                empty="Sin datos de país todavía."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
               title="De dónde llegan"
               description="Referrers / redes / búsqueda"
             >
@@ -156,12 +173,62 @@ export function AdminWebTrafficSection({
               />
             </AdminCard>
             <AdminCard
+              title="Navegadores"
+              description="Browser de los visitantes"
+            >
+              <RankList
+                rows={report.browsers}
+                empty="Sin datos de browser."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              title="Sistemas operativos"
+              description="OS de los visitantes"
+            >
+              <RankList
+                rows={report.operatingSystems}
+                empty="Sin datos de sistema operativo."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
               title="Dispositivos"
               description="Cómo navegan tus clientes"
             >
               <RankList
                 rows={report.devices}
                 empty="Sin datos de dispositivo."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              title="UTM source"
+              description="utm_source de campañas"
+            >
+              <RankList
+                rows={report.utmSources}
+                empty="Sin UTM source en el período."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              title="UTM medium"
+              description="utm_medium de campañas"
+            >
+              <RankList
+                rows={report.utmMediums}
+                empty="Sin UTM medium en el período."
+                valueKey="visitors"
+              />
+            </AdminCard>
+            <AdminCard
+              title="UTM campaign"
+              description="utm_campaign de campañas"
+            >
+              <RankList
+                rows={report.utmCampaigns}
+                empty="Sin UTM campaign en el período."
                 valueKey="visitors"
               />
             </AdminCard>

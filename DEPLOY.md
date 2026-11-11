@@ -29,15 +29,23 @@ Vercel → cada proyecto → **Settings → Git → Ignored Build Step** → peg
 
 ### Web Analytics (visitas al sitio)
 
-El storefront (las 3 tiendas) incluye `@vercel/analytics` en `StorefrontMarketingShell` — código compartido; el admin no manda pageviews ahí. Meta Pixel sigue aparte (ads / conversiones).
+El storefront (las 3 tiendas) incluye `@vercel/analytics` en `StorefrontMarketingShell`. Meta Pixel sigue aparte (ads / conversiones).
+
+**Dashboard admin (plan Pro / módulo `analytics`):** `/admin/modulos/analytics` muestra tráfico del sitio (visitantes, pageviews, productos más vistos, páginas top, referrers, dispositivos) vía Web Analytics API.
 
 Por cada proyecto Vercel (`goat-indumentaria`, `vaporx-store`, `manoviva-store`):
 
-1. Abrí el proyecto → **Analytics** (o **Speed Insights** no hace falta para esto).
-2. Activá **Web Analytics** si todavía no está on.
-3. Tras el release a `main`, mirá visitantes / pageviews / top páginas ahí (cada proyecto = una tienda).
+1. Activá **Web Analytics** en el proyecto (si no está on).
+2. Creá un token en [Vercel → Account → Tokens](https://vercel.com/account/tokens) con acceso al team.
+3. Env vars (Production; Preview opcional):
 
-Sin el toggle en el dashboard, el script no acumula datos aunque el package esté en el código.
+| Variable | Valor |
+|----------|--------|
+| `VERCEL_WEB_ANALYTICS_TOKEN` | token de acceso (mismo para las 3 si el token es de team) |
+| `VERCEL_PROJECT_ID` | ID del proyecto (en Vercel se inyecta solo en runtime; en local/otro host, setearlo) |
+| `VERCEL_TEAM_ID` | `team_…` del team (recomendado) |
+
+Sin token, el bloque de tráfico en admin muestra estado “sin configurar”; el resto de analytics de ventas sigue igual.
 
 **Por qué `vaporx-store` (no `vape-store`):** el hostname global `vape-store.vercel.app` ya está tomado por otra cuenta (sitio “Smoke & Vape Co.” / Colorado Springs). Renombrar el proyecto a `vape-store` no reclama ese alias. Elegimos `vaporx-store` (marca VAPORX, hostname libre). No usar `https://vape-store.vercel.app` en env ni docs.
 

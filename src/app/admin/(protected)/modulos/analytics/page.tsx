@@ -32,7 +32,7 @@ export default async function AdminAnalyticsPage({
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="Analytics y reportes"
-          description="Insights de ventas, comparación de períodos y export CSV de reportes, pedidos y catálogo."
+          description="Tráfico del sitio, insights de ventas, comparación de períodos y export CSV."
         />
       </AdminDashboardReveal>
 
@@ -43,7 +43,7 @@ export default async function AdminAnalyticsPage({
         />
       </Suspense>
 
-      <AdminDashboardReveal index={4}>
+      <AdminDashboardReveal index={5}>
         <AdminExportsPanel defaultDesde={desde} defaultHasta={hasta} />
       </AdminDashboardReveal>
     </div>

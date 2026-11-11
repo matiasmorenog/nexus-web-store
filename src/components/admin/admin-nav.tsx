@@ -30,10 +30,10 @@ import {
   SlidingIndicatorPill,
   useSlidingIndicator,
 } from "@/components/ui/sliding-indicator";
+import { useShellNavEnterOnce } from "@/hooks/use-shell-nav-enter-once";
 import { adminChrome, type AdminLocale } from "@/lib/admin-locale";
 import {
   isAdminNavItemActive,
-  isConfigSubmenuPathActive,
   isModuleNavItemEnabled,
   type AdminNavIconKey,
   type AdminNavItem,
@@ -95,14 +95,12 @@ function DesktopNavLink({
   enabledModuleIds,
   pathname,
   onNavigate,
-  staticActive = false,
   nested = false,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
   pathname: string;
   onNavigate?: () => void;
-  staticActive?: boolean;
   nested?: boolean;
 }) {
   const active = isAdminNavItemActive(pathname, item);
@@ -111,14 +109,12 @@ function DesktopNavLink({
     <Link
       href={navItemHref(item, enabledModuleIds)}
       onClick={onNavigate}
-      aria-current={active && !staticActive ? "page" : undefined}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "relative z-[1] flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-200",
         nested ? "px-3 pl-9" : "px-3",
         active
-          ? staticActive
-            ? "bg-white/10 text-white"
-            : "text-white"
+          ? "text-white"
           : "text-neutral-400 hover:bg-white/5 hover:text-white",
       )}
     >
@@ -132,69 +128,6 @@ function DesktopNavLink({
         ) : null}
       </span>
     </Link>
-  );
-}
-
-function ConfigNavGroup({
-  hub,
-  items,
-  enabledModuleIds,
-  pathname,
-  locale,
-  onNavigate,
-}: {
-  hub: AdminNavItem;
-  items: AdminNavItem[];
-  enabledModuleIds: ModuleId[];
-  pathname: string;
-  locale: AdminLocale;
-  onNavigate?: () => void;
-}) {
-  const copy = adminChrome[locale];
-  const pathInGroup = isConfigSubmenuPathActive(pathname, {
-    configHub: hub as AdminNavModel["configHub"],
-    configChildren: items,
-  });
-  const hubActive = isAdminNavItemActive(pathname, hub);
-
-  return (
-    <div className="space-y-1">
-      <Link
-        href={hub.href}
-        onClick={onNavigate}
-        aria-current={hubActive ? "page" : undefined}
-        className={cn(
-          "relative z-[1] flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
-          hubActive || pathInGroup
-            ? "text-white"
-            : "text-neutral-400 hover:bg-white/5 hover:text-white",
-          hubActive ? "bg-white/10" : null,
-        )}
-      >
-        <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
-        <span className="truncate">{hub.label}</span>
-      </Link>
-
-      {items.length > 0 ? (
-        <div
-          id="admin-config-submenu"
-          role="group"
-          aria-label={copy.configSubmenu}
-          className="space-y-1"
-        >
-          {items.map((item) => (
-            <DesktopNavLink
-              key={item.href}
-              item={item}
-              enabledModuleIds={enabledModuleIds}
-              pathname={pathname}
-              onNavigate={onNavigate}
-              nested
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
   );
 }
 
@@ -225,6 +158,7 @@ function AdminSidebarPanel({
 }: AdminSidebarPanelProps) {
   const copy = adminChrome[locale];
   const { listRef, indicator, animate } = useSlidingIndicator(pathname);
+  const { animate: staggerEnter } = useShellNavEnterOnce(true);
 
   return (
     <>
@@ -253,11 +187,15 @@ function AdminSidebarPanel({
         <nav
           ref={listRef}
           aria-label={copy.nav}
-          className="relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20"
+          className={cn(
+            "relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20",
+            staggerEnter && "shell-nav-reveal",
+          )}
         >
           <SlidingIndicatorPill
             indicator={indicator}
             animate={animate}
+            skipEnterReveal={staggerEnter}
             className="rounded-lg bg-white/10"
           />
           {navModel.mainItems.map((item) => (
@@ -269,14 +207,22 @@ function AdminSidebarPanel({
               onNavigate={onNavigate}
             />
           ))}
-          <ConfigNavGroup
-            hub={navModel.configHub}
-            items={navModel.configChildren}
+          <DesktopNavLink
+            item={navModel.configHub}
             enabledModuleIds={enabledModuleIds}
             pathname={pathname}
-            locale={locale}
             onNavigate={onNavigate}
           />
+          {navModel.configChildren.map((item) => (
+            <DesktopNavLink
+              key={item.href}
+              item={item}
+              enabledModuleIds={enabledModuleIds}
+              pathname={pathname}
+              onNavigate={onNavigate}
+              nested
+            />
+          ))}
         </nav>
       </div>
 
@@ -435,7 +381,6 @@ export function AdminNav({
       </aside>
 
       <AdminMobileNav
-        key={pathname}
         brandPrefix={brandPrefix}
         userName={userName}
         userEmail={userEmail}

@@ -1,35 +1,30 @@
 import { cache } from "react";
+import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
 import { db } from "@/lib/db";
-import { getStoreId } from "@/lib/store-context";
 
+/**
+ * Resolve store for an admin JWT.
+ * Prefer membership on the current deploy store; never fall back to
+ * "any linked store" or bare getStoreId without membership.
+ */
 export const resolveAdminStoreId = cache(
   async (
     userId: string,
   ): Promise<{ storeId: string | null; storeSlug: string | null }> => {
     const user = await db.user.findUnique({
       where: { id: userId },
-      include: {
-        stores: {
-          take: 1,
-          include: { store: { select: { id: true, slug: true } } },
-        },
-      },
+      select: { role: true },
     });
 
-    const linked = user?.stores[0]?.store;
-    if (linked) {
-      return { storeId: linked.id, storeSlug: linked.slug };
-    }
-
-    try {
-      const storeId = await getStoreId();
-      const store = await db.store.findUnique({
-        where: { id: storeId },
-        select: { slug: true },
-      });
-      return { storeId, storeSlug: store?.slug ?? null };
-    } catch {
+    if (!user) {
       return { storeId: null, storeSlug: null };
     }
+
+    const access = await adminMayAccessCurrentStore(userId, user.role);
+    if (!access.allowed) {
+      return { storeId: null, storeSlug: null };
+    }
+
+    return { storeId: access.storeId, storeSlug: access.storeSlug };
   },
 );

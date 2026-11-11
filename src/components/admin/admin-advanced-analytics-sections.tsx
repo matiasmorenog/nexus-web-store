@@ -10,12 +10,14 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminTopProducts } from "@/components/admin/admin-top-products";
+import { AdminWebTrafficSection } from "@/components/admin/admin-web-traffic-section";
 import {
   ACTIVITY_PERIOD_LABELS,
   getActivityPeriodAnalytics,
   type ActivityPeriod,
 } from "@/lib/admin-analytics";
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
+import { getWebAnalyticsReport } from "@/lib/web-analytics";
 
 type AdminAdvancedAnalyticsSectionsProps = {
   storeId: string;
@@ -27,14 +29,19 @@ export async function AdminAdvancedAnalyticsSections({
   period,
 }: AdminAdvancedAnalyticsSectionsProps) {
   const periodLabels = ACTIVITY_PERIOD_LABELS[period];
-  const [report, periodAnalytics] = await Promise.all([
+  const [report, periodAnalytics, webTraffic] = await Promise.all([
     getAdvancedAnalyticsReport(storeId, period),
     getActivityPeriodAnalytics(storeId, period),
+    getWebAnalyticsReport(period),
   ]);
 
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={1}>
+        <AdminWebTrafficSection period={period} report={webTraffic} />
+      </AdminDashboardReveal>
+
+      <AdminDashboardReveal index={2}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-500">
             Comparación contra el período anterior ({periodLabels.summary}).
@@ -49,7 +56,7 @@ export async function AdminAdvancedAnalyticsSections({
         <AdminAnalyticsComparisonCards comparison={report.comparison} />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={2}>
+      <AdminDashboardReveal index={3}>
         <AdminAnalyticsInsightsGrid
           metrics={report.comparison.current}
           cohort={report.cohort}
@@ -57,7 +64,7 @@ export async function AdminAdvancedAnalyticsSections({
       </AdminDashboardReveal>
 
       <AdminDashboardReveal
-        index={3}
+        index={4}
         className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
       >
         <div className="space-y-6">

@@ -15,6 +15,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 ## Infra & CI
 
 - [x] Vercel Web Analytics en storefront compartido (3 tiendas); activar toggle en cada proyecto Vercel (ver `DEPLOY.md`).
+- [x] Admin Pro: panel de tráfico web en `/admin/modulos/analytics` (API Vercel; env `VERCEL_WEB_ANALYTICS_TOKEN` + project/team).
 - [ ] Separar Vercel Blob por tienda (hoy un store compartido).
 - [ ] (Opcional, futuro) `npm run build` en GitHub Actions — ver `docs/ci.md` Fase 2.
 

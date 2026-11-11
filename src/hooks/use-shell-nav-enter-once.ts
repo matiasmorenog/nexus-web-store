@@ -1,20 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 export type ShellNavEnterState = {
-  /** Sidebar content can render (skip opacity gate). */
+  /** False while opacity-gated before cascade starts. */
   ready: boolean;
-  /** Play enter motion on this document load / mount. */
+  /** Apply shell-nav-reveal (play cascade). */
   animate: boolean;
+  /** Hide items at opacity 0 until reveal starts (avoids flash). */
+  pending: boolean;
 };
 
 /**
- * Cascade enter for the admin sidebar.
- * Plays on each full page load (fresh mount of the desktop shell).
- * Pass `enabled=false` for the mobile drawer so opening it does not re-cascade.
+ * Desktop sidebar cascade on each full page load.
+ * Starts pending (hidden) → layout effect flips to reveal so CSS animation runs from opacity 0.
+ * Pass `enabled=false` for the mobile drawer (no cascade).
  */
 export function useShellNavEnterOnce(enabled = true): ShellNavEnterState {
-  const [animate] = useState(enabled);
-  return { ready: true, animate };
+  const [phase, setPhase] = useState<"idle" | "pending" | "reveal">(() =>
+    enabled ? "pending" : "idle",
+  );
+
+  useLayoutEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- sync gate before paint */
+    if (!enabled) {
+      setPhase("idle");
+      return;
+    }
+    setPhase("reveal");
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [enabled]);
+
+  return {
+    ready: phase !== "pending",
+    animate: phase === "reveal",
+    pending: phase === "pending",
+  };
 }

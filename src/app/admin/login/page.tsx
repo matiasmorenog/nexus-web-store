@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/admin/login-form";
+import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { AdminLoginWithDemo } from "@/components/auth/demo-login-gate";
 import { ADMIN_LOCALE_COOKIE, adminLogin, parseAdminLocale } from "@/lib/admin-locale";
 import { storefrontPath } from "@/lib/storefront-paths";
@@ -10,6 +11,7 @@ import { getBrandPrefix } from "@/lib/brand";
 import { getMerchantEmailOptional } from "@/lib/merchant-email";
 import { formatStoreName, getStore } from "@/lib/store-context";
 import { isGoogleAuthEnabled } from "@/lib/auth-session";
+import { cn } from "@/lib/utils";
 
 export default async function AdminLoginPage({
   searchParams,
@@ -69,7 +71,7 @@ export default async function AdminLoginPage({
               <p className="mt-1 text-sm text-neutral-500">{copy.panel}</p>
             </div>
 
-            <div className="rounded-xl border border-neutral-200/80 bg-white p-8 shadow-sm">
+            <div className={cn(adminSurfaceClass, "p-8")}>
               <h2 className="mb-6 text-lg font-semibold text-neutral-900">
                 {copy.signIn}
               </h2>

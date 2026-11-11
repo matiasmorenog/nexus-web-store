@@ -3,6 +3,7 @@ import {
   adminCardClass,
   adminCardHeaderClass,
   adminCardInsetClass,
+  adminSurfaceClass,
 } from "@/components/admin/admin-surface";
 import {
   AdminTableScroll,
@@ -1173,12 +1174,7 @@ export function AdminSkeletonListToolbar({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm",
-        className,
-      )}
-    >
+    <div className={cn(adminSurfaceClass, "p-4", className)}>
       <div
         className={cn(
           "flex flex-col gap-3",

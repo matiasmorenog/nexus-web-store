@@ -109,21 +109,24 @@ export function SlidingIndicatorPill({
   /** Absolute pill — skip shell-nav-reveal stagger on sidebar first paint. */
   skipEnterReveal?: boolean;
 }) {
-  if (!indicator) return null;
-
+  // Always mount a skip node so nth-child cascade delays stay stable when the
+  // measured pill appears after the first layout pass.
   return (
     <span
       aria-hidden
       className={cn(
         "pointer-events-none absolute top-0 left-0 z-0",
-        animate && "sliding-indicator-animate",
+        animate && indicator && "sliding-indicator-animate",
         skipEnterReveal && "shell-nav-reveal-skip",
+        !indicator && "opacity-0",
         className,
       )}
       style={{
-        width: indicator.width,
-        height: indicator.height,
-        transform: `translate(${indicator.left}px, ${indicator.top}px)`,
+        width: indicator?.width ?? 0,
+        height: indicator?.height ?? 0,
+        transform: indicator
+          ? `translate(${indicator.left}px, ${indicator.top}px)`
+          : undefined,
         ...style,
       }}
     />

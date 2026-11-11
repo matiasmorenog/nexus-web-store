@@ -46,7 +46,7 @@ body {
 @keyframes shell-nav-enter {
   from {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(0.75rem);
   }
   to {
     opacity: 1;
@@ -54,71 +54,80 @@ body {
   }
 }
 
+/* Pre-reveal gate: avoid painting full-opacity items before cascade starts. */
+.shell-nav-pending > *:not(.shell-nav-reveal-skip) {
+  opacity: 0;
+}
+
 .shell-nav-reveal > * {
-  animation: shell-nav-enter 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: shell-nav-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .shell-nav-reveal > *:nth-child(1) {
   animation-delay: 0ms;
 }
 .shell-nav-reveal > *:nth-child(2) {
-  animation-delay: 55ms;
+  animation-delay: 70ms;
 }
 .shell-nav-reveal > *:nth-child(3) {
-  animation-delay: 110ms;
+  animation-delay: 140ms;
 }
 .shell-nav-reveal > *:nth-child(4) {
-  animation-delay: 165ms;
+  animation-delay: 210ms;
 }
 .shell-nav-reveal > *:nth-child(5) {
-  animation-delay: 220ms;
+  animation-delay: 280ms;
 }
 .shell-nav-reveal > *:nth-child(6) {
-  animation-delay: 275ms;
+  animation-delay: 350ms;
 }
 .shell-nav-reveal > *:nth-child(7) {
-  animation-delay: 330ms;
+  animation-delay: 420ms;
 }
 .shell-nav-reveal > *:nth-child(8) {
-  animation-delay: 385ms;
+  animation-delay: 490ms;
 }
 .shell-nav-reveal > *:nth-child(9) {
-  animation-delay: 440ms;
+  animation-delay: 560ms;
 }
 .shell-nav-reveal > *:nth-child(10) {
-  animation-delay: 495ms;
+  animation-delay: 630ms;
 }
 .shell-nav-reveal > *:nth-child(11) {
-  animation-delay: 550ms;
+  animation-delay: 700ms;
 }
 .shell-nav-reveal > *:nth-child(12) {
-  animation-delay: 605ms;
-}
-.shell-nav-reveal > *:nth-child(13) {
-  animation-delay: 660ms;
-}
-.shell-nav-reveal > *:nth-child(14) {
-  animation-delay: 715ms;
-}
-.shell-nav-reveal > *:nth-child(15) {
   animation-delay: 770ms;
 }
+.shell-nav-reveal > *:nth-child(13) {
+  animation-delay: 840ms;
+}
+.shell-nav-reveal > *:nth-child(14) {
+  animation-delay: 910ms;
+}
+.shell-nav-reveal > *:nth-child(15) {
+  animation-delay: 980ms;
+}
 .shell-nav-reveal > *:nth-child(16) {
-  animation-delay: 825ms;
+  animation-delay: 1050ms;
 }
 .shell-nav-reveal > *:nth-child(n + 17) {
-  animation-delay: 880ms;
+  animation-delay: 1120ms;
 }
 
-.shell-nav-reveal > .shell-nav-reveal-skip {
+.shell-nav-reveal > .shell-nav-reveal-skip,
+.shell-nav-pending > .shell-nav-reveal-skip {
   animation: none;
   opacity: 1;
   transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .shell-nav-pending > *:not(.shell-nav-reveal-skip),
   .shell-nav-reveal > * {
     animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 

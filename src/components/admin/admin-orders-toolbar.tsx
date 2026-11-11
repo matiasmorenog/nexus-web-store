@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AdminSearchField } from "@/components/admin/admin-filters";
+import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,7 +111,8 @@ export function AdminOrdersToolbar({
   return (
     <div
       className={cn(
-        "rounded-xl border border-neutral-200/80 bg-white p-4 shadow-sm",
+        adminSurfaceClass,
+        "p-4",
         className,
       )}
     >

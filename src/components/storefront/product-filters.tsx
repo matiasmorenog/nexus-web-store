@@ -168,11 +168,11 @@ export function ProductFilters({
   const asideClass = cn(
     "h-fit w-full space-y-6",
     chrome &&
-      "storefront-card border p-5 shadow-md lg:sticky lg:bottom-4 lg:self-end",
+      "storefront-card border p-5 shadow-sm lg:sticky lg:bottom-4 lg:self-end",
     chrome &&
       (isApp2
         ? "border-app2 bg-app2-card"
-        : "border-neutral-200/90 bg-white ring-1 ring-neutral-900/[0.04]"),
+        : "border-neutral-200/90 bg-white"),
   );
 
   const labelClass = cn("mb-2 block", isApp2 ? "text-app2-muted" : "text-neutral-700");

@@ -101,17 +101,20 @@ function DesktopNavLink({
   pathname,
   onNavigate,
   nested = false,
+  id,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
   pathname: string;
   onNavigate?: () => void;
   nested?: boolean;
+  id?: string;
 }) {
   const active = isAdminNavItemActive(pathname, item);
 
   return (
     <Link
+      id={id}
       href={navItemHref(item, enabledModuleIds)}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
@@ -161,12 +164,13 @@ function ConfigNavGroup({
 
   if (items.length === 0) return null;
 
+  // Fragment: keep Config button + children as direct nav kids so cascade nth-child works.
   return (
-    <div className="space-y-1">
+    <>
       <button
         type="button"
         aria-expanded={open}
-        aria-controls="admin-config-submenu"
+        aria-controls={open ? "admin-config-submenu" : undefined}
         aria-label={open ? copy.collapseConfig : copy.expandConfig}
         onClick={() => {
           if (pathInGroup) return;
@@ -182,21 +186,20 @@ function ConfigNavGroup({
         <AdminNavIcon iconKey={hub.iconKey} className="h-4 w-4 shrink-0" />
         <span className="truncate">{hub.label}</span>
       </button>
-      {open ? (
-        <div id="admin-config-submenu" role="group" aria-label={copy.configSubmenu} className="space-y-1">
-          {items.map((item) => (
+      {open
+        ? items.map((item, index) => (
             <DesktopNavLink
               key={item.href}
+              id={index === 0 ? "admin-config-submenu" : undefined}
               item={item}
               enabledModuleIds={enabledModuleIds}
               pathname={pathname}
               onNavigate={onNavigate}
               nested
             />
-          ))}
-        </div>
-      ) : null}
-    </div>
+          ))
+        : null}
+    </>
   );
 }
 
@@ -230,7 +233,10 @@ function AdminSidebarPanel({
 }: AdminSidebarPanelProps) {
   const copy = adminChrome[locale];
   const { listRef, indicator, animate } = useSlidingIndicator(pathname);
-  const { animate: staggerEnter } = useShellNavEnterOnce(cascadeEnter);
+  const {
+    animate: staggerEnter,
+    pending: staggerPending,
+  } = useShellNavEnterOnce(cascadeEnter);
 
   return (
     <>
@@ -261,13 +267,14 @@ function AdminSidebarPanel({
           aria-label={copy.nav}
           className={cn(
             "relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto overscroll-y-contain p-4 [-ms-overflow-style:none] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.2)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20",
+            staggerPending && "shell-nav-pending",
             staggerEnter && "shell-nav-reveal",
           )}
         >
           <SlidingIndicatorPill
             indicator={indicator}
             animate={animate}
-            skipEnterReveal={staggerEnter}
+            skipEnterReveal={cascadeEnter}
             className="rounded-lg bg-white/10"
           />
           {navModel.mainItems.map((item) => (

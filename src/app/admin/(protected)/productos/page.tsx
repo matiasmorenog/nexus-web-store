@@ -6,8 +6,7 @@ import {
 } from "@/lib/admin-session";
 import {
   adminProductsFilterKey,
-  getAdminProductsPage,
-  getAdminProductsSummary,
+  getAdminProductsPageData,
 } from "@/lib/admin-products-query";
 import {
   ADMIN_PRODUCT_FILTER_PARAMS,
@@ -68,12 +67,10 @@ export default async function AdminProductsPage({
     orden: params.orden,
   };
 
-  const [summary, page, categories, couponsEnabled] = await Promise.all([
-    getAdminProductsSummary(storeId),
-    getAdminProductsPage(storeId, 1, filters),
-    getStoreCategories(storeId),
-    storeHasModule(storeId, "coupons"),
-  ]);
+  // Neon connection_limit=1: serialize DB work (no Promise.all across queries).
+  const { summary, page } = await getAdminProductsPageData(storeId, filters);
+  const categories = await getStoreCategories(storeId);
+  const couponsEnabled = await storeHasModule(storeId, "coupons");
   const promo2x1Selectable =
     getStorefrontConfig().features.promo2x1 && couponsEnabled;
 

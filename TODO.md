@@ -25,6 +25,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 - [x] Admin: Plan/SEO/Marketing/API/Multi-usuario bajo acordeón Configuración (Wishlist queda top-level); Idioma y Seguridad como rutas hijas; Config solo despliega.
 - [x] Admin: Cobros + Envíos bajo Configuración (URLs `/admin/configuracion/cobros` y `/admin/configuracion/envios` + redirect legacy).
 - [x] Admin plan base: QR de home/producto en Config + atajo PNG en editar producto.
+- [x] Admin: date/datetime pickers custom (estilo Rocha) en pedidos, exports y cupones.
 - [ ] Separar Vercel Blob por tienda (hoy un store compartido).
 - [ ] (Opcional, futuro) `npm run build` en GitHub Actions — ver `docs/ci.md` Fase 2.
 

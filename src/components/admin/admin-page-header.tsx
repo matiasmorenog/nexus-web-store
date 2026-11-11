@@ -12,7 +12,7 @@ export function AdminPageHeader({
   action,
 }: AdminPageHeaderProps) {
   return (
-    <div className="mb-8">
+    <div className="mb-8 select-none">
       <div className="flex items-center justify-between gap-3">
         <h1 className="min-w-0 text-2xl font-bold tracking-tight text-neutral-900">
           <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-0.5">

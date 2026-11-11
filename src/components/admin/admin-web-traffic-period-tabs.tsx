@@ -7,7 +7,10 @@ import {
   WEB_TRAFFIC_PERIODS,
   type WebTrafficPeriod,
 } from "@/lib/web-analytics/period";
-import { adminCardShadowClass } from "@/components/admin/admin-surface";
+import {
+  segmentedItemClassName,
+  segmentedTrackClassName,
+} from "@/components/ui/form-segmented-control";
 import { cn } from "@/lib/utils";
 
 type AdminWebTrafficPeriodTabsProps = {
@@ -25,34 +28,40 @@ function buildPeriodHref(
   return qs ? `/admin/modulos/trafico?${qs}` : "/admin/modulos/trafico";
 }
 
+/** Page header (no card) — white track + outer shadow. */
 export function AdminWebTrafficPeriodTabs({
   period,
 }: AdminWebTrafficPeriodTabsProps) {
   const searchParams = useSearchParams();
 
   return (
-    <div
-      className={cn(
-        "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
-        adminCardShadowClass,
-      )}
-    >
-      {WEB_TRAFFIC_PERIODS.map((value) => (
-        <Link
-          key={value}
-          href={buildPeriodHref(value, searchParams)}
-          scroll={false}
-          aria-current={period === value ? "page" : undefined}
-          className={cn(
-            "rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
-            period === value
-              ? "bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
-              : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
-          )}
-        >
-          {WEB_TRAFFIC_PERIOD_LABELS[value].short}
-        </Link>
-      ))}
+    <div className={segmentedTrackClassName("page")}>
+      {WEB_TRAFFIC_PERIODS.map((value) => {
+        const active = period === value;
+        const className = cn(segmentedItemClassName(active));
+        const label = WEB_TRAFFIC_PERIOD_LABELS[value].short;
+        if (active) {
+          return (
+            <span
+              key={value}
+              aria-current="page"
+              className={className}
+            >
+              {label}
+            </span>
+          );
+        }
+        return (
+          <Link
+            key={value}
+            href={buildPeriodHref(value, searchParams)}
+            scroll={false}
+            className={className}
+          >
+            {label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

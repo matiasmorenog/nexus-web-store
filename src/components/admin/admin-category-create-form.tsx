@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { outlineToggleChipClassName } from "@/components/ui/picker-preset-chips";
 import { Switch } from "@/components/ui/switch";
 import { STORE_AUDIENCES } from "@/lib/categories";
 
@@ -106,11 +107,8 @@ export function AdminCategoryCreateForm() {
                     key={audience.slug}
                     type="button"
                     onClick={() => toggleAudience(audience.slug)}
-                    className={
-                      active
-                        ? "rounded-lg bg-neutral-900 px-3 py-1.5 text-sm text-white"
-                        : "rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-700 hover:border-neutral-400"
-                    }
+                    className={outlineToggleChipClassName(active)}
+                    aria-pressed={active}
                   >
                     {audience.label}
                   </button>

@@ -29,18 +29,20 @@ export function AdminLocaleSwitcher({
 
   const buttonClass =
     appearance === "segmented"
-      ? "flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+      ? "flex-1 select-none rounded-md px-3 py-2 text-sm transition-colors"
       : tone === "dark"
-        ? "rounded-md px-2 py-1 text-xs text-neutral-300 hover:bg-white/10 hover:text-white"
-        : "rounded-md px-2 py-1 text-xs text-neutral-600 hover:bg-neutral-100";
+        ? "select-none rounded-md px-2 py-1 text-xs text-neutral-300 hover:bg-white/10 hover:text-white"
+        : "select-none rounded-md px-2 py-1 text-xs text-neutral-600 hover:bg-neutral-100";
   const activeClass =
     appearance === "segmented"
-      ? "bg-white text-neutral-900 shadow-sm"
+      ? "cursor-pointer font-semibold text-[var(--brand-primary)]"
       : tone === "dark"
         ? "bg-white/15 text-white"
         : "bg-neutral-200 text-neutral-900";
   const idleClass =
-    appearance === "segmented" ? "text-neutral-500 hover:text-neutral-800" : "";
+    appearance === "segmented"
+      ? "cursor-pointer font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
+      : "";
 
   return (
     <div className={className}>
@@ -52,7 +54,7 @@ export function AdminLocaleSwitcher({
       <div
         className={
           appearance === "segmented"
-            ? "flex gap-1 rounded-lg border border-neutral-200 bg-neutral-100 p-1"
+            ? "flex gap-1 rounded-lg border border-neutral-200 bg-transparent p-1"
             : "flex gap-1"
         }
         role="group"

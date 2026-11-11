@@ -85,7 +85,9 @@ export function AdminStatCard({
 
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-neutral-500">{label}</p>
+          <p className="select-none text-sm font-medium text-neutral-500">
+            {label}
+          </p>
           <p
             className={cn(
               "mt-2 text-2xl font-bold tracking-tight text-neutral-900 tabular-nums",

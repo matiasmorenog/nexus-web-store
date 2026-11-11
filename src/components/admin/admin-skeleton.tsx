@@ -3,6 +3,7 @@ import {
   adminCardClass,
   adminCardHeaderClass,
   adminCardInsetClass,
+  adminCardShadowClass,
   adminSurfaceClass,
 } from "@/components/admin/admin-surface";
 import {
@@ -990,7 +991,7 @@ export function AdminSkeletonModuleMultiUserPage() {
   );
 }
 
-/** /admin/modulos/cobros */
+/** /admin/configuracion/cobros */
 export function AdminSkeletonModuleCobrosPage() {
   return (
     <AdminSkeletonRegion label="Cargando cobros" className="space-y-8">
@@ -1029,7 +1030,7 @@ export function AdminSkeletonModuleCobrosPage() {
   );
 }
 
-/** /admin/modulos/shippingCarriers */
+/** /admin/configuracion/envios */
 export function AdminSkeletonModuleShippingPage() {
   return (
     <AdminSkeletonRegion label="Cargando envíos" className="space-y-8">
@@ -1182,7 +1183,12 @@ export function AdminSkeletonTabs({ className }: { className?: string }) {
       label="Cargando selector de período"
       className={className}
     >
-      <div className="flex gap-1 rounded-lg border border-neutral-200 bg-white p-1">
+      <div
+        className={cn(
+          "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
+          adminCardShadowClass,
+        )}
+      >
         <AdminSkeleton className="h-8 w-16 rounded-md sm:w-[4.25rem]" />
         <AdminSkeleton className="h-8 w-14 rounded-md sm:w-16" />
         <AdminSkeleton className="h-8 w-12 rounded-md sm:w-14" />

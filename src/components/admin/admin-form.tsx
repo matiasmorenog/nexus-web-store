@@ -1,10 +1,10 @@
 import type { ComponentPropsWithoutRef, FormHTMLAttributes, ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { SelectField, selectFieldClass } from "@/components/ui/select-field";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
-export const adminSelectClass =
-  "block h-10 w-full appearance-none rounded-md border border-neutral-300 bg-white py-2 pl-3 pr-10 text-sm text-neutral-900 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] focus:ring-offset-1 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-500";
+/** @deprecated Prefer SelectField / AdminSelect — keeps textarea/input reuse. */
+export const adminSelectClass = selectFieldClass;
 
 type AdminFormProps = FormHTMLAttributes<HTMLFormElement>;
 
@@ -87,28 +87,8 @@ type AdminSelectProps = ComponentPropsWithoutRef<"select"> & {
   wrapperClassName?: string;
 };
 
-export function AdminSelect({
-  className,
-  wrapperClassName,
-  disabled,
-  ...props
-}: AdminSelectProps) {
-  return (
-    <div className={cn("relative w-full", wrapperClassName)}>
-      <select
-        className={cn(adminSelectClass, className)}
-        disabled={disabled}
-        {...props}
-      />
-      <ChevronDown
-        className={cn(
-          "pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-neutral-500",
-          disabled && "text-neutral-400",
-        )}
-        aria-hidden
-      />
-    </div>
-  );
+export function AdminSelect(props: AdminSelectProps) {
+  return <SelectField {...props} />;
 }
 
 type AdminCategorySelectProps = ComponentPropsWithoutRef<"select">;

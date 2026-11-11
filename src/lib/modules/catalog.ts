@@ -78,7 +78,7 @@ const MODULE_LIST = [
     monthlyPriceUsd: 0,
     includedInPlans: ["grow", "pro"],
     category: "operations",
-    adminRoutes: ["/admin/envios"],
+    adminRoutes: ["/admin/configuracion/envios"],
     storefrontSurfaces: ["checkout"],
   },
   {

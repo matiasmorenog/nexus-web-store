@@ -23,6 +23,8 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 - [x] Analytics tráfico: país, browser, OS + serie diaria (sin UTM; requiere Vercel Plus).
 - [x] Separar Analytics Plus en nav Tráfico + Reportes; filtros 24h/7d/30d en Tráfico.
 - [x] Admin: Plan/SEO/Marketing/API/Multi-usuario bajo acordeón Configuración (Wishlist queda top-level); Idioma y Seguridad como rutas hijas; Config solo despliega.
+- [x] Admin: Cobros + Envíos bajo Configuración (URLs `/admin/configuracion/cobros` y `/admin/configuracion/envios` + redirect legacy).
+- [x] Admin plan base: QR de home/producto en Config + atajo PNG en editar producto.
 - [ ] Separar Vercel Blob por tienda (hoy un store compartido).
 - [ ] (Opcional, futuro) `npm run build` en GitHub Actions — ver `docs/ci.md` Fase 2.
 

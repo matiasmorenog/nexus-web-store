@@ -122,7 +122,7 @@ export function AdminSeoSettingsForm({
                   Permitir indexación
                 </span>
                 <span className="mt-0.5 block text-xs text-neutral-500">
-                  Controla `robots.txt` y la meta robots del storefront.
+                  Controla `robots.txt` y la meta robots de tu tienda.
                 </span>
               </span>
             </label>

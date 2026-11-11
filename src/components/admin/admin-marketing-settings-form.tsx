@@ -63,7 +63,7 @@ export function AdminMarketingSettingsForm({
     <AdminForm onSubmit={handleSubmit} className="space-y-6">
       <AdminCard
         title="WhatsApp"
-        description="Botón flotante en el storefront para que los clientes te escriban."
+        description="Botón flotante en tu tienda para que los clientes te escriban."
         className="max-w-lg"
       >
         <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">

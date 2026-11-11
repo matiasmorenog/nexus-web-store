@@ -10,6 +10,7 @@ export type AdminNavIconKey =
   | "config"
   | "language"
   | "security"
+  | "qr"
   | "plan"
   | "reportes"
   | ModuleId;
@@ -86,13 +87,6 @@ const CORE_NAV_BY_HREF = {
     shortLabel: "Categorías",
     iconKey: "categories" as const,
   },
-  "/admin/modulos/cobros": {
-    kind: "core" as const,
-    href: "/admin/modulos/cobros",
-    label: "Cobros",
-    shortLabel: "Cobros",
-    iconKey: "cobros" as const,
-  },
   "/admin/configuracion": {
     kind: "core" as const,
     href: "/admin/configuracion",
@@ -116,6 +110,21 @@ const CORE_NAV_BY_HREF = {
     iconKey: "security" as const,
     exact: true,
   },
+  "/admin/configuracion/qr": {
+    kind: "core" as const,
+    href: "/admin/configuracion/qr",
+    label: "Código QR",
+    shortLabel: "QR",
+    iconKey: "qr" as const,
+    exact: true,
+  },
+  "/admin/configuracion/cobros": {
+    kind: "core" as const,
+    href: "/admin/configuracion/cobros",
+    label: "Cobros",
+    shortLabel: "Cobros",
+    iconKey: "cobros" as const,
+  },
 } satisfies Record<string, AdminCoreNavItem>;
 
 /**
@@ -123,6 +132,7 @@ const CORE_NAV_BY_HREF = {
  * Wishlist stays in the main sidebar (E1 without wishlist).
  */
 export const ADMIN_CONFIG_SUBMENU_MODULE_IDS = [
+  "shippingCarriers",
   "multiUser",
   "marketing",
   "seo",
@@ -149,8 +159,6 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
   { kind: "core", href: "/admin/pedidos" },
   { kind: "core", href: "/admin/productos" },
   { kind: "core", href: "/admin/categorias" },
-  { kind: "core", href: "/admin/modulos/cobros" },
-  { kind: "module", moduleId: "shippingCarriers" },
   { kind: "module", moduleId: "crm" },
   { kind: "module", moduleId: "analytics" },
   { kind: "module", moduleId: "coupons" },
@@ -161,15 +169,25 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
 
 /**
  * Orden bajo Configuración (toggle only):
- * idioma → seguridad → gente → canales → SEO → técnico → plan.
+ * idioma → seguridad → QR → cobros → envíos → gente → canales → SEO → técnico → plan.
  */
 const ADMIN_CONFIG_CHILDREN_ORDER: Array<
   | { kind: "plan" }
-  | { kind: "core"; href: "/admin/configuracion/idioma" | "/admin/configuracion/seguridad" }
+  | {
+      kind: "core";
+      href:
+        | "/admin/configuracion/idioma"
+        | "/admin/configuracion/seguridad"
+        | "/admin/configuracion/qr"
+        | "/admin/configuracion/cobros";
+    }
   | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
 > = [
   { kind: "core", href: "/admin/configuracion/idioma" },
   { kind: "core", href: "/admin/configuracion/seguridad" },
+  { kind: "core", href: "/admin/configuracion/qr" },
+  { kind: "core", href: "/admin/configuracion/cobros" },
+  { kind: "module", moduleId: "shippingCarriers" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "seo" },
@@ -188,6 +206,8 @@ const ADMIN_SIDEBAR_ORDER: Array<
   ),
   { kind: "core", href: "/admin/configuracion/idioma" },
   { kind: "core", href: "/admin/configuracion/seguridad" },
+  { kind: "core", href: "/admin/configuracion/qr" },
+  { kind: "core", href: "/admin/configuracion/cobros" },
   ...ADMIN_CONFIG_SUBMENU_MODULE_IDS.map((moduleId) => ({
     kind: "module" as const,
     moduleId,

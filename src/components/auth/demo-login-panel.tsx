@@ -10,6 +10,7 @@ import {
 import { storefrontPath } from "@/lib/storefront-paths";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { SelectField } from "@/components/ui/select-field";
 import { cn } from "@/lib/utils";
 
 function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
@@ -50,11 +51,11 @@ function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <div className="space-y-1.5">
         <Label htmlFor={`demo-persona-${kind}`}>Persona demo</Label>
-        <select
+        <SelectField
           id={`demo-persona-${kind}`}
           value={personaId}
           onChange={(event) => setPersonaId(event.target.value)}
-          className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)]/40"
+          className="border-neutral-200"
           required
         >
           {personas.map((persona) => (
@@ -62,7 +63,7 @@ function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
               {persona.label}
             </option>
           ))}
-        </select>
+        </SelectField>
         {selected ? (
           <p className="text-xs text-neutral-500">{selected.description}</p>
         ) : null}

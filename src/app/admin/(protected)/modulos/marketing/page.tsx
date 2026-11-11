@@ -21,7 +21,7 @@ export default async function AdminMarketingPage() {
       <AdminDashboardReveal index={0}>
         <AdminPageHeader
           title="WhatsApp y Meta Pixel"
-          description="Botón flotante de WhatsApp y pixel de conversión en el storefront."
+          description="Botón flotante de WhatsApp y pixel de conversión en tu tienda."
         />
       </AdminDashboardReveal>
 

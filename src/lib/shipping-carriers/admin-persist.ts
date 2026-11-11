@@ -133,6 +133,6 @@ function revalidateShippingPaths(storeId: string) {
   revalidateTag(SHIPPING_SETTINGS_CACHE_TAG, { expire: 0 });
   revalidateTag(`${SHIPPING_SETTINGS_CACHE_TAG}:${storeId}`, { expire: 0 });
   revalidateTag(STORE_CACHE_TAG, { expire: 0 });
-  revalidatePath("/admin/modulos/shippingCarriers");
+  revalidatePath("/admin/configuracion/envios");
   revalidatePath("/checkout");
 }

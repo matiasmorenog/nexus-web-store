@@ -7,6 +7,7 @@ import {
   WEB_TRAFFIC_PERIODS,
   type WebTrafficPeriod,
 } from "@/lib/web-analytics/period";
+import { adminCardShadowClass } from "@/components/admin/admin-surface";
 import { cn } from "@/lib/utils";
 
 type AdminWebTrafficPeriodTabsProps = {
@@ -30,7 +31,12 @@ export function AdminWebTrafficPeriodTabs({
   const searchParams = useSearchParams();
 
   return (
-    <div className="flex gap-1 rounded-lg border border-neutral-200 bg-white p-1">
+    <div
+      className={cn(
+        "flex gap-1 rounded-lg border border-neutral-200 bg-white p-1",
+        adminCardShadowClass,
+      )}
+    >
       {WEB_TRAFFIC_PERIODS.map((value) => (
         <Link
           key={value}

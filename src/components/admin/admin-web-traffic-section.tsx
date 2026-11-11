@@ -3,16 +3,12 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminSkeletonTabs } from "@/components/admin/admin-skeleton";
 import { AdminWebTrafficDailyChart } from "@/components/admin/admin-web-traffic-daily-chart";
 import { AdminWebTrafficPeriodTabs } from "@/components/admin/admin-web-traffic-period-tabs";
-import type {
-  WebAnalyticsNamedRow,
-  WebAnalyticsPathRow,
-  WebAnalyticsReport,
-} from "@/lib/web-analytics";
+import { AdminWebTrafficRankList } from "@/components/admin/admin-web-traffic-rank-list";
+import type { WebAnalyticsReport } from "@/lib/web-analytics";
 import {
   WEB_TRAFFIC_PERIOD_LABELS,
   type WebTrafficPeriod,
 } from "@/lib/web-analytics/period";
-import { cn } from "@/lib/utils";
 
 type AdminWebTrafficSectionProps = {
   period: WebTrafficPeriod;
@@ -30,63 +26,6 @@ function MetricCard({ label, value }: { label: string; value: string }) {
         {value}
       </p>
     </AdminCard>
-  );
-}
-
-function RankList({
-  rows,
-  empty,
-  valueKey = "pageviews",
-}: {
-  rows: Array<WebAnalyticsPathRow | WebAnalyticsNamedRow>;
-  empty: string;
-  valueKey?: "pageviews" | "visitors";
-}) {
-  if (rows.length === 0) {
-    return <p className="text-sm text-neutral-500">{empty}</p>;
-  }
-
-  const max = Math.max(...rows.map((row) => row[valueKey]), 1);
-
-  return (
-    <ul className="space-y-3">
-      {rows.map((row, index) => {
-        const value = row[valueKey];
-        const width = Math.max(8, Math.round((value / max) * 100));
-        const title = "path" in row ? row.label : row.label;
-        const subtitle = "path" in row ? row.path : null;
-
-        return (
-          <li key={`${title}-${index}`}>
-            <div className="mb-1.5 flex items-start justify-between gap-3 text-sm">
-              <div className="min-w-0">
-                <p className="font-medium capitalize text-neutral-900">
-                  <span className="mr-2 tabular-nums text-neutral-400">
-                    {index + 1}.
-                  </span>
-                  {title}
-                </p>
-                {subtitle && subtitle !== title ? (
-                  <p className="truncate text-xs text-neutral-500">{subtitle}</p>
-                ) : null}
-              </div>
-              <div className="shrink-0 text-right tabular-nums text-neutral-700">
-                <p className="font-medium">{formatCount(value)}</p>
-                <p className="text-xs text-neutral-500">
-                  {formatCount(row.visitors)} visit.
-                </p>
-              </div>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
-              <div
-                className={cn("h-full rounded-full bg-[var(--brand-primary)]")}
-                style={{ width: `${width}%` }}
-              />
-            </div>
-          </li>
-        );
-      })}
-    </ul>
   );
 }
 
@@ -162,19 +101,9 @@ export function AdminWebTrafficSection({
               title="Productos más vistos"
               description="PDP con más pageviews en el período"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.topProductPages}
                 empty="Nadie visitó fichas de producto en este período."
-              />
-            </AdminCard>
-            <AdminCard
-              className="mb-6 break-inside-avoid"
-              title="Páginas top"
-              description="Rutas con más tráfico en el storefront"
-            >
-              <RankList
-                rows={report.topPages}
-                empty="Sin páginas con visitas en este período."
               />
             </AdminCard>
             <AdminCard
@@ -182,7 +111,7 @@ export function AdminWebTrafficSection({
               title="Dispositivos"
               description="Cómo navegan tus clientes"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.devices}
                 empty="Sin datos de dispositivo."
                 valueKey="visitors"
@@ -193,7 +122,7 @@ export function AdminWebTrafficSection({
               title="Países"
               description="Origen geográfico de las visitas"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.countries}
                 empty="Sin datos de país todavía."
                 valueKey="visitors"
@@ -204,7 +133,7 @@ export function AdminWebTrafficSection({
               title="De dónde llegan"
               description="Referrers / redes / búsqueda"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.topReferrers}
                 empty="Sin referrers todavía."
                 valueKey="visitors"
@@ -215,7 +144,7 @@ export function AdminWebTrafficSection({
               title="Navegadores"
               description="Browser de los visitantes"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.browsers}
                 empty="Sin datos de browser."
                 valueKey="visitors"
@@ -226,7 +155,7 @@ export function AdminWebTrafficSection({
               title="Sistemas operativos"
               description="OS de los visitantes"
             >
-              <RankList
+              <AdminWebTrafficRankList
                 rows={report.operatingSystems}
                 empty="Sin datos de sistema operativo."
                 valueKey="visitors"

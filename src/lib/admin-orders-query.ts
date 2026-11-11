@@ -1,5 +1,10 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import type { AdminOrderCardData } from "@/components/admin/admin-order-card";
+import {
+  ADMIN_ORDERS_SUMMARY_CACHE_REVALIDATE_SECONDS,
+  adminOrdersSummaryCacheTag,
+} from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
 import {
   ADMIN_ORDERS_PAGE_SIZE,
@@ -254,69 +259,17 @@ export const getAdminOrdersPage = cache(
   },
 );
 
-export const getAdminOrdersSummary = cache(
-  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
-    const facetWhere = buildAdminOrdersWhere(storeId, {
-      ...params,
-      estado: undefined,
-    });
+async function fetchAdminOrdersSummary(
+  storeId: string,
+  params: AdminOrdersFilterParams = {},
+) {
+  const facetWhere = buildAdminOrdersWhere(storeId, {
+    ...params,
+    estado: undefined,
+  });
 
-    const [storeTotalOrders, totalOrders, statusGroups, revenue] =
-      await db.$transaction([
-        db.order.count({ where: { storeId } }),
-        db.order.count({ where: facetWhere }),
-        db.order.groupBy({
-          by: ["status"],
-          where: facetWhere,
-          orderBy: { status: "asc" },
-          _count: { _all: true },
-        }),
-        db.order.aggregate({
-          where: {
-            ...facetWhere,
-            status: { in: ["PAID", "SHIPPED"] },
-          },
-          _sum: { total: true },
-        }),
-      ]);
-
-    const counts = Object.fromEntries(
-      ORDER_STATUSES.map((status) => [status, 0]),
-    ) as Record<OrderStatus, number>;
-
-    for (const group of statusGroups) {
-      if (group.status in counts) {
-        counts[group.status as OrderStatus] =
-          typeof group._count === "object" ? (group._count._all ?? 0) : 0;
-      }
-    }
-
-    return {
-      storeTotalOrders,
-      totalOrders,
-      counts,
-      paidRevenue: Number(revenue._sum.total ?? 0),
-    };
-  },
-);
-
-/** Una sola transacción para la página (Neon pooler suele tener connection_limit=1). */
-export const getAdminOrdersPageData = cache(
-  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
-    const facetWhere = buildAdminOrdersWhere(storeId, {
-      ...params,
-      estado: undefined,
-    });
-    const where = buildAdminOrdersWhere(storeId, params);
-
-    const [
-      storeTotalOrders,
-      totalOrders,
-      statusGroups,
-      revenue,
-      orders,
-      pageTotal,
-    ] = await db.$transaction([
+  const [storeTotalOrders, totalOrders, statusGroups, revenue] =
+    await db.$transaction([
       db.order.count({ where: { storeId } }),
       db.order.count({ where: facetWhere }),
       db.order.groupBy({
@@ -332,43 +285,66 @@ export const getAdminOrdersPageData = cache(
         },
         _sum: { total: true },
       }),
-      db.order.findMany({
-        where,
-        include: orderInclude,
-        orderBy: { createdAt: "desc" },
-        skip: adminOrdersListSkip(1),
-        take: ADMIN_ORDERS_PAGE_SIZE,
-      }),
-      db.order.count({ where }),
     ]);
 
-    const counts = Object.fromEntries(
-      ORDER_STATUSES.map((status) => [status, 0]),
-    ) as Record<OrderStatus, number>;
+  const counts = Object.fromEntries(
+    ORDER_STATUSES.map((status) => [status, 0]),
+  ) as Record<OrderStatus, number>;
 
-    for (const group of statusGroups) {
-      if (group.status in counts) {
-        counts[group.status as OrderStatus] =
-          typeof group._count === "object" ? (group._count._all ?? 0) : 0;
-      }
+  for (const group of statusGroups) {
+    if (group.status in counts) {
+      counts[group.status as OrderStatus] =
+        typeof group._count === "object" ? (group._count._all ?? 0) : 0;
     }
+  }
 
-    const rows = orders.map(mapAdminOrderRow);
+  return {
+    storeTotalOrders,
+    totalOrders,
+    counts,
+    paidRevenue: Number(revenue._sum.total ?? 0),
+  };
+}
 
-    return {
-      summary: {
-        storeTotalOrders,
-        totalOrders,
-        counts,
-        paidRevenue: Number(revenue._sum.total ?? 0),
-      },
-      page: {
-        orders: rows,
-        total: pageTotal,
-        page: 1,
-        hasMore: adminOrdersListSkip(1) + rows.length < pageTotal,
-      },
-    };
+function ordersSummaryCacheKey(params: AdminOrdersFilterParams) {
+  // Facets ignore `estado`; date/q/showAll still change counts/revenue.
+  return [
+    params.q?.trim() ?? "",
+    params.showAll ? "all" : "",
+    params.desde ?? "",
+    params.hasta ?? "",
+  ].join("|");
+}
+
+function getCachedAdminOrdersSummary(
+  storeId: string,
+  params: AdminOrdersFilterParams,
+) {
+  return unstable_cache(
+    () => fetchAdminOrdersSummary(storeId, params),
+    ["admin-orders-summary", storeId, ordersSummaryCacheKey(params)],
+    {
+      revalidate: ADMIN_ORDERS_SUMMARY_CACHE_REVALIDATE_SECONDS,
+      tags: [adminOrdersSummaryCacheTag(storeId)],
+    },
+  )();
+}
+
+export const getAdminOrdersSummary = cache(
+  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
+    return getCachedAdminOrdersSummary(storeId, params);
+  },
+);
+
+/**
+ * Summary (cache ~60s) + listado en serie.
+ * Neon pooler connection_limit=1 — no Promise.all entre estas queries.
+ */
+export const getAdminOrdersPageData = cache(
+  async (storeId: string, params: AdminOrdersFilterParams = {}) => {
+    const summary = await getAdminOrdersSummary(storeId, params);
+    const page = await getAdminOrdersPage(storeId, 1, params);
+    return { summary, page };
   },
 );
 

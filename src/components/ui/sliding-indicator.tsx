@@ -20,11 +20,40 @@ export type SlidingIndicatorBox = {
 const SELECTED_SELECTOR =
   '[data-sliding-selected="true"], [aria-current="page"]';
 
+/** Matches globals.css shell-nav-enter max delay (720ms) + duration (320ms). */
+const SHELL_ENTER_FALLBACK_MS = 1100;
+
 function prefersReducedMotion(): boolean {
   return (
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
   );
+}
+
+/**
+ * Layout offset relative to ancestor via offsetParent chain.
+ * Ignores CSS transforms (unlike getBoundingClientRect) — critical while
+ * shell-nav-reveal runs translateY on sidebar links.
+ */
+function offsetRelativeTo(
+  element: HTMLElement,
+  ancestor: HTMLElement,
+): { top: number; left: number } | null {
+  let top = 0;
+  let left = 0;
+  let node: HTMLElement | null = element;
+
+  while (node && node !== ancestor) {
+    top += node.offsetTop;
+    left += node.offsetLeft;
+    const parent = node.offsetParent as HTMLElement | null;
+    if (!parent) return null;
+    if (parent === ancestor) return { top, left };
+    if (!ancestor.contains(parent)) return null;
+    node = parent;
+  }
+
+  return node === ancestor ? { top, left } : null;
 }
 
 /**
@@ -36,6 +65,17 @@ function measureSelectedBox(
   const active = list.querySelector<HTMLElement>(SELECTED_SELECTOR);
   if (!active) return null;
 
+  const offset = offsetRelativeTo(active, list);
+  if (offset) {
+    return {
+      top: offset.top,
+      left: offset.left,
+      width: active.offsetWidth,
+      height: active.offsetHeight,
+    };
+  }
+
+  // Fallback when offsetParent chain skips the list (unusual containing blocks).
   const listRect = list.getBoundingClientRect();
   const activeRect = active.getBoundingClientRect();
 
@@ -47,15 +87,31 @@ function measureSelectedBox(
   };
 }
 
-export function useSlidingIndicator(activeKey: string): {
+type UseSlidingIndicatorOptions = {
+  /**
+   * Desktop sidebar: hide pill until the active link's shell-nav-enter starts,
+   * so the gray highlight does not paint before the label cascades in.
+   */
+  waitForShellEnter?: boolean;
+};
+
+export function useSlidingIndicator(
+  activeKey: string,
+  options: UseSlidingIndicatorOptions = {},
+): {
   listRef: RefObject<HTMLElement | null>;
   indicator: SlidingIndicatorBox | null;
   animate: boolean;
+  /** False while waiting for the active item cascade to start. */
+  visible: boolean;
 } {
+  const { waitForShellEnter = false } = options;
   const listRef = useRef<HTMLElement | null>(null);
   const readyRef = useRef(false);
+  const shellEnterDoneRef = useRef(!waitForShellEnter);
   const [indicator, setIndicator] = useState<SlidingIndicatorBox | null>(null);
   const [animate, setAnimate] = useState(false);
+  const [visible, setVisible] = useState(!waitForShellEnter);
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -84,29 +140,67 @@ export function useSlidingIndicator(activeKey: string): {
     }
 
     list.addEventListener("scroll", update, { passive: true });
+    list.addEventListener("animationend", update);
+
+    let fallbackTimer = 0;
+    const revealPill = () => {
+      if (shellEnterDoneRef.current) return;
+      shellEnterDoneRef.current = true;
+      setVisible(true);
+      update();
+    };
+
+    if (waitForShellEnter && !shellEnterDoneRef.current) {
+      if (prefersReducedMotion()) {
+        revealPill();
+      } else {
+        const active = list.querySelector<HTMLElement>(SELECTED_SELECTOR);
+        const onAnimationStart = (event: AnimationEvent) => {
+          if (event.target !== active) return;
+          if (!event.animationName.includes("shell-nav-enter")) return;
+          revealPill();
+        };
+        active?.addEventListener("animationstart", onAnimationStart);
+        fallbackTimer = window.setTimeout(revealPill, SHELL_ENTER_FALLBACK_MS);
+
+        return () => {
+          if (frame) cancelAnimationFrame(frame);
+          if (fallbackTimer) window.clearTimeout(fallbackTimer);
+          observer.disconnect();
+          list.removeEventListener("scroll", update);
+          list.removeEventListener("animationend", update);
+          active?.removeEventListener("animationstart", onAnimationStart);
+        };
+      }
+    }
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
       observer.disconnect();
       list.removeEventListener("scroll", update);
+      list.removeEventListener("animationend", update);
     };
-  }, [activeKey]);
+  }, [activeKey, waitForShellEnter]);
 
-  return { listRef, indicator, animate };
+  return { listRef, indicator, animate, visible };
 }
 
 export function SlidingIndicatorPill({
   indicator,
   animate,
+  visible = true,
   className,
   style,
   skipEnterReveal = false,
 }: {
   indicator: SlidingIndicatorBox | null;
   animate: boolean;
+  /** When false, pill stays hidden (e.g. waiting for nav cascade). */
+  visible?: boolean;
   className?: string;
   style?: CSSProperties;
-  /** Absolute pill — skip shell-nav-reveal stagger on sidebar first paint. */
+  /** Absolute pill — skip shell-nav translate; opacity gated by `visible`. */
   skipEnterReveal?: boolean;
 }) {
   // Always mount a skip node so nth-child cascade delays stay stable when the
@@ -116,9 +210,9 @@ export function SlidingIndicatorPill({
       aria-hidden
       className={cn(
         "pointer-events-none absolute top-0 left-0 z-0",
-        animate && indicator && "sliding-indicator-animate",
+        animate && indicator && visible && "sliding-indicator-animate",
         skipEnterReveal && "shell-nav-reveal-skip",
-        !indicator && "opacity-0",
+        (!indicator || !visible) && "opacity-0",
         className,
       )}
       style={{
@@ -147,7 +241,8 @@ export function SlidingOptionGroup({
   pillClassName,
   children,
 }: SlidingOptionGroupProps) {
-  const { listRef, indicator, animate } = useSlidingIndicator(activeKey);
+  const { listRef, indicator, animate, visible } =
+    useSlidingIndicator(activeKey);
 
   return (
     <div
@@ -157,6 +252,7 @@ export function SlidingOptionGroup({
       <SlidingIndicatorPill
         indicator={indicator}
         animate={animate}
+        visible={visible}
         className={pillClassName}
       />
       {children}

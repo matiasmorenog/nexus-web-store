@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
@@ -104,6 +104,8 @@ function DesktopNavLink({
   onNavigate,
   nested = false,
   id,
+  className,
+  subIndex,
 }: {
   item: AdminNavItem;
   enabledModuleIds: ModuleId[];
@@ -111,6 +113,9 @@ function DesktopNavLink({
   onNavigate?: () => void;
   nested?: boolean;
   id?: string;
+  className?: string;
+  /** When set, plays fast submenu cascade (after shell settled). */
+  subIndex?: number;
 }) {
   const active = isAdminNavItemActive(pathname, item);
 
@@ -120,12 +125,15 @@ function DesktopNavLink({
       href={navItemHref(item, enabledModuleIds)}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
+      data-sub-i={subIndex != null ? String(subIndex) : undefined}
       className={cn(
         "relative z-[1] flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-200",
         nested ? "px-3 pl-9" : "px-3",
         active
           ? "text-white"
           : "text-neutral-400 hover:bg-white/5 hover:text-white",
+        subIndex != null && "shell-nav-submenu-enter",
+        className,
       )}
     >
       <AdminNavIcon iconKey={item.iconKey} className="h-4 w-4 shrink-0" />
@@ -148,6 +156,7 @@ function ConfigNavGroup({
   pathname,
   locale,
   onNavigate,
+  shellSettled,
 }: {
   hub: AdminNavItem;
   items: AdminNavItem[];
@@ -155,6 +164,8 @@ function ConfigNavGroup({
   pathname: string;
   locale: AdminLocale;
   onNavigate?: () => void;
+  /** After page-load cascade: submenu uses short local stagger. */
+  shellSettled: boolean;
 }) {
   const copy = adminChrome[locale];
   const pathInGroup = isConfigSubmenuPathActive(pathname, {
@@ -163,6 +174,25 @@ function ConfigNavGroup({
   });
   const [manualOpen, setManualOpen] = useState(false);
   const open = pathInGroup || manualOpen;
+  /**
+   * Open during page-load cascade → keep main nth-child delays (no re-anim after settle).
+   * State (not ref) so render can read it under react-hooks/refs.
+   */
+  const [openedBeforeSettle, setOpenedBeforeSettle] = useState(false);
+
+  useLayoutEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- sync open-vs-settle flag before paint */
+    if (!shellSettled && open) {
+      setOpenedBeforeSettle(true);
+    }
+    if (!open) {
+      setOpenedBeforeSettle(false);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [shellSettled, open]);
+
+  // Fast local stagger after shell settled (click expand / navigate into Config).
+  const useSubmenuEnter = shellSettled && open && !openedBeforeSettle;
 
   if (items.length === 0) return null;
 
@@ -198,6 +228,7 @@ function ConfigNavGroup({
               pathname={pathname}
               onNavigate={onNavigate}
               nested
+              subIndex={useSubmenuEnter ? index : undefined}
             />
           ))
         : null}
@@ -234,11 +265,15 @@ function AdminSidebarPanel({
   cascadeEnter = true,
 }: AdminSidebarPanelProps) {
   const copy = adminChrome[locale];
-  const { listRef, indicator, animate } = useSlidingIndicator(pathname);
   const {
     animate: staggerEnter,
     pending: staggerPending,
+    settled: shellSettled,
   } = useShellNavEnterOnce(cascadeEnter);
+  const { listRef, indicator, animate, visible } = useSlidingIndicator(
+    pathname,
+    { waitForShellEnter: cascadeEnter },
+  );
 
   return (
     <>
@@ -276,6 +311,7 @@ function AdminSidebarPanel({
           <SlidingIndicatorPill
             indicator={indicator}
             animate={animate}
+            visible={visible}
             skipEnterReveal={cascadeEnter}
             className="rounded-lg bg-white/10"
           />
@@ -295,6 +331,7 @@ function AdminSidebarPanel({
             pathname={pathname}
             locale={locale}
             onNavigate={onNavigate}
+            shellSettled={shellSettled}
           />
         </nav>
       </div>

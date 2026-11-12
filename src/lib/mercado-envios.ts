@@ -26,15 +26,6 @@ export const MERCADO_ENVIOS_CARRIERS: Record<
     trackingHint:
       "Ingresá con la cuenta de Mercado Libre vinculada a la tienda para ver el envío.",
   },
-  correo_argentino: {
-    id: "correo_argentino",
-    label: "Correo Argentino",
-    trackingPortalUrl:
-      "https://www.correoargentino.com.ar/formularios/mercadolibre",
-    trackingPortalLabel: "Rastrear en Correo Argentino",
-    trackingHint:
-      "En el formulario oficial, elegí MercadoLibre e ingresá el código de 18 caracteres.",
-  },
 };
 
 const TRACKING_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

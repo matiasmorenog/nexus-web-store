@@ -20,6 +20,7 @@ import {
   AdminTableCell,
   AdminTableRow,
 } from "@/components/admin/admin-table";
+import { AdminCreateShipmentButton } from "@/components/admin/admin-create-shipment-button";
 import { OrderStatusSelect } from "@/components/admin/order-status-select";
 import { Badge } from "@/components/ui/badge";
 
@@ -152,6 +153,16 @@ export function AdminOrderCard({
                     {order.shipping.trackingPortalLabel ?? "Rastrear envío"} →
                   </a>
                 ) : null}
+                {order.shipping.labelUrl ? (
+                  <a
+                    href={order.shipping.labelUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 block text-sm font-medium text-[var(--brand-primary)] hover:underline"
+                  >
+                    Descargar etiqueta →
+                  </a>
+                ) : null}
               </>
             ) : order.shipping.detail ? (
               <p className="text-neutral-500">{order.shipping.detail}</p>
@@ -160,6 +171,9 @@ export function AdminOrderCard({
               <p className="text-neutral-500">
                 Entrega estimada: {order.shipping.estimatedDelivery}
               </p>
+            ) : null}
+            {canManageOrders && order.shipping.canGenerateShipment ? (
+              <AdminCreateShipmentButton orderId={order.id} />
             ) : null}
           </AdminDetailField>
         </AdminDetailGrid>

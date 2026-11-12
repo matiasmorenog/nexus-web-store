@@ -8,26 +8,20 @@ import {
   AdminFormActions,
   AdminFormAlert,
 } from "@/components/admin/admin-form";
+import { AdminSetupGuide } from "@/components/admin/admin-setup-guide";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
+import { cn } from "@/lib/utils";
 import {
+  getShippingAdminCopy,
   SHIPPING_CARRIER_OPTIONS,
+  type ShippingCarrierId,
   type StoreShippingSettingsAdminData,
   type StoreShippingSettingsSaveInput,
 } from "@/lib/shipping-carriers";
-import type { MercadoEnviosCarrierId } from "@/lib/mercado-envios/types";
-
-const SOURCE_LABELS: Record<
-  StoreShippingSettingsAdminData["mercadoEnviosSource"],
-  string
-> = {
-  admin: "Token Mercado Envíos en admin",
-  mp: "Usando token de Mercado Pago (Cobros)",
-  env: "Configurado en servidor (variable de entorno)",
-  none: "Modo demo (zonas CP)",
-};
 
 type AdminShippingSettingsFormProps = {
   initialSettings: StoreShippingSettingsAdminData;
@@ -39,12 +33,30 @@ export function AdminShippingSettingsForm({
   readOnly = false,
 }: AdminShippingSettingsFormProps) {
   const router = useRouter();
+  const copy = getShippingAdminCopy(readAdminLocaleFromDocument());
+  const meCopy = copy.mercadoEnvios;
+  const correoCopy = copy.correo;
+  const andreaniCopy = copy.andreani;
+
   const [settings, setSettings] = useState(initialSettings);
   const [accessToken, setAccessToken] = useState("");
   const [clearToken, setClearToken] = useState(false);
+  const [correoUser, setCorreoUser] = useState("");
+  const [correoPassword, setCorreoPassword] = useState("");
+  const [clearCorreo, setClearCorreo] = useState(false);
+  const [andreaniClientId, setAndreaniClientId] = useState("");
+  const [andreaniClientSecret, setAndreaniClientSecret] = useState("");
+  const [clearAndreani, setClearAndreani] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const meSourceLabels = {
+    admin: meCopy.sourceAdmin,
+    mp: meCopy.sourceMp,
+    env: meCopy.sourceEnv,
+    none: meCopy.sourceNone,
+  } as const;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -57,6 +69,12 @@ export function AdminShippingSettingsForm({
       ...settings,
       mercadoEnviosAccessToken: accessToken || undefined,
       clearMercadoEnviosToken: clearToken,
+      correoUser: correoUser || undefined,
+      correoPassword: correoPassword || undefined,
+      clearCorreoCredentials: clearCorreo,
+      andreaniClientId: andreaniClientId || undefined,
+      andreaniClientSecret: andreaniClientSecret || undefined,
+      clearAndreaniCredentials: clearAndreani,
     };
 
     try {
@@ -72,7 +90,7 @@ export function AdminShippingSettingsForm({
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar la configuración.");
+        throw new Error(data.error ?? copy.errorFallback);
       }
 
       if (data.settings) {
@@ -81,24 +99,41 @@ export function AdminShippingSettingsForm({
 
       setAccessToken("");
       setClearToken(false);
+      setCorreoUser("");
+      setCorreoPassword("");
+      setClearCorreo(false);
+      setAndreaniClientId("");
+      setAndreaniClientSecret("");
+      setClearAndreani(false);
       setSaved(true);
       router.refresh();
     } catch (submitError) {
       setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "No se pudo guardar la configuración.",
+        submitError instanceof Error ? submitError.message : copy.errorFallback,
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleCarrier = (carrierId: ShippingCarrierId, on: boolean) => {
+    setSettings((current) => {
+      const nextIds = on
+        ? ([...current.enabledCarrierIds, carrierId] as ShippingCarrierId[])
+        : current.enabledCarrierIds.filter((id) => id !== carrierId);
+      return {
+        ...current,
+        enabledCarrierIds: nextIds,
+        preferredCarrierId: nextIds[0] ?? current.preferredCarrierId,
+      };
+    });
+  };
+
   return (
     <AdminForm onSubmit={handleSubmit} className="space-y-6">
       <AdminCard
-        title="Mercado Envíos"
-        description="Token para cotizar envíos reales por API en checkout."
+        title={meCopy.title}
+        description={meCopy.description}
         className="max-w-lg"
       >
         <div className="space-y-3">
@@ -106,14 +141,7 @@ export function AdminShippingSettingsForm({
             <p>
               Token:{" "}
               <strong className="text-neutral-900">
-                {SOURCE_LABELS[settings.mercadoEnviosSource]}
-              </strong>
-              {" · "}
-              Cotización:{" "}
-              <strong className="text-neutral-900">
-                {settings.mercadoEnviosConfigured
-                  ? "API activa"
-                  : "Modo demo (zonas CP)"}
+                {meSourceLabels[settings.mercadoEnviosSource]}
               </strong>
             </p>
             {settings.mercadoEnviosTokenHint ? (
@@ -124,36 +152,45 @@ export function AdminShippingSettingsForm({
                 </code>
               </p>
             ) : null}
-            <p className="mt-1 text-xs text-neutral-500">
-              Prioridad: admin envíos → Mercado Pago (Cobros) →{" "}
-              <code className="rounded bg-white px-1">
-                MERCADOENVIOS_ACCESS_TOKEN
-              </code>
-              .
-            </p>
           </div>
 
           <div>
-            <Label htmlFor="mercadoEnviosAccessToken">Access Token</Label>
+            <Label htmlFor="mercadoEnviosAccessToken">
+              {meCopy.accessTokenLabel}
+            </Label>
             <Input
               id="mercadoEnviosAccessToken"
-              name="mercadoEnviosAccessToken"
               type="password"
               autoComplete="off"
               spellCheck={false}
               placeholder={
                 settings.mercadoEnviosSource === "admin"
-                  ? "Dejá vacío para mantener el token actual"
-                  : "TEST-... o APP_USR-..."
+                  ? meCopy.accessTokenPlaceholderKeep
+                  : meCopy.accessTokenPlaceholderNew
               }
               value={accessToken}
               onChange={(event) => setAccessToken(event.target.value)}
+              disabled={readOnly}
               className="text-base sm:text-sm"
             />
-            <p className="mt-1 text-xs text-neutral-500">
-              Mercado Libre → Tus integraciones → Credenciales. El token de
-              Cobros suele alcanzar. Se guarda cifrado en el servidor.
-            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="mercadoLibreQuoteItemId">{meCopy.mlaItemLabel}</Label>
+            <Input
+              id="mercadoLibreQuoteItemId"
+              placeholder="MLA1234567890"
+              disabled={readOnly}
+              value={settings.mercadoLibreQuoteItemId}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  mercadoLibreQuoteItemId: event.target.value.trim(),
+                }))
+              }
+              className="text-base sm:text-sm"
+            />
+            <p className="mt-1 text-xs text-neutral-500">{meCopy.mlaItemHint}</p>
           </div>
 
           {settings.mercadoEnviosSource === "admin" ? (
@@ -161,16 +198,229 @@ export function AdminShippingSettingsForm({
               <Switch
                 checked={clearToken}
                 onChange={(event) => setClearToken(event.target.checked)}
+                disabled={readOnly}
               />
-              Quitar token guardado en admin
+              {meCopy.clearToken}
             </label>
           ) : null}
+
+          <AdminSetupGuide
+            toggleLabel={meCopy.guideToggle}
+            intro={meCopy.guideIntro}
+            steps={meCopy.guideSteps}
+          />
         </div>
       </AdminCard>
 
       <AdminCard
-        title="Cotización en checkout"
-        description="Costo por código postal del comprador al finalizar la compra."
+        title={correoCopy.title}
+        description={correoCopy.description}
+        className="max-w-lg"
+      >
+        <div className="space-y-3">
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+            <p>
+              <strong className="text-neutral-900">
+                {settings.correoConfigured
+                  ? correoCopy.configured
+                  : correoCopy.notConfigured}
+              </strong>
+              {settings.correoTokenHint ? (
+                <>
+                  {" · "}
+                  <code className="rounded bg-white px-1 text-xs">
+                    {settings.correoTokenHint}
+                  </code>
+                </>
+              ) : null}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="correoUser">{correoCopy.userLabel}</Label>
+            <Input
+              id="correoUser"
+              autoComplete="off"
+              disabled={readOnly}
+              value={correoUser}
+              onChange={(event) => setCorreoUser(event.target.value)}
+              className="text-base sm:text-sm"
+            />
+          </div>
+          <div>
+            <Label htmlFor="correoPassword">{correoCopy.passwordLabel}</Label>
+            <Input
+              id="correoPassword"
+              type="password"
+              autoComplete="off"
+              disabled={readOnly}
+              placeholder={
+                settings.correoConfigured
+                  ? correoCopy.passwordPlaceholderKeep
+                  : undefined
+              }
+              value={correoPassword}
+              onChange={(event) => setCorreoPassword(event.target.value)}
+              className="text-base sm:text-sm"
+            />
+          </div>
+          <div>
+            <Label htmlFor="correoCustomerId">{correoCopy.customerIdLabel}</Label>
+            <Input
+              id="correoCustomerId"
+              disabled={readOnly}
+              value={settings.correoCustomerId}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  correoCustomerId: event.target.value.trim(),
+                }))
+              }
+              className="text-base sm:text-sm"
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              {correoCopy.customerIdHint}
+            </p>
+          </div>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              checked={settings.correoSandbox}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  correoSandbox: event.target.checked,
+                }))
+              }
+              disabled={readOnly}
+            />
+            {correoCopy.sandboxLabel}
+          </label>
+          {settings.correoConfigured ? (
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+              <Switch
+                checked={clearCorreo}
+                onChange={(event) => setClearCorreo(event.target.checked)}
+                disabled={readOnly}
+              />
+              {correoCopy.clearCredentials}
+            </label>
+          ) : null}
+
+          <AdminSetupGuide
+            toggleLabel={correoCopy.guideToggle}
+            intro={correoCopy.guideIntro}
+            steps={correoCopy.guideSteps}
+          />
+        </div>
+      </AdminCard>
+
+      <AdminCard
+        title={andreaniCopy.title}
+        description={andreaniCopy.description}
+        className="max-w-lg"
+      >
+        <div className="space-y-3">
+          <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+            <p>
+              <strong className="text-neutral-900">
+                {settings.andreaniConfigured
+                  ? andreaniCopy.configured
+                  : andreaniCopy.notConfigured}
+              </strong>
+              {settings.andreaniTokenHint ? (
+                <>
+                  {" · "}
+                  <code className="rounded bg-white px-1 text-xs">
+                    {settings.andreaniTokenHint}
+                  </code>
+                </>
+              ) : null}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="andreaniClientId">{andreaniCopy.clientIdLabel}</Label>
+            <Input
+              id="andreaniClientId"
+              autoComplete="off"
+              disabled={readOnly}
+              value={andreaniClientId}
+              onChange={(event) => setAndreaniClientId(event.target.value)}
+              className="text-base sm:text-sm"
+            />
+          </div>
+          <div>
+            <Label htmlFor="andreaniClientSecret">
+              {andreaniCopy.clientSecretLabel}
+            </Label>
+            <Input
+              id="andreaniClientSecret"
+              type="password"
+              autoComplete="off"
+              disabled={readOnly}
+              placeholder={
+                settings.andreaniConfigured
+                  ? andreaniCopy.clientSecretPlaceholderKeep
+                  : undefined
+              }
+              value={andreaniClientSecret}
+              onChange={(event) => setAndreaniClientSecret(event.target.value)}
+              className="text-base sm:text-sm"
+            />
+          </div>
+          <div>
+            <Label htmlFor="andreaniContrato">{andreaniCopy.contratoLabel}</Label>
+            <Input
+              id="andreaniContrato"
+              disabled={readOnly}
+              value={settings.andreaniContrato}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  andreaniContrato: event.target.value.trim(),
+                }))
+              }
+              className="text-base sm:text-sm"
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              {andreaniCopy.contratoHint}
+            </p>
+          </div>
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              checked={settings.andreaniSandbox}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  andreaniSandbox: event.target.checked,
+                }))
+              }
+              disabled={readOnly}
+            />
+            {andreaniCopy.sandboxLabel}
+          </label>
+          {settings.andreaniConfigured ? (
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+              <Switch
+                checked={clearAndreani}
+                onChange={(event) => setClearAndreani(event.target.checked)}
+                disabled={readOnly}
+              />
+              {andreaniCopy.clearCredentials}
+            </label>
+          ) : null}
+
+          <AdminSetupGuide
+            toggleLabel={andreaniCopy.guideToggle}
+            intro={andreaniCopy.guideIntro}
+            steps={andreaniCopy.guideSteps}
+          />
+        </div>
+      </AdminCard>
+
+      <AdminCard
+        title={copy.globalTitle}
+        description={copy.globalDescription}
         className="max-w-lg"
       >
         <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
@@ -184,15 +434,14 @@ export function AdminShippingSettingsForm({
               }))
             }
           />
-          Activar cotización por CP en checkout
+          {copy.carriersEnabled}
         </label>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label htmlFor="originZip">CP de origen (depósito)</Label>
+            <Label htmlFor="originZip">{copy.originZipLabel}</Label>
             <Input
               id="originZip"
-              name="originZip"
               inputMode="numeric"
               autoComplete="postal-code"
               placeholder="1425"
@@ -206,16 +455,13 @@ export function AdminShippingSettingsForm({
               }
               className="text-base sm:text-sm"
             />
-            <p className="mt-1.5 text-xs text-neutral-500">
-              Desde dónde despachás. Requerido para cotizar.
-            </p>
+            <p className="mt-1.5 text-xs text-neutral-500">{copy.originZipHint}</p>
           </div>
 
           <div>
-            <Label htmlFor="defaultWeightGrams">Peso default por ítem (g)</Label>
+            <Label htmlFor="defaultWeightGrams">{copy.weightLabel}</Label>
             <Input
               id="defaultWeightGrams"
-              name="defaultWeightGrams"
               type="number"
               min="100"
               step="50"
@@ -233,44 +479,17 @@ export function AdminShippingSettingsForm({
               }
               className="text-base sm:text-sm"
             />
-            <p className="mt-1.5 text-xs text-neutral-500">
-              Usado para estimar el paquete (demo y API ML).
-            </p>
-          </div>
-
-          <div className="sm:col-span-2">
-            <Label htmlFor="mercadoLibreQuoteItemId">
-              Item MLA de referencia (opcional)
-            </Label>
-            <Input
-              id="mercadoLibreQuoteItemId"
-              name="mercadoLibreQuoteItemId"
-              placeholder="MLA1234567890"
-              disabled={readOnly || !settings.carriersEnabled}
-              value={settings.mercadoLibreQuoteItemId}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  mercadoLibreQuoteItemId: event.target.value.trim(),
-                }))
-              }
-              className="text-base sm:text-sm"
-            />
-            <p className="mt-1.5 text-xs text-neutral-500">
-              Publicación Mercado Libre con Mercado Envíos activo. Mejora la
-              cotización real si tenés token configurado.
-            </p>
+            <p className="mt-1.5 text-xs text-neutral-500">{copy.weightHint}</p>
           </div>
 
           <div className="sm:col-span-2 space-y-2">
-            <Label>Operadores en checkout</Label>
-            <p className="text-xs text-neutral-500">
-              Activá los que quieras ofrecer. El comprador elige entre los
-              activos al cotizar. Con uno alcanza.
-            </p>
+            <Label>{copy.operatorsLabel}</Label>
+            <p className="text-xs text-neutral-500">{copy.operatorsHint}</p>
             <div className="space-y-2 rounded-md border border-neutral-200 p-3">
               {SHIPPING_CARRIER_OPTIONS.map((carrier) => {
                 const checked = settings.enabledCarrierIds.includes(carrier.id);
+                const configured =
+                  settings.carrierConfigured?.[carrier.id] ?? false;
                 return (
                   <label
                     key={carrier.id}
@@ -279,27 +498,22 @@ export function AdminShippingSettingsForm({
                     <Switch
                       disabled={readOnly || !settings.carriersEnabled}
                       checked={checked}
-                      onChange={(event) => {
-                        const on = event.target.checked;
-                        setSettings((current) => {
-                          const nextIds = on
-                            ? ([
-                                ...current.enabledCarrierIds,
-                                carrier.id,
-                              ] as MercadoEnviosCarrierId[])
-                            : current.enabledCarrierIds.filter(
-                                (id) => id !== carrier.id,
-                              );
-                          return {
-                            ...current,
-                            enabledCarrierIds: nextIds,
-                            preferredCarrierId:
-                              nextIds[0] ?? current.preferredCarrierId,
-                          };
-                        });
-                      }}
+                      onChange={(event) =>
+                        toggleCarrier(carrier.id, event.target.checked)
+                      }
                     />
-                    {carrier.label}
+                    <span className="flex flex-wrap items-center gap-2">
+                      {carrier.label}
+                      {!configured ? (
+                        <span
+                          className={cn(
+                            "rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800",
+                          )}
+                        >
+                          {copy.missingConfigBadge}
+                        </span>
+                      ) : null}
+                    </span>
                   </label>
                 );
               })}
@@ -309,26 +523,23 @@ export function AdminShippingSettingsForm({
       </AdminCard>
 
       <AdminCard
-        title="Retiro en local"
-        description="Retiro en local siempre es gratis."
+        title={copy.pickupTitle}
+        description={copy.pickupDescription}
         className="max-w-lg"
       >
-        <div className="space-y-4">
-          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-            <Switch
-              id="allowPickup"
-              disabled={readOnly}
-              checked={settings.allowPickup}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  allowPickup: event.target.checked,
-                }))
-              }
-            />
-            Permitir retiro en local
-          </label>
-        </div>
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
+            disabled={readOnly}
+            checked={settings.allowPickup}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                allowPickup: event.target.checked,
+              }))
+            }
+          />
+          {copy.allowPickup}
+        </label>
       </AdminCard>
 
       {error ? (
@@ -338,15 +549,13 @@ export function AdminShippingSettingsForm({
       ) : null}
       {saved ? (
         <div className="max-w-lg">
-          <AdminFormAlert variant="success">
-            Configuración guardada. Los cambios aplican en el checkout al instante.
-          </AdminFormAlert>
+          <AdminFormAlert variant="success">{copy.saved}</AdminFormAlert>
         </div>
       ) : null}
 
       <AdminFormActions className="max-w-lg">
         <Button type="submit" disabled={readOnly || loading}>
-          {loading ? "Guardando..." : "Guardar envíos"}
+          {loading ? copy.saving : copy.save}
         </Button>
       </AdminFormActions>
     </AdminForm>

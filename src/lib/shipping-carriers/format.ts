@@ -1,29 +1,33 @@
-import { MERCADO_ENVIOS_CARRIERS } from "@/lib/mercado-envios";
-import type { MercadoEnviosCarrierId } from "@/lib/mercado-envios/types";
+import {
+  isShippingCarrierId,
+  SHIPPING_CARRIERS,
+  type ShippingCarrierId,
+} from "@/lib/shipping-carriers/carrier-catalog";
 
+/** @deprecated Prefer isShippingCarrierId */
 export function isMercadoEnviosCarrierId(
   value: string,
-): value is MercadoEnviosCarrierId {
-  return value in MERCADO_ENVIOS_CARRIERS;
+): value is ShippingCarrierId {
+  return isShippingCarrierId(value);
 }
 
 export function normalizePreferredCarrierId(
   value: string,
-): MercadoEnviosCarrierId | null {
+): ShippingCarrierId | null {
   const id = value.trim();
-  return isMercadoEnviosCarrierId(id) ? id : null;
+  return isShippingCarrierId(id) ? id : null;
 }
 
 /** Unique valid carrier ids, preserving order. */
 export function normalizeEnabledCarrierIds(
   values: readonly string[] | null | undefined,
   fallbackPreferred?: string | null,
-): MercadoEnviosCarrierId[] {
-  const seen = new Set<MercadoEnviosCarrierId>();
-  const result: MercadoEnviosCarrierId[] = [];
+): ShippingCarrierId[] {
+  const seen = new Set<ShippingCarrierId>();
+  const result: ShippingCarrierId[] = [];
 
   for (const raw of values ?? []) {
-    if (!isMercadoEnviosCarrierId(raw) || seen.has(raw)) continue;
+    if (!isShippingCarrierId(raw) || seen.has(raw)) continue;
     seen.add(raw);
     result.push(raw);
   }
@@ -39,9 +43,19 @@ export function normalizeEnabledCarrierIds(
   return preferred ? [preferred] : [];
 }
 
-export const SHIPPING_CARRIER_OPTIONS = Object.values(MERCADO_ENVIOS_CARRIERS).map(
+export const SHIPPING_CARRIER_OPTIONS = Object.values(SHIPPING_CARRIERS).map(
   (carrier) => ({
     id: carrier.id,
     label: carrier.label,
   }),
 );
+
+export function formatShippingDeliveryWindow(
+  daysMin: number,
+  daysMax: number,
+): string {
+  if (daysMin === daysMax) {
+    return daysMin === 1 ? "1 día hábil" : `${daysMin} días hábiles`;
+  }
+  return `${daysMin}–${daysMax} días hábiles`;
+}

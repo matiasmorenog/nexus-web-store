@@ -2,20 +2,23 @@ import { unstable_cache } from "next/cache";
 import type { StoreShippingSettings } from "@prisma/client";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
-import { getEnvMercadoEnviosDedicatedAccessToken } from "@/lib/mercado-envios/api-client";
-import {
-  isValidMercadoPagoAccessToken,
-  maskMercadoPagoAccessToken,
-} from "@/lib/payments/format";
-import { decryptPaymentSecret } from "@/lib/payments/encryption";
 import { storeHasModule } from "@/lib/modules";
+import {
+  isShippingCarrierId,
+  type ShippingCarrierId,
+} from "@/lib/shipping-carriers/carrier-catalog";
+import {
+  loadShippingCredentialsRow,
+  resolveAndreaniCredentialsFromRow,
+  resolveCorreoCredentialsFromRow,
+  resolveMercadoEnviosCredentialsFromRow,
+} from "@/lib/shipping-carriers/credentials";
 import {
   isMercadoEnviosCarrierId,
   normalizeEnabledCarrierIds,
 } from "@/lib/shipping-carriers/format";
 import {
   DEFAULT_SHIPPING_SETTINGS,
-  type MercadoEnviosTokenSource,
   type StoreCarrierSettingsData,
   type StoreShippingSettingsAdminData,
 } from "@/lib/shipping-carriers/types";
@@ -48,18 +51,11 @@ function serializeCarrierSettings(
       row.defaultWeightGrams > 0
         ? row.defaultWeightGrams
         : DEFAULT_SHIPPING_SETTINGS.defaultWeightGrams,
+    correoSandbox: row.correoSandbox ?? true,
+    andreaniSandbox: row.andreaniSandbox ?? true,
+    correoCustomerId: row.correoCustomerId?.trim() ?? "",
+    andreaniContrato: row.andreaniContrato?.trim() ?? "",
   };
-}
-
-function decryptStoredToken(enc: string | null | undefined): string | null {
-  if (!enc) return null;
-  try {
-    const token = decryptPaymentSecret(enc);
-    return isValidMercadoPagoAccessToken(token) ? token : null;
-  } catch (error) {
-    console.error("Failed to decrypt payment/shipping token:", error);
-    return null;
-  }
 }
 
 /**
@@ -69,52 +65,29 @@ function decryptStoredToken(enc: string | null | undefined): string | null {
 export async function getStoreShippingSettingsForAdmin(
   storeId: string,
 ): Promise<StoreShippingSettingsAdminData> {
-  const store = await db.store.findUniqueOrThrow({
-    where: { id: storeId },
-    select: {
-      allowPickup: true,
-      shippingSettings: true,
-      paymentSettings: {
-        select: {
-          mercadopagoAccessTokenEnc: true,
-          mercadopagoTokenHint: true,
-        },
-      },
-    },
-  });
-
+  const store = await loadShippingCredentialsRow(storeId);
   const row = store.shippingSettings;
-  const meToken = decryptStoredToken(row?.mercadoEnviosAccessTokenEnc);
-  const mpToken = decryptStoredToken(
-    store.paymentSettings?.mercadopagoAccessTokenEnc,
-  );
-  const envToken = getEnvMercadoEnviosDedicatedAccessToken();
+  const me = resolveMercadoEnviosCredentialsFromRow(store);
+  const correo = resolveCorreoCredentialsFromRow(store);
+  const andreani = resolveAndreaniCredentialsFromRow(store);
 
-  let source: MercadoEnviosTokenSource = "none";
-  let tokenHint: string | null = row?.mercadoEnviosTokenHint ?? null;
-
-  if (meToken) {
-    source = "admin";
-  } else if (mpToken) {
-    source = "mp";
-    if (!tokenHint) {
-      tokenHint =
-        store.paymentSettings?.mercadopagoTokenHint ??
-        maskMercadoPagoAccessToken(mpToken);
-    }
-  } else if (envToken && isValidMercadoPagoAccessToken(envToken)) {
-    source = "env";
-    if (!tokenHint) {
-      tokenHint = maskMercadoPagoAccessToken(envToken);
-    }
-  }
+  const carrierConfigured: Record<ShippingCarrierId, boolean> = {
+    mercado_envios: me.source !== "none",
+    correo_argentino: correo.configured,
+    andreani: andreani.configured,
+  };
 
   return {
     ...serializeCarrierSettings(row),
     allowPickup: store.allowPickup,
-    mercadoEnviosConfigured: source !== "none",
-    mercadoEnviosTokenHint: tokenHint,
-    mercadoEnviosSource: source,
+    mercadoEnviosConfigured: me.source !== "none",
+    mercadoEnviosTokenHint: me.hint,
+    mercadoEnviosSource: me.source,
+    correoConfigured: correo.configured,
+    correoTokenHint: correo.hint,
+    andreaniConfigured: andreani.configured,
+    andreaniTokenHint: andreani.hint,
+    carrierConfigured,
   };
 }
 
@@ -122,7 +95,11 @@ export async function getStoreShippingSettings(
   storeId: string,
 ): Promise<StoreCarrierSettingsData> {
   if (!(await storeHasModule(storeId, "shippingCarriers"))) {
-    return { ...DEFAULT_SHIPPING_SETTINGS, carriersEnabled: false, enabledCarrierIds: [] };
+    return {
+      ...DEFAULT_SHIPPING_SETTINGS,
+      carriersEnabled: false,
+      enabledCarrierIds: [],
+    };
   }
 
   const cached = unstable_cache(
@@ -148,5 +125,20 @@ export async function getStoreShippingSettings(
 
 export async function isCarrierShippingEnabled(storeId: string): Promise<boolean> {
   const settings = await getStoreShippingSettings(storeId);
-  return settings.carriersEnabled && settings.enabledCarrierIds.length > 0;
+  if (!settings.carriersEnabled || settings.enabledCarrierIds.length === 0) {
+    return false;
+  }
+
+  const store = await loadShippingCredentialsRow(storeId);
+  const me = resolveMercadoEnviosCredentialsFromRow(store);
+  const correo = resolveCorreoCredentialsFromRow(store);
+  const andreani = resolveAndreaniCredentialsFromRow(store);
+
+  for (const carrierId of settings.enabledCarrierIds) {
+    if (!isShippingCarrierId(carrierId)) continue;
+    if (carrierId === "mercado_envios" && me.source !== "none") return true;
+    if (carrierId === "correo_argentino" && correo.configured) return true;
+    if (carrierId === "andreani" && andreani.configured) return true;
+  }
+  return false;
 }

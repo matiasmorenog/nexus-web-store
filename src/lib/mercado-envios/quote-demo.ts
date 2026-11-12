@@ -71,20 +71,15 @@ export function quoteMercadoEnviosDemo({
   const weightExtra = Math.max(0, totalWeightGrams - 500) * 6;
   const multiItemExtra = Math.max(0, itemCount - 1) * 450;
   const distanceExtra = distanceSurcharge(originZip, zipDigits);
-  const carrierMultiplier = carrierId === "correo_argentino" ? 1.06 : 1;
-
+  void carrierId;
   const cost = Math.round(
-    (zone.baseCost + weightExtra + multiItemExtra + distanceExtra) * carrierMultiplier,
+    zone.baseCost + weightExtra + multiItemExtra + distanceExtra,
   );
 
   return {
     cost,
-    carrier:
-      carrierId === "correo_argentino" ? "Correo Argentino" : "Mercado Envíos",
-    service:
-      carrierId === "correo_argentino"
-        ? "Correo Argentino vía Mercado Envíos"
-        : `Envío a domicilio · ${zone.zoneLabel}`,
+    carrier: "Mercado Envíos",
+    service: `Envío a domicilio · ${zone.zoneLabel}`,
     deliveryDaysMin: zone.daysMin,
     deliveryDaysMax: zone.daysMax,
     estimatedDelivery: addCalendarDays(new Date(), zone.daysMax),

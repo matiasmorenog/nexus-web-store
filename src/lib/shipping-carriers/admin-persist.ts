@@ -8,6 +8,7 @@ import {
   maskMercadoPagoAccessToken,
 } from "@/lib/payments/format";
 import { normalizeEnabledCarrierIds } from "@/lib/shipping-carriers/format";
+import { maskSecretHint } from "@/lib/shipping-carriers/credentials";
 import { SHIPPING_SETTINGS_CACHE_TAG } from "@/lib/shipping-carriers/query";
 import type { StoreShippingSettingsSaveInput } from "@/lib/shipping-carriers/types";
 import { db } from "@/lib/db";
@@ -39,17 +40,17 @@ export async function saveStoreShippingSettings(
       : 500;
 
   const mercadoLibreQuoteItemId = input.mercadoLibreQuoteItemId?.trim() || null;
+  const correoCustomerId = input.correoCustomerId?.trim() || null;
+  const andreaniContrato = input.andreaniContrato?.trim() || null;
 
   const existing = await db.storeShippingSettings.findUnique({
     where: { storeId },
     select: {
       mercadoEnviosAccessTokenEnc: true,
-      carriersEnabled: true,
-      preferredCarrierId: true,
-      enabledCarrierIds: true,
-      originZip: true,
-      mercadoLibreQuoteItemId: true,
-      defaultWeightGrams: true,
+      correoUserEnc: true,
+      correoPasswordEnc: true,
+      andreaniClientIdEnc: true,
+      andreaniClientSecretEnc: true,
     },
   });
 
@@ -60,52 +61,98 @@ export async function saveStoreShippingSettings(
     originZip: originZip || null,
     mercadoLibreQuoteItemId,
     defaultWeightGrams,
+    correoSandbox: Boolean(input.correoSandbox),
+    andreaniSandbox: Boolean(input.andreaniSandbox),
+    correoCustomerId,
+    andreaniContrato,
   };
 
+  // --- Mercado Envíos token ---
+  let meTokenUpdate: Record<string, string | null> = {};
   if (input.clearMercadoEnviosToken) {
-    await db.$transaction([
-      db.store.update({
-        where: { id: storeId },
-        data: {
-          allowPickup: input.allowPickup,
-        },
-      }),
-      db.storeShippingSettings.upsert({
-        where: { storeId },
-        create: {
-          storeId,
-          ...carrierUpdate,
-        },
-        update: {
-          ...carrierUpdate,
-          mercadoEnviosAccessTokenEnc: null,
-          mercadoEnviosTokenHint: null,
-        },
-      }),
-    ]);
-    revalidateShippingPaths(storeId);
-    return;
+    meTokenUpdate = {
+      mercadoEnviosAccessTokenEnc: null,
+      mercadoEnviosTokenHint: null,
+    };
+  } else {
+    const nextToken = input.mercadoEnviosAccessToken?.trim() ?? "";
+    const tokenUnchanged =
+      nextToken &&
+      existing?.mercadoEnviosAccessTokenEnc &&
+      decryptPaymentSecret(existing.mercadoEnviosAccessTokenEnc) === nextToken;
+
+    if (nextToken && !isValidMercadoPagoAccessToken(nextToken)) {
+      throw new Error(
+        "El Access Token de Mercado Envíos no es válido. Debe comenzar con TEST- o APP_USR-.",
+      );
+    }
+
+    if (nextToken && !tokenUnchanged) {
+      meTokenUpdate = {
+        mercadoEnviosAccessTokenEnc: encryptPaymentSecret(nextToken),
+        mercadoEnviosTokenHint: maskMercadoPagoAccessToken(nextToken),
+      };
+    }
   }
 
-  const nextToken = input.mercadoEnviosAccessToken?.trim() ?? "";
-  const tokenUnchanged =
-    nextToken &&
-    existing?.mercadoEnviosAccessTokenEnc &&
-    decryptPaymentSecret(existing.mercadoEnviosAccessTokenEnc) === nextToken;
-
-  if (nextToken && !isValidMercadoPagoAccessToken(nextToken)) {
-    throw new Error(
-      "El Access Token de Mercado Envíos no es válido. Debe comenzar con TEST- o APP_USR-.",
-    );
+  // --- Correo ---
+  let correoUpdate: Record<string, string | null | boolean> = {
+    correoSandbox: Boolean(input.correoSandbox),
+    correoCustomerId,
+  };
+  if (input.clearCorreoCredentials) {
+    correoUpdate = {
+      ...correoUpdate,
+      correoUserEnc: null,
+      correoPasswordEnc: null,
+      correoTokenHint: null,
+      correoCustomerId: null,
+    };
+  } else {
+    const nextUser = input.correoUser?.trim() ?? "";
+    const nextPassword = input.correoPassword?.trim() ?? "";
+    if (nextUser) {
+      correoUpdate.correoUserEnc = encryptPaymentSecret(nextUser);
+      correoUpdate.correoTokenHint = maskSecretHint(nextUser);
+    }
+    if (nextPassword) {
+      correoUpdate.correoPasswordEnc = encryptPaymentSecret(nextPassword);
+    }
+    if (!correoCustomerId && (nextUser || nextPassword || existing?.correoUserEnc)) {
+      // allow keeping customer id from input empty only if clearing — else require when setting new user
+      if (nextUser && !correoCustomerId) {
+        throw new Error("Ingresá el Customer ID de MiCorreo.");
+      }
+    }
   }
 
-  const tokenUpdate =
-    nextToken && !tokenUnchanged
-      ? {
-          mercadoEnviosAccessTokenEnc: encryptPaymentSecret(nextToken),
-          mercadoEnviosTokenHint: maskMercadoPagoAccessToken(nextToken),
-        }
-      : {};
+  // --- Andreani ---
+  let andreaniUpdate: Record<string, string | null | boolean> = {
+    andreaniSandbox: Boolean(input.andreaniSandbox),
+    andreaniContrato,
+  };
+  if (input.clearAndreaniCredentials) {
+    andreaniUpdate = {
+      ...andreaniUpdate,
+      andreaniClientIdEnc: null,
+      andreaniClientSecretEnc: null,
+      andreaniTokenHint: null,
+      andreaniContrato: null,
+    };
+  } else {
+    const nextClientId = input.andreaniClientId?.trim() ?? "";
+    const nextSecret = input.andreaniClientSecret?.trim() ?? "";
+    if (nextClientId) {
+      andreaniUpdate.andreaniClientIdEnc = encryptPaymentSecret(nextClientId);
+      andreaniUpdate.andreaniTokenHint = maskSecretHint(nextClientId);
+    }
+    if (nextSecret) {
+      andreaniUpdate.andreaniClientSecretEnc = encryptPaymentSecret(nextSecret);
+    }
+    if (nextClientId && !andreaniContrato) {
+      throw new Error("Ingresá el número de contrato de Andreani.");
+    }
+  }
 
   await db.$transaction([
     db.store.update({
@@ -119,11 +166,15 @@ export async function saveStoreShippingSettings(
       create: {
         storeId,
         ...carrierUpdate,
-        ...tokenUpdate,
+        ...meTokenUpdate,
+        ...correoUpdate,
+        ...andreaniUpdate,
       },
       update: {
         ...carrierUpdate,
-        ...tokenUpdate,
+        ...meTokenUpdate,
+        ...correoUpdate,
+        ...andreaniUpdate,
       },
     }),
   ]);

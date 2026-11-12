@@ -102,10 +102,18 @@ export async function fulfillPaidOrder(orderId: string) {
     storeId: order.storeId,
     isPickup: order.isPickup,
     shippingZip: order.shippingZip,
+    shippingAddress: order.shippingAddress,
+    shippingCity: order.shippingCity,
     shippingCarrierId: order.shippingCarrierId,
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    total: Number(order.total),
     meShipmentId: order.meShipmentId,
+    shippingExternalId: order.shippingExternalId,
+    items: order.items?.map((item) => ({ quantity: item.quantity })),
   }).catch((error) => {
-    console.error("Mercado Envíos shipment error:", error);
+    console.error("Shipping createShipment error:", error);
   });
 
   const orderForEmail = (await db.order.findUnique({

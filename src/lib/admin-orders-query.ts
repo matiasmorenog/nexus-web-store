@@ -191,6 +191,14 @@ export function mapAdminOrderRow(order: OrderWithRelations): AdminOrderCardData 
 
   const shipping = getOrderShippingInfo({
     isPickup: order.isPickup,
+    shippingCarrierId: order.shippingCarrierId,
+    shippingExternalId: order.shippingExternalId,
+    shippingTrackingNumber: order.shippingTrackingNumber,
+    shippingTrackingUrl: order.shippingTrackingUrl,
+    shippingLabelUrl: order.shippingLabelUrl,
+    shippingCarrierName: order.shippingCarrierName,
+    shippingStatus: order.shippingStatus,
+    shippingEstimatedDelivery: order.shippingEstimatedDelivery,
     meShipmentId: order.meShipmentId,
     meTrackingNumber: order.meTrackingNumber,
     meTrackingUrl: order.meTrackingUrl,

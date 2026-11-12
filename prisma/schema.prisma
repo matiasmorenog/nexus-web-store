@@ -217,13 +217,26 @@ model StoreShippingSettings {
   carriersEnabled              Boolean  @default(true)
   /** @deprecated Prefer enabledCarrierIds; kept synced to first enabled for legacy reads. */
   preferredCarrierId           String   @default("mercado_envios")
-  /** Carrier ids offered at checkout (e.g. mercado_envios, correo_argentino). */
+  /** Carrier ids offered at checkout (mercado_envios, correo_argentino, andreani). */
   enabledCarrierIds            String[] @default(["mercado_envios"])
   originZip                    String?
   mercadoLibreQuoteItemId      String?
   defaultWeightGrams           Int      @default(500)
+  /** Mercado Envíos / ML Access Token (encrypted). */
   mercadoEnviosAccessTokenEnc  String?
   mercadoEnviosTokenHint       String?
+  /** MiCorreo (Correo Argentino) credentials. */
+  correoUserEnc                String?
+  correoPasswordEnc            String?
+  correoCustomerId             String?
+  correoTokenHint              String?
+  correoSandbox                Boolean  @default(true)
+  /** Andreani API credentials. */
+  andreaniClientIdEnc          String?
+  andreaniClientSecretEnc      String?
+  andreaniContrato             String?
+  andreaniTokenHint            String?
+  andreaniSandbox              Boolean  @default(true)
   updatedAt                    DateTime @updatedAt
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
@@ -427,18 +440,27 @@ model Order {
   shippingAddress String
   shippingCity    String
   shippingZip     String
-  /** Buyer-selected carrier at checkout (MercadoEnviosCarrierId). */
+  /** Buyer-selected carrier at checkout (ShippingCarrierId). */
   shippingCarrierId         String?
   mpPreferenceId            String?
   mpPaymentId               String?
   stripeSessionId           String?
   stripePaymentIntentId     String?
+  /** @deprecated Prefer shipping* fields; kept for legacy reads. */
   meShipmentId              String?
   meTrackingNumber          String?
   meTrackingUrl             String?
   meCarrier                 String?
   meStatus                  MercadoEnviosStatus?
   meEstimatedDelivery       DateTime?
+  /** Generic shipment fields (all carriers). */
+  shippingExternalId        String?
+  shippingTrackingNumber    String?
+  shippingTrackingUrl       String?
+  shippingLabelUrl          String?
+  shippingCarrierName       String?
+  shippingStatus            String?
+  shippingEstimatedDelivery DateTime?
   confirmationEmailSentAt   DateTime?
   createdAt                 DateTime    @default(now())
   updatedAt       DateTime    @updatedAt

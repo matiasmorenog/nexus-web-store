@@ -65,7 +65,7 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
       icon: Truck,
       label: "Envíos sin operador configurado",
       detail:
-        "Módulo Envíos activo: habilitá al menos un operador en Configuración → Envíos",
+        "Módulo Envíos activo: cargá credenciales y activá al menos un operador (ME, Correo o Andreani)",
       tone: "rose",
     });
   }

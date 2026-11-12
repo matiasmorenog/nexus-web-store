@@ -182,8 +182,8 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
   grow: {
     id: "grow",
     name: "Grow",
-    monthlyPriceUsd: 59,
-    annualMonthlyUsd: 47,
+    monthlyPriceUsd: 79,
+    annualMonthlyUsd: 63,
     description: "Promos, home, envíos, CRM y equipo chico.",
     target: "Marca que ya vende",
     moduleIds: GROW_MODULE_IDS,
@@ -192,8 +192,8 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
   pro: {
     id: "pro",
     name: "Pro",
-    monthlyPriceUsd: 99,
-    annualMonthlyUsd: 79,
+    monthlyPriceUsd: 129,
+    annualMonthlyUsd: 103,
     description: "Analytics, API y operación con más usuarios.",
     target: "Equipo + integraciones",
     moduleIds: PRO_MODULE_IDS,

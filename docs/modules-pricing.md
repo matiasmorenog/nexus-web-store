@@ -25,8 +25,8 @@ Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-
 | Tier | Mensual | Anual equiv. | Target |
 |------|---------|--------------|--------|
 | **Start** | 29 | ~23 | Emprende / Instagram → web |
-| **Grow** | 59 | ~47 | Ya vende, quiere crecer |
-| **Pro** | 99 | ~79 | Equipo + analytics + API |
+| **Grow** | 79 | ~63 | Ya vende, quiere crecer |
+| **Pro** | 129 | ~103 | Equipo + analytics + API |
 
 ### Núcleo en todos (vender)
 

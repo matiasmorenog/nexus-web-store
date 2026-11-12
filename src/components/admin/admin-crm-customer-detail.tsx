@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
-import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminCrmCustomerProfileForm } from "@/components/admin/admin-crm-customer-profile-form";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminDataTable,
   AdminTableCell,
@@ -24,7 +24,7 @@ import { formatPrice } from "@/lib/utils";
 type AdminCrmCustomerDetailProps = {
   customer: CrmCustomerDetail;
   readOnly?: boolean;
-  /** CRM list URL to restore filters when going back via breadcrumb. */
+  /** CRM list URL to restore filters when going back via title crumb. */
   listHref?: string;
 };
 
@@ -52,18 +52,18 @@ export function AdminCrmCustomerDetail({
 
   return (
     <div className="space-y-6">
-      <AdminBreadcrumb
-        items={[
-          { label: "CRM", href: listHref },
-          { label: customer.name },
-        ]}
+      <AdminPageHeader
+        title="CRM"
+        titleHref={listHref}
+        titleCurrent={customer.name}
+        description={customer.email}
       />
 
       <div className="grid items-stretch gap-4 xl:grid-cols-2">
         <AdminCard
           className="h-full"
-          title={customer.name}
-          description={customer.email}
+          title="Ficha"
+          description="Datos y compras del cliente."
           action={
             customer.profile.tags.length > 0 ? (
               <div className="flex flex-wrap justify-end gap-1">

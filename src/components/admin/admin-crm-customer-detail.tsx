@@ -10,7 +10,6 @@ import {
 } from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
 import {
-  AdminCardSection,
   AdminDetailField,
   AdminDetailGrid,
 } from "@/components/admin/admin-surface";
@@ -72,38 +71,36 @@ export function AdminCrmCustomerDetail({
             ) : null
           }
         >
-          <AdminCardSection bordered={false} className="!px-0 !py-0">
-            <AdminDetailGrid className="gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <AdminDetailField label="Teléfono">
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <span>{customer.phone}</span>
-                  {whatsappHref ? (
-                    <a
-                      href={whatsappHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-7 items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 text-xs font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
-                    >
-                      <MessageCircle className="size-3.5" />
-                      WhatsApp
-                    </a>
-                  ) : null}
-                </span>
-              </AdminDetailField>
-              <AdminDetailField label="Pedidos">
-                {customer.orderCount}
-              </AdminDetailField>
-              <AdminDetailField label="Total comprado">
-                {formatPrice(customer.totalSpent)}
-              </AdminDetailField>
-              <AdminDetailField label="Primera compra">
-                {formatDate(customer.firstOrderAt)}
-              </AdminDetailField>
-              <AdminDetailField label="Última compra">
-                {formatDate(customer.lastOrderAt)}
-              </AdminDetailField>
-            </AdminDetailGrid>
-          </AdminCardSection>
+          <AdminDetailGrid className="gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <AdminDetailField label="Teléfono">
+              <span className="inline-flex flex-wrap items-center gap-2">
+                <span>{customer.phone}</span>
+                {whatsappHref ? (
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-7 items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 text-xs font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
+                  >
+                    <MessageCircle className="size-3.5" />
+                    WhatsApp
+                  </a>
+                ) : null}
+              </span>
+            </AdminDetailField>
+            <AdminDetailField label="Pedidos">
+              {customer.orderCount}
+            </AdminDetailField>
+            <AdminDetailField label="Total comprado">
+              {formatPrice(customer.totalSpent)}
+            </AdminDetailField>
+            <AdminDetailField label="Primera compra">
+              {formatDate(customer.firstOrderAt)}
+            </AdminDetailField>
+            <AdminDetailField label="Última compra">
+              {formatDate(customer.lastOrderAt)}
+            </AdminDetailField>
+          </AdminDetailGrid>
         </AdminCard>
 
         <AdminCrmCustomerProfileForm

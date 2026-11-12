@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSkeletonWebTraffic } from "@/components/admin/admin-skeleton";
 import { AdminWebTrafficSection } from "@/components/admin/admin-web-traffic-section";
 import { requireAdminModuleView } from "@/lib/admin-session";
@@ -32,13 +31,6 @@ export default async function AdminTrafficPage({
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Tráfico"
-          description="Visitas reales de tu tienda: totales, tendencia, páginas, país, browser y dispositivos."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <Suspense fallback={<AdminSkeletonWebTraffic />}>
           <AdminTrafficBody period={period} />

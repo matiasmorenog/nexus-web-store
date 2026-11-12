@@ -10,7 +10,7 @@ import {
 import { storefrontPath } from "@/lib/storefront-paths";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { SelectField } from "@/components/ui/select-field";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { cn } from "@/lib/utils";
 
 function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
@@ -51,19 +51,18 @@ function DemoLoginForm({ kind }: { kind: DemoPersonaKind }) {
     <form onSubmit={onSubmit} className="flex flex-col gap-3">
       <div className="space-y-1.5">
         <Label htmlFor={`demo-persona-${kind}`}>Persona demo</Label>
-        <SelectField
+        <MenuSelect
           id={`demo-persona-${kind}`}
+          aria-label="Persona demo"
           value={personaId}
-          onChange={(event) => setPersonaId(event.target.value)}
-          className="border-neutral-200"
+          onChange={setPersonaId}
           required
-        >
-          {personas.map((persona) => (
-            <option key={persona.id} value={persona.id}>
-              {persona.label}
-            </option>
-          ))}
-        </SelectField>
+          placeholder="Elegí una persona"
+          options={personas.map((persona) => ({
+            value: persona.id,
+            label: persona.label,
+          }))}
+        />
         {selected ? (
           <p className="text-xs text-neutral-500">{selected.description}</p>
         ) : null}

@@ -9,7 +9,7 @@ import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/ty
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
-import { SelectField } from "@/components/ui/select-field";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
@@ -373,24 +373,24 @@ export function ProductFilters({
         <Label htmlFor={`${idPrefix}precio-max`} className={labelClass}>
           {copy.maxPrice}
         </Label>
-        <SelectField
+        <MenuSelect
           id={`${idPrefix}precio-max`}
-          className="rounded-lg border-neutral-200"
+          aria-label={copy.maxPrice}
           value={searchParams.get("precioMax") ?? ""}
-          onChange={(e) =>
+          onChange={(precioMax) =>
             update({
               ...baseFilterParams(),
-              precioMax: e.target.value,
+              precioMax,
             })
           }
-        >
-          <option value="">Sin límite</option>
-          {priceTiers.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </SelectField>
+          options={[
+            { value: "", label: "Sin límite" },
+            ...priceTiers.map((option) => ({
+              value: option.value,
+              label: option.label,
+            })),
+          ]}
+        />
       </div>
 
       {hasActiveFilters ? (

@@ -15,6 +15,8 @@ import { formatPrice } from "@/lib/utils";
 
 type AdminCrmCustomersListProps = {
   customers: CrmCustomerListItem[];
+  /** Current CRM list URL (path + query) so detail can return with filters. */
+  listHref?: string;
 };
 
 function formatDate(value: string) {
@@ -24,7 +26,10 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export function AdminCrmCustomersList({ customers }: AdminCrmCustomersListProps) {
+export function AdminCrmCustomersList({
+  customers,
+  listHref = "/admin/modulos/crm",
+}: AdminCrmCustomersListProps) {
   if (customers.length === 0) {
     return (
       <AdminEmptyState>
@@ -37,7 +42,11 @@ export function AdminCrmCustomersList({ customers }: AdminCrmCustomersListProps)
   }
 
   return (
-    <AdminCard padding={false} title="Clientes" description="Ordenados por última compra.">
+    <AdminCard
+      padding={false}
+      title="Clientes"
+      description="Resultados según filtros y orden actuales."
+    >
       <AdminDataTable
         columns={[
           "Cliente",
@@ -52,7 +61,10 @@ export function AdminCrmCustomersList({ customers }: AdminCrmCustomersListProps)
           <AdminTableRow key={customer.email}>
             <AdminTableCell>
               <Link
-                href={buildCrmCustomerHref(customer.email)}
+                href={buildCrmCustomerHref(customer.email, {
+                  returnTo: listHref,
+                  name: customer.name,
+                })}
                 className="font-medium text-neutral-900 hover:underline"
               >
                 {customer.name}

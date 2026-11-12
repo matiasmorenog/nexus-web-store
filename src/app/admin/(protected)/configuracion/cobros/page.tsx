@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { AdminCashPaymentForm } from "@/components/admin/admin-cash-payment-form";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPaymentSettingsForm } from "@/components/admin/admin-payment-settings-form";
 import { AdminStripePaymentForm } from "@/components/admin/admin-stripe-payment-form";
 import { AdminTransferPaymentForm } from "@/components/admin/admin-transfer-payment-form";
@@ -25,33 +24,28 @@ export default async function AdminCobrosPage() {
   const hideMercadoPago = storeHidesMercadoPago();
 
   const paymentSettings = await getStorePaymentSettingsForAdmin(session.user.storeId);
-  const webhookUrl = `${await resolveSiteOrigin()}/api/webhooks/stripe`;
+  const siteOrigin = await resolveSiteOrigin();
+  const stripeWebhookUrl = `${siteOrigin}/api/webhooks/stripe`;
+  const mercadoPagoWebhookUrl = `${siteOrigin}/api/webhooks/mercadopago`;
 
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Cobros"
-          description={
-            hideMercadoPago
-              ? "Tarjeta (Stripe), bonifico bancario (IBAN) y métodos de pago en checkout."
-              : "Mercado Pago, tarjeta (Stripe), transferencia con descuento y métodos de pago en checkout."
-          }
-        />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={1}>
         <div className="space-y-6">
           {hideMercadoPago ? null : (
-            <AdminPaymentSettingsForm initialSettings={paymentSettings} />
+            <AdminPaymentSettingsForm
+              initialSettings={paymentSettings}
+              webhookUrl={mercadoPagoWebhookUrl}
+            />
           )}
           <AdminStripePaymentForm
             initialSettings={{
               stripeEnabled: paymentSettings.stripeEnabled,
               stripeSecretKeyHint: paymentSettings.stripeSecretKeyHint,
-              stripeWebhookSecretConfigured: paymentSettings.stripeWebhookSecretConfigured,
+              stripeWebhookSecretConfigured:
+                paymentSettings.stripeWebhookSecretConfigured,
             }}
-            webhookUrl={webhookUrl}
+            webhookUrl={stripeWebhookUrl}
           />
           <AdminTransferPaymentForm
             initialSettings={{

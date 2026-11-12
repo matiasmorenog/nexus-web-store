@@ -9,11 +9,13 @@ import type {
   CrmCustomerDetail,
   CrmCustomerListItem,
   CrmCustomerProfile,
+  CrmListFilters,
+  CrmListSort,
+  CrmStoreStats,
 } from "@/lib/crm/types";
 import { getOrderStatusLabel } from "@/lib/order-status";
 
-export type CrmCustomersListParams = {
-  q?: string;
+export type CrmCustomersListParams = CrmListFilters & {
   limit?: number;
 };
 
@@ -78,11 +80,86 @@ function buildOrderSearchWhere(
   };
 }
 
+function sortCustomers(
+  customers: CrmCustomerListItem[],
+  sort: CrmListSort = "lastOrder",
+): CrmCustomerListItem[] {
+  const next = [...customers];
+  if (sort === "totalSpent") {
+    next.sort((a, b) => b.totalSpent - a.totalSpent);
+  } else if (sort === "orderCount") {
+    next.sort((a, b) => b.orderCount - a.orderCount);
+  } else {
+    next.sort(
+      (a, b) =>
+        new Date(b.lastOrderAt).getTime() - new Date(a.lastOrderAt).getTime(),
+    );
+  }
+  return next;
+}
+
+export async function listCrmTags(storeId: string): Promise<string[]> {
+  const rows = await db.storeCustomer.findMany({
+    where: { storeId, tags: { isEmpty: false } },
+    select: { tags: true },
+  });
+
+  const seen = new Set<string>();
+  for (const row of rows) {
+    for (const tag of row.tags) {
+      const trimmed = tag.trim();
+      if (!trimmed) continue;
+      seen.add(trimmed);
+    }
+  }
+
+  return [...seen].sort((a, b) => a.localeCompare(b, "es"));
+}
+
+export async function getCrmStoreStats(storeId: string): Promise<CrmStoreStats> {
+  const groups = await db.order.groupBy({
+    by: ["customerEmail"],
+    where: { storeId },
+    _count: { _all: true },
+    _sum: { total: true },
+    _max: { createdAt: true },
+  });
+
+  const customerCount = groups.length;
+  if (customerCount === 0) {
+    return {
+      customerCount: 0,
+      averageLtv: 0,
+      repurchaseRate: 0,
+      inactive30Count: 0,
+    };
+  }
+
+  const totalSpentAll = groups.reduce(
+    (sum, group) => sum + decimalToNumber(group._sum.total),
+    0,
+  );
+  const repurchaseCount = groups.filter((group) => group._count._all >= 2).length;
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const inactive30Count = groups.filter((group) => {
+    const last = group._max.createdAt?.getTime() ?? 0;
+    return last < cutoff;
+  }).length;
+
+  return {
+    customerCount,
+    averageLtv: totalSpentAll / customerCount,
+    repurchaseRate: Math.round((repurchaseCount / customerCount) * 100),
+    inactive30Count,
+  };
+}
+
 export async function listCrmCustomers(
   storeId: string,
   params: CrmCustomersListParams = {},
 ): Promise<CrmCustomerListItem[]> {
-  const limit = Math.min(Math.max(params.limit ?? 100, 1), 200);
+  const limit = Math.min(Math.max(params.limit ?? 100, 1), 500);
+  const needsBroadFetch = Boolean(params.tag || params.inactiveDays || params.sort);
 
   const groups = await db.order.groupBy({
     by: ["customerEmail"],
@@ -99,7 +176,7 @@ export async function listCrmCustomers(
         createdAt: "desc",
       },
     },
-    take: limit,
+    take: needsBroadFetch ? 500 : limit,
   });
 
   const emails = groups.map((group) =>
@@ -107,7 +184,7 @@ export async function listCrmCustomers(
   );
   const profileMap = await fetchCustomerProfiles(storeId, emails);
 
-  return groups.map((group) => {
+  let customers: CrmCustomerListItem[] = groups.map((group) => {
     const email = normalizeCustomerEmail(group.customerEmail);
     const profile = profileMap.get(email) ?? emptyProfile(email);
 
@@ -121,6 +198,23 @@ export async function listCrmCustomers(
       tags: profile.tags,
     };
   });
+
+  if (params.tag?.trim()) {
+    const tagKey = params.tag.trim().toLowerCase();
+    customers = customers.filter((customer) =>
+      customer.tags.some((tag) => tag.toLowerCase() === tagKey),
+    );
+  }
+
+  if (params.inactiveDays && params.inactiveDays > 0) {
+    const cutoff = Date.now() - params.inactiveDays * 24 * 60 * 60 * 1000;
+    customers = customers.filter(
+      (customer) => new Date(customer.lastOrderAt).getTime() < cutoff,
+    );
+  }
+
+  customers = sortCustomers(customers, params.sort ?? "lastOrder");
+  return customers.slice(0, limit);
 }
 
 export const getCrmCustomerDetail = cache(

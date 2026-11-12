@@ -53,7 +53,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `homeEditor` | Home editable | | ✓ | ✓ |
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
-| `crm` | CRM lite | | ✓ | ✓ |
+| `crm` | CRM (clientes, LTV, segmentos, WhatsApp, CSV) | | ✓ | ✓ |
 | `multiUser` | Multi-usuario | | ✓ (hasta 3 accesos) | ✓ (ilimitados) |
 | `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |

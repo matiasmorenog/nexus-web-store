@@ -1,6 +1,5 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminShippingSettingsForm } from "@/components/admin/admin-shipping-settings-form";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   adminCanManageModule,
   requireAdminModuleView,
@@ -22,13 +21,6 @@ export default async function AdminShippingCarriersPage() {
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Envíos carrier"
-          description="Cotización Mercado Envíos por CP, retiro en local y seguimiento de pedidos."
-        />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={1}>
         <AdminShippingSettingsForm
           initialSettings={settings}
           readOnly={!canManageShipping}

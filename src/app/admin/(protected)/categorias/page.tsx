@@ -1,7 +1,6 @@
 import { AdminCategoryCreateForm } from "@/components/admin/admin-category-create-form";
 import { AdminCategoriesList } from "@/components/admin/admin-categories-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdminPermission } from "@/lib/admin-session";
 import { db } from "@/lib/db";
 import {
@@ -28,19 +27,12 @@ export default async function AdminCategoriesPage() {
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Categorías"
-          description="Definí las categorías del catálogo de esta tienda. Los productos usan el slug como texto (sin FK)."
-        />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={1}>
         <div className="max-w-3xl">
           <AdminCategoryCreateForm />
         </div>
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={2}>
+      <AdminDashboardReveal index={1}>
         <AdminCategoriesList categories={categories.map(serializeStoreCategory)} />
       </AdminDashboardReveal>
     </div>

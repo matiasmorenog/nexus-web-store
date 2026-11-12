@@ -1,5 +1,4 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminWishlistInsights } from "@/components/admin/admin-wishlist-insights";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
@@ -16,13 +15,6 @@ export default async function AdminWishlistPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Wishlist"
-          description="Interés de clientes registrados. Los visitantes sin cuenta guardan favoritos en el navegador."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <AdminWishlistInsights insights={insights} />
       </AdminDashboardReveal>

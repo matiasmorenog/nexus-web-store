@@ -1,7 +1,6 @@
 import { AdminCouponCreateForm } from "@/components/admin/admin-coupon-create-form";
 import { AdminCouponsList } from "@/components/admin/admin-coupons-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminPromotionSettingsForm } from "@/components/admin/admin-promotion-settings-form";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
@@ -28,13 +27,6 @@ export default async function AdminCouponsPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Cupones y promociones"
-          description="Códigos de descuento para el checkout. El descuento se aplica sobre el subtotal después de promos 2x1."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
           <div className="min-w-0 w-full max-w-3xl">

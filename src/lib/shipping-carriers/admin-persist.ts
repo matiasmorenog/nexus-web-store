@@ -154,11 +154,32 @@ export async function saveStoreShippingSettings(
     }
   }
 
+  const pickupAddress = input.pickupAddress?.trim() || null;
+  const pickupCity = input.pickupCity?.trim() || null;
+  const pickupZip = input.pickupZip?.replace(/\D/g, "").slice(0, 8) || null;
+  const pickupNotes = input.pickupNotes?.trim() || null;
+
+  if (input.allowPickup) {
+    if (!pickupAddress || pickupAddress.length < 3) {
+      throw new Error("Ingresá la dirección del local para retiro.");
+    }
+    if (!pickupCity || pickupCity.length < 2) {
+      throw new Error("Ingresá la ciudad del local para retiro.");
+    }
+    if (!pickupZip || pickupZip.length < 4) {
+      throw new Error("Ingresá el CP del local para retiro (mínimo 4 dígitos).");
+    }
+  }
+
   await db.$transaction([
     db.store.update({
       where: { id: storeId },
       data: {
         allowPickup: input.allowPickup,
+        pickupAddress,
+        pickupCity,
+        pickupZip,
+        pickupNotes,
       },
     }),
     db.storeShippingSettings.upsert({

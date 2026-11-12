@@ -50,6 +50,10 @@ export async function loadShippingCredentialsRow(storeId: string) {
     where: { id: storeId },
     select: {
       allowPickup: true,
+      pickupAddress: true,
+      pickupCity: true,
+      pickupZip: true,
+      pickupNotes: true,
       shippingSettings: true,
       paymentSettings: {
         select: {

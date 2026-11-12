@@ -5,22 +5,22 @@ Each enabled operator needs **its own credentials**. Checkout only quotes carrie
 ## Mercado Envíos
 
 - **Auth:** Mercado Libre / Mercado Pago Access Token (`TEST-` / `APP_USR-`). Priority: Envíos admin → Cobros MP → `MERCADOENVIOS_ACCESS_TOKEN`.
-- **Quote:** Mercado Libre shipping options API.
-- **Create shipment:** Not available as a generic external-cart label API. Quote works; create fails with a clear message — finish in ML or use Correo/Andreani.
-- **Admin guide:** Configuración → Envíos → card Mercado Envíos.
+- **Test:** use `TEST-` token first. Checkout with a real ZIP (e.g. 1425). Create-shipment may fail for external carts — message is explicit.
+- **Prod:** switch to `APP_USR-` after quote works.
+- **Admin guide:** Configuración → Envíos → card Mercado Envíos (includes how to test).
 
 ## Correo Argentino (MiCorreo)
 
-- **Auth:** API user + password (HTTP Basic → JWT) + `customerId`. Sandbox uses `apitest.correoargentino.com.ar`.
-- **Quote:** `POST /rates`.
-- **Create shipment:** import/create order endpoints; tracking stored on the order.
+- **Auth:** API user + password (HTTP Basic → JWT) + `customerId`.
+- **Test (QA switch ON):** `apitest.correoargentino.com.ar` with QA credentials only. Quote in checkout → paid order → Admin «Generar envío» (test order, no real dispatch).
+- **Prod (QA switch OFF):** production credentials + `api.correoargentino.com.ar`.
 - Credentials come from a Correo commercial contact (not self-serve like MP).
 
 ## Andreani
 
-- **Auth:** Client ID + Client Secret (Basic → Bearer) + contract number. Sandbox: `apisqa.andreani.com`.
-- **Quote:** `GET /v1/tarifas`.
-- **Create shipment:** order API + label fetch when available.
+- **Auth:** Client ID + Client Secret (Basic → Bearer) + contract number.
+- **Test (sandbox switch ON):** `apisqa.andreani.com`. Quote → paid order → «Generar envío» (+ label when API returns it).
+- **Prod (sandbox OFF):** `apis.andreani.com` with production credentials.
 - Credentials from Andreani PyME / corporate portals.
 
 ## Shared admin settings

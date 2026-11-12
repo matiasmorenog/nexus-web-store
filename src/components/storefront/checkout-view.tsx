@@ -3,7 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { CheckoutForm } from "@/components/storefront/checkout-form";
+import {
+  CheckoutForm,
+  type CheckoutPickupLocation,
+} from "@/components/storefront/checkout-form";
 import type { AppliedCheckoutCoupon } from "@/components/storefront/checkout-coupon-field";
 import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { StorefrontPageHeader } from "@/components/storefront/storefront-page-header";
@@ -27,6 +30,7 @@ type CheckoutViewProps = {
   shippingCost: number;
   allowPickup: boolean;
   pickupOnly?: boolean;
+  pickupLocation?: CheckoutPickupLocation | null;
   storeName: string;
   couponsEnabled?: boolean;
   dynamicShippingEnabled?: boolean;
@@ -41,6 +45,7 @@ export function CheckoutView({
   shippingCost,
   allowPickup,
   pickupOnly = false,
+  pickupLocation = null,
   storeName,
   couponsEnabled = false,
   dynamicShippingEnabled = false,
@@ -108,6 +113,7 @@ export function CheckoutView({
             shippingCost={shippingCost}
             allowPickup={allowPickup}
             pickupOnly={pickupOnly}
+            pickupLocation={pickupLocation}
             storeName={storeName}
             showSummary={false}
             defaultCustomer={defaultCustomer}

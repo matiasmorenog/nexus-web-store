@@ -90,6 +90,12 @@ model Store {
   primaryColor     String   @default("#171717")
   secondaryColor   String   @default("#f5f5f5")
   allowPickup      Boolean  @default(true)
+  /** Dirección del local para retiro (mostrada en checkout). */
+  pickupAddress    String?
+  pickupCity       String?
+  pickupZip        String?
+  /** Horario / indicaciones opcionales. */
+  pickupNotes      String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

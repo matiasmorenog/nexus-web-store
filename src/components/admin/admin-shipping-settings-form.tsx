@@ -520,19 +520,92 @@ export function AdminShippingSettingsForm({
         description={copy.pickupDescription}
         className="max-w-lg"
       >
-        <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            disabled={readOnly}
-            checked={settings.allowPickup}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                allowPickup: event.target.checked,
-              }))
-            }
-          />
-          {copy.allowPickup}
-        </label>
+        <div className="space-y-4">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              disabled={readOnly}
+              checked={settings.allowPickup}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  allowPickup: event.target.checked,
+                }))
+              }
+            />
+            {copy.allowPickup}
+          </label>
+
+          {settings.allowPickup ? (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label htmlFor="pickupAddress">{copy.pickupAddressLabel}</Label>
+                <Input
+                  id="pickupAddress"
+                  disabled={readOnly}
+                  value={settings.pickupAddress}
+                  onChange={(event) =>
+                    setSettings((current) => ({
+                      ...current,
+                      pickupAddress: event.target.value,
+                    }))
+                  }
+                  className="text-base sm:text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="pickupCity">{copy.pickupCityLabel}</Label>
+                <Input
+                  id="pickupCity"
+                  disabled={readOnly}
+                  value={settings.pickupCity}
+                  onChange={(event) =>
+                    setSettings((current) => ({
+                      ...current,
+                      pickupCity: event.target.value,
+                    }))
+                  }
+                  className="text-base sm:text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="pickupZip">{copy.pickupZipLabel}</Label>
+                <Input
+                  id="pickupZip"
+                  inputMode="numeric"
+                  disabled={readOnly}
+                  value={settings.pickupZip}
+                  onChange={(event) =>
+                    setSettings((current) => ({
+                      ...current,
+                      pickupZip: event.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 8),
+                    }))
+                  }
+                  className="text-base sm:text-sm"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="pickupNotes">{copy.pickupNotesLabel}</Label>
+                <Input
+                  id="pickupNotes"
+                  disabled={readOnly}
+                  value={settings.pickupNotes}
+                  onChange={(event) =>
+                    setSettings((current) => ({
+                      ...current,
+                      pickupNotes: event.target.value,
+                    }))
+                  }
+                  className="text-base sm:text-sm"
+                />
+                <p className="mt-1 text-xs text-neutral-500">
+                  {copy.pickupNotesHint}
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </AdminCard>
 
       {error ? (

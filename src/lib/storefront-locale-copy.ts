@@ -113,6 +113,7 @@ const spanish = {
   shippingOption: "Mercado Envíos",
   pickupOption: "Retiro en local",
   pickupFree: "Sin costo",
+  pickupLocationLabel: "Dirección de retiro",
   pickupReadyNotice: (store: string) =>
     `Retirás tu pedido en ${store}. Te avisamos por WhatsApp cuando esté listo.`,
   pickupOnlyNotice: (store: string) =>
@@ -253,6 +254,7 @@ const italian = {
   shippingOption: "Spedizione",
   pickupOption: "Ritiro in sede",
   pickupFree: "Senza costo",
+  pickupLocationLabel: "Indirizzo di ritiro",
   pickupReadyNotice: (store: string) =>
     `Ritiri l'ordine presso ${store}. Ti avvisiamo su WhatsApp quando è pronto.`,
   pickupOnlyNotice: (store: string) =>

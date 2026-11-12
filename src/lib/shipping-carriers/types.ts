@@ -17,9 +17,16 @@ export type StoreCarrierSettingsData = {
 
 export type MercadoEnviosTokenSource = "admin" | "mp" | "env" | "none";
 
+export type StorePickupLocation = {
+  pickupAddress: string;
+  pickupCity: string;
+  pickupZip: string;
+  pickupNotes: string;
+};
+
 export type StoreShippingSettingsData = StoreCarrierSettingsData & {
   allowPickup: boolean;
-};
+} & StorePickupLocation;
 
 export type StoreShippingSettingsAdminData = StoreShippingSettingsData & {
   mercadoEnviosConfigured: boolean;

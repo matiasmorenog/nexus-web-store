@@ -80,6 +80,10 @@ export async function getStoreShippingSettingsForAdmin(
   return {
     ...serializeCarrierSettings(row),
     allowPickup: store.allowPickup,
+    pickupAddress: store.pickupAddress?.trim() ?? "",
+    pickupCity: store.pickupCity?.trim() ?? "",
+    pickupZip: store.pickupZip?.trim() ?? "",
+    pickupNotes: store.pickupNotes?.trim() ?? "",
     mercadoEnviosConfigured: me.source !== "none",
     mercadoEnviosTokenHint: me.hint,
     mercadoEnviosSource: me.source,

@@ -22,25 +22,50 @@ function parseCrmDetailEmail(pathname: string): string | null {
   }
 }
 
-function AdminModulosHeaderInner() {
-  const pathname = usePathname();
+function CrmDetailTrail({
+  title,
+  detailEmail,
+}: {
+  title: string;
+  detailEmail: string;
+}) {
   const searchParams = useSearchParams();
-  const copy = resolveAdminModuleHeader(pathname);
+  const listHref = resolveCrmListReturnHref(searchParams.get("from"));
+  const nameParam = searchParams.get("name")?.trim();
 
+  return (
+    <AdminPageHeader
+      title={title}
+      titleHref={listHref}
+      titleCurrent={nameParam || detailEmail}
+      description={detailEmail}
+      className="mb-0"
+    />
+  );
+}
+
+/** Persistent module title — outside loading.tsx so it does not skeleton. */
+export function AdminModulosHeader() {
+  const pathname = usePathname();
+  const copy = resolveAdminModuleHeader(pathname);
   if (!copy) return null;
 
   const detailEmail = parseCrmDetailEmail(pathname);
   if (detailEmail) {
-    const listHref = resolveCrmListReturnHref(searchParams.get("from"));
-    const nameParam = searchParams.get("name")?.trim();
     return (
-      <AdminPageHeader
-        title={copy.title}
-        titleHref={listHref}
-        titleCurrent={nameParam || detailEmail}
-        description={detailEmail}
-        className="mb-0"
-      />
+      <Suspense
+        fallback={
+          <AdminPageHeader
+            title={copy.title}
+            titleHref="/admin/modulos/crm"
+            titleCurrent={detailEmail}
+            description={detailEmail}
+            className="mb-0"
+          />
+        }
+      >
+        <CrmDetailTrail title={copy.title} detailEmail={detailEmail} />
+      </Suspense>
     );
   }
 
@@ -50,19 +75,5 @@ function AdminModulosHeaderInner() {
       description={copy.description}
       className="mb-0"
     />
-  );
-}
-
-function AdminModulosHeaderFallback() {
-  // Avoid blank flash while useSearchParams resolves; title fills in immediately after.
-  return <div className="h-[4.5rem]" aria-hidden />;
-}
-
-/** Persistent module title — outside loading.tsx so it does not skeleton. */
-export function AdminModulosHeader() {
-  return (
-    <Suspense fallback={<AdminModulosHeaderFallback />}>
-      <AdminModulosHeaderInner />
-    </Suspense>
   );
 }

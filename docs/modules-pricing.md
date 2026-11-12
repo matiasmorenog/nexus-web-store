@@ -41,7 +41,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
 | Integraciones base | Emails transaccionales |
-| Usuarios | 1 usuario admin por tienda (Start); Grow hasta 3; Pro ilimitados |
+| Accesos | Start: 1 acceso admin; Grow: hasta 3 (ideal socias/equipo); Pro: ilimitados |
 
 ### Módulos por tier
 
@@ -54,7 +54,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
 | `crm` | CRM lite | | ✓ | ✓ |
-| `multiUser` | Multi-usuario | | ✓ (hasta 3 usuarios) | ✓ (ilimitados) |
+| `multiUser` | Multi-usuario | | ✓ (hasta 3 accesos) | ✓ (ilimitados) |
 | `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 

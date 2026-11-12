@@ -13,7 +13,7 @@ export const PLAN_CORE = {
     "Configuración de la tienda",
     "Checkout para tus clientes",
     "Emails transaccionales",
-    "1 usuario admin por tienda",
+    "1 acceso admin por tienda",
   ],
 } as const;
 
@@ -182,7 +182,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Emprende / Instagram → web",
     moduleIds: START_MODULE_IDS,
     maxStaffSeats: 0,
-    perks: ["Soporte por email", "1 usuario"],
+    perks: ["Soporte por email", "1 acceso admin"],
   },
   grow: {
     id: "grow",
@@ -196,7 +196,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     featured: true,
     perks: [
       "Soporte preferencial",
-      "Hasta 3 usuarios",
+      "Hasta 3 accesos (ideal para socias)",
       "Sin comisión sobre ventas",
     ],
   },
@@ -211,7 +211,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     maxStaffSeats: null,
     perks: [
       "Soporte prioritario + canal directo",
-      "Usuarios ilimitados",
+      "Accesos ilimitados al admin",
       "Sin comisión sobre ventas",
     ],
   },

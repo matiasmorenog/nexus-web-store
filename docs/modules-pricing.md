@@ -30,14 +30,16 @@ Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-
 
 ### Núcleo en todos (vender)
 
-Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
+Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro.
+
+**Highlights en admin Plan:** Mercado Pago, Checkout listo, Sin % de plataforma (el resto como chips).
 
 | Área | Funcionalidad |
 |------|---------------|
 | Dashboard | KPIs, gráficos, alertas de stock, pedidos recientes |
 | Productos | CRUD, variantes, stock, imágenes (Vercel Blob) |
 | Pedidos | Listado, filtros, cambio de estado |
-| Cobros | Mercado Pago, transferencia bancaria con 10% off en productos |
+| Cobros | **Mercado Pago** (highlight), transferencia bancaria y Stripe |
 | Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
 | Integraciones base | Emails transaccionales |

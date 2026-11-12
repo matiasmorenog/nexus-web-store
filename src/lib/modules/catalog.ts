@@ -4,16 +4,32 @@ import type { ModuleCategory, ModuleDefinition } from "@/lib/modules/types";
 export const PLAN_CORE = {
   name: "Núcleo",
   description:
-    "Dashboard, productos, pedidos, cobros, configuración, checkout y emails transaccionales.",
+    "Todo lo necesario para vender online, en Start, Grow y Pro. Sin comisión de plataforma.",
+  /** Big selling points — shown above the secondary chip list. */
+  highlights: [
+    {
+      id: "mercadopago",
+      title: "Mercado Pago",
+      description: "Cobrá con tarjeta y dinero en cuenta desde el día 1.",
+    },
+    {
+      id: "checkout",
+      title: "Checkout listo",
+      description: "Carrito, envío/retiro y pago sin armar nada a mano.",
+    },
+    {
+      id: "no-fee",
+      title: "Sin % de plataforma",
+      description: "Pagás el plan fijo. Los gateways cobran lo suyo aparte.",
+    },
+  ],
   features: [
-    "Dashboard y KPIs",
-    "Catálogo y gestión de productos",
-    "Gestión de pedidos",
-    "Cobros (Mercado Pago y transferencia)",
-    "Configuración de la tienda",
-    "Checkout para tus clientes",
-    "Emails transaccionales",
-    "1 acceso admin por tienda",
+    "Catálogo con variantes y stock",
+    "Pedidos con estados y filtros",
+    "Dashboard con KPIs",
+    "Transferencia bancaria y Stripe",
+    "Emails de pedido automáticos",
+    "Cuenta de cliente en la tienda",
   ],
 } as const;
 

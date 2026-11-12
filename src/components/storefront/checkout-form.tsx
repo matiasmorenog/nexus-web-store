@@ -66,10 +66,18 @@ function readFormField(form: HTMLFormElement, name: string) {
   return String(field.value).trim();
 }
 
+export type CheckoutPickupLocation = {
+  address: string;
+  city: string;
+  zip: string;
+  notes: string;
+};
+
 type CheckoutFormProps = {
   shippingCost: number;
   allowPickup: boolean;
   pickupOnly?: boolean;
+  pickupLocation?: CheckoutPickupLocation | null;
   storeName: string;
   showSummary?: boolean;
   couponsEnabled?: boolean;
@@ -85,10 +93,19 @@ type CheckoutFormProps = {
   };
 };
 
+function formatPickupLocation(location: CheckoutPickupLocation) {
+  const line = [location.address, location.city, location.zip]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(", ");
+  return { line, notes: location.notes.trim() };
+}
+
 export function CheckoutForm({
   shippingCost,
   allowPickup,
   pickupOnly = false,
+  pickupLocation = null,
   storeName,
   showSummary = true,
   couponsEnabled = false,
@@ -377,6 +394,21 @@ export function CheckoutForm({
           <p className="mt-1 text-neutral-600">
             {localeCopy.pickupOnlyNotice(storeName)}
           </p>
+          {pickupLocation && formatPickupLocation(pickupLocation).line ? (
+            <div className="mt-3 rounded-md border border-neutral-200 bg-white px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                {localeCopy.pickupLocationLabel}
+              </p>
+              <p className="mt-1 font-medium text-neutral-900">
+                {formatPickupLocation(pickupLocation).line}
+              </p>
+              {formatPickupLocation(pickupLocation).notes ? (
+                <p className="mt-1 text-neutral-600">
+                  {formatPickupLocation(pickupLocation).notes}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           <input type="hidden" name="deliveryMethod" value="pickup" />
         </div>
       ) : allowPickup ? (
@@ -446,6 +478,21 @@ export function CheckoutForm({
             <p className="text-sm text-neutral-600">
               {localeCopy.pickupReadyNotice(storeName)}
             </p>
+            {pickupLocation && formatPickupLocation(pickupLocation).line ? (
+              <div className="mt-3 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                  {localeCopy.pickupLocationLabel}
+                </p>
+                <p className="mt-1 font-medium text-neutral-900">
+                  {formatPickupLocation(pickupLocation).line}
+                </p>
+                {formatPickupLocation(pickupLocation).notes ? (
+                  <p className="mt-1 text-neutral-600">
+                    {formatPickupLocation(pickupLocation).notes}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </DeliverySection>
         </fieldset>
       ) : deliveryMethod === "shipping" ? (

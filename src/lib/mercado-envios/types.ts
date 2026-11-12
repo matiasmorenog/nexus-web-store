@@ -1,4 +1,5 @@
-export type MercadoEnviosCarrierId = "mercado_envios" | "correo_argentino";
+/** Mercado Envíos only — Correo/Andreani are separate ShippingCarrierId adapters. */
+export type MercadoEnviosCarrierId = "mercado_envios";
 
 export type MercadoEnviosQuote = {
   cost: number;

@@ -4,7 +4,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 
 ## Envíos
 
-- [ ] Multi-carrier: habilitar varios operadores en admin; comprador elige en checkout; aviso dashboard si ninguno activo.
+- [ ] Multi-carrier real: ME + MiCorreo + Andreani (credenciales, cotizar, crear envío, guías admin).
 
 ## Manoviva (app3)
 

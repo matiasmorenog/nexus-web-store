@@ -5,9 +5,6 @@ import {
   quoteMercadoEnviosFromApi,
 } from "@/lib/mercado-envios/api-client";
 import {
-  createMercadoEnviosShipmentDemo,
-} from "@/lib/mercado-envios";
-import {
   getMercadoEnviosTokenSource,
   resolveMercadoEnviosAccessToken,
 } from "@/lib/mercado-envios/resolve-token";
@@ -105,9 +102,10 @@ export async function createMercadoEnviosShipment({
   zip: string;
   carrierId?: MercadoEnviosCarrierId;
 }): Promise<MercadoEnviosShipment> {
-  if (getEnvMercadoEnviosDedicatedAccessToken()) {
-    throw new Error("Mercado Envíos real aún no está implementado para crear envíos");
-  }
-
-  return createMercadoEnviosShipmentDemo({ orderId, zip, carrierId });
+  void orderId;
+  void zip;
+  void carrierId;
+  throw new Error(
+    "Crear guía automática vía Mercado Envíos requiere logística ML activa. Cotización sí funciona con el token; generá el envío en Mercado Libre o usá Correo/Andreani con API propia.",
+  );
 }

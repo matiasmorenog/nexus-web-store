@@ -17,7 +17,10 @@ import {
   getMercadoPagoTokenSource,
   isMercadoPagoAdminConfigured,
 } from "@/lib/payments/resolve-token";
-import { getStoreShippingSettings } from "@/lib/shipping-carriers/query";
+import {
+  getStoreShippingSettings,
+  isCarrierShippingEnabled,
+} from "@/lib/shipping-carriers/query";
 
 export type {
   ActivityPeriod,
@@ -370,9 +373,13 @@ async function fetchAdminDashboardAttention(storeId: string) {
   const shippingSettings = shippingCarriersEnabled
     ? await getStoreShippingSettings(storeId)
     : null;
+  const hasLiveCarrier =
+    shippingCarriersEnabled && shippingSettings?.carriersEnabled
+      ? await isCarrierShippingEnabled(storeId)
+      : true;
   const noCarrierConfigured =
     Boolean(shippingSettings?.carriersEnabled) &&
-    (shippingSettings?.enabledCarrierIds.length ?? 0) === 0;
+    ((shippingSettings?.enabledCarrierIds.length ?? 0) === 0 || !hasLiveCarrier);
 
   return {
     paidAwaitingShipment,

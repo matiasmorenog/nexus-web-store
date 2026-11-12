@@ -13,7 +13,7 @@ export const PLAN_CORE = {
     "Configuración de la tienda",
     "Checkout para tus clientes",
     "Emails transaccionales",
-    "1 owner por tienda",
+    "1 acceso admin por tienda",
   ],
 } as const;
 
@@ -152,6 +152,10 @@ export type PlanTierDefinition = {
   moduleIds: readonly ModuleId[];
   /** Límite de staff adicionales (owner no cuenta). null = alto / ilimitado. */
   maxStaffSeats: number | null;
+  /** Human perks shown above module list (support, seats framing, etc.). */
+  perks: readonly string[];
+  /** Marketing highlight — e.g. “Más popular” on Grow. */
+  featured?: boolean;
 };
 
 export const MODULE_IDS = MODULE_LIST.map((m) => m.id) as ModuleId[];
@@ -178,26 +182,38 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Emprende / Instagram → web",
     moduleIds: START_MODULE_IDS,
     maxStaffSeats: 0,
+    perks: ["Soporte por email", "1 acceso admin"],
   },
   grow: {
     id: "grow",
     name: "Grow",
-    monthlyPriceUsd: 59,
-    annualMonthlyUsd: 47,
+    monthlyPriceUsd: 79,
+    annualMonthlyUsd: 63,
     description: "Promos, home, envíos, CRM y equipo chico.",
     target: "Marca que ya vende",
     moduleIds: GROW_MODULE_IDS,
     maxStaffSeats: 2,
+    featured: true,
+    perks: [
+      "Soporte preferencial",
+      "Hasta 3 accesos",
+      "Sin comisión sobre ventas",
+    ],
   },
   pro: {
     id: "pro",
     name: "Pro",
-    monthlyPriceUsd: 99,
-    annualMonthlyUsd: 79,
+    monthlyPriceUsd: 129,
+    annualMonthlyUsd: 103,
     description: "Analytics, API y operación con más usuarios.",
     target: "Equipo + integraciones",
     moduleIds: PRO_MODULE_IDS,
     maxStaffSeats: null,
+    perks: [
+      "Soporte prioritario + canal directo",
+      "Accesos ilimitados al admin",
+      "Sin comisión sobre ventas",
+    ],
   },
 };
 

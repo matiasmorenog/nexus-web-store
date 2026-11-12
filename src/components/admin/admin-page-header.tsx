@@ -50,7 +50,7 @@ export function AdminPageHeader({
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
       {description ? (
-        <p className={cn("mt-2 max-w-2xl text-sm text-neutral-500")}>
+        <p className="mt-2 max-w-3xl text-pretty text-sm text-neutral-500">
           {description}
         </p>
       ) : null}

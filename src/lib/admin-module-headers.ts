@@ -17,7 +17,7 @@ const MODULE_HEADERS: Record<string, AdminModuleHeaderCopy> = {
   "/admin/modulos/coupons": {
     title: "Cupones y promociones",
     description:
-      "Códigos de descuento para el checkout. El descuento se aplica sobre el subtotal después de promos 2x1.",
+      "Códigos de descuento en checkout (sobre el subtotal, después de la promo 2x1).",
   },
   "/admin/modulos/trafico": {
     title: "Tráfico",

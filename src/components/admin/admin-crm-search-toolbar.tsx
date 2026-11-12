@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Plus, Trash2 } from "lucide-react";
+import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
+import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +41,8 @@ const SORT_OPTIONS: { value: CrmListSort; label: string }[] = [
   { value: "totalSpent", label: "Mayor gasto" },
   { value: "orderCount", label: "Más pedidos" },
 ];
+
+const fieldLabelClass = "mb-1.5 block text-sm text-neutral-600";
 
 export function AdminCrmSearchToolbar({
   className,
@@ -172,7 +176,7 @@ export function AdminCrmSearchToolbar({
   const filtersActive = crmFiltersAreActive(filters) || Boolean(activeSegmentId);
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-3", className)}>
       {segments.length > 0 ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">
@@ -181,15 +185,15 @@ export function AdminCrmSearchToolbar({
           {segments.map((segment) => {
             const active = activeSegmentId === segment.id;
             return (
-              <div key={segment.id} className="flex items-center gap-1">
+              <div key={segment.id} className="flex items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => applyFilters(segment.filters, segment.id)}
                   className={cn(
-                    "rounded-full border px-3 py-1 text-sm transition-colors",
+                    "rounded-md border px-2.5 py-1 text-sm transition-colors",
                     active
-                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
-                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
+                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)]"
+                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50",
                   )}
                 >
                   {segment.name}
@@ -199,7 +203,7 @@ export function AdminCrmSearchToolbar({
                     type="button"
                     onClick={() => deleteSegment(segment.id)}
                     disabled={deletingId === segment.id}
-                    className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-red-600 disabled:opacity-50"
+                    className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-red-600 disabled:opacity-50"
                     aria-label={`Eliminar segmento ${segment.name}`}
                   >
                     <Trash2 className="size-3.5" />
@@ -211,136 +215,141 @@ export function AdminCrmSearchToolbar({
         </div>
       ) : null}
 
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmitFilters();
-        }}
-        className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end"
-      >
-        <div className="min-w-[220px] flex-1">
-          <AdminSearchField
-            bare
-            value={query}
-            onChange={setQuery}
-            onClear={() => setQuery("")}
-            placeholder="Nombre, email o teléfono"
-            ariaLabel="Buscar cliente"
-          />
-        </div>
+      <div className={cn(adminSurfaceClass, "p-4")}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmitFilters();
+          }}
+          className="space-y-4"
+        >
+          <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+            <div className="min-w-[220px] flex-1">
+              <Label htmlFor="crm-search" className={fieldLabelClass}>
+                Buscar
+              </Label>
+              <AdminSearchField
+                bare
+                id="crm-search"
+                value={query}
+                onChange={setQuery}
+                onClear={() => setQuery("")}
+                placeholder="Nombre, email o teléfono"
+                ariaLabel="Buscar cliente"
+              />
+            </div>
 
-        <div className="w-full sm:w-44">
-          <Label htmlFor="crm-tag" className="mb-1.5 block text-sm text-neutral-600">
-            Tag
-          </Label>
-          <select
-            id="crm-tag"
-            value={tag}
-            onChange={(event) => setTag(event.target.value)}
-            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
-          >
-            <option value="">Todos</option>
-            {tags.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="w-full sm:w-40">
+              <Label htmlFor="crm-tag" className={fieldLabelClass}>
+                Tag
+              </Label>
+              <AdminSelect
+                id="crm-tag"
+                value={tag}
+                onChange={(event) => setTag(event.target.value)}
+              >
+                <option value="">Todos</option>
+                {tags.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </AdminSelect>
+            </div>
 
-        <div className="w-full sm:w-40">
-          <Label
-            htmlFor="crm-inactive"
-            className="mb-1.5 block text-sm text-neutral-600"
-          >
-            Sin comprar
-          </Label>
-          <select
-            id="crm-inactive"
-            value={inactiveDays}
-            onChange={(event) => setInactiveDays(event.target.value)}
-            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
-          >
-            {INACTIVE_OPTIONS.map((option) => (
-              <option key={option.value || "any"} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="w-full sm:w-40">
+              <Label htmlFor="crm-inactive" className={fieldLabelClass}>
+                Sin comprar
+              </Label>
+              <AdminSelect
+                id="crm-inactive"
+                value={inactiveDays}
+                onChange={(event) => setInactiveDays(event.target.value)}
+              >
+                {INACTIVE_OPTIONS.map((option) => (
+                  <option key={option.value || "any"} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </AdminSelect>
+            </div>
 
-        <div className="w-full sm:w-44">
-          <Label htmlFor="crm-sort" className="mb-1.5 block text-sm text-neutral-600">
-            Orden
-          </Label>
-          <select
-            id="crm-sort"
-            value={sort}
-            onChange={(event) => setSort(event.target.value as CrmListSort)}
-            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="w-full sm:w-44">
+              <Label htmlFor="crm-sort" className={fieldLabelClass}>
+                Orden
+              </Label>
+              <AdminSelect
+                id="crm-sort"
+                value={sort}
+                onChange={(event) => setSort(event.target.value as CrmListSort)}
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </AdminSelect>
+            </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="submit" size="sm" variant="secondary">
-            Aplicar filtro
-          </Button>
-          {filtersActive ? (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
-            >
-              Limpiar filtros
-            </button>
-          ) : null}
-          <a
-            href={exportHref()}
-            className="inline-flex h-8 items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white px-3 text-sm text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50"
-          >
-            <Download className="mr-1.5 size-4" />
-            CSV
-          </a>
-        </div>
-      </form>
-
-      {canManage ? (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="min-w-[200px] flex-1">
-            <Label
-              htmlFor="crm-segment-name"
-              className="mb-1.5 block text-sm text-neutral-600"
-            >
-              Guardar segmento
-            </Label>
-            <Input
-              id="crm-segment-name"
-              value={segmentName}
-              onChange={(event) => setSegmentName(event.target.value)}
-              placeholder="Ej. VIP, recuperar"
-              maxLength={48}
-            />
+            <div className="flex flex-wrap items-center gap-2 pb-0.5">
+              <Button type="submit" size="sm" variant="secondary">
+                Aplicar filtro
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  window.location.href = exportHref();
+                }}
+              >
+                <Download className="mr-1.5 size-4" />
+                CSV
+              </Button>
+              {filtersActive ? (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+                >
+                  Limpiar
+                </button>
+              ) : null}
+            </div>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={savingSegment}
-            onClick={() => void saveSegment()}
-          >
-            <Plus className="mr-1.5 size-4" />
-            {savingSegment ? "Guardando…" : "Guardar"}
-          </Button>
-        </div>
-      ) : null}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {canManage ? (
+            <div className="border-t border-neutral-100 pt-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div className="min-w-0 flex-1 sm:max-w-sm">
+                  <Label htmlFor="crm-segment-name" className={fieldLabelClass}>
+                    Guardar segmento
+                  </Label>
+                  <Input
+                    id="crm-segment-name"
+                    value={segmentName}
+                    onChange={(event) => setSegmentName(event.target.value)}
+                    placeholder="Ej. VIP, recuperar"
+                    maxLength={48}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={savingSegment}
+                  onClick={() => void saveSegment()}
+                >
+                  <Plus className="mr-1.5 size-4" />
+                  {savingSegment ? "Guardando…" : "Guardar"}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </form>
+
+        {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+      </div>
     </div>
   );
 }

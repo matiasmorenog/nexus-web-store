@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { AdminSetupGuide } from "@/components/admin/admin-setup-guide";
+import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
+import { getMarketingAdminCopy } from "@/lib/marketing/marketing-admin-copy";
 import type { StoreMarketingSettingsData } from "@/lib/marketing";
 
 type AdminMarketingSettingsFormProps = {
@@ -22,6 +25,9 @@ export function AdminMarketingSettingsForm({
   initialSettings,
 }: AdminMarketingSettingsFormProps) {
   const router = useRouter();
+  const pixelGuide = getMarketingAdminCopy(
+    readAdminLocaleFromDocument(),
+  ).metaPixel;
   const [settings, setSettings] = useState(initialSettings);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,19 +135,29 @@ export function AdminMarketingSettingsForm({
           />
           Activar Meta Pixel
         </label>
-        <div>
-          <Label htmlFor="meta-pixel-id">Pixel ID</Label>
-          <Input
-            id="meta-pixel-id"
-            placeholder="123456789012345"
-            value={settings.metaPixelId ?? ""}
-            disabled={!settings.metaPixelEnabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                metaPixelId: event.target.value,
-              }))
-            }
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="meta-pixel-id">Pixel ID</Label>
+            <Input
+              id="meta-pixel-id"
+              placeholder="123456789012345"
+              value={settings.metaPixelId ?? ""}
+              disabled={!settings.metaPixelEnabled}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  metaPixelId: event.target.value,
+                }))
+              }
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              Solo números, sin espacios (ej. 123456789012345).
+            </p>
+          </div>
+          <AdminSetupGuide
+            toggleLabel={pixelGuide.guideToggle}
+            intro={pixelGuide.guideIntro}
+            steps={pixelGuide.guideSteps}
           />
         </div>
       </AdminCard>

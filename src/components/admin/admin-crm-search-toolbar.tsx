@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Download, Plus, Trash2 } from "lucide-react";
-import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import {
   buildCrmListHref,
   crmFiltersAreActive,
@@ -243,52 +243,45 @@ export function AdminCrmSearchToolbar({
               <Label htmlFor="crm-tag" className={fieldLabelClass}>
                 Tag
               </Label>
-              <AdminSelect
+              <MenuSelect
                 id="crm-tag"
+                aria-label="Filtrar por tag"
                 value={tag}
-                onChange={(event) => setTag(event.target.value)}
-              >
-                <option value="">Todos</option>
-                {tags.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </AdminSelect>
+                onChange={setTag}
+                options={[
+                  { value: "", label: "Todos" },
+                  ...tags.map((item) => ({ value: item, label: item })),
+                ]}
+              />
             </div>
 
             <div className="w-full sm:w-40">
               <Label htmlFor="crm-inactive" className={fieldLabelClass}>
                 Sin comprar
               </Label>
-              <AdminSelect
+              <MenuSelect
                 id="crm-inactive"
+                aria-label="Sin comprar desde"
                 value={inactiveDays}
-                onChange={(event) => setInactiveDays(event.target.value)}
-              >
-                {INACTIVE_OPTIONS.map((option) => (
-                  <option key={option.value || "any"} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </AdminSelect>
+                onChange={setInactiveDays}
+                options={INACTIVE_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: option.label,
+                }))}
+              />
             </div>
 
             <div className="w-full sm:w-44">
               <Label htmlFor="crm-sort" className={fieldLabelClass}>
                 Orden
               </Label>
-              <AdminSelect
+              <MenuSelect
                 id="crm-sort"
+                aria-label="Ordenar clientes"
                 value={sort}
-                onChange={(event) => setSort(event.target.value as CrmListSort)}
-              >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </AdminSelect>
+                onChange={(next) => setSort(next as CrmListSort)}
+                options={SORT_OPTIONS}
+              />
             </div>
 
             <div className="flex flex-wrap items-center gap-2 pb-0.5">

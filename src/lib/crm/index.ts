@@ -11,6 +11,7 @@ export {
   buildCrmCustomerHref,
   normalizeCustomerEmail,
   parseCustomerTags,
+  resolveCrmListReturnHref,
 } from "@/lib/crm/format";
 export type {
   CrmCustomerDetail,

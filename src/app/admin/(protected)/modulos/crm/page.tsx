@@ -7,7 +7,7 @@ import {
   adminCanManageModule,
   requireAdminModuleView,
 } from "@/lib/admin-session";
-import { parseCrmListFilters } from "@/lib/crm/filters";
+import { buildCrmListHref, parseCrmListFilters } from "@/lib/crm/filters";
 import {
   getCrmStoreStats,
   listCrmCustomers,
@@ -58,6 +58,8 @@ export default async function AdminCrmPage({
     listCrmSegments(session.user.storeId),
   ]);
 
+  const listHref = buildCrmListHref(filters, segment?.id ?? null);
+
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
@@ -82,7 +84,7 @@ export default async function AdminCrmPage({
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={3}>
-        <AdminCrmCustomersList customers={customers} />
+        <AdminCrmCustomersList customers={customers} listHref={listHref} />
       </AdminDashboardReveal>
     </div>
   );

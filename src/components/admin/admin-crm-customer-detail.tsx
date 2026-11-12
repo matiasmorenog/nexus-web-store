@@ -24,6 +24,8 @@ import { formatPrice } from "@/lib/utils";
 type AdminCrmCustomerDetailProps = {
   customer: CrmCustomerDetail;
   readOnly?: boolean;
+  /** CRM list URL to restore filters when going back via breadcrumb. */
+  listHref?: string;
 };
 
 function formatDate(value: string | null) {
@@ -37,6 +39,7 @@ function formatDate(value: string | null) {
 export function AdminCrmCustomerDetail({
   customer,
   readOnly = false,
+  listHref = "/admin/modulos/crm",
 }: AdminCrmCustomerDetailProps) {
   const whatsappReady =
     customer.phone !== "—" && isValidWhatsAppPhone(customer.phone);
@@ -51,7 +54,7 @@ export function AdminCrmCustomerDetail({
     <div className="space-y-6">
       <AdminBreadcrumb
         items={[
-          { label: "CRM", href: "/admin/modulos/crm" },
+          { label: "CRM", href: listHref },
           { label: customer.name },
         ]}
       />

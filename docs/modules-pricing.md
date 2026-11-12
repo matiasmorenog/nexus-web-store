@@ -41,7 +41,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
 | Integraciones base | Emails transaccionales |
-| Accesos | Start: 1 acceso admin; Grow: hasta 3 (ideal socias/equipo); Pro: ilimitados |
+| Accesos | Start: 1 acceso admin; Grow: hasta 3; Pro: ilimitados |
 
 ### Módulos por tier
 

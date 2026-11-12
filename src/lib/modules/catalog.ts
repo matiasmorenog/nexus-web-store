@@ -196,7 +196,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     featured: true,
     perks: [
       "Soporte preferencial",
-      "Hasta 3 accesos (ideal para socias)",
+      "Hasta 3 accesos",
       "Sin comisión sobre ventas",
     ],
   },

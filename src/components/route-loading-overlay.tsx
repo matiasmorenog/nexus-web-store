@@ -17,6 +17,11 @@ function isSameRoute(
   return current === next;
 }
 
+/** Full-viewport blur covers the admin sidebar — admin pages already use local skeletons. */
+function isAdminToAdminNavigation(fromPath: string, toPath: string): boolean {
+  return fromPath.startsWith("/admin") && toPath.startsWith("/admin");
+}
+
 function shouldStartNavigation(
   event: MouseEvent,
   anchor: HTMLAnchorElement,
@@ -48,6 +53,7 @@ function shouldStartNavigation(
 
   if (url.origin !== window.location.origin) return false;
   if (isSameRoute(pathname, search, url)) return false;
+  if (isAdminToAdminNavigation(pathname, url.pathname)) return false;
 
   return true;
 }
@@ -84,7 +90,11 @@ export function RouteLoadingOverlay() {
       scheduleShow();
     };
 
-    const onPopState = () => scheduleShow();
+    const onPopState = () => {
+      // Browser back/forward inside admin: no full-shell blur (sidebar stays sharp).
+      if (pathname.startsWith("/admin")) return;
+      scheduleShow();
+    };
 
     document.addEventListener("click", onClick, true);
     window.addEventListener("popstate", onPopState);

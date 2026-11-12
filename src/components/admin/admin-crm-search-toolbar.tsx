@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Download, Plus, Trash2 } from "lucide-react";
+import { Download, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
@@ -27,6 +26,10 @@ type AdminCrmSearchToolbarProps = {
   segments: CrmSegment[];
   activeSegmentId?: string | null;
   canManage?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+  /** After create/delete segment — parent should drop list cache and reload. */
+  onSegmentsMutated?: () => void;
 };
 
 const INACTIVE_OPTIONS = [
@@ -51,9 +54,11 @@ export function AdminCrmSearchToolbar({
   segments,
   activeSegmentId = null,
   canManage = false,
+  refreshing = false,
+  onRefresh,
+  onSegmentsMutated,
 }: AdminCrmSearchToolbarProps) {
   const navigate = useAdminListNavigation();
-  const router = useRouter();
   const [query, setQuery] = useState(filters.q ?? "");
   const [tag, setTag] = useState(filters.tag ?? "");
   const [inactiveDays, setInactiveDays] = useState(
@@ -140,7 +145,7 @@ export function AdminCrmSearchToolbar({
         throw new Error(data.error || "No se pudo guardar el segmento.");
       }
       setSegmentName("");
-      router.refresh();
+      onSegmentsMutated?.();
       if (data.segment) {
         applyFilters(data.segment.filters, data.segment.id);
       }
@@ -162,7 +167,7 @@ export function AdminCrmSearchToolbar({
       if (!response.ok) {
         throw new Error(data.error || "No se pudo eliminar.");
       }
-      router.refresh();
+      onSegmentsMutated?.();
       if (activeSegmentId === id) {
         applyFilters(filters, null);
       }
@@ -292,6 +297,23 @@ export function AdminCrmSearchToolbar({
               >
                 Aplicar filtro
               </Button>
+              {onRefresh ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 shrink-0 rounded-md px-4"
+                  disabled={refreshing}
+                  onClick={onRefresh}
+                >
+                  <RefreshCw
+                    className={cn(
+                      "mr-1.5 size-4",
+                      refreshing && "animate-spin",
+                    )}
+                  />
+                  {refreshing ? "Actualizando…" : "Actualizar"}
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"

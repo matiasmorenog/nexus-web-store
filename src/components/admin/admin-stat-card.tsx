@@ -6,6 +6,7 @@ import {
   Package,
   ShoppingCart,
   TrendingUp,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
@@ -16,19 +17,21 @@ export type AdminStatCardIcon =
   | "package"
   | "shopping-cart"
   | "dollar-sign"
-  | "trending-up";
+  | "trending-up"
+  | "users";
 
 const statIcons: Record<AdminStatCardIcon, LucideIcon> = {
   package: Package,
   "shopping-cart": ShoppingCart,
   "dollar-sign": DollarSign,
   "trending-up": TrendingUp,
+  users: Users,
 };
 
 type AdminStatCardProps = {
   label: string;
   value: number;
-  format?: "number" | "currency";
+  format?: "number" | "currency" | "percent";
   icon: AdminStatCardIcon;
   accent?: "brand" | "blue" | "green" | "amber";
   delay?: number;
@@ -49,10 +52,13 @@ const accentGlowStyles = {
   amber: "admin-stat-glow-amber",
 };
 
-function formatStatValue(value: number, format: "number" | "currency") {
-  return format === "currency"
-    ? formatPrice(value)
-    : value.toLocaleString("es-AR");
+function formatStatValue(
+  value: number,
+  format: "number" | "currency" | "percent",
+) {
+  if (format === "currency") return formatPrice(value);
+  if (format === "percent") return `${Math.round(value).toLocaleString("es-AR")}%`;
+  return value.toLocaleString("es-AR");
 }
 
 export function AdminStatCard({

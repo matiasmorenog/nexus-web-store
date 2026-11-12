@@ -62,13 +62,13 @@ const MODULE_LIST = [
   },
   {
     id: "crm",
-    name: "CRM lite",
+    name: "CRM",
     description:
-      "Ficha de clientes, historial de compras, tags y notas internas.",
+      "Clientes, LTV, recompra, tags, segmentos, WhatsApp y export CSV.",
     monthlyPriceUsd: 0,
     includedInPlans: ["grow", "pro"],
     category: "operations",
-    adminRoutes: ["/admin/clientes"],
+    adminRoutes: ["/admin/modulos/crm"],
   },
   {
     id: "shippingCarriers",

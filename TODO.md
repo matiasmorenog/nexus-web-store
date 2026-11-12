@@ -34,6 +34,10 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 - [ ] Onboarding de tiendas sin desarrollador + billing automático por tier (`docs/modules-pricing.md`).
 - [ ] Subida de logo por tienda desde el admin (hoy el logo vive en código; recién hace falta con el onboarding).
 
+## Admin / módulos
+
+- [x] CRM full: KPIs, filtros, segmentos, WhatsApp ficha, export CSV (dejar de ser “lite”).
+
 ## Hecho (referencia)
 
 - Fase A/B: storefront, admin, checkout MP, multi-tienda (3 deploys), módulos Plus, categorías dinámicas, CI lint + typecheck con branch protection.

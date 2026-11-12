@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminCrmCustomerProfileForm } from "@/components/admin/admin-crm-customer-profile-form";
 import {
@@ -15,6 +15,10 @@ import {
 } from "@/components/admin/admin-surface";
 import { buildAdminOrderHref } from "@/lib/admin-analytics-shared";
 import type { CrmCustomerDetail } from "@/lib/crm";
+import {
+  buildWhatsAppUrl,
+  isValidWhatsAppPhone,
+} from "@/lib/marketing/format";
 import { formatPrice } from "@/lib/utils";
 
 type AdminCrmCustomerDetailProps = {
@@ -34,6 +38,15 @@ export function AdminCrmCustomerDetail({
   customer,
   readOnly = false,
 }: AdminCrmCustomerDetailProps) {
+  const whatsappReady =
+    customer.phone !== "—" && isValidWhatsAppPhone(customer.phone);
+  const whatsappHref = whatsappReady
+    ? buildWhatsAppUrl(
+        customer.phone,
+        `Hola ${customer.name.split(" ")[0] || ""}, te escribimos de la tienda.`,
+      )
+    : null;
+
   return (
     <div className="space-y-6">
       <div>
@@ -49,13 +62,26 @@ export function AdminCrmCustomerDetail({
           title={customer.name}
           description={customer.email}
           action={
-            customer.profile.tags.length > 0 ? (
-              <div className="flex flex-wrap justify-end gap-1">
-                {customer.profile.tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
-                ))}
-              </div>
-            ) : null
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-[var(--ui-button-radius,0.5rem)] border border-emerald-200 bg-emerald-50 px-3 text-sm font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
+                >
+                  <MessageCircle className="size-4" />
+                  WhatsApp
+                </a>
+              ) : null}
+              {customer.profile.tags.length > 0 ? (
+                <div className="flex flex-wrap justify-end gap-1">
+                  {customer.profile.tags.map((tag) => (
+                    <Badge key={tag}>{tag}</Badge>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           }
         >
           <AdminCardSection>

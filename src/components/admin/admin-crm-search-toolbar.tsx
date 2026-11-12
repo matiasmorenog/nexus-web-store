@@ -1,58 +1,346 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Download, Plus, Trash2 } from "lucide-react";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  buildCrmListHref,
+  crmFiltersAreActive,
+  crmFiltersToSearchParams,
+  type CrmListFilters,
+  type CrmListSort,
+  type CrmSegment,
+} from "@/lib/crm";
 import { cn } from "@/lib/utils";
 
 type AdminCrmSearchToolbarProps = {
   className?: string;
-  query?: string;
+  filters: CrmListFilters;
+  tags: string[];
+  segments: CrmSegment[];
+  activeSegmentId?: string | null;
+  canManage?: boolean;
 };
 
-function readSearchParams() {
-  return new URLSearchParams(
-    typeof window !== "undefined" ? window.location.search : "",
-  );
-}
+const INACTIVE_OPTIONS = [
+  { value: "", label: "Cualquiera" },
+  { value: "30", label: "30+ días" },
+  { value: "60", label: "60+ días" },
+  { value: "90", label: "90+ días" },
+] as const;
+
+const SORT_OPTIONS: { value: CrmListSort; label: string }[] = [
+  { value: "lastOrder", label: "Última compra" },
+  { value: "totalSpent", label: "Mayor gasto" },
+  { value: "orderCount", label: "Más pedidos" },
+];
 
 export function AdminCrmSearchToolbar({
   className,
-  query: queryProp = "",
+  filters,
+  tags,
+  segments,
+  activeSegmentId = null,
+  canManage = false,
 }: AdminCrmSearchToolbarProps) {
   const navigate = useAdminListNavigation();
-  const [query, setQuery] = useState(queryProp);
-  const [prevQueryProp, setPrevQueryProp] = useState(queryProp);
+  const router = useRouter();
+  const [query, setQuery] = useState(filters.q ?? "");
+  const [tag, setTag] = useState(filters.tag ?? "");
+  const [inactiveDays, setInactiveDays] = useState(
+    filters.inactiveDays ? String(filters.inactiveDays) : "",
+  );
+  const [sort, setSort] = useState<CrmListSort>(filters.sort ?? "lastOrder");
+  const [segmentName, setSegmentName] = useState("");
+  const [savingSegment, setSavingSegment] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (queryProp !== prevQueryProp) {
-    setPrevQueryProp(queryProp);
-    setQuery(queryProp);
+  const [prevFilters, setPrevFilters] = useState(filters);
+  if (filters !== prevFilters) {
+    setPrevFilters(filters);
+    setQuery(filters.q ?? "");
+    setTag(filters.tag ?? "");
+    setInactiveDays(filters.inactiveDays ? String(filters.inactiveDays) : "");
+    setSort(filters.sort ?? "lastOrder");
   }
 
-  const applyQuery = (value: string) => {
-    const params = readSearchParams();
-    const trimmed = value.trim();
-
-    if (trimmed) params.set("q", trimmed);
-    else params.delete("q");
-
-    const search = params.toString();
-    navigate(search ? `/admin/modulos/crm?${search}` : "/admin/modulos/crm");
+  const currentFilters = (): CrmListFilters => {
+    const next: CrmListFilters = {};
+    const trimmedQ = query.trim();
+    const trimmedTag = tag.trim();
+    if (trimmedQ) next.q = trimmedQ;
+    if (trimmedTag) next.tag = trimmedTag;
+    if (inactiveDays) {
+      const days = Number.parseInt(inactiveDays, 10);
+      if (Number.isFinite(days) && days > 0) next.inactiveDays = days;
+    }
+    if (sort && sort !== "lastOrder") next.sort = sort;
+    return next;
   };
 
+  const applyFilters = (next: CrmListFilters, segmentId?: string | null) => {
+    navigate(buildCrmListHref(next, segmentId));
+  };
+
+  const onSubmitFilters = () => {
+    setError(null);
+    applyFilters(currentFilters(), null);
+  };
+
+  const clearFilters = () => {
+    setQuery("");
+    setTag("");
+    setInactiveDays("");
+    setSort("lastOrder");
+    setError(null);
+    navigate("/admin/modulos/crm");
+  };
+
+  const exportHref = () => {
+    const params = crmFiltersToSearchParams(filters);
+    const search = params.toString();
+    return search
+      ? `/api/admin/crm/export?${search}`
+      : "/api/admin/crm/export";
+  };
+
+  const saveSegment = async () => {
+    const name = segmentName.trim();
+    if (!name) {
+      setError("Poné un nombre para el segmento.");
+      return;
+    }
+
+    setSavingSegment(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/crm/segments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          filters: currentFilters(),
+        }),
+      });
+      const data = (await response.json()) as {
+        error?: string;
+        segment?: CrmSegment;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo guardar el segmento.");
+      }
+      setSegmentName("");
+      router.refresh();
+      if (data.segment) {
+        applyFilters(data.segment.filters, data.segment.id);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al guardar.");
+    } finally {
+      setSavingSegment(false);
+    }
+  };
+
+  const deleteSegment = async (id: string) => {
+    setDeletingId(id);
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/crm/segments/${id}`, {
+        method: "DELETE",
+      });
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo eliminar.");
+      }
+      router.refresh();
+      if (activeSegmentId === id) {
+        applyFilters(filters, null);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al eliminar.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const filtersActive = crmFiltersAreActive(filters) || Boolean(activeSegmentId);
+
   return (
-    <div className={cn(className)}>
-      <AdminSearchField
-        value={query}
-        onChange={setQuery}
-        onClear={() => {
-          setQuery("");
-          applyQuery("");
+    <div className={cn("space-y-4", className)}>
+      {segments.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+            Segmentos
+          </span>
+          {segments.map((segment) => {
+            const active = activeSegmentId === segment.id;
+            return (
+              <div key={segment.id} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => applyFilters(segment.filters, segment.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-sm transition-colors",
+                    active
+                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] text-[var(--brand-primary)]"
+                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
+                  )}
+                >
+                  {segment.name}
+                </button>
+                {canManage ? (
+                  <button
+                    type="button"
+                    onClick={() => deleteSegment(segment.id)}
+                    disabled={deletingId === segment.id}
+                    className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-red-600 disabled:opacity-50"
+                    aria-label={`Eliminar segmento ${segment.name}`}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSubmitFilters();
         }}
-        onSubmit={() => applyQuery(query)}
-        placeholder="Nombre, email o teléfono"
-        ariaLabel="Buscar cliente"
-      />
+        className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end"
+      >
+        <div className="min-w-[220px] flex-1">
+          <AdminSearchField
+            bare
+            value={query}
+            onChange={setQuery}
+            onClear={() => setQuery("")}
+            placeholder="Nombre, email o teléfono"
+            ariaLabel="Buscar cliente"
+          />
+        </div>
+
+        <div className="w-full sm:w-44">
+          <Label htmlFor="crm-tag" className="mb-1.5 block text-sm text-neutral-600">
+            Tag
+          </Label>
+          <select
+            id="crm-tag"
+            value={tag}
+            onChange={(event) => setTag(event.target.value)}
+            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
+          >
+            <option value="">Todos</option>
+            {tags.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-40">
+          <Label
+            htmlFor="crm-inactive"
+            className="mb-1.5 block text-sm text-neutral-600"
+          >
+            Sin comprar
+          </Label>
+          <select
+            id="crm-inactive"
+            value={inactiveDays}
+            onChange={(event) => setInactiveDays(event.target.value)}
+            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
+          >
+            {INACTIVE_OPTIONS.map((option) => (
+              <option key={option.value || "any"} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-44">
+          <Label htmlFor="crm-sort" className="mb-1.5 block text-sm text-neutral-600">
+            Orden
+          </Label>
+          <select
+            id="crm-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value as CrmListSort)}
+            className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm text-neutral-900"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="submit" size="sm" variant="secondary">
+            Aplicar filtro
+          </Button>
+          {filtersActive ? (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+            >
+              Limpiar filtros
+            </button>
+          ) : null}
+          <a
+            href={exportHref()}
+            className="inline-flex h-8 items-center justify-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white px-3 text-sm text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50"
+          >
+            <Download className="mr-1.5 size-4" />
+            CSV
+          </a>
+        </div>
+      </form>
+
+      {canManage ? (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <div className="min-w-[200px] flex-1">
+            <Label
+              htmlFor="crm-segment-name"
+              className="mb-1.5 block text-sm text-neutral-600"
+            >
+              Guardar segmento
+            </Label>
+            <Input
+              id="crm-segment-name"
+              value={segmentName}
+              onChange={(event) => setSegmentName(event.target.value)}
+              placeholder="Ej. VIP, recuperar"
+              maxLength={48}
+            />
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={savingSegment}
+            onClick={() => void saveSegment()}
+          >
+            <Plus className="mr-1.5 size-4" />
+            {savingSegment ? "Guardando…" : "Guardar"}
+          </Button>
+        </div>
+      ) : null}
+
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </div>
   );
 }

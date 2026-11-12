@@ -37,7 +37,11 @@ export function AdminCrmCustomersList({ customers }: AdminCrmCustomersListProps)
   }
 
   return (
-    <AdminCard padding={false} title="Clientes" description="Ordenados por última compra.">
+    <AdminCard
+      padding={false}
+      title="Clientes"
+      description="Resultados según filtros y orden actuales."
+    >
       <AdminDataTable
         columns={[
           "Cliente",

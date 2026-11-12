@@ -100,6 +100,7 @@ model Store {
   categories        StoreCategory[]
   homeContent       StoreHomeContent?
   customers         StoreCustomer[]
+  crmSegments       StoreCrmSegment[]
   seoSettings       StoreSeoSettings?
   wishlistItems     WishlistItem[]
   marketingSettings StoreMarketingSettings?
@@ -247,6 +248,22 @@ model StoreCustomer {
 
   @@unique([storeId, email])
   @@index([storeId])
+}
+
+/** Segmento CRM guardado (filtros de lista como JSON). */
+model StoreCrmSegment {
+  id        String   @id @default(cuid())
+  storeId   String
+  name      String
+  /// { q?, tag?, inactiveDays?, sort? }
+  filters   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@unique([storeId, name])
 }
 
 model StoreSeoSettings {

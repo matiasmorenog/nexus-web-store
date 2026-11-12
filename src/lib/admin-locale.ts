@@ -60,8 +60,8 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
     shortIt: "Report",
   },
   "/admin/modulos/crm": {
-    es: "CRM lite",
-    it: "CRM lite",
+    es: "CRM",
+    it: "CRM",
     shortEs: "CRM",
     shortIt: "CRM",
   },

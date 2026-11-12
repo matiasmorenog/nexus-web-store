@@ -1,12 +1,30 @@
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { resolveAdminModuleHeader } from "@/lib/admin-module-headers";
+"use client";
 
-/** Server header for a module segment — outside that segment's loading.tsx. */
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
+import {
+  resolveAdminModuleHeader,
+  resolveAdminModuleTrailHeader,
+} from "@/lib/admin-module-headers";
+
+/** Module title in layout — outside that segment's loading.tsx. */
 export function AdminModuleRouteHeader({
   modulePath,
 }: {
   modulePath: string;
 }) {
+  const locale = readAdminLocaleFromDocument();
+  const trail = resolveAdminModuleTrailHeader(modulePath, locale);
+  if (trail) {
+    return (
+      <AdminPageHeader
+        title={trail.parentTitle}
+        titleCurrent={trail.title}
+        description={trail.description}
+      />
+    );
+  }
+
   const copy = resolveAdminModuleHeader(modulePath);
   if (!copy) return null;
   return (

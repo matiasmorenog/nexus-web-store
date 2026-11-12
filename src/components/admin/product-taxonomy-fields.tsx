@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { AdminSelect } from "@/components/admin/admin-form";
+import { useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 import {
   categoriesForAudienceFilter,
@@ -43,51 +43,58 @@ export function ProductTaxonomyFields({
     );
   }, [audience, features.showAudienceFilter, productCategories]);
 
-  const resolvedCategory = categoryOptions.some(
-    (category) => category.slug === defaultCategory,
-  )
-    ? defaultCategory
-    : categoryOptions[0]?.slug;
+  const [category, setCategory] = useState(() => {
+    if (
+      defaultCategory &&
+      categoryOptions.some((item) => item.slug === defaultCategory)
+    ) {
+      return defaultCategory;
+    }
+    return categoryOptions[0]?.slug ?? "";
+  });
+
+  useEffect(() => {
+    if (categoryOptions.some((item) => item.slug === category)) return;
+    setCategory(categoryOptions[0]?.slug ?? "");
+  }, [category, categoryOptions]);
 
   return (
     <>
       {features.showAudienceFilter ? (
         <div>
           <Label htmlFor="audience">Género</Label>
-          <AdminSelect
+          <MenuSelect
             id="audience"
             name="audience"
-            wrapperClassName="mt-1.5"
+            className="mt-1.5"
+            aria-label="Género"
             value={audience}
-            onChange={(event) => setAudience(event.target.value)}
+            onChange={setAudience}
             required
-          >
-            {audiences.map((item) => (
-              <option key={item.slug} value={item.slug}>
-                {item.label}
-              </option>
-            ))}
-          </AdminSelect>
+            options={audiences.map((item) => ({
+              value: item.slug,
+              label: item.label,
+            }))}
+          />
         </div>
       ) : (
         <input type="hidden" name="audience" value="unisex" />
       )}
       <div>
         <Label htmlFor="category">Categoría</Label>
-        <AdminSelect
+        <MenuSelect
           id="category"
           name="category"
-          wrapperClassName="mt-1.5"
-          key={audience}
-          defaultValue={resolvedCategory}
+          className="mt-1.5"
+          aria-label="Categoría"
+          value={category}
+          onChange={setCategory}
           required
-        >
-          {categoryOptions.map((category) => (
-            <option key={category.slug} value={category.slug}>
-              {getCategoryLabelFromList(productCategories, category.slug)}
-            </option>
-          ))}
-        </AdminSelect>
+          options={categoryOptions.map((item) => ({
+            value: item.slug,
+            label: getCategoryLabelFromList(productCategories, item.slug),
+          }))}
+        />
       </div>
     </>
   );

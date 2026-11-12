@@ -1,5 +1,4 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminPlanOverview,
   parseHighlightedModule,
@@ -24,19 +23,11 @@ export default async function AdminPlanPage({ searchParams }: AdminPlanPageProps
   const highlightedModuleId = parseHighlightedModule(moduleParam);
 
   return (
-    <div>
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Plan y módulos"
-          description="Plan base y módulos Plus disponibles para tu tienda."
-        />
-      </AdminDashboardReveal>
-      <AdminDashboardReveal index={1}>
-        <AdminPlanOverview
-          enabledModuleIds={enabledModuleIds}
-          highlightedModuleId={highlightedModuleId}
-        />
-      </AdminDashboardReveal>
-    </div>
+    <AdminDashboardReveal index={0}>
+      <AdminPlanOverview
+        enabledModuleIds={enabledModuleIds}
+        highlightedModuleId={highlightedModuleId}
+      />
+    </AdminDashboardReveal>
   );
 }

@@ -2,20 +2,17 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminSearchField } from "@/components/admin/admin-filters";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import { useAdminListNavigation } from "@/components/admin/use-admin-list-navigation";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import {
   getAdminProductsCopy,
   readAdminLocaleFromDocument,
 } from "@/lib/admin-locale";
 import { getAdminProductSortOptions } from "@/lib/admin-product-sort";
 import { cn } from "@/lib/utils";
-
-const fieldClass =
-  "h-10 rounded-lg border-neutral-200 text-neutral-700";
 
 export function AdminProductsToolbar({ className }: { className?: string }) {
   const searchParams = useSearchParams();
@@ -86,18 +83,13 @@ export function AdminProductsToolbar({ className }: { className?: string }) {
           >
             {copy.sortLabel}
           </Label>
-          <AdminSelect
+          <MenuSelect
             id="admin-product-sort-toolbar"
-            className={fieldClass}
+            aria-label={copy.sortLabel}
             value={activeSort}
-            onChange={(event) => navigate({ orden: event.target.value })}
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </AdminSelect>
+            onChange={(orden) => navigate({ orden })}
+            options={sortOptions}
+          />
         </div>
       </div>
     </div>

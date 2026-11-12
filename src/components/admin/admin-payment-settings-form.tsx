@@ -12,30 +12,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
 import type { StorePaymentSettingsAdminData } from "@/lib/payments";
+import { getMercadoPagoAdminCopy } from "@/lib/payments/mercado-pago-admin-copy";
 
 type AdminPaymentSettingsFormProps = {
   initialSettings: StorePaymentSettingsAdminData;
+  webhookUrl: string;
   readOnly?: boolean;
-};
-
-const SOURCE_LABELS: Record<StorePaymentSettingsAdminData["mercadopagoSource"], string> = {
-  admin: "Configurado en admin",
-  env: "Configurado en servidor (variable de entorno)",
-  none: "Modo demo (sin cobros reales)",
 };
 
 export function AdminPaymentSettingsForm({
   initialSettings,
+  webhookUrl,
   readOnly = false,
 }: AdminPaymentSettingsFormProps) {
   const router = useRouter();
+  const copy = getMercadoPagoAdminCopy(readAdminLocaleFromDocument());
   const [settings, setSettings] = useState(initialSettings);
   const [accessToken, setAccessToken] = useState("");
   const [clearToken, setClearToken] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const sourceLabel =
+    settings.mercadopagoSource === "admin"
+      ? copy.sourceAdmin
+      : settings.mercadopagoSource === "env"
+        ? copy.sourceEnv
+        : null;
+
+  const handleCopy = async () => {
+    if (!webhookUrl) return;
+    try {
+      await navigator.clipboard.writeText(webhookUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,7 +77,7 @@ export function AdminPaymentSettingsForm({
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar la configuración.");
+        throw new Error(data.error ?? copy.errorFallback);
       }
 
       if (data.settings) {
@@ -74,7 +92,7 @@ export function AdminPaymentSettingsForm({
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "No se pudo guardar la configuración.",
+          : copy.errorFallback,
       );
     } finally {
       setLoading(false);
@@ -83,30 +101,30 @@ export function AdminPaymentSettingsForm({
 
   return (
     <AdminCard
-      title="Mercado Pago"
-      description="Conectá tu cuenta para cobrar con tarjetas, débito y otros medios en el checkout."
+      title={copy.title}
+      description={copy.description}
       className="max-w-lg"
     >
       <AdminForm onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-          <p>
-            Estado:{" "}
-            <strong className="text-neutral-900">
-              {SOURCE_LABELS[settings.mercadopagoSource]}
-            </strong>
-          </p>
-          {settings.mercadopagoTokenHint ? (
-            <p className="mt-1 text-neutral-600">
-              Token actual:{" "}
-              <code className="rounded bg-white px-1 text-xs">
-                {settings.mercadopagoTokenHint}
-              </code>
+        {sourceLabel ? (
+          <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+            <p>
+              Estado:{" "}
+              <strong className="text-neutral-900">{sourceLabel}</strong>
             </p>
-          ) : null}
-        </div>
+            {settings.mercadopagoTokenHint ? (
+              <p className="mt-1 text-neutral-600">
+                {copy.currentToken}{" "}
+                <code className="rounded bg-white px-1 text-xs">
+                  {settings.mercadopagoTokenHint}
+                </code>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div>
-          <Label htmlFor="mercadopagoAccessToken">Access Token</Label>
+          <Label htmlFor="mercadopagoAccessToken">{copy.accessTokenLabel}</Label>
           <Input
             id="mercadopagoAccessToken"
             name="mercadopagoAccessToken"
@@ -115,19 +133,38 @@ export function AdminPaymentSettingsForm({
             spellCheck={false}
             placeholder={
               settings.mercadopagoConfigured
-                ? "Dejá vacío para mantener el token actual"
-                : "TEST-... o APP_USR-..."
+                ? copy.accessTokenPlaceholderKeep
+                : copy.accessTokenPlaceholderNew
             }
             value={accessToken}
             onChange={(event) => setAccessToken(event.target.value)}
             className="text-base sm:text-sm"
             disabled={readOnly}
           />
-          <p className="mt-1.5 text-xs text-neutral-500">
-            Obtenelo en Mercado Pago → Tus integraciones → Credenciales de
-            producción o prueba. Solo se guarda en el servidor, cifrado.
-          </p>
+          <p className="mt-1.5 text-xs text-neutral-500">{copy.secretsHint}</p>
         </div>
+
+        {webhookUrl ? (
+          <div>
+            <Label htmlFor="mercadopagoWebhookUrl">{copy.webhookUrlLabel}</Label>
+            <div className="mt-1.5 flex gap-2">
+              <Input
+                id="mercadopagoWebhookUrl"
+                readOnly
+                value={webhookUrl}
+                className="text-base sm:text-sm"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleCopy()}
+                disabled={readOnly}
+              >
+                {copied ? copy.copied : copy.copy}
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         {settings.mercadopagoSource === "admin" ? (
           <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
@@ -136,23 +173,50 @@ export function AdminPaymentSettingsForm({
               onChange={(event) => setClearToken(event.target.checked)}
               disabled={readOnly}
             />
-            Quitar token guardado en admin
+            {copy.clearToken}
           </label>
         ) : null}
 
+        <details className="group rounded-lg border border-neutral-200 bg-white text-sm">
+          <summary className="cursor-pointer select-none px-4 py-3 font-medium text-neutral-900">
+            {copy.guideToggle}
+          </summary>
+          <div className="space-y-3 border-t border-neutral-200 px-4 py-3 text-neutral-700">
+            <p className="text-neutral-600">{copy.guideIntro}</p>
+            <ol className="list-decimal space-y-3 pl-5">
+              {copy.guideSteps.map((step) => (
+                <li key={step.title}>
+                  <p className="font-medium text-neutral-900">{step.title}</p>
+                  <p className="mt-0.5 break-words text-neutral-600">
+                    {step.body}
+                  </p>
+                  {"link" in step && step.link ? (
+                    <a
+                      href={step.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-xs font-medium text-[var(--brand-primary)] hover:underline"
+                    >
+                      {step.link.label} →
+                    </a>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </details>
+
         {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
         {saved ? (
-          <AdminFormAlert variant="success">
-            Configuración de pagos guardada.
-          </AdminFormAlert>
+          <AdminFormAlert variant="success">{copy.saved}</AdminFormAlert>
         ) : null}
 
         {readOnly ? (
-          <p className="text-sm text-neutral-500">Solo lectura.</p>
+          <p className="text-sm text-neutral-500">{copy.readOnly}</p>
         ) : (
           <AdminFormActions>
             <Button type="submit" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar pagos"}
+              {loading ? copy.saving : copy.save}
             </Button>
           </AdminFormActions>
         )}

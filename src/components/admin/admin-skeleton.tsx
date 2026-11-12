@@ -772,28 +772,22 @@ function AdminSkeletonFormField({
   );
 }
 
+/** Content-only — title stays in configuracion/plan layout (no title skeleton). */
 export function AdminSkeletonSettingsPage() {
   return (
-    <AdminSkeletonRegion label="Cargando configuración">
-      <AdminSkeletonPageHeader
-        titleWidth="w-36"
-        descriptionWidth="w-80"
-      />
-
-      <div className="space-y-6">
-        <AdminSkeletonCardShell
-          titleWidth="w-20"
-          descriptionWidth="w-64"
-          className="max-w-lg"
-        >
-          <div className="space-y-4">
-            <AdminSkeletonFormField labelWidth="w-32" />
-            <AdminSkeletonFormField labelWidth="w-28" />
-            <AdminSkeletonFormField labelWidth="w-44" hint />
-            <AdminSkeleton className="h-10 w-40 rounded-lg" />
-          </div>
-        </AdminSkeletonCardShell>
-      </div>
+    <AdminSkeletonRegion label="Cargando configuración" className="space-y-6">
+      <AdminSkeletonCardShell
+        titleWidth="w-20"
+        descriptionWidth="w-64"
+        className="max-w-lg"
+      >
+        <div className="space-y-4">
+          <AdminSkeletonFormField labelWidth="w-32" />
+          <AdminSkeletonFormField labelWidth="w-28" />
+          <AdminSkeletonFormField labelWidth="w-44" hint />
+          <AdminSkeleton className="h-10 w-40 rounded-lg" />
+        </div>
+      </AdminSkeletonCardShell>
     </AdminSkeletonRegion>
   );
 }
@@ -985,31 +979,44 @@ export function AdminSkeletonModuleApiPage() {
   );
 }
 
-/** /admin/modulos/multiUser */
+/** /admin/modulos/multiUser — mirror AdminStoreUsersPanel (max-w-lg list + invite). */
 export function AdminSkeletonModuleMultiUserPage() {
   return (
     <AdminSkeletonRegion label="Cargando usuarios" className="space-y-8">
-      <AdminSkeletonCardShell titleWidth="w-28" descriptionWidth="w-64">
-        <div className="space-y-3">
-          {Array.from({ length: 3 }, (_, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 px-4 py-3"
-            >
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <AdminSkeleton className="h-4 w-32 max-w-full" />
-                <AdminSkeleton className="h-3 w-44 max-w-full" />
-              </div>
-              <AdminSkeleton className="h-9 w-28 shrink-0 rounded-lg" />
-            </div>
-          ))}
-        </div>
-      </AdminSkeletonCardShell>
-      <AdminSkeletonModuleFormCard
-        titleWidth="w-28"
-        descriptionWidth="w-52"
-        fields={4}
-      />
+      <div className="max-w-lg space-y-6">
+        <AdminSkeletonCardShell titleWidth="w-28" descriptionWidth="w-64">
+          <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
+            {Array.from({ length: 3 }, (_, index) => (
+              <li
+                key={index}
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+              >
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AdminSkeleton className="h-4 w-28 max-w-full" />
+                    <AdminSkeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                  <AdminSkeleton className="h-3.5 w-40 max-w-full" />
+                  <AdminSkeleton className="h-3 w-52 max-w-full" />
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <AdminSkeleton className="h-9 w-36 rounded-lg" />
+                  <AdminSkeleton className="h-8 w-16 rounded-lg" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </AdminSkeletonCardShell>
+        <AdminSkeletonCardShell titleWidth="w-32" descriptionWidth="w-56">
+          <div className="space-y-4">
+            <AdminSkeletonFormField labelWidth="w-16" />
+            <AdminSkeletonFormField labelWidth="w-12" />
+            <AdminSkeletonFormField labelWidth="w-36" />
+            <AdminSkeletonFormField labelWidth="w-10" hint />
+            <AdminSkeleton className="h-10 w-36 rounded-lg" />
+          </div>
+        </AdminSkeletonCardShell>
+      </div>
     </AdminSkeletonRegion>
   );
 }

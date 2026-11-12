@@ -116,6 +116,16 @@ export function localizeAdminNavItem<T extends { href: string; label: string; sh
   };
 }
 
+/** Nav title for an admin href, or null if unknown. */
+export function adminNavLabel(
+  href: string,
+  locale: AdminLocale = "es",
+): string | null {
+  const labels = NAV_LABELS[href];
+  if (!labels) return null;
+  return locale === "it" ? labels.it : labels.es;
+}
+
 export const adminLogin = {
   es: {
     panel: "Panel de administración",

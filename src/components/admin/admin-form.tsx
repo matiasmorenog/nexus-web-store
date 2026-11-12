@@ -1,9 +1,10 @@
 import type { ComponentPropsWithoutRef, FormHTMLAttributes, ReactNode } from "react";
-import { SelectField, selectFieldClass } from "@/components/ui/select-field";
+import { selectFieldClass } from "@/components/ui/select-field";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { STORE_CATEGORIES } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 
-/** @deprecated Prefer SelectField / AdminSelect — keeps textarea/input reuse. */
+/** Shared field surface (textarea). Dropdowns: use `MenuSelect`. */
 export const adminSelectClass = selectFieldClass;
 
 type AdminFormProps = FormHTMLAttributes<HTMLFormElement>;
@@ -83,28 +84,35 @@ export function AdminFormActions({
   );
 }
 
-type AdminSelectProps = ComponentPropsWithoutRef<"select"> & {
-  wrapperClassName?: string;
+/** @deprecated Prefer `MenuSelect` — kept only for rare native-select callers. */
+export { SelectField as AdminSelect } from "@/components/ui/select-field";
+
+type AdminCategorySelectProps = {
+  id?: string;
+  name?: string;
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  required?: boolean;
+  className?: string;
+  "aria-label"?: string;
 };
-
-export function AdminSelect(props: AdminSelectProps) {
-  return <SelectField {...props} />;
-}
-
-type AdminCategorySelectProps = ComponentPropsWithoutRef<"select">;
 
 export function AdminCategorySelect({
   className,
+  "aria-label": ariaLabel = "Categoría",
   ...props
 }: AdminCategorySelectProps) {
   return (
-    <AdminSelect className={className} {...props}>
-      {STORE_CATEGORIES.map((category) => (
-        <option key={category.slug} value={category.slug}>
-          {category.label}
-        </option>
-      ))}
-    </AdminSelect>
+    <MenuSelect
+      className={className}
+      aria-label={ariaLabel}
+      options={STORE_CATEGORIES.map((category) => ({
+        value: category.slug,
+        label: category.label,
+      }))}
+      {...props}
+    />
   );
 }
 

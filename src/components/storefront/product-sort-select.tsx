@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { catalogHref } from "@/lib/storefront-paths";
 import { PRODUCT_SORT_OPTIONS, parseProductSort } from "@/lib/product-sort";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
-import { SelectField } from "@/components/ui/select-field";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 
@@ -41,19 +41,17 @@ export function ProductSortSelect({ className }: ProductSortSelectProps) {
       <label htmlFor="product-sort" className="shrink-0 text-sm text-neutral-500">
         {copy.sort}
       </label>
-      <SelectField
+      <MenuSelect
         id="product-sort"
-        wrapperClassName="w-auto min-w-[10rem]"
-        className="h-9 rounded-lg border-neutral-200 py-1.5 text-neutral-700"
+        className="w-auto min-w-[10rem]"
+        aria-label={copy.sort}
         value={activeSort}
-        onChange={(event) => handleChange(event.target.value)}
-      >
-        {PRODUCT_SORT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {labels[option.value]}
-          </option>
-        ))}
-      </SelectField>
+        onChange={handleChange}
+        options={PRODUCT_SORT_OPTIONS.map((option) => ({
+          value: option.value,
+          label: labels[option.value],
+        }))}
+      />
     </div>
   );
 }

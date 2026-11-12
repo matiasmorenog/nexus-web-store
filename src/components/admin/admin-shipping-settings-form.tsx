@@ -7,11 +7,11 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
-  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { Switch } from "@/components/ui/switch";
 import {
   SHIPPING_CARRIER_OPTIONS,
@@ -264,25 +264,24 @@ export function AdminShippingSettingsForm({
 
           <div className="sm:col-span-2">
             <Label htmlFor="preferred-carrier">Operador preferido</Label>
-            <AdminSelect
+            <MenuSelect
               id="preferred-carrier"
-              wrapperClassName="mt-1.5"
+              className="mt-1.5"
+              aria-label="Operador preferido"
               value={settings.preferredCarrierId}
               disabled={readOnly || !settings.carriersEnabled}
-              onChange={(event) =>
+              onChange={(next) =>
                 setSettings((current) => ({
                   ...current,
-                  preferredCarrierId: event.target
-                    .value as StoreShippingSettingsAdminData["preferredCarrierId"],
+                  preferredCarrierId:
+                    next as StoreShippingSettingsAdminData["preferredCarrierId"],
                 }))
               }
-            >
-              {SHIPPING_CARRIER_OPTIONS.map((carrier) => (
-                <option key={carrier.id} value={carrier.id}>
-                  {carrier.label}
-                </option>
-              ))}
-            </AdminSelect>
+              options={SHIPPING_CARRIER_OPTIONS.map((carrier) => ({
+                value: carrier.id,
+                label: carrier.label,
+              }))}
+            />
           </div>
         </div>
       </AdminCard>

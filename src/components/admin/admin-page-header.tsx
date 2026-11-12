@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 
 type AdminPageHeaderProps = {
   title: string;
-  /** When set with `titleCurrent`, title becomes CRM › Cliente in the same header. */
+  /**
+   * With `titleCurrent`: parent › current trail.
+   * If `titleHref` is set, parent is a link (e.g. CRM › cliente).
+   * Without href, parent is plain muted text (e.g. Configuración › Cobros).
+   */
   titleHref?: string;
   titleCurrent?: string;
   description?: ReactNode;
@@ -21,7 +25,7 @@ export function AdminPageHeader({
   action,
   className,
 }: AdminPageHeaderProps) {
-  const hasTrail = Boolean(titleHref && titleCurrent);
+  const hasTrail = Boolean(titleCurrent);
 
   return (
     <div className={cn("mb-8 select-none", className)}>
@@ -30,12 +34,16 @@ export function AdminPageHeader({
           <span className="inline-flex max-w-full flex-wrap items-center gap-1.5 border-b-2 border-[var(--brand-primary)] pb-0.5">
             {hasTrail ? (
               <>
-                <Link
-                  href={titleHref!}
-                  className="text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
-                >
-                  {title}
-                </Link>
+                {titleHref ? (
+                  <Link
+                    href={titleHref}
+                    className="text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+                  >
+                    {title}
+                  </Link>
+                ) : (
+                  <span className="text-neutral-500">{title}</span>
+                )}
                 <ChevronRight
                   className="size-5 shrink-0 text-neutral-300"
                   aria-hidden

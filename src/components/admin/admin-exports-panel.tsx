@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminForm, AdminFormGrid, AdminSelect } from "@/components/admin/admin-form";
+import { AdminForm, AdminFormGrid } from "@/components/admin/admin-form";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Switch } from "@/components/ui/switch";
@@ -93,18 +94,19 @@ export function AdminExportsPanel({
             </div>
             <div>
               <Label htmlFor="export-estado">Estado</Label>
-              <AdminSelect
+              <MenuSelect
                 id="export-estado"
+                aria-label="Estado"
                 value={estado}
-                onChange={(event) => setEstado(event.target.value)}
-              >
-                <option value="">Todos</option>
-                {ORDER_STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {getOrderStatusLabel(status)}
-                  </option>
-                ))}
-              </AdminSelect>
+                onChange={setEstado}
+                options={[
+                  { value: "", label: "Todos" },
+                  ...ORDER_STATUSES.map((status) => ({
+                    value: status,
+                    label: getOrderStatusLabel(status),
+                  })),
+                ]}
+              />
             </div>
             <div>
               <Label htmlFor="export-q">Buscar cliente / ID</Label>

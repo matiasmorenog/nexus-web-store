@@ -7,8 +7,8 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
-  AdminSelect,
 } from "@/components/admin/admin-form";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,22 +83,22 @@ export function AdminAfipSettingsPanel({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="afip-environment">Entorno</Label>
-            <AdminSelect
+            <MenuSelect
               id="afip-environment"
+              aria-label="Entorno AFIP"
               value={settings.environment}
-              onChange={(event) =>
+              onChange={(next) =>
                 setSettings((current) => ({
                   ...current,
                   environment:
-                    event.target.value === "PRODUCTION"
-                      ? "PRODUCTION"
-                      : "HOMOLOGATION",
+                    next === "PRODUCTION" ? "PRODUCTION" : "HOMOLOGATION",
                 }))
               }
-            >
-              <option value="HOMOLOGATION">Homologación (pruebas)</option>
-              <option value="PRODUCTION">Producción</option>
-            </AdminSelect>
+              options={[
+                { value: "HOMOLOGATION", label: "Homologación (pruebas)" },
+                { value: "PRODUCTION", label: "Producción" },
+              ]}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="afip-punto-venta">Punto de venta</Label>

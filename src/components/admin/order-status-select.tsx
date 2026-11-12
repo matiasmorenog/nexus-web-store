@@ -1,6 +1,6 @@
 "use client";
 
-import { AdminSelect } from "@/components/admin/admin-form";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { updateOrderStatus } from "@/lib/admin-actions";
 
 const STATUSES = [
@@ -8,7 +8,7 @@ const STATUSES = [
   { value: "PAID", label: "Pagado" },
   { value: "SHIPPED", label: "Enviado" },
   { value: "CANCELLED", label: "Cancelado" },
-];
+] as const;
 
 export function OrderStatusSelect({
   orderId,
@@ -18,16 +18,14 @@ export function OrderStatusSelect({
   currentStatus: string;
 }) {
   return (
-    <AdminSelect
-      className="h-9 rounded-lg"
+    <MenuSelect
+      className="min-w-[9rem]"
+      aria-label="Estado del pedido"
       value={currentStatus}
-      onChange={(e) => updateOrderStatus(orderId, e.target.value)}
-    >
-      {STATUSES.map((s) => (
-        <option key={s.value} value={s.value}>
-          {s.label}
-        </option>
-      ))}
-    </AdminSelect>
+      onChange={(next) => {
+        void updateOrderStatus(orderId, next);
+      }}
+      options={STATUSES}
+    />
   );
 }

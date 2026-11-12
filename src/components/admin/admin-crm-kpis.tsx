@@ -1,45 +1,67 @@
-"use client";
-
-import { AdminStatCard } from "@/components/admin/admin-stat-card";
-import { buildCrmListHref } from "@/lib/crm";
-import type { CrmStoreStats } from "@/lib/crm";
+import Link from "next/link";
+import { AdminCard } from "@/components/admin/admin-card";
+import { buildCrmListHref, type CrmStoreStats } from "@/lib/crm";
+import { formatPrice } from "@/lib/utils";
 
 type AdminCrmKpisProps = {
   stats: CrmStoreStats;
 };
 
+function MetricCard({
+  label,
+  description,
+  value,
+  href,
+}: {
+  label: string;
+  description: string;
+  value: string;
+  href?: string;
+}) {
+  const body = (
+    <p className="text-3xl font-bold tracking-tight tabular-nums text-neutral-900">
+      {value}
+    </p>
+  );
+
+  return (
+    <AdminCard title={label} description={description} className="h-full">
+      {href ? (
+        <Link
+          href={href}
+          className="block transition-colors hover:text-[var(--brand-primary)]"
+        >
+          {body}
+        </Link>
+      ) : (
+        body
+      )}
+    </AdminCard>
+  );
+}
+
 export function AdminCrmKpis({ stats }: AdminCrmKpisProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <AdminStatCard
+    <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <MetricCard
         label="Clientes"
-        value={stats.customerCount}
-        icon="users"
-        accent="brand"
-        delay={0}
+        description="Compradores con al menos un pedido."
+        value={stats.customerCount.toLocaleString("es-AR")}
       />
-      <AdminStatCard
+      <MetricCard
         label="LTV medio"
-        value={stats.averageLtv}
-        format="currency"
-        icon="dollar-sign"
-        accent="green"
-        delay={80}
+        description="Gasto promedio por cliente."
+        value={formatPrice(stats.averageLtv)}
       />
-      <AdminStatCard
+      <MetricCard
         label="Recompra"
-        value={stats.repurchaseRate}
-        format="percent"
-        icon="trending-up"
-        accent="blue"
-        delay={160}
+        description="% con 2 o más pedidos."
+        value={`${Math.round(stats.repurchaseRate).toLocaleString("es-AR")}%`}
       />
-      <AdminStatCard
+      <MetricCard
         label="Inactivos 30d"
-        value={stats.inactive30Count}
-        icon="package"
-        accent="amber"
-        delay={240}
+        description="Sin comprar en los últimos 30 días."
+        value={stats.inactive30Count.toLocaleString("es-AR")}
         href={buildCrmListHref({ inactiveDays: 30 })}
       />
     </div>

@@ -2,11 +2,14 @@ import { db } from "@/lib/db";
 import { createMercadoEnviosShipment } from "@/lib/mercado-envios/server";
 import { isCarrierShippingEnabled, getStoreShippingSettings } from "@/lib/shipping-carriers/query";
 
+import { isMercadoEnviosCarrierId } from "@/lib/shipping-carriers/format";
+
 type OrderForShipment = {
   id: string;
   storeId: string;
   isPickup: boolean;
   shippingZip: string;
+  shippingCarrierId?: string | null;
   meShipmentId: string | null;
 };
 
@@ -20,11 +23,17 @@ export async function createOrderShipment(order: OrderForShipment) {
   }
 
   const settings = await getStoreShippingSettings(order.storeId);
+  const requested = order.shippingCarrierId?.trim() ?? "";
+  const carrierId =
+    isMercadoEnviosCarrierId(requested) &&
+    settings.enabledCarrierIds.includes(requested)
+      ? requested
+      : settings.preferredCarrierId;
 
   const shipment = await createMercadoEnviosShipment({
     orderId: order.id,
     zip: order.shippingZip,
-    carrierId: settings.preferredCarrierId,
+    carrierId,
   });
 
   const autoShipInDemo = shipment.demoMode;

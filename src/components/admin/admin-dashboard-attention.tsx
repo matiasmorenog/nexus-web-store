@@ -63,9 +63,9 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
       key: "shipping-carriers",
       href: buildAdminShippingCarriersHref(),
       icon: Truck,
-      label: "Mercado Envíos sin configurar en admin",
+      label: "Envíos sin operador configurado",
       detail:
-        "Módulo Envíos activo: guardá el token en Envíos carrier o configurá Cobros",
+        "Módulo Envíos activo: habilitá al menos un operador en Configuración → Envíos",
       tone: "rose",
     });
   }

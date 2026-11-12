@@ -1,10 +1,12 @@
 export {
   isMercadoEnviosCarrierId,
+  normalizeEnabledCarrierIds,
   normalizePreferredCarrierId,
   SHIPPING_CARRIER_OPTIONS,
 } from "@/lib/shipping-carriers/format";
 export {
   DEFAULT_SHIPPING_SETTINGS,
+  type CheckoutShippingQuoteOption,
   type MercadoEnviosTokenSource,
   type StoreShippingSettingsAdminData,
   type StoreShippingSettingsData,

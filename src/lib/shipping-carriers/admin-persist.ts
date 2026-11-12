@@ -7,7 +7,7 @@ import {
   isValidMercadoPagoAccessToken,
   maskMercadoPagoAccessToken,
 } from "@/lib/payments/format";
-import { normalizePreferredCarrierId } from "@/lib/shipping-carriers/format";
+import { normalizeEnabledCarrierIds } from "@/lib/shipping-carriers/format";
 import { SHIPPING_SETTINGS_CACHE_TAG } from "@/lib/shipping-carriers/query";
 import type { StoreShippingSettingsSaveInput } from "@/lib/shipping-carriers/types";
 import { db } from "@/lib/db";
@@ -18,13 +18,14 @@ export async function saveStoreShippingSettings(
   storeId: string,
   input: StoreShippingSettingsSaveInput,
 ): Promise<void> {
-  const preferredCarrierId = normalizePreferredCarrierId(
-    input.preferredCarrierId,
-  );
+  const enabledCarrierIds = normalizeEnabledCarrierIds(input.enabledCarrierIds);
 
-  if (!preferredCarrierId) {
-    throw new Error("Seleccioná un operador logístico válido.");
+  if (input.carriersEnabled && enabledCarrierIds.length === 0) {
+    throw new Error("Activá al menos un operador logístico para cotizar en checkout.");
   }
+
+  const preferredCarrierId =
+    enabledCarrierIds[0] ?? input.preferredCarrierId ?? "mercado_envios";
 
   const originZip = input.originZip?.replace(/\D/g, "").slice(0, 8) ?? "";
   if (input.carriersEnabled && originZip.length < 4) {
@@ -45,6 +46,7 @@ export async function saveStoreShippingSettings(
       mercadoEnviosAccessTokenEnc: true,
       carriersEnabled: true,
       preferredCarrierId: true,
+      enabledCarrierIds: true,
       originZip: true,
       mercadoLibreQuoteItemId: true,
       defaultWeightGrams: true,
@@ -54,6 +56,7 @@ export async function saveStoreShippingSettings(
   const carrierUpdate = {
     carriersEnabled: input.carriersEnabled,
     preferredCarrierId,
+    enabledCarrierIds,
     originZip: originZip || null,
     mercadoLibreQuoteItemId,
     defaultWeightGrams,

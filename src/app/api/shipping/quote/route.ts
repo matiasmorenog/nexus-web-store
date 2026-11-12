@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { formatMercadoEnviosDeliveryWindow } from "@/lib/mercado-envios";
 import {
   estimateOrderSubtotalForQuote,
-  quoteCheckoutShipping,
+  quoteCheckoutShippingOptions,
 } from "@/lib/shipping-carriers/resolve-shipping";
 import { getStoreId } from "@/lib/store-context";
 
@@ -35,31 +34,33 @@ export async function POST(request: NextRequest) {
         ? await estimateOrderSubtotalForQuote(storeId, items)
         : undefined;
 
-    const quote = await quoteCheckoutShipping({
+    const quotes = await quoteCheckoutShippingOptions({
       storeId,
       zip: parsed.data.zip.trim(),
       items,
       orderSubtotal,
     });
 
-    if (!quote) {
+    if (quotes.length === 0) {
       return NextResponse.json(
         { error: "La cotización carrier no está disponible en esta tienda." },
         { status: 403 },
       );
     }
 
+    // Compat: first quote fields at top level for older clients.
+    const primary = quotes[0];
+
     return NextResponse.json({
-      cost: quote.cost,
-      carrier: quote.carrier,
-      service: quote.service,
-      deliveryWindow: formatMercadoEnviosDeliveryWindow(
-        quote.deliveryDaysMin,
-        quote.deliveryDaysMax,
-      ),
-      estimatedDelivery: quote.estimatedDelivery.toISOString(),
-      demoMode: quote.demoMode,
-      source: quote.source,
+      quotes,
+      cost: primary.cost,
+      carrier: primary.carrier,
+      carrierId: primary.carrierId,
+      service: primary.service,
+      deliveryWindow: primary.deliveryWindow,
+      estimatedDelivery: primary.estimatedDelivery,
+      demoMode: primary.demoMode,
+      source: primary.source,
     });
   } catch (error) {
     console.error("Shipping quote error:", error);

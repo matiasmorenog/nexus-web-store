@@ -102,6 +102,7 @@ export async function fulfillPaidOrder(orderId: string) {
     storeId: order.storeId,
     isPickup: order.isPickup,
     shippingZip: order.shippingZip,
+    shippingCarrierId: order.shippingCarrierId,
     meShipmentId: order.meShipmentId,
   }).catch((error) => {
     console.error("Mercado Envíos shipment error:", error);

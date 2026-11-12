@@ -12,15 +12,12 @@ import {
   adminDashboardCacheTag,
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
-import {
-  getMercadoEnviosTokenSource,
-  isMercadoEnviosAdminConfigured,
-} from "@/lib/mercado-envios/resolve-token";
 import { storeHasModule, storeHidesMercadoPago } from "@/lib/modules";
 import {
   getMercadoPagoTokenSource,
   isMercadoPagoAdminConfigured,
 } from "@/lib/payments/resolve-token";
+import { getStoreShippingSettings } from "@/lib/shipping-carriers/query";
 
 export type {
   ActivityPeriod,
@@ -356,7 +353,6 @@ async function fetchAdminDashboardAttention(storeId: string) {
     outOfStockVariants,
     shippingCarriersEnabled,
     mercadoPagoSource,
-    mercadoEnviosSource,
   ] = await Promise.all([
     db.order.count({
       where: { storeId, status: "PAID" },
@@ -369,8 +365,14 @@ async function fetchAdminDashboardAttention(storeId: string) {
     }),
     storeHasModule(storeId, "shippingCarriers"),
     getMercadoPagoTokenSource(storeId),
-    getMercadoEnviosTokenSource(storeId),
   ]);
+
+  const shippingSettings = shippingCarriersEnabled
+    ? await getStoreShippingSettings(storeId)
+    : null;
+  const noCarrierConfigured =
+    Boolean(shippingSettings?.carriersEnabled) &&
+    (shippingSettings?.enabledCarrierIds.length ?? 0) === 0;
 
   return {
     paidAwaitingShipment,
@@ -378,9 +380,7 @@ async function fetchAdminDashboardAttention(storeId: string) {
     cobrosTokenMissing: storeHidesMercadoPago()
       ? false
       : !isMercadoPagoAdminConfigured(mercadoPagoSource),
-    shippingCarriersTokenMissing:
-      shippingCarriersEnabled &&
-      !isMercadoEnviosAdminConfigured(mercadoEnviosSource, mercadoPagoSource),
+    shippingCarriersTokenMissing: shippingCarriersEnabled && noCarrierConfigured,
   };
 }
 

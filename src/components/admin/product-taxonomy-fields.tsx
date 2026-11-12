@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { getClientStorefrontConfig } from "@/lib/store-slug-client";
@@ -32,6 +32,9 @@ export function ProductTaxonomyFields({
     "unisex";
 
   const [audience, setAudience] = useState(defaultAudienceSlug);
+  const [categoryOverride, setCategoryOverride] = useState<string | null>(
+    defaultCategory ?? null,
+  );
 
   const categoryOptions = useMemo(() => {
     if (!features.showAudienceFilter) {
@@ -43,20 +46,11 @@ export function ProductTaxonomyFields({
     );
   }, [audience, features.showAudienceFilter, productCategories]);
 
-  const [category, setCategory] = useState(() => {
-    if (
-      defaultCategory &&
-      categoryOptions.some((item) => item.slug === defaultCategory)
-    ) {
-      return defaultCategory;
-    }
-    return categoryOptions[0]?.slug ?? "";
-  });
-
-  useEffect(() => {
-    if (categoryOptions.some((item) => item.slug === category)) return;
-    setCategory(categoryOptions[0]?.slug ?? "");
-  }, [category, categoryOptions]);
+  const category =
+    categoryOverride &&
+    categoryOptions.some((item) => item.slug === categoryOverride)
+      ? categoryOverride
+      : (categoryOptions[0]?.slug ?? "");
 
   return (
     <>
@@ -69,7 +63,10 @@ export function ProductTaxonomyFields({
             className="mt-1.5"
             aria-label="Género"
             value={audience}
-            onChange={setAudience}
+            onChange={(next) => {
+              setAudience(next);
+              setCategoryOverride(null);
+            }}
             required
             options={audiences.map((item) => ({
               value: item.slug,
@@ -88,7 +85,7 @@ export function ProductTaxonomyFields({
           className="mt-1.5"
           aria-label="Categoría"
           value={category}
-          onChange={setCategory}
+          onChange={setCategoryOverride}
           required
           options={categoryOptions.map((item) => ({
             value: item.slug,

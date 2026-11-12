@@ -142,7 +142,6 @@ export function MenuSelect({
         aria-haspopup="listbox"
         aria-controls={panelId}
         aria-label={ariaLabel}
-        aria-required={required || undefined}
         onClick={() => setOpen((current) => !current)}
         className={cn(
           "flex h-10 w-full items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 py-2 text-left text-sm text-neutral-900",

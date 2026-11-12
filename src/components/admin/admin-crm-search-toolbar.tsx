@@ -284,14 +284,18 @@ export function AdminCrmSearchToolbar({
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 pb-0.5">
-              <Button type="submit" size="sm" variant="secondary">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="submit"
+                variant="secondary"
+                className="h-10 shrink-0 rounded-md px-4"
+              >
                 Aplicar filtro
               </Button>
               <Button
                 type="button"
-                size="sm"
                 variant="outline"
+                className="h-10 shrink-0 rounded-md px-4"
                 onClick={() => {
                   window.location.href = exportHref();
                 }}
@@ -303,7 +307,7 @@ export function AdminCrmSearchToolbar({
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
+                  className="h-10 px-1 text-sm text-neutral-500 transition-colors hover:text-[var(--brand-primary)]"
                 >
                   Limpiar
                 </button>
@@ -328,8 +332,8 @@ export function AdminCrmSearchToolbar({
                 </div>
                 <Button
                   type="button"
-                  size="sm"
                   variant="outline"
+                  className="h-10 shrink-0 rounded-md px-4"
                   disabled={savingSegment}
                   onClick={() => void saveSegment()}
                 >

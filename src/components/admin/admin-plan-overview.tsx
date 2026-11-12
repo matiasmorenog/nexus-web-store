@@ -1,4 +1,12 @@
-import { Check, Lock, Sparkles } from "lucide-react";
+import {
+  Check,
+  CreditCard,
+  Lock,
+  Percent,
+  ShoppingBag,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { AdminCard } from "@/components/admin/admin-card";
 import { cn } from "@/lib/utils";
@@ -43,6 +51,15 @@ function planRequestMailto(tierId: PlanTierId) {
     `Hola, quiero activar el plan ${tier.name} (${formatUsd(tier.monthlyPriceUsd)}/mes) en mi tienda.`,
   )}`;
 }
+
+const CORE_HIGHLIGHT_ICONS: Record<
+  (typeof PLAN_CORE.highlights)[number]["id"],
+  LucideIcon
+> = {
+  mercadopago: CreditCard,
+  checkout: ShoppingBag,
+  "no-fee": Percent,
+};
 
 export function AdminPlanOverview({
   enabledModuleIds,
@@ -170,20 +187,58 @@ export function AdminPlanOverview({
       </div>
 
       <AdminCard
-        title="Núcleo (todos los planes)"
-        description="Operación diaria incluida en Start, Grow y Pro. Sin comisión sobre ventas."
+        title="Incluido en todos los planes"
+        description={PLAN_CORE.description}
       >
-        <ul className="grid gap-1.5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {PLAN_CORE.highlights.map((highlight) => {
+            const Icon = CORE_HIGHLIGHT_ICONS[highlight.id];
+            const isMp = highlight.id === "mercadopago";
+            return (
+              <div
+                key={highlight.id}
+                className={cn(
+                  "rounded-xl border p-4 transition duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md",
+                  isMp
+                    ? "border-[var(--brand-primary)]/35 bg-[var(--brand-primary-soft)]/60 shadow-sm hover:border-[var(--brand-primary)]/55"
+                    : "border-neutral-200 bg-neutral-50/80 hover:border-neutral-300 hover:bg-white",
+                )}
+              >
+                <div
+                  className={cn(
+                    "inline-flex size-9 items-center justify-center rounded-lg",
+                    isMp
+                      ? "bg-[var(--brand-primary)] text-white"
+                      : "bg-white text-[var(--brand-primary)] ring-1 ring-neutral-200",
+                  )}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                </div>
+                <p className="mt-3 text-sm font-semibold text-neutral-900">
+                  {highlight.title}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-neutral-600">
+                  {highlight.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="mt-5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+          También incluye
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
           {PLAN_CORE.features.map((feature) => (
-            <li
+            <span
               key={feature}
-              className="flex items-start gap-2 text-sm text-neutral-700"
+              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-700"
             >
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-              <span>{feature}</span>
-            </li>
+              <Check className="h-3 w-3 text-emerald-600" />
+              {feature}
+            </span>
           ))}
-        </ul>
+        </div>
         <p className="mt-4 text-sm text-neutral-500">
           Plan inferido en esta tienda:{" "}
           <span className="font-medium text-neutral-800">{currentTier.name}</span>{" "}

@@ -152,6 +152,10 @@ export type PlanTierDefinition = {
   moduleIds: readonly ModuleId[];
   /** Límite de staff adicionales (owner no cuenta). null = alto / ilimitado. */
   maxStaffSeats: number | null;
+  /** Human perks shown above module list (support, seats framing, etc.). */
+  perks: readonly string[];
+  /** Marketing highlight — e.g. “Más popular” on Grow. */
+  featured?: boolean;
 };
 
 export const MODULE_IDS = MODULE_LIST.map((m) => m.id) as ModuleId[];
@@ -178,6 +182,7 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Emprende / Instagram → web",
     moduleIds: START_MODULE_IDS,
     maxStaffSeats: 0,
+    perks: ["Soporte por email", "1 owner"],
   },
   grow: {
     id: "grow",
@@ -188,6 +193,12 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Marca que ya vende",
     moduleIds: GROW_MODULE_IDS,
     maxStaffSeats: 2,
+    featured: true,
+    perks: [
+      "Soporte preferencial",
+      "1 owner + 2 staff",
+      "Sin comisión sobre ventas",
+    ],
   },
   pro: {
     id: "pro",
@@ -198,6 +209,11 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Equipo + integraciones",
     moduleIds: PRO_MODULE_IDS,
     maxStaffSeats: null,
+    perks: [
+      "Soporte prioritario + canal directo",
+      "1 owner + staff alto",
+      "Sin comisión sobre ventas",
+    ],
   },
 };
 

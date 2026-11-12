@@ -22,11 +22,11 @@ Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-
 
 ## Planes (USD / mes)
 
-| Tier | Mensual | Anual equiv. | Target |
-|------|---------|--------------|--------|
-| **Start** | 29 | ~23 | Emprende / Instagram → web |
-| **Grow** | 79 | ~63 | Ya vende, quiere crecer |
-| **Pro** | 129 | ~103 | Equipo + analytics + API |
+| Tier | Mensual | Anual equiv. | Target | Perks de soporte |
+|------|---------|--------------|--------|------------------|
+| **Start** | 29 | ~23 | Emprende / Instagram → web | Soporte por email |
+| **Grow** | 79 | ~63 | Ya vende, quiere crecer (**Más popular**) | Soporte preferencial |
+| **Pro** | 129 | ~103 | Equipo + analytics + API | Soporte prioritario + canal directo |
 
 ### Núcleo en todos (vender)
 

@@ -39,7 +39,6 @@ function CrmDetailTrail({
       titleHref={listHref}
       titleCurrent={nameParam || detailEmail}
       description={detailEmail}
-      className="mb-0"
     />
   );
 }
@@ -60,7 +59,6 @@ export function AdminModulosHeader() {
             titleHref="/admin/modulos/crm"
             titleCurrent={detailEmail}
             description={detailEmail}
-            className="mb-0"
           />
         }
       >
@@ -70,10 +68,6 @@ export function AdminModulosHeader() {
   }
 
   return (
-    <AdminPageHeader
-      title={copy.title}
-      description={copy.description}
-      className="mb-0"
-    />
+    <AdminPageHeader title={copy.title} description={copy.description} />
   );
 }

@@ -6,8 +6,10 @@ export default function AdminModulosLayout({
 }: {
   children: ReactNode;
 }) {
+  // Header keeps its own mb-8 (same as before page-level titles).
+  // Do not use space-y here — it stacked with page wrappers and felt uneven.
   return (
-    <div className="space-y-8">
+    <div>
       <AdminModulosHeader />
       {children}
     </div>

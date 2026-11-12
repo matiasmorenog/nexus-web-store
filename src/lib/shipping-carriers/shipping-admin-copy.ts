@@ -28,15 +28,15 @@ const shippingAdminCopy = {
     readOnly: "Solo lectura.",
     globalTitle: "Cotización en checkout",
     globalDescription:
-      "Costo por código postal del comprador. Solo se cotizan operadores con credenciales válidas.",
+      "CP de origen y peso default. Cada operador se activa en su propia card.",
     carriersEnabled: "Activar cotización por CP en checkout",
     originZipLabel: "CP de origen (depósito)",
     originZipHint: "Desde dónde despachás. Requerido para cotizar.",
     weightLabel: "Peso default por ítem (g)",
     weightHint: "Usado para estimar el paquete en cotizaciones.",
-    operatorsLabel: "Operadores en checkout",
-    operatorsHint:
-      "Activá los que quieras ofrecer. Solo aparecen si están configurados. El comprador elige entre los activos.",
+    enableInCheckout: "Ofrecer en checkout",
+    enableInCheckoutHint:
+      "Si está activo y hay credenciales, el comprador puede elegir este operador al cotizar.",
     missingConfigBadge: "Falta configurar",
     pickupTitle: "Retiro en local",
     pickupDescription: "Retiro en local siempre es gratis.",
@@ -179,15 +179,15 @@ const shippingAdminCopy = {
     readOnly: "Solo lettura.",
     globalTitle: "Preventivo in checkout",
     globalDescription:
-      "Costo per CAP dell’acquirente. Si preventivano solo operatori con credenziali valide.",
+      "CAP di origine e peso default. Ogni operatore si attiva nella propria card.",
     carriersEnabled: "Attiva preventivo per CAP in checkout",
     originZipLabel: "CAP di origine (magazzino)",
     originZipHint: "Da dove spedisci. Obbligatorio per preventivare.",
     weightLabel: "Peso default per articolo (g)",
     weightHint: "Usato per stimare il pacco nei preventivi.",
-    operatorsLabel: "Operatori in checkout",
-    operatorsHint:
-      "Attiva quelli che vuoi offrire. Compaino solo se configurati. L’acquirente sceglie tra gli attivi.",
+    enableInCheckout: "Offri in checkout",
+    enableInCheckoutHint:
+      "Se attivo e con credenziali, l’acquirente può scegliere questo operatore nel preventivo.",
     missingConfigBadge: "Da configurare",
     pickupTitle: "Ritiro in sede",
     pickupDescription: "Il ritiro in sede è sempre gratuito.",

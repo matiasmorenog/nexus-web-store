@@ -14,10 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { readAdminLocaleFromDocument } from "@/lib/admin-locale";
-import { cn } from "@/lib/utils";
 import {
   getShippingAdminCopy,
-  SHIPPING_CARRIER_OPTIONS,
   type ShippingCarrierId,
   type StoreShippingSettingsAdminData,
   type StoreShippingSettingsSaveInput,
@@ -119,7 +117,9 @@ export function AdminShippingSettingsForm({
   const toggleCarrier = (carrierId: ShippingCarrierId, on: boolean) => {
     setSettings((current) => {
       const nextIds = on
-        ? ([...current.enabledCarrierIds, carrierId] as ShippingCarrierId[])
+        ? current.enabledCarrierIds.includes(carrierId)
+          ? current.enabledCarrierIds
+          : ([...current.enabledCarrierIds, carrierId] as ShippingCarrierId[])
         : current.enabledCarrierIds.filter((id) => id !== carrierId);
       return {
         ...current,
@@ -129,14 +129,107 @@ export function AdminShippingSettingsForm({
     });
   };
 
+  const renderEnableSwitch = (carrierId: ShippingCarrierId) => {
+    const enabled = settings.enabledCarrierIds.includes(carrierId);
+    const configured = settings.carrierConfigured?.[carrierId] ?? false;
+    return (
+      <div className="space-y-1.5 rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-3">
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-neutral-900">
+          <Switch
+            disabled={readOnly || !settings.carriersEnabled}
+            checked={enabled}
+            onChange={(event) => toggleCarrier(carrierId, event.target.checked)}
+          />
+          <span className="flex flex-wrap items-center gap-2">
+            {copy.enableInCheckout}
+            {!configured ? (
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800">
+                {copy.missingConfigBadge}
+              </span>
+            ) : null}
+          </span>
+        </label>
+        <p className="pl-11 text-xs text-neutral-500">{copy.enableInCheckoutHint}</p>
+      </div>
+    );
+  };
+
   return (
     <AdminForm onSubmit={handleSubmit} className="space-y-6">
+      <AdminCard
+        title={copy.globalTitle}
+        description={copy.globalDescription}
+        className="max-w-lg"
+      >
+        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+          <Switch
+            disabled={readOnly}
+            checked={settings.carriersEnabled}
+            onChange={(event) =>
+              setSettings((current) => ({
+                ...current,
+                carriersEnabled: event.target.checked,
+              }))
+            }
+          />
+          {copy.carriersEnabled}
+        </label>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="originZip">{copy.originZipLabel}</Label>
+            <Input
+              id="originZip"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              placeholder="1425"
+              disabled={readOnly || !settings.carriersEnabled}
+              value={settings.originZip}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  originZip: event.target.value.replace(/\D/g, "").slice(0, 8),
+                }))
+              }
+              className="text-base sm:text-sm"
+            />
+            <p className="mt-1.5 text-xs text-neutral-500">{copy.originZipHint}</p>
+          </div>
+
+          <div>
+            <Label htmlFor="defaultWeightGrams">{copy.weightLabel}</Label>
+            <Input
+              id="defaultWeightGrams"
+              type="number"
+              min="100"
+              step="50"
+              inputMode="numeric"
+              disabled={readOnly || !settings.carriersEnabled}
+              value={String(settings.defaultWeightGrams)}
+              onChange={(event) =>
+                setSettings((current) => ({
+                  ...current,
+                  defaultWeightGrams:
+                    parseInt(event.target.value, 10) >= 100
+                      ? parseInt(event.target.value, 10)
+                      : 100,
+                }))
+              }
+              className="text-base sm:text-sm"
+            />
+            <p className="mt-1.5 text-xs text-neutral-500">{copy.weightHint}</p>
+          </div>
+        </div>
+      </AdminCard>
+
       <AdminCard
         title={meCopy.title}
         description={meCopy.description}
         className="max-w-lg"
       >
         <div className="space-y-3">
+          {renderEnableSwitch("mercado_envios")}
+
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
             <p>
               Token:{" "}
@@ -218,6 +311,8 @@ export function AdminShippingSettingsForm({
         className="max-w-lg"
       >
         <div className="space-y-3">
+          {renderEnableSwitch("correo_argentino")}
+
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
             <p>
               <strong className="text-neutral-900">
@@ -320,6 +415,8 @@ export function AdminShippingSettingsForm({
         className="max-w-lg"
       >
         <div className="space-y-3">
+          {renderEnableSwitch("andreani")}
+
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
             <p>
               <strong className="text-neutral-900">
@@ -415,110 +512,6 @@ export function AdminShippingSettingsForm({
             intro={andreaniCopy.guideIntro}
             steps={andreaniCopy.guideSteps}
           />
-        </div>
-      </AdminCard>
-
-      <AdminCard
-        title={copy.globalTitle}
-        description={copy.globalDescription}
-        className="max-w-lg"
-      >
-        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            disabled={readOnly}
-            checked={settings.carriersEnabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                carriersEnabled: event.target.checked,
-              }))
-            }
-          />
-          {copy.carriersEnabled}
-        </label>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="originZip">{copy.originZipLabel}</Label>
-            <Input
-              id="originZip"
-              inputMode="numeric"
-              autoComplete="postal-code"
-              placeholder="1425"
-              disabled={readOnly || !settings.carriersEnabled}
-              value={settings.originZip}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  originZip: event.target.value.replace(/\D/g, "").slice(0, 8),
-                }))
-              }
-              className="text-base sm:text-sm"
-            />
-            <p className="mt-1.5 text-xs text-neutral-500">{copy.originZipHint}</p>
-          </div>
-
-          <div>
-            <Label htmlFor="defaultWeightGrams">{copy.weightLabel}</Label>
-            <Input
-              id="defaultWeightGrams"
-              type="number"
-              min="100"
-              step="50"
-              inputMode="numeric"
-              disabled={readOnly || !settings.carriersEnabled}
-              value={String(settings.defaultWeightGrams)}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  defaultWeightGrams:
-                    parseInt(event.target.value, 10) >= 100
-                      ? parseInt(event.target.value, 10)
-                      : 100,
-                }))
-              }
-              className="text-base sm:text-sm"
-            />
-            <p className="mt-1.5 text-xs text-neutral-500">{copy.weightHint}</p>
-          </div>
-
-          <div className="sm:col-span-2 space-y-2">
-            <Label>{copy.operatorsLabel}</Label>
-            <p className="text-xs text-neutral-500">{copy.operatorsHint}</p>
-            <div className="space-y-2 rounded-md border border-neutral-200 p-3">
-              {SHIPPING_CARRIER_OPTIONS.map((carrier) => {
-                const checked = settings.enabledCarrierIds.includes(carrier.id);
-                const configured =
-                  settings.carrierConfigured?.[carrier.id] ?? false;
-                return (
-                  <label
-                    key={carrier.id}
-                    className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700"
-                  >
-                    <Switch
-                      disabled={readOnly || !settings.carriersEnabled}
-                      checked={checked}
-                      onChange={(event) =>
-                        toggleCarrier(carrier.id, event.target.checked)
-                      }
-                    />
-                    <span className="flex flex-wrap items-center gap-2">
-                      {carrier.label}
-                      {!configured ? (
-                        <span
-                          className={cn(
-                            "rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800",
-                          )}
-                        >
-                          {copy.missingConfigBadge}
-                        </span>
-                      ) : null}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </AdminCard>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { AdminBreadcrumb } from "@/components/admin/admin-breadcrumb";
 import { AdminCard } from "@/components/admin/admin-card";
 import { AdminCrmCustomerProfileForm } from "@/components/admin/admin-crm-customer-profile-form";
 import {
@@ -49,16 +50,16 @@ export function AdminCrmCustomerDetail({
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href="/admin/modulos/crm"
-          className="-ml-2 mb-4 inline-flex h-8 items-center rounded-[var(--ui-button-radius,0.5rem)] border border-neutral-300 bg-white px-3 text-sm text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50"
-        >
-          <ArrowLeft className="mr-2 size-4" />
-          Volver a clientes
-        </Link>
+      <AdminBreadcrumb
+        items={[
+          { label: "CRM", href: "/admin/modulos/crm" },
+          { label: customer.name },
+        ]}
+      />
 
+      <div className="grid items-stretch gap-4 xl:grid-cols-2">
         <AdminCard
+          className="h-full"
           title={customer.name}
           description={customer.email}
           action={
@@ -71,8 +72,8 @@ export function AdminCrmCustomerDetail({
             ) : null
           }
         >
-          <AdminCardSection>
-            <AdminDetailGrid>
+          <AdminCardSection bordered={false} className="!px-0 !py-0">
+            <AdminDetailGrid className="gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <AdminDetailField label="Teléfono">
                 <span className="inline-flex flex-wrap items-center gap-2">
                   <span>{customer.phone}</span>
@@ -81,9 +82,9 @@ export function AdminCrmCustomerDetail({
                       href={whatsappHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-[var(--ui-button-radius,0.5rem)] border border-emerald-200 bg-emerald-50 px-2.5 text-sm font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
+                      className="inline-flex h-7 items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 text-xs font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
                     >
-                      <MessageCircle className="size-4" />
+                      <MessageCircle className="size-3.5" />
                       WhatsApp
                     </a>
                   ) : null}
@@ -104,13 +105,14 @@ export function AdminCrmCustomerDetail({
             </AdminDetailGrid>
           </AdminCardSection>
         </AdminCard>
-      </div>
 
-      <AdminCrmCustomerProfileForm
-        email={customer.email}
-        profile={customer.profile}
-        readOnly={readOnly}
-      />
+        <AdminCrmCustomerProfileForm
+          email={customer.email}
+          profile={customer.profile}
+          readOnly={readOnly}
+          compact
+        />
+      </div>
 
       <AdminCard
         padding={false}

@@ -12,17 +12,20 @@ import {
   parseCustomerTags,
   type CrmCustomerProfile,
 } from "@/lib/crm";
+import { cn } from "@/lib/utils";
 
 type AdminCrmCustomerProfileFormProps = {
   email: string;
   profile: CrmCustomerProfile;
   readOnly?: boolean;
+  compact?: boolean;
 };
 
 export function AdminCrmCustomerProfileForm({
   email,
   profile,
   readOnly = false,
+  compact = false,
 }: AdminCrmCustomerProfileFormProps) {
   const router = useRouter();
   const [tagsInput, setTagsInput] = useState(profile.tags.join(", "));
@@ -71,9 +74,13 @@ export function AdminCrmCustomerProfileForm({
   };
 
   return (
-    <AdminCard title="Tags y notas" description="Información interna del equipo.">
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="space-y-2">
+    <AdminCard
+      className={cn(compact && "h-full")}
+      title="Tags y notas"
+      description="Info interna del equipo."
+    >
+      <form className="flex h-full flex-col gap-3" onSubmit={handleSubmit}>
+        <div className="space-y-1.5">
           <Label htmlFor="crm-tags">Tags</Label>
           <Input
             id="crm-tags"
@@ -82,20 +89,19 @@ export function AdminCrmCustomerProfileForm({
             placeholder="vip, mayorista, instagram"
             disabled={readOnly}
           />
-          <p className="text-xs text-neutral-500">
-            Separá con comas. Máximo 12 tags.
-          </p>
+          <p className="text-xs text-neutral-500">Separá con comas · máx. 12</p>
         </div>
 
-        <div className="space-y-2">
+        <div className="flex min-h-0 flex-1 flex-col space-y-1.5">
           <Label htmlFor="crm-notes">Notas internas</Label>
           <AdminTextarea
             id="crm-notes"
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
-            rows={5}
-            placeholder="Preferencias, acuerdos comerciales, observaciones de envío..."
+            rows={compact ? 4 : 5}
+            placeholder="Preferencias, acuerdos, envío..."
             disabled={readOnly}
+            className={cn(compact && "min-h-[6.5rem] resize-y")}
           />
         </div>
 
@@ -107,7 +113,11 @@ export function AdminCrmCustomerProfileForm({
         {readOnly ? (
           <p className="text-sm text-neutral-500">Solo lectura.</p>
         ) : (
-          <Button type="submit" disabled={pending}>
+          <Button
+            type="submit"
+            disabled={pending}
+            className="h-10 w-fit shrink-0 rounded-md px-4"
+          >
             {pending ? "Guardando..." : "Guardar perfil"}
           </Button>
         )}

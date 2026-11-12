@@ -2,6 +2,10 @@
 
 Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `development`; mover a **Hecho** en el release.
 
+## Envíos
+
+- [ ] Multi-carrier: habilitar varios operadores en admin; comprador elige en checkout; aviso dashboard si ninguno activo.
+
 ## Manoviva (app3)
 
 - [ ] Cobrar envío en checkout según tarifas de Poste Italiane por peso/cantidad (hoy `shippingCost = 0`). Falta que Raquel pase las tarifas.

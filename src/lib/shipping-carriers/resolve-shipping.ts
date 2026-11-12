@@ -1,15 +1,22 @@
 import { db } from "@/lib/db";
+import { formatMercadoEnviosDeliveryWindow } from "@/lib/mercado-envios";
 import {
   quoteMercadoEnvios,
   type MercadoEnviosQuote,
 } from "@/lib/mercado-envios/server";
+import type { MercadoEnviosCarrierId } from "@/lib/mercado-envios/types";
+import { isMercadoEnviosCarrierId } from "@/lib/shipping-carriers/format";
 import { getStoreShippingSettings } from "@/lib/shipping-carriers/query";
-import type { ShippingQuoteLineInput } from "@/lib/shipping-carriers/types";
+import type {
+  CheckoutShippingQuoteOption,
+  ShippingQuoteLineInput,
+} from "@/lib/shipping-carriers/types";
 
 type ResolveShippingQuoteInput = {
   storeId: string;
   zip: string;
   isPickup: boolean;
+  carrierId?: string | null;
   items?: ShippingQuoteLineInput[];
   orderSubtotal?: number;
 };
@@ -29,12 +36,19 @@ async function buildQuoteContext(
   };
 }
 
-async function quoteForStore({
+async function quoteCarrierForStore({
   storeId,
   zip,
+  carrierId,
   items,
   orderSubtotal,
-}: Omit<ResolveShippingQuoteInput, "isPickup">): Promise<MercadoEnviosQuote> {
+}: {
+  storeId: string;
+  zip: string;
+  carrierId: MercadoEnviosCarrierId;
+  items?: ShippingQuoteLineInput[];
+  orderSubtotal?: number;
+}): Promise<MercadoEnviosQuote> {
   const { settings, itemCount, totalWeightGrams } = await buildQuoteContext(
     storeId,
     items,
@@ -44,7 +58,7 @@ async function quoteForStore({
     storeId,
     destinationZip: zip.trim(),
     originZip: settings.originZip,
-    carrierId: settings.preferredCarrierId,
+    carrierId,
     mercadoLibreQuoteItemId: settings.mercadoLibreQuoteItemId || null,
     defaultWeightGrams: settings.defaultWeightGrams,
     totalWeightGrams,
@@ -53,21 +67,54 @@ async function quoteForStore({
   });
 }
 
+function toCheckoutQuoteOption(
+  quote: MercadoEnviosQuote,
+  carrierId: MercadoEnviosCarrierId,
+): CheckoutShippingQuoteOption {
+  return {
+    carrierId,
+    carrier: quote.carrier,
+    service: quote.service,
+    cost: quote.cost,
+    deliveryWindow: formatMercadoEnviosDeliveryWindow(
+      quote.deliveryDaysMin,
+      quote.deliveryDaysMax,
+    ),
+    estimatedDelivery: quote.estimatedDelivery.toISOString(),
+    demoMode: quote.demoMode,
+    source: quote.source,
+  };
+}
+
 export async function resolveCheckoutShippingCost(
   input: ResolveShippingQuoteInput,
 ): Promise<number> {
   if (input.isPickup) return 0;
 
   const settings = await getStoreShippingSettings(input.storeId);
-  if (!settings.carriersEnabled) {
+  if (!settings.carriersEnabled || settings.enabledCarrierIds.length === 0) {
     return 0;
   }
 
-  const quote = await quoteForStore(input);
+  const requested = input.carrierId?.trim() ?? "";
+  const carrierId =
+    isMercadoEnviosCarrierId(requested) &&
+    settings.enabledCarrierIds.includes(requested)
+      ? requested
+      : settings.enabledCarrierIds[0];
+
+  const quote = await quoteCarrierForStore({
+    storeId: input.storeId,
+    zip: input.zip,
+    carrierId,
+    items: input.items,
+    orderSubtotal: input.orderSubtotal,
+  });
   return quote.cost;
 }
 
-export async function quoteCheckoutShipping({
+/** Quotes every enabled carrier for checkout picker. */
+export async function quoteCheckoutShippingOptions({
   storeId,
   zip,
   items,
@@ -77,13 +124,61 @@ export async function quoteCheckoutShipping({
   zip: string;
   items?: ShippingQuoteLineInput[];
   orderSubtotal?: number;
+}): Promise<CheckoutShippingQuoteOption[]> {
+  const settings = await getStoreShippingSettings(storeId);
+  if (!settings.carriersEnabled || settings.enabledCarrierIds.length === 0) {
+    return [];
+  }
+
+  const quotes = await Promise.all(
+    settings.enabledCarrierIds.map(async (carrierId) => {
+      const quote = await quoteCarrierForStore({
+        storeId,
+        zip,
+        carrierId,
+        items,
+        orderSubtotal,
+      });
+      return toCheckoutQuoteOption(quote, carrierId);
+    }),
+  );
+
+  return quotes;
+}
+
+/** @deprecated Prefer quoteCheckoutShippingOptions — single preferred quote. */
+export async function quoteCheckoutShipping({
+  storeId,
+  zip,
+  items,
+  orderSubtotal,
+  carrierId,
+}: {
+  storeId: string;
+  zip: string;
+  items?: ShippingQuoteLineInput[];
+  orderSubtotal?: number;
+  carrierId?: string | null;
 }): Promise<MercadoEnviosQuote | null> {
   const settings = await getStoreShippingSettings(storeId);
-  if (!settings.carriersEnabled) {
+  if (!settings.carriersEnabled || settings.enabledCarrierIds.length === 0) {
     return null;
   }
 
-  return quoteForStore({ storeId, zip, items, orderSubtotal });
+  const requested = carrierId?.trim() ?? "";
+  const resolved =
+    isMercadoEnviosCarrierId(requested) &&
+    settings.enabledCarrierIds.includes(requested)
+      ? requested
+      : settings.enabledCarrierIds[0];
+
+  return quoteCarrierForStore({
+    storeId,
+    zip,
+    carrierId: resolved,
+    items,
+    orderSubtotal,
+  });
 }
 
 export async function estimateOrderSubtotalForQuote(
@@ -105,4 +200,16 @@ export async function estimateOrderSubtotalForQuote(
     if (!variant) return sum;
     return sum + Number(variant.price) * item.quantity;
   }, 0);
+}
+
+export function resolveCheckoutCarrierId(
+  requested: string | null | undefined,
+  enabledCarrierIds: readonly MercadoEnviosCarrierId[],
+): MercadoEnviosCarrierId | null {
+  if (enabledCarrierIds.length === 0) return null;
+  const trimmed = requested?.trim() ?? "";
+  if (isMercadoEnviosCarrierId(trimmed) && enabledCarrierIds.includes(trimmed)) {
+    return trimmed;
+  }
+  return enabledCarrierIds[0] ?? null;
 }

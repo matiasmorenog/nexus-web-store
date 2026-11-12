@@ -9,7 +9,10 @@ import {
 } from "@/lib/payments/format";
 import { decryptPaymentSecret } from "@/lib/payments/encryption";
 import { storeHasModule } from "@/lib/modules";
-import { isMercadoEnviosCarrierId } from "@/lib/shipping-carriers/format";
+import {
+  isMercadoEnviosCarrierId,
+  normalizeEnabledCarrierIds,
+} from "@/lib/shipping-carriers/format";
 import {
   DEFAULT_SHIPPING_SETTINGS,
   type MercadoEnviosTokenSource,
@@ -25,11 +28,20 @@ function serializeCarrierSettings(
 ): StoreCarrierSettingsData {
   if (!row) return DEFAULT_SHIPPING_SETTINGS;
 
+  const enabledCarrierIds = normalizeEnabledCarrierIds(
+    row.enabledCarrierIds,
+    row.preferredCarrierId,
+  );
+  const preferredCarrierId =
+    enabledCarrierIds[0] ??
+    (isMercadoEnviosCarrierId(row.preferredCarrierId)
+      ? row.preferredCarrierId
+      : DEFAULT_SHIPPING_SETTINGS.preferredCarrierId);
+
   return {
     carriersEnabled: row.carriersEnabled,
-    preferredCarrierId: isMercadoEnviosCarrierId(row.preferredCarrierId)
-      ? row.preferredCarrierId
-      : DEFAULT_SHIPPING_SETTINGS.preferredCarrierId,
+    enabledCarrierIds,
+    preferredCarrierId,
     originZip: row.originZip?.trim() || DEFAULT_SHIPPING_SETTINGS.originZip,
     mercadoLibreQuoteItemId: row.mercadoLibreQuoteItemId?.trim() ?? "",
     defaultWeightGrams:
@@ -110,7 +122,7 @@ export async function getStoreShippingSettings(
   storeId: string,
 ): Promise<StoreCarrierSettingsData> {
   if (!(await storeHasModule(storeId, "shippingCarriers"))) {
-    return { ...DEFAULT_SHIPPING_SETTINGS, carriersEnabled: false };
+    return { ...DEFAULT_SHIPPING_SETTINGS, carriersEnabled: false, enabledCarrierIds: [] };
   }
 
   const cached = unstable_cache(
@@ -136,5 +148,5 @@ export async function getStoreShippingSettings(
 
 export async function isCarrierShippingEnabled(storeId: string): Promise<boolean> {
   const settings = await getStoreShippingSettings(storeId);
-  return settings.carriersEnabled;
+  return settings.carriersEnabled && settings.enabledCarrierIds.length > 0;
 }

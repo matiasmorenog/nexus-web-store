@@ -11,13 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MenuSelect } from "@/components/ui/menu-select";
 import { Switch } from "@/components/ui/switch";
 import {
   SHIPPING_CARRIER_OPTIONS,
   type StoreShippingSettingsAdminData,
   type StoreShippingSettingsSaveInput,
 } from "@/lib/shipping-carriers";
+import type { MercadoEnviosCarrierId } from "@/lib/mercado-envios/types";
 
 const SOURCE_LABELS: Record<
   StoreShippingSettingsAdminData["mercadoEnviosSource"],
@@ -262,26 +262,48 @@ export function AdminShippingSettingsForm({
             </p>
           </div>
 
-          <div className="sm:col-span-2">
-            <Label htmlFor="preferred-carrier">Operador preferido</Label>
-            <MenuSelect
-              id="preferred-carrier"
-              className="mt-1.5"
-              aria-label="Operador preferido"
-              value={settings.preferredCarrierId}
-              disabled={readOnly || !settings.carriersEnabled}
-              onChange={(next) =>
-                setSettings((current) => ({
-                  ...current,
-                  preferredCarrierId:
-                    next as StoreShippingSettingsAdminData["preferredCarrierId"],
-                }))
-              }
-              options={SHIPPING_CARRIER_OPTIONS.map((carrier) => ({
-                value: carrier.id,
-                label: carrier.label,
-              }))}
-            />
+          <div className="sm:col-span-2 space-y-2">
+            <Label>Operadores en checkout</Label>
+            <p className="text-xs text-neutral-500">
+              Activá los que quieras ofrecer. El comprador elige entre los
+              activos al cotizar. Con uno alcanza.
+            </p>
+            <div className="space-y-2 rounded-md border border-neutral-200 p-3">
+              {SHIPPING_CARRIER_OPTIONS.map((carrier) => {
+                const checked = settings.enabledCarrierIds.includes(carrier.id);
+                return (
+                  <label
+                    key={carrier.id}
+                    className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700"
+                  >
+                    <Switch
+                      disabled={readOnly || !settings.carriersEnabled}
+                      checked={checked}
+                      onChange={(event) => {
+                        const on = event.target.checked;
+                        setSettings((current) => {
+                          const nextIds = on
+                            ? ([
+                                ...current.enabledCarrierIds,
+                                carrier.id,
+                              ] as MercadoEnviosCarrierId[])
+                            : current.enabledCarrierIds.filter(
+                                (id) => id !== carrier.id,
+                              );
+                          return {
+                            ...current,
+                            enabledCarrierIds: nextIds,
+                            preferredCarrierId:
+                              nextIds[0] ?? current.preferredCarrierId,
+                          };
+                        });
+                      }}
+                    />
+                    {carrier.label}
+                  </label>
+                );
+              })}
+            </div>
           </div>
         </div>
       </AdminCard>

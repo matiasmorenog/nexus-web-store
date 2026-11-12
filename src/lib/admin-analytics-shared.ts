@@ -25,7 +25,7 @@ export type DashboardAttention = {
   outOfStockVariants: number;
   /** Sin Access Token de Mercado Pago guardado en admin (plan base). */
   cobrosTokenMissing: boolean;
-  /** Módulo shippingCarriers activo sin token en admin (ME ni MP vía Cobros). */
+  /** Módulo shippingCarriers activo sin ningún operador habilitado en checkout. */
   shippingCarriersTokenMissing: boolean;
 };
 

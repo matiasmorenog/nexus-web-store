@@ -12,9 +12,11 @@ import {
   resolveCrmListReturnHref,
 } from "@/lib/crm/format";
 
+const CRM_PATH = "/admin/modulos/crm";
+
 function parseCrmDetailEmail(pathname: string): string | null {
   if (!isCrmDetailPath(pathname)) return null;
-  const rest = pathname.slice("/admin/modulos/crm/".length);
+  const rest = pathname.slice(`${CRM_PATH}/`.length);
   try {
     return normalizeCustomerEmail(decodeURIComponent(rest));
   } catch {
@@ -43,10 +45,10 @@ function CrmDetailTrail({
   );
 }
 
-/** Persistent module title — outside loading.tsx so it does not skeleton. */
-export function AdminModulosHeader() {
+/** CRM list/detail title in crm/layout — survives list↔detail loading. */
+export function AdminCrmRouteHeader() {
   const pathname = usePathname();
-  const copy = resolveAdminModuleHeader(pathname);
+  const copy = resolveAdminModuleHeader(CRM_PATH);
   if (!copy) return null;
 
   const detailEmail = parseCrmDetailEmail(pathname);
@@ -56,7 +58,7 @@ export function AdminModulosHeader() {
         fallback={
           <AdminPageHeader
             title={copy.title}
-            titleHref="/admin/modulos/crm"
+            titleHref={CRM_PATH}
             titleCurrent={detailEmail}
             description={detailEmail}
           />

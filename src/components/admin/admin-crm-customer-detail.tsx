@@ -62,32 +62,32 @@ export function AdminCrmCustomerDetail({
           title={customer.name}
           description={customer.email}
           action={
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              {whatsappHref ? (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-[var(--ui-button-radius,0.5rem)] border border-emerald-200 bg-emerald-50 px-3 text-sm font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
-                >
-                  <MessageCircle className="size-4" />
-                  WhatsApp
-                </a>
-              ) : null}
-              {customer.profile.tags.length > 0 ? (
-                <div className="flex flex-wrap justify-end gap-1">
-                  {customer.profile.tags.map((tag) => (
-                    <Badge key={tag}>{tag}</Badge>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            customer.profile.tags.length > 0 ? (
+              <div className="flex flex-wrap justify-end gap-1">
+                {customer.profile.tags.map((tag) => (
+                  <Badge key={tag}>{tag}</Badge>
+                ))}
+              </div>
+            ) : null
           }
         >
           <AdminCardSection>
             <AdminDetailGrid>
               <AdminDetailField label="Teléfono">
-                {customer.phone}
+                <span className="inline-flex flex-wrap items-center gap-2">
+                  <span>{customer.phone}</span>
+                  {whatsappHref ? (
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-[var(--ui-button-radius,0.5rem)] border border-emerald-200 bg-emerald-50 px-2.5 text-sm font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
+                    >
+                      <MessageCircle className="size-4" />
+                      WhatsApp
+                    </a>
+                  ) : null}
+                </span>
               </AdminDetailField>
               <AdminDetailField label="Pedidos">
                 {customer.orderCount}

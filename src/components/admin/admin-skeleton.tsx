@@ -843,6 +843,29 @@ export function AdminSkeletonModuleSettingsPage() {
   );
 }
 
+/** /admin/categorias — form create + table (title lives in layout). */
+export function AdminSkeletonCategoriesPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando categorías" className="space-y-8">
+      <div className="max-w-3xl">
+        <AdminSkeletonModuleFormCard
+          titleWidth="w-36"
+          descriptionWidth="w-48"
+          fields={4}
+          withToggle
+        />
+      </div>
+      <AdminSkeletonCardShell
+        titleWidth="w-44"
+        descriptionWidth="w-40"
+        padding={false}
+      >
+        <AdminSkeletonTable columns={6} rows={6} />
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
+  );
+}
+
 /** /admin/modulos/crm */
 export function AdminSkeletonModuleCrmPage() {
   return (

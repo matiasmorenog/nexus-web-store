@@ -1,5 +1,4 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminSeoSettingsForm } from "@/components/admin/admin-seo-settings-form";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
@@ -18,13 +17,6 @@ export default async function AdminSeoPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="SEO avanzado"
-          description="Meta tags, sitemap dinámico, robots.txt y structured data para buscadores."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <AdminSeoSettingsForm initialSettings={settings} />
       </AdminDashboardReveal>

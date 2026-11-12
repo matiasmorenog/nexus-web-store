@@ -1,7 +1,17 @@
 import Link from "next/link";
-import { AlertCircle, CreditCard, PackageX, Truck } from "lucide-react";
+import {
+  AlertCircle,
+  Banknote,
+  CreditCard,
+  Crosshair,
+  MapPin,
+  MessageCircle,
+  PackageX,
+  Truck,
+} from "lucide-react";
 import { adminSurfaceClass } from "@/components/admin/admin-surface";
 import {
+  buildAdminMarketingSettingsHref,
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
   buildAdminPaymentSettingsHref,
@@ -58,14 +68,74 @@ function buildAttentionItems(attention: DashboardAttention): AttentionItem[] {
     });
   }
 
+  if (attention.stripeConfigMissing) {
+    items.push({
+      key: "stripe",
+      href: buildAdminPaymentSettingsHref(),
+      icon: CreditCard,
+      label: "Stripe activo sin claves",
+      detail:
+        "Activaste tarjeta (Stripe): cargá Secret key y webhook signing secret en Cobros",
+      tone: "rose",
+    });
+  }
+
+  if (attention.transferConfigMissing) {
+    items.push({
+      key: "transfer",
+      href: buildAdminPaymentSettingsHref(),
+      icon: Banknote,
+      label: "Transferencia activa sin datos",
+      detail:
+        "Activaste transferencia: cargá CBU/alias o instrucciones en Cobros",
+      tone: "rose",
+    });
+  }
+
   if (attention.shippingCarriersTokenMissing) {
     items.push({
       key: "shipping-carriers",
       href: buildAdminShippingCarriersHref(),
       icon: Truck,
-      label: "Mercado Envíos sin configurar en admin",
+      label: "Envíos sin operador configurado",
       detail:
-        "Módulo Envíos activo: guardá el token en Envíos carrier o configurá Cobros",
+        "Cotización por CP activa: cargá credenciales y activá al menos un operador (ME, Correo o Andreani)",
+      tone: "rose",
+    });
+  }
+
+  if (attention.pickupConfigMissing) {
+    items.push({
+      key: "pickup",
+      href: buildAdminShippingCarriersHref(),
+      icon: MapPin,
+      label: "Retiro en local sin dirección",
+      detail:
+        "Retiro activo: completá dirección, ciudad y CP del local en Envíos",
+      tone: "rose",
+    });
+  }
+
+  if (attention.whatsappConfigMissing) {
+    items.push({
+      key: "whatsapp",
+      href: buildAdminMarketingSettingsHref(),
+      icon: MessageCircle,
+      label: "WhatsApp activo sin teléfono",
+      detail:
+        "Activaste el botón de WhatsApp: cargá un número con código de país en Marketing",
+      tone: "rose",
+    });
+  }
+
+  if (attention.metaPixelConfigMissing) {
+    items.push({
+      key: "meta-pixel",
+      href: buildAdminMarketingSettingsHref(),
+      icon: Crosshair,
+      label: "Meta Pixel activo sin ID",
+      detail:
+        "Activaste Meta Pixel: pegá el Pixel ID desde Events Manager en Marketing",
       tone: "rose",
     });
   }

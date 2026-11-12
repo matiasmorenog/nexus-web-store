@@ -42,18 +42,8 @@ function hoursToBusinessDays(hours: number | undefined, fallback: number) {
   return Math.max(1, Math.ceil(hours / 24));
 }
 
-function pickShippingOption(
-  options: MercadoLibreShippingOption[],
-  carrierId: MercadoEnviosCarrierId,
-) {
+function pickShippingOption(options: MercadoLibreShippingOption[]) {
   if (options.length === 0) return null;
-
-  if (carrierId === "correo_argentino") {
-    const correo = options.find((option) =>
-      /correo argentino/i.test(option.name ?? ""),
-    );
-    if (correo) return correo;
-  }
 
   const recommended = options.find((option) => option.display === "recommended");
   if (recommended) return recommended;
@@ -67,7 +57,6 @@ function pickShippingOption(
 
 function mapOptionToQuote(
   option: MercadoLibreShippingOption,
-  carrierId: MercadoEnviosCarrierId,
 ): MercadoLibreQuoteResult {
   const shippingHours = option.estimated_delivery_time?.shipping ?? 48;
   const handlingHours = option.estimated_delivery_time?.handling ?? 24;
@@ -78,14 +67,10 @@ function mapOptionToQuote(
     : addCalendarDays(new Date(), daysMax);
 
   const cost = Math.round(option.cost ?? option.list_cost ?? 0);
-  const carrierLabel =
-    carrierId === "correo_argentino" && /correo/i.test(option.name ?? "")
-      ? "Correo Argentino"
-      : "Mercado Envíos";
 
   return {
     cost,
-    carrier: carrierLabel,
+    carrier: "Mercado Envíos",
     service: option.name?.trim() || "Envío a domicilio",
     deliveryDaysMin: daysMin,
     deliveryDaysMax: daysMax,
@@ -256,9 +241,10 @@ export async function quoteMercadoEnviosFromApi({
   for (const attempt of attempts) {
     try {
       const response = await attempt;
-      const option = pickShippingOption(response.options ?? [], carrierId);
+      const option = pickShippingOption(response.options ?? []);
       if (!option) continue;
-      return mapOptionToQuote(option, carrierId);
+      void carrierId;
+      return mapOptionToQuote(option);
     } catch (error) {
       console.warn("Mercado Libre shipping quote attempt failed:", error);
     }

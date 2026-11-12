@@ -2,6 +2,10 @@
 
 Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `development`; mover a **Hecho** en el release.
 
+## Envíos
+
+- [ ] Multi-carrier real: ME + MiCorreo + Andreani (credenciales, cotizar, crear envío, guías admin).
+
 ## Manoviva (app3)
 
 - [ ] Cobrar envío en checkout según tarifas de Poste Italiane por peso/cantidad (hoy `shippingCost = 0`). Falta que Raquel pase las tarifas.
@@ -33,6 +37,10 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 
 - [ ] Onboarding de tiendas sin desarrollador + billing automático por tier (`docs/modules-pricing.md`).
 - [ ] Subida de logo por tienda desde el admin (hoy el logo vive en código; recién hace falta con el onboarding).
+
+## Admin / módulos
+
+- [x] CRM full: KPIs, filtros, segmentos, WhatsApp ficha, export CSV (dejar de ser “lite”).
 
 ## Hecho (referencia)
 

@@ -22,26 +22,28 @@ Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-
 
 ## Planes (USD / mes)
 
-| Tier | Mensual | Anual equiv. | Target |
-|------|---------|--------------|--------|
-| **Start** | 29 | ~23 | Emprende / Instagram → web |
-| **Grow** | 59 | ~47 | Ya vende, quiere crecer |
-| **Pro** | 99 | ~79 | Equipo + analytics + API |
+| Tier | Mensual | Anual equiv. | Target | Perks de soporte |
+|------|---------|--------------|--------|------------------|
+| **Start** | 29 | ~23 | Emprende / Instagram → web | Soporte por email |
+| **Grow** | 79 | ~63 | Ya vende, quiere crecer (**Más popular**) | Soporte preferencial |
+| **Pro** | 129 | ~103 | Equipo + analytics + API | Soporte prioritario + canal directo |
 
 ### Núcleo en todos (vender)
 
-Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
+Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro.
+
+**Highlights en admin Plan:** Mercado Pago, Checkout listo, Sin % de plataforma (el resto como chips).
 
 | Área | Funcionalidad |
 |------|---------------|
 | Dashboard | KPIs, gráficos, alertas de stock, pedidos recientes |
 | Productos | CRUD, variantes, stock, imágenes (Vercel Blob) |
 | Pedidos | Listado, filtros, cambio de estado |
-| Cobros | Mercado Pago, transferencia bancaria con 10% off en productos |
+| Cobros | **Mercado Pago** (highlight), transferencia bancaria y Stripe |
 | Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
 | Integraciones base | Emails transaccionales |
-| Usuarios | 1 owner por tienda |
+| Accesos | Start: 1 acceso admin; Grow: hasta 3; Pro: ilimitados |
 
 ### Módulos por tier
 
@@ -53,8 +55,8 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `homeEditor` | Home editable | | ✓ | ✓ |
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
-| `crm` | CRM lite | | ✓ | ✓ |
-| `multiUser` | Multi-usuario | | ✓ (owner + 2 staff) | ✓ (ilimitado / alto) |
+| `crm` | CRM (clientes, LTV, segmentos, WhatsApp, CSV) | | ✓ | ✓ |
+| `multiUser` | Multi-usuario | | ✓ (hasta 3 accesos) | ✓ (ilimitados) |
 | `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 

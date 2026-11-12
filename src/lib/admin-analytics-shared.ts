@@ -25,8 +25,18 @@ export type DashboardAttention = {
   outOfStockVariants: number;
   /** Sin Access Token de Mercado Pago guardado en admin (plan base). */
   cobrosTokenMissing: boolean;
-  /** Módulo shippingCarriers activo sin token en admin (ME ni MP vía Cobros). */
+  /** Stripe ON sin secret key o webhook. */
+  stripeConfigMissing: boolean;
+  /** Transferencia ON sin instrucciones / datos bancarios. */
+  transferConfigMissing: boolean;
+  /** Módulo shippingCarriers activo sin ningún operador habilitado en checkout. */
   shippingCarriersTokenMissing: boolean;
+  /** Retiro en local ON sin dirección/ciudad/CP. */
+  pickupConfigMissing: boolean;
+  /** Marketing + WhatsApp ON sin teléfono válido. */
+  whatsappConfigMissing: boolean;
+  /** Marketing + Meta Pixel ON sin Pixel ID válido. */
+  metaPixelConfigMissing: boolean;
 };
 
 export type DashboardRecentOrder = {
@@ -157,6 +167,10 @@ export function buildAdminPaymentSettingsHref() {
 
 export function buildAdminShippingCarriersHref() {
   return "/admin/configuracion/envios";
+}
+
+export function buildAdminMarketingSettingsHref() {
+  return "/admin/modulos/marketing";
 }
 
 function isoDateLocal(date: Date): string {

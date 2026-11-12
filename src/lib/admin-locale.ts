@@ -60,8 +60,8 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
     shortIt: "Report",
   },
   "/admin/modulos/crm": {
-    es: "CRM lite",
-    it: "CRM lite",
+    es: "CRM",
+    it: "CRM",
     shortEs: "CRM",
     shortIt: "CRM",
   },
@@ -114,6 +114,16 @@ export function localizeAdminNavItem<T extends { href: string; label: string; sh
     label: locale === "it" ? labels.it : labels.es,
     shortLabel: locale === "it" ? labels.shortIt : labels.shortEs,
   };
+}
+
+/** Nav title for an admin href, or null if unknown. */
+export function adminNavLabel(
+  href: string,
+  locale: AdminLocale = "es",
+): string | null {
+  const labels = NAV_LABELS[href];
+  if (!labels) return null;
+  return locale === "it" ? labels.it : labels.es;
 }
 
 export const adminLogin = {

@@ -8,12 +8,12 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormAlert,
-  AdminSelect,
 } from "@/components/admin/admin-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { PASSWORD_MIN_LENGTH } from "@/lib/password-policy";
 import {
   STORE_STAFF_ROLE_DESCRIPTIONS,
@@ -176,24 +176,22 @@ export function AdminStoreUsersPanel({
                 </div>
                 {canManage ? (
                   <div className="flex flex-wrap items-center gap-2">
-                    <AdminSelect
+                    <MenuSelect
                       value={member.staffRole}
                       disabled={updatingRoleId === member.id}
-                      onChange={(event) =>
+                      onChange={(next) =>
                         void handleRoleChange(
                           member.id,
-                          event.target.value as StoreStaffRole,
+                          next as StoreStaffRole,
                         )
                       }
-                      wrapperClassName="w-auto min-w-[9rem]"
+                      className="w-auto min-w-[9rem]"
                       aria-label={`Rol de ${member.name ?? member.email}`}
-                    >
-                      {STORE_STAFF_ROLES.map((role) => (
-                        <option key={role} value={role}>
-                          {STORE_STAFF_ROLE_LABELS[role]}
-                        </option>
-                      ))}
-                    </AdminSelect>
+                      options={STORE_STAFF_ROLES.map((role) => ({
+                        value: role,
+                        label: STORE_STAFF_ROLE_LABELS[role],
+                      }))}
+                    />
                     <Button
                       type="button"
                       variant="outline"
@@ -249,19 +247,16 @@ export function AdminStoreUsersPanel({
             </div>
             <div className="space-y-2">
               <Label htmlFor="staff-role">Rol</Label>
-              <AdminSelect
+              <MenuSelect
                 id="staff-role"
+                aria-label="Rol"
                 value={staffRole}
-                onChange={(event) =>
-                  setStaffRole(event.target.value as StoreStaffRole)
-                }
-              >
-                {STORE_STAFF_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {STORE_STAFF_ROLE_LABELS[role]}
-                  </option>
-                ))}
-              </AdminSelect>
+                onChange={(next) => setStaffRole(next as StoreStaffRole)}
+                options={STORE_STAFF_ROLES.map((role) => ({
+                  value: role,
+                  label: STORE_STAFF_ROLE_LABELS[role],
+                }))}
+              />
               <p className="text-xs text-neutral-500">
                 {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
               </p>

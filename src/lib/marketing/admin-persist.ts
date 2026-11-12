@@ -8,6 +8,7 @@ import {
 import { MARKETING_SETTINGS_CACHE_TAG } from "@/lib/marketing/query";
 import type { StoreMarketingSettingsData } from "@/lib/marketing/types";
 import { db } from "@/lib/db";
+import { revalidateAdminDashboardCache } from "@/lib/revalidate-admin-cache";
 
 export async function saveStoreMarketingSettings(
   storeId: string,
@@ -55,9 +56,11 @@ export async function saveStoreMarketingSettings(
     },
   });
 
+  revalidateAdminDashboardCache(storeId);
   revalidateTag(MARKETING_SETTINGS_CACHE_TAG, { expire: 0 });
   revalidateTag(`${MARKETING_SETTINGS_CACHE_TAG}:${storeId}`, { expire: 0 });
   revalidatePath("/");
   revalidatePath("/checkout");
   revalidatePath("/checkout/exito");
+  revalidatePath("/admin");
 }

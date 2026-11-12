@@ -21,7 +21,11 @@ import {
 import { usesItalianBanking } from "@/lib/payments/transfer-copy";
 import { formatOrderId } from "@/lib/order-status";
 import { pathsForLocale } from "@/lib/storefront-paths";
-import { resolveCheckoutShippingCost } from "@/lib/shipping-carriers/resolve-shipping";
+import {
+  resolveCheckoutCarrierId,
+  resolveCheckoutShippingCost,
+} from "@/lib/shipping-carriers/resolve-shipping";
+import { getStoreShippingSettings } from "@/lib/shipping-carriers/query";
 import { fulfillPaidOrder } from "@/lib/orders/fulfill-paid-order";
 import {
   getMercadoPagoUnitPriceFromPricing,
@@ -52,6 +56,7 @@ const checkoutSchema = z
       }),
     ),
     couponCode: z.string().optional(),
+    carrierId: z.string().optional(),
     paymentMethod: z
       .enum(["mercadopago", "transfer", "cash", "card"])
       .default("mercadopago"),
@@ -119,7 +124,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 
-    const { customer, items, deliveryMethod, couponCode, paymentMethod } = parsed.data;
+    const {
+      customer,
+      items,
+      deliveryMethod,
+      couponCode,
+      paymentMethod,
+      carrierId: requestedCarrierId,
+    } = parsed.data;
     const storeId = await getStoreId();
     const storefrontFeatures = getStorefrontConfig().features;
     const paymentConfig = await getCheckoutPaymentConfig(storeId);
@@ -287,10 +299,18 @@ export async function POST(request: NextRequest) {
         .filter((line) => line.lineKey)
         .map((line) => [line.lineKey!, line]),
     );
+    const shippingSettings = await getStoreShippingSettings(storeId);
+    const shippingCarrierId = isPickup
+      ? null
+      : resolveCheckoutCarrierId(
+          requestedCarrierId,
+          shippingSettings.enabledCarrierIds,
+        );
     const shippingCost = await resolveCheckoutShippingCost({
       storeId,
       zip: (customer.zip ?? "").trim(),
       isPickup,
+      carrierId: shippingCarrierId,
       items,
       orderSubtotal: subtotalAfterCoupon,
     });
@@ -318,6 +338,7 @@ export async function POST(request: NextRequest) {
         couponCode: resolvedCouponCode,
         couponDiscount,
         shippingCost,
+        shippingCarrierId,
         isPickup,
         customerName: customer.name,
         customerEmail: customer.email,

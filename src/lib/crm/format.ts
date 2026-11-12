@@ -46,6 +46,36 @@ export function normalizeCustomerNotes(notes: unknown): string {
   return notes.trim().slice(0, MAX_NOTES_LENGTH);
 }
 
-export function buildCrmCustomerHref(email: string): string {
-  return `/admin/modulos/crm/${encodeURIComponent(normalizeCustomerEmail(email))}`;
+const CRM_LIST_PATH = "/admin/modulos/crm";
+
+export function buildCrmCustomerHref(
+  email: string,
+  options?: { returnTo?: string | null; name?: string | null },
+): string {
+  const path = `${CRM_LIST_PATH}/${encodeURIComponent(normalizeCustomerEmail(email))}`;
+  const params = new URLSearchParams();
+  const returnTo = options?.returnTo?.trim();
+  const name = options?.name?.trim();
+  if (returnTo) params.set("from", returnTo);
+  if (name) params.set("name", name);
+  const search = params.toString();
+  return search ? `${path}?${search}` : path;
+}
+
+/** Safe back URL for CRM detail breadcrumb (only list path + query). */
+export function resolveCrmListReturnHref(
+  from: string | null | undefined,
+): string {
+  if (!from?.trim()) return CRM_LIST_PATH;
+
+  let candidate = from.trim();
+  try {
+    candidate = decodeURIComponent(candidate);
+  } catch {
+    return CRM_LIST_PATH;
+  }
+
+  if (candidate === CRM_LIST_PATH) return CRM_LIST_PATH;
+  if (candidate.startsWith(`${CRM_LIST_PATH}?`)) return candidate;
+  return CRM_LIST_PATH;
 }

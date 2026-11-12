@@ -35,7 +35,10 @@ export default async function AdminCrmCustomerPage({
 
   return (
     <AdminDashboardReveal index={0}>
-      <AdminCrmCustomerDetail customer={customer} readOnly={!canManageCrm} />
+      <AdminCrmCustomerDetail
+        customer={customer}
+        readOnly={!canManageCrm}
+      />
     </AdminDashboardReveal>
   );
 }

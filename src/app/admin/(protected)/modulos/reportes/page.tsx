@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminExportsPanel } from "@/components/admin/admin-exports-panel";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   AdminSkeletonExportsPanel,
   AdminSkeletonSalesAnalytics,
@@ -32,13 +31,6 @@ export default async function AdminReportsPage({
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Reportes"
-          description="Insights de ventas, comparación de períodos, tops y export CSV."
-        />
-      </AdminDashboardReveal>
-
       <Suspense fallback={<AdminSkeletonSalesAnalytics />}>
         <AdminSalesReportsSections
           storeId={session.user.storeId}

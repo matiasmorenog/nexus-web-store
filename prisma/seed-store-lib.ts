@@ -149,6 +149,7 @@ async function seedDemoShippingSettings(storeId: string) {
       storeId,
       carriersEnabled: true,
       preferredCarrierId: "mercado_envios",
+      enabledCarrierIds: ["mercado_envios"],
       originZip: "1425",
       defaultWeightGrams: 500,
     },

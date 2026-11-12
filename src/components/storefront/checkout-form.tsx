@@ -32,7 +32,9 @@ import { getClientStorefrontConfig } from "@/lib/store-slug-client";
 
 type DeliveryMethod = "shipping" | "pickup";
 
-type ShippingQuote = {
+type ShippingQuoteOption = {
+  carrierId: string;
+  carrier: string;
   cost: number;
   deliveryWindow: string;
   demoMode: boolean;
@@ -64,10 +66,18 @@ function readFormField(form: HTMLFormElement, name: string) {
   return String(field.value).trim();
 }
 
+export type CheckoutPickupLocation = {
+  address: string;
+  city: string;
+  zip: string;
+  notes: string;
+};
+
 type CheckoutFormProps = {
   shippingCost: number;
   allowPickup: boolean;
   pickupOnly?: boolean;
+  pickupLocation?: CheckoutPickupLocation | null;
   storeName: string;
   showSummary?: boolean;
   couponsEnabled?: boolean;
@@ -83,10 +93,19 @@ type CheckoutFormProps = {
   };
 };
 
+function formatPickupLocation(location: CheckoutPickupLocation) {
+  const line = [location.address, location.city, location.zip]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(", ");
+  return { line, notes: location.notes.trim() };
+}
+
 export function CheckoutForm({
   shippingCost,
   allowPickup,
   pickupOnly = false,
+  pickupLocation = null,
   storeName,
   showSummary = true,
   couponsEnabled = false,
@@ -123,7 +142,12 @@ export function CheckoutForm({
     onPaymentMethodChange?.(method);
   };
   const [zip, setZip] = useState("");
-  const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null);
+  const [shippingQuotes, setShippingQuotes] = useState<ShippingQuoteOption[]>(
+    [],
+  );
+  const [selectedCarrierId, setSelectedCarrierId] = useState<string | null>(
+    null,
+  );
   const [quoteLoading, setQuoteLoading] = useState(false);
 
   const syncZipFromInput = useCallback(() => {
@@ -152,7 +176,19 @@ export function CheckoutForm({
     dynamicShippingEnabled &&
     deliveryMethod === "shipping" &&
     normalizedZip.length >= 4;
-  const activeShippingQuote = canQuoteShipping ? shippingQuote : null;
+  // Derive empty quotes when quoting is off — avoid sync setState in effect.
+  const visibleShippingQuotes = canQuoteShipping ? shippingQuotes : [];
+  const visibleSelectedCarrierId = canQuoteShipping ? selectedCarrierId : null;
+  const activeShippingQuote =
+    canQuoteShipping && visibleSelectedCarrierId
+      ? (visibleShippingQuotes.find(
+          (quote) => quote.carrierId === visibleSelectedCarrierId,
+        ) ??
+        visibleShippingQuotes[0] ??
+        null)
+      : canQuoteShipping
+        ? (visibleShippingQuotes[0] ?? null)
+        : null;
   const quotedShipping = activeShippingQuote?.cost ?? shippingCost;
   const effectiveShipping =
     deliveryMethod === "pickup" ? 0 : quotedShipping;
@@ -202,16 +238,47 @@ export function CheckoutForm({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Error al cotizar");
 
-        setShippingQuote({
-          cost: data.cost,
-          deliveryWindow: data.deliveryWindow,
-          demoMode: Boolean(data.demoMode),
+        const quotes: ShippingQuoteOption[] = Array.isArray(data.quotes)
+          ? data.quotes.map(
+              (quote: {
+                carrierId: string;
+                carrier: string;
+                cost: number;
+                deliveryWindow: string;
+                demoMode?: boolean;
+              }) => ({
+                carrierId: quote.carrierId,
+                carrier: quote.carrier,
+                cost: quote.cost,
+                deliveryWindow: quote.deliveryWindow,
+                demoMode: Boolean(quote.demoMode),
+              }),
+            )
+          : data.carrierId
+            ? [
+                {
+                  carrierId: String(data.carrierId),
+                  carrier: String(data.carrier ?? "Envío"),
+                  cost: Number(data.cost),
+                  deliveryWindow: String(data.deliveryWindow ?? ""),
+                  demoMode: Boolean(data.demoMode),
+                },
+              ]
+            : [];
+
+        setShippingQuotes(quotes);
+        setSelectedCarrierId((current) => {
+          if (current && quotes.some((quote) => quote.carrierId === current)) {
+            return current;
+          }
+          return quotes[0]?.carrierId ?? null;
         });
       } catch (quoteError) {
         if (quoteError instanceof DOMException && quoteError.name === "AbortError") {
           return;
         }
-        setShippingQuote(null);
+        setShippingQuotes([]);
+        setSelectedCarrierId(null);
       } finally {
         setQuoteLoading(false);
       }
@@ -259,6 +326,15 @@ export function CheckoutForm({
         setLoading(false);
         return;
       }
+      if (
+        dynamicShippingEnabled &&
+        visibleShippingQuotes.length > 0 &&
+        !visibleSelectedCarrierId
+      ) {
+        setError("Elegí un operador de envío.");
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -270,6 +346,10 @@ export function CheckoutForm({
           customer,
           couponCode: appliedCoupon?.code,
           paymentMethod,
+          carrierId:
+            deliveryMethod === "shipping"
+              ? visibleSelectedCarrierId ?? undefined
+              : undefined,
           items: items.map((i) => ({
             variantId: i.variantId,
             quantity: i.quantity,
@@ -314,6 +394,21 @@ export function CheckoutForm({
           <p className="mt-1 text-neutral-600">
             {localeCopy.pickupOnlyNotice(storeName)}
           </p>
+          {pickupLocation && formatPickupLocation(pickupLocation).line ? (
+            <div className="mt-3 rounded-md border border-neutral-200 bg-white px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                {localeCopy.pickupLocationLabel}
+              </p>
+              <p className="mt-1 font-medium text-neutral-900">
+                {formatPickupLocation(pickupLocation).line}
+              </p>
+              {formatPickupLocation(pickupLocation).notes ? (
+                <p className="mt-1 text-neutral-600">
+                  {formatPickupLocation(pickupLocation).notes}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           <input type="hidden" name="deliveryMethod" value="pickup" />
         </div>
       ) : allowPickup ? (
@@ -353,7 +448,8 @@ export function CheckoutForm({
               </span>
               {dynamicShippingEnabled && activeShippingQuote && deliveryMethod === "shipping" ? (
                 <span className="mt-1 text-xs text-neutral-500">
-                  Llega en {activeShippingQuote.deliveryWindow}
+                  {activeShippingQuote.carrier} · llega en{" "}
+                  {activeShippingQuote.deliveryWindow}
                   {activeShippingQuote.demoMode ? " · demo" : ""}
                 </span>
               ) : null}
@@ -382,6 +478,21 @@ export function CheckoutForm({
             <p className="text-sm text-neutral-600">
               {localeCopy.pickupReadyNotice(storeName)}
             </p>
+            {pickupLocation && formatPickupLocation(pickupLocation).line ? (
+              <div className="mt-3 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                  {localeCopy.pickupLocationLabel}
+                </p>
+                <p className="mt-1 font-medium text-neutral-900">
+                  {formatPickupLocation(pickupLocation).line}
+                </p>
+                {formatPickupLocation(pickupLocation).notes ? (
+                  <p className="mt-1 text-neutral-600">
+                    {formatPickupLocation(pickupLocation).notes}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </DeliverySection>
         </fieldset>
       ) : deliveryMethod === "shipping" ? (
@@ -395,7 +506,7 @@ export function CheckoutForm({
               ? quoteLoading
                 ? "Calculando costo y plazo..."
                 : activeShippingQuote
-                  ? `${formatPrice(effectiveShipping)} · llega en ${activeShippingQuote.deliveryWindow}`
+                  ? `${activeShippingQuote.carrier} · ${formatPrice(effectiveShipping)} · llega en ${activeShippingQuote.deliveryWindow}`
                   : "Ingresá tu código postal para cotizar el envío."
               : "La cotización por CP no está activa. Podés retirar en local o contactar a la tienda."}
           </p>
@@ -491,6 +602,55 @@ export function CheckoutForm({
           />
         </div>
       </fieldset>
+
+      {deliveryMethod === "shipping" &&
+      dynamicShippingEnabled &&
+      visibleShippingQuotes.length > 0 ? (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-medium text-neutral-900">
+            Operador de envío
+          </legend>
+          <div
+            className={cn(
+              "grid gap-3",
+              visibleShippingQuotes.length > 1
+                ? "sm:grid-cols-2"
+                : "sm:grid-cols-1",
+            )}
+          >
+            {visibleShippingQuotes.map((quote) => {
+              const selected = visibleSelectedCarrierId === quote.carrierId;
+              return (
+                <label
+                  key={quote.carrierId}
+                  className={cn(
+                    "flex cursor-pointer flex-col rounded-lg border p-4 transition-colors",
+                    selected
+                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)]"
+                      : "border-neutral-200 hover:border-neutral-300",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="carrierId"
+                    value={quote.carrierId}
+                    checked={selected}
+                    onChange={() => setSelectedCarrierId(quote.carrierId)}
+                    className="sr-only"
+                  />
+                  <span className="font-medium text-neutral-900">
+                    {quote.carrier}
+                  </span>
+                  <span className="mt-1 text-sm text-neutral-600">
+                    {formatPrice(quote.cost)} · llega en {quote.deliveryWindow}
+                    {quote.demoMode ? " · demo" : ""}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : null}
 
       {paymentConfig.showPaymentMethods ? (
         <fieldset className="space-y-3 rounded-lg border border-neutral-200 bg-white p-4">

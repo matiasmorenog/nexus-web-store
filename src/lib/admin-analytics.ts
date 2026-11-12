@@ -13,14 +13,19 @@ import {
 } from "@/lib/admin-cache-tags";
 import { db } from "@/lib/db";
 import {
-  getMercadoEnviosTokenSource,
-  isMercadoEnviosAdminConfigured,
-} from "@/lib/mercado-envios/resolve-token";
+  isValidMetaPixelId,
+  isValidWhatsAppPhone,
+} from "@/lib/marketing/format";
+import { getStoreMarketingSettings } from "@/lib/marketing/query";
 import { storeHasModule, storeHidesMercadoPago } from "@/lib/modules";
 import {
   getMercadoPagoTokenSource,
   isMercadoPagoAdminConfigured,
 } from "@/lib/payments/resolve-token";
+import {
+  getStoreShippingSettings,
+  isCarrierShippingEnabled,
+} from "@/lib/shipping-carriers/query";
 
 export type {
   ActivityPeriod,
@@ -38,6 +43,7 @@ export {
   buildAdminOrdersHrefFromActivityPoint,
   buildAdminOutOfStockVariantsHref,
   buildAdminPaidOrdersHref,
+  buildAdminMarketingSettingsHref,
   buildAdminPaymentSettingsHref,
   buildAdminRecentOrdersListHref,
   buildAdminShippingCarriersHref,
@@ -356,7 +362,9 @@ async function fetchAdminDashboardAttention(storeId: string) {
     outOfStockVariants,
     shippingCarriersEnabled,
     mercadoPagoSource,
-    mercadoEnviosSource,
+    paymentRow,
+    marketingSettings,
+    storePickup,
   ] = await Promise.all([
     db.order.count({
       where: { storeId, status: "PAID" },
@@ -369,8 +377,66 @@ async function fetchAdminDashboardAttention(storeId: string) {
     }),
     storeHasModule(storeId, "shippingCarriers"),
     getMercadoPagoTokenSource(storeId),
-    getMercadoEnviosTokenSource(storeId),
+    db.storePaymentSettings.findUnique({
+      where: { storeId },
+      select: {
+        stripeEnabled: true,
+        stripeSecretKeyEnc: true,
+        stripeWebhookSecretEnc: true,
+        transferEnabled: true,
+        transferInstructions: true,
+      },
+    }),
+    getStoreMarketingSettings(storeId),
+    db.store.findUnique({
+      where: { id: storeId },
+      select: {
+        allowPickup: true,
+        pickupAddress: true,
+        pickupCity: true,
+        pickupZip: true,
+      },
+    }),
   ]);
+
+  const shippingSettings = shippingCarriersEnabled
+    ? await getStoreShippingSettings(storeId)
+    : null;
+  const hasLiveCarrier =
+    shippingCarriersEnabled && shippingSettings?.carriersEnabled
+      ? await isCarrierShippingEnabled(storeId)
+      : true;
+  const noCarrierConfigured =
+    Boolean(shippingSettings?.carriersEnabled) &&
+    ((shippingSettings?.enabledCarrierIds.length ?? 0) === 0 || !hasLiveCarrier);
+
+  const stripeConfigMissing = Boolean(
+    paymentRow?.stripeEnabled &&
+      !(paymentRow.stripeSecretKeyEnc && paymentRow.stripeWebhookSecretEnc),
+  );
+  const transferConfigMissing = Boolean(
+    paymentRow?.transferEnabled &&
+      !(paymentRow.transferInstructions?.trim()),
+  );
+
+  const pickupAddress = storePickup?.pickupAddress?.trim() ?? "";
+  const pickupCity = storePickup?.pickupCity?.trim() ?? "";
+  const pickupZip = storePickup?.pickupZip?.trim() ?? "";
+  const pickupConfigMissing = Boolean(
+    storePickup?.allowPickup &&
+      (pickupAddress.length < 3 ||
+        pickupCity.length < 2 ||
+        pickupZip.replace(/\D/g, "").length < 4),
+  );
+
+  const whatsappConfigMissing = Boolean(
+    marketingSettings.whatsappEnabled &&
+      !isValidWhatsAppPhone(marketingSettings.whatsappPhone ?? ""),
+  );
+  const metaPixelConfigMissing = Boolean(
+    marketingSettings.metaPixelEnabled &&
+      !isValidMetaPixelId(marketingSettings.metaPixelId ?? ""),
+  );
 
   return {
     paidAwaitingShipment,
@@ -378,9 +444,12 @@ async function fetchAdminDashboardAttention(storeId: string) {
     cobrosTokenMissing: storeHidesMercadoPago()
       ? false
       : !isMercadoPagoAdminConfigured(mercadoPagoSource),
-    shippingCarriersTokenMissing:
-      shippingCarriersEnabled &&
-      !isMercadoEnviosAdminConfigured(mercadoEnviosSource, mercadoPagoSource),
+    stripeConfigMissing,
+    transferConfigMissing,
+    shippingCarriersTokenMissing: shippingCarriersEnabled && noCarrierConfigured,
+    pickupConfigMissing,
+    whatsappConfigMissing,
+    metaPixelConfigMissing,
   };
 }
 

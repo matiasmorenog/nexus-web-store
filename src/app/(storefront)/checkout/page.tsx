@@ -31,11 +31,22 @@ export default async function CheckoutPage() {
       }
     : undefined;
 
+  const pickupLocation =
+    store.pickupAddress || store.pickupCity || store.pickupZip || store.pickupNotes
+      ? {
+          address: store.pickupAddress?.trim() ?? "",
+          city: store.pickupCity?.trim() ?? "",
+          zip: store.pickupZip?.trim() ?? "",
+          notes: store.pickupNotes?.trim() ?? "",
+        }
+      : null;
+
   return (
     <CheckoutView
       shippingCost={shippingCost}
       allowPickup={store.allowPickup || pickupOnly}
       pickupOnly={pickupOnly}
+      pickupLocation={pickupLocation}
       storeName={formatStoreName(store.name)}
       couponsEnabled={couponsEnabled}
       dynamicShippingEnabled={dynamicShippingEnabled}

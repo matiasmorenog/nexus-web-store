@@ -1,13 +1,6 @@
-import { cookies } from "next/headers";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminStoreQrBuilder } from "@/components/admin/admin-store-qr-builder";
 import { requireAdminPermission } from "@/lib/admin-session";
-import {
-  ADMIN_LOCALE_COOKIE,
-  adminChrome,
-  parseAdminLocale,
-} from "@/lib/admin-locale";
 import {
   getStorefrontHomeAbsoluteUrl,
   type AdminQrProductOption,
@@ -22,9 +15,6 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminStoreQrPage() {
   const session = await requireAdminPermission("config:view");
-  const cookieStore = await cookies();
-  const locale = parseAdminLocale(cookieStore.get(ADMIN_LOCALE_COOKIE)?.value);
-  const copy = adminChrome[locale];
 
   const store = await getStore();
   const config = getStorefrontConfig();
@@ -43,9 +33,6 @@ export default async function AdminStoreQrPage() {
   return (
     <div className="space-y-6">
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader title={copy.qr} description={copy.qrHint} />
-      </AdminDashboardReveal>
-      <AdminDashboardReveal index={1}>
         <AdminStoreQrBuilder
           homeUrl={homeUrl}
           productBasePath={productBasePath}

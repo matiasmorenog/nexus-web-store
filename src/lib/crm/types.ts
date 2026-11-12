@@ -38,3 +38,39 @@ export type CrmCustomerProfileInput = {
   tags: string[];
   notes: string;
 };
+
+export type CrmListSort = "lastOrder" | "totalSpent" | "orderCount";
+
+export type CrmListFilters = {
+  q?: string;
+  tag?: string;
+  inactiveDays?: number;
+  sort?: CrmListSort;
+};
+
+export type CrmStoreStats = {
+  customerCount: number;
+  averageLtv: number;
+  repurchaseRate: number;
+  inactive30Count: number;
+};
+
+export type CrmSegmentFilters = {
+  q?: string;
+  tag?: string;
+  inactiveDays?: number;
+  sort?: CrmListSort;
+};
+
+export type CrmSegment = {
+  id: string;
+  name: string;
+  filters: CrmSegmentFilters;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CrmSegmentInput = {
+  name: string;
+  filters: CrmSegmentFilters;
+};

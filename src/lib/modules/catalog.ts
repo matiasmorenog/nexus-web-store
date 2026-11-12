@@ -4,16 +4,32 @@ import type { ModuleCategory, ModuleDefinition } from "@/lib/modules/types";
 export const PLAN_CORE = {
   name: "Núcleo",
   description:
-    "Dashboard, productos, pedidos, cobros, configuración, checkout y emails transaccionales.",
+    "Todo lo necesario para vender online, en Start, Grow y Pro. Sin comisión de plataforma.",
+  /** Big selling points — shown above the secondary chip list. */
+  highlights: [
+    {
+      id: "mercadopago",
+      title: "Mercado Pago",
+      description: "Cobrá con tarjeta y dinero en cuenta desde el día 1.",
+    },
+    {
+      id: "checkout",
+      title: "Checkout listo",
+      description: "Carrito, envío/retiro y pago sin armar nada a mano.",
+    },
+    {
+      id: "no-fee",
+      title: "Sin % de plataforma",
+      description: "Pagás el plan fijo. Los gateways cobran lo suyo aparte.",
+    },
+  ],
   features: [
-    "Dashboard y KPIs",
-    "Catálogo y gestión de productos",
-    "Gestión de pedidos",
-    "Cobros (Mercado Pago y transferencia)",
-    "Configuración de la tienda",
-    "Checkout para tus clientes",
-    "Emails transaccionales",
-    "1 owner por tienda",
+    "Catálogo con variantes y stock",
+    "Pedidos con estados y filtros",
+    "Dashboard con KPIs",
+    "Transferencia bancaria y Stripe",
+    "Emails de pedido automáticos",
+    "Cuenta de cliente en la tienda",
   ],
 } as const;
 
@@ -62,13 +78,13 @@ const MODULE_LIST = [
   },
   {
     id: "crm",
-    name: "CRM lite",
+    name: "CRM",
     description:
-      "Ficha de clientes, historial de compras, tags y notas internas.",
+      "Clientes, LTV, recompra, tags, segmentos, WhatsApp y export CSV.",
     monthlyPriceUsd: 0,
     includedInPlans: ["grow", "pro"],
     category: "operations",
-    adminRoutes: ["/admin/clientes"],
+    adminRoutes: ["/admin/modulos/crm"],
   },
   {
     id: "shippingCarriers",
@@ -152,6 +168,10 @@ export type PlanTierDefinition = {
   moduleIds: readonly ModuleId[];
   /** Límite de staff adicionales (owner no cuenta). null = alto / ilimitado. */
   maxStaffSeats: number | null;
+  /** Human perks shown above module list (support, seats framing, etc.). */
+  perks: readonly string[];
+  /** Marketing highlight — e.g. “Más popular” on Grow. */
+  featured?: boolean;
 };
 
 export const MODULE_IDS = MODULE_LIST.map((m) => m.id) as ModuleId[];
@@ -178,26 +198,38 @@ export const PLAN_TIERS: Record<PlanTierId, PlanTierDefinition> = {
     target: "Emprende / Instagram → web",
     moduleIds: START_MODULE_IDS,
     maxStaffSeats: 0,
+    perks: ["Soporte por email", "1 acceso admin"],
   },
   grow: {
     id: "grow",
     name: "Grow",
-    monthlyPriceUsd: 59,
-    annualMonthlyUsd: 47,
+    monthlyPriceUsd: 79,
+    annualMonthlyUsd: 63,
     description: "Promos, home, envíos, CRM y equipo chico.",
     target: "Marca que ya vende",
     moduleIds: GROW_MODULE_IDS,
     maxStaffSeats: 2,
+    featured: true,
+    perks: [
+      "Soporte preferencial",
+      "Hasta 3 accesos",
+      "Sin comisión sobre ventas",
+    ],
   },
   pro: {
     id: "pro",
     name: "Pro",
-    monthlyPriceUsd: 99,
-    annualMonthlyUsd: 79,
+    monthlyPriceUsd: 129,
+    annualMonthlyUsd: 103,
     description: "Analytics, API y operación con más usuarios.",
     target: "Equipo + integraciones",
     moduleIds: PRO_MODULE_IDS,
     maxStaffSeats: null,
+    perks: [
+      "Soporte prioritario + canal directo",
+      "Accesos ilimitados al admin",
+      "Sin comisión sobre ventas",
+    ],
   },
 };
 

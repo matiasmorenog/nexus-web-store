@@ -17,8 +17,8 @@ import {
   AdminForm,
   AdminFormActions,
   AdminFormGrid,
-  AdminSelect,
 } from "@/components/admin/admin-form";
+import { MenuSelect } from "@/components/ui/menu-select";
 import {
   AdminDataTable,
   AdminTableActions,
@@ -579,25 +579,25 @@ function VariantFormFields({
   variantLabels: VariantLabels;
   hasSize: boolean;
 }) {
+  const [color, setColor] = useState(values?.color ?? "");
+
   return (
     <AdminFormGrid columns={4} className="gap-3">
       <div>
         <Label htmlFor={`${formId}-color`}>{variantLabels.primary}</Label>
-        <AdminSelect
+        <MenuSelect
           id={`${formId}-color`}
           name="color"
-          defaultValue={values?.color ?? ""}
+          aria-label={variantLabels.primary}
+          value={color}
+          onChange={setColor}
           required
-        >
-          <option value="" disabled>
-            Seleccionar {variantLabels.primary.toLowerCase()}
-          </option>
-          {colors.map((color) => (
-            <option key={color} value={color}>
-              {color}
-            </option>
-          ))}
-        </AdminSelect>
+          placeholder={`Seleccionar ${variantLabels.primary.toLowerCase()}`}
+          options={colors.map((item) => ({
+            value: item,
+            label: item,
+          }))}
+        />
       </div>
       {hasSize ? (
         <div>

@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminSelect } from "@/components/admin/admin-form";
 import { AdminStoreQrPreview } from "@/components/admin/admin-store-qr-card";
 import {
   segmentedItemClassName,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/form-segmented-control";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MenuSelect } from "@/components/ui/menu-select";
 import { Switch } from "@/components/ui/switch";
 import {
   buildQrDownloadFilename,
@@ -138,21 +138,22 @@ export function AdminStoreQrBuilder({
                 No hay productos activos para generar un QR.
               </p>
             ) : (
-              <label className="block space-y-1.5">
-                <span className="text-sm font-medium text-neutral-700">
+              <div className="space-y-1.5">
+                <Label htmlFor="qr-product" className="text-sm font-medium text-neutral-700">
                   Producto
-                </span>
-                <AdminSelect
+                </Label>
+                <MenuSelect
+                  id="qr-product"
+                  aria-label="Producto para el QR"
                   value={productId}
-                  onChange={(event) => setProductId(event.target.value)}
-                >
-                  {products.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name}
-                    </option>
-                  ))}
-                </AdminSelect>
-              </label>
+                  onChange={setProductId}
+                  options={products.map((product) => ({
+                    value: product.id,
+                    label: product.name,
+                  }))}
+                  placeholder="Elegí un producto"
+                />
+              </div>
             )
           ) : (
             <p className="text-sm text-neutral-500">

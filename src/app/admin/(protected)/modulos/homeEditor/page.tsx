@@ -1,6 +1,5 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminHomeEditor } from "@/components/admin/admin-home-editor";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { getStoreHomeContentForAdmin } from "@/lib/home-content/query";
@@ -20,17 +19,6 @@ export default async function AdminHomeEditorPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Home editable"
-          description={
-            vertical === "app2"
-              ? "Hero estático, beneficios, categorías, promo y newsletter sin tocar código."
-              : "Carrusel hero, destacados y categorías sin tocar código."
-          }
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <AdminHomeEditor initialPayload={payload} vertical={vertical} />
       </AdminDashboardReveal>

@@ -10,6 +10,7 @@ type AdminPageHeaderProps = {
   titleCurrent?: string;
   description?: ReactNode;
   action?: ReactNode;
+  className?: string;
 };
 
 export function AdminPageHeader({
@@ -18,11 +19,12 @@ export function AdminPageHeader({
   titleCurrent,
   description,
   action,
+  className,
 }: AdminPageHeaderProps) {
   const hasTrail = Boolean(titleHref && titleCurrent);
 
   return (
-    <div className="mb-8 select-none">
+    <div className={cn("mb-8 select-none", className)}>
       <div className="flex items-center justify-between gap-3">
         <h1 className="min-w-0 text-2xl font-bold tracking-tight text-neutral-900">
           <span className="inline-flex max-w-full flex-wrap items-center gap-1.5 border-b-2 border-[var(--brand-primary)] pb-0.5">

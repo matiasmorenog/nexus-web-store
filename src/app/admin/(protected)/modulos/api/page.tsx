@@ -1,7 +1,6 @@
 import { AdminApiSettingsPanel } from "@/components/admin/admin-api-settings-panel";
 import { AdminAfipSettingsPanel } from "@/components/admin/admin-afip-settings-panel";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { getStoreAfipSettingsForAdmin } from "@/lib/afip/settings";
@@ -27,13 +26,6 @@ export default async function AdminApiPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="API y webhooks"
-          description="Claves REST para integraciones y webhooks de eventos de la tienda."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <AdminApiSettingsPanel
           apiKeys={apiKeys}

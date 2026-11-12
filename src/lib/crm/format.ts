@@ -50,15 +50,16 @@ const CRM_LIST_PATH = "/admin/modulos/crm";
 
 export function buildCrmCustomerHref(
   email: string,
-  options?: { returnTo?: string | null },
+  options?: { returnTo?: string | null; name?: string | null },
 ): string {
   const path = `${CRM_LIST_PATH}/${encodeURIComponent(normalizeCustomerEmail(email))}`;
-  const returnTo = options?.returnTo?.trim();
-  if (!returnTo) return path;
-
   const params = new URLSearchParams();
-  params.set("from", returnTo);
-  return `${path}?${params.toString()}`;
+  const returnTo = options?.returnTo?.trim();
+  const name = options?.name?.trim();
+  if (returnTo) params.set("from", returnTo);
+  if (name) params.set("name", name);
+  const search = params.toString();
+  return search ? `${path}?${search}` : path;
 }
 
 /** Safe back URL for CRM detail breadcrumb (only list path + query). */

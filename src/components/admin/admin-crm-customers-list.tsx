@@ -63,6 +63,7 @@ export function AdminCrmCustomersList({
               <Link
                 href={buildCrmCustomerHref(customer.email, {
                   returnTo: listHref,
+                  name: customer.name,
                 })}
                 className="font-medium text-neutral-900 hover:underline"
               >

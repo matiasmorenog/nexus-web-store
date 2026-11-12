@@ -2,7 +2,6 @@ import { AdminCrmCustomersList } from "@/components/admin/admin-crm-customers-li
 import { AdminCrmKpis } from "@/components/admin/admin-crm-kpis";
 import { AdminCrmSearchToolbar } from "@/components/admin/admin-crm-search-toolbar";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   adminCanManageModule,
   requireAdminModuleView,
@@ -63,17 +62,10 @@ export default async function AdminCrmPage({
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="CRM"
-          description="Clientes reales de la tienda: LTV, recompra, tags, segmentos y seguimiento comercial."
-        />
-      </AdminDashboardReveal>
-
-      <AdminDashboardReveal index={1}>
         <AdminCrmKpis stats={stats} />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={2}>
+      <AdminDashboardReveal index={1}>
         <AdminCrmSearchToolbar
           filters={filters}
           tags={tags}
@@ -83,7 +75,7 @@ export default async function AdminCrmPage({
         />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={3}>
+      <AdminDashboardReveal index={2}>
         <AdminCrmCustomersList customers={customers} listHref={listHref} />
       </AdminDashboardReveal>
     </div>

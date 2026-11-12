@@ -1,6 +1,5 @@
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminStoreUsersPanel } from "@/components/admin/admin-store-users-panel";
-import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   getAdminAccessContext,
   requireAdminPermission,
@@ -24,13 +23,6 @@ export default async function AdminMultiUserPage() {
 
   return (
     <div className="space-y-8">
-      <AdminDashboardReveal index={0}>
-        <AdminPageHeader
-          title="Multi-usuario"
-          description="Invitá usuarios con rol administrador, vendedor, depósito o solo lectura."
-        />
-      </AdminDashboardReveal>
-
       <AdminDashboardReveal index={1}>
         <AdminStoreUsersPanel members={members} canManage={canManage} />
       </AdminDashboardReveal>

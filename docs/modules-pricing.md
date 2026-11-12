@@ -22,11 +22,11 @@ Relacionado: billing Fase C en [`TODO.md`](../TODO.md), multi-tenant en [`multi-
 
 ## Planes (USD / mes)
 
-| Tier | Mensual | Anual equiv. | Target |
-|------|---------|--------------|--------|
-| **Start** | 29 | ~23 | Emprende / Instagram → web |
-| **Grow** | 59 | ~47 | Ya vende, quiere crecer |
-| **Pro** | 99 | ~79 | Equipo + analytics + API |
+| Tier | Mensual | Anual equiv. | Target | Perks de soporte |
+|------|---------|--------------|--------|------------------|
+| **Start** | 29 | ~23 | Emprende / Instagram → web | Soporte por email |
+| **Grow** | 79 | ~63 | Ya vende, quiere crecer (**Más popular**) | Soporte preferencial |
+| **Pro** | 129 | ~103 | Equipo + analytics + API | Soporte prioritario + canal directo |
 
 ### Núcleo en todos (vender)
 
@@ -41,7 +41,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | Configuración | Nombre, retiro en local |
 | Storefront | Catálogo, carrito, checkout, cuenta cliente |
 | Integraciones base | Emails transaccionales |
-| Usuarios | 1 owner por tienda |
+| Accesos | Start: 1 acceso admin; Grow: hasta 3; Pro: ilimitados |
 
 ### Módulos por tier
 
@@ -54,7 +54,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro:
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
 | `crm` | CRM lite | | ✓ | ✓ |
-| `multiUser` | Multi-usuario | | ✓ (owner + 2 staff) | ✓ (ilimitado / alto) |
+| `multiUser` | Multi-usuario | | ✓ (hasta 3 accesos) | ✓ (ilimitados) |
 | `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 

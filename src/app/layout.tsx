@@ -6,33 +6,42 @@ import { formatStoreName, getStore } from "@/lib/store-context";
 import { getStorefrontConfig } from "@/lib/store-verticals";
 import "./globals.css";
 
+// Variable Google fonts: do not pass weight[]. Arrays are only valid for
+// static fonts; wrong config breaks Turbopack builds with
+// "next/font/google queries have exactly one entry".
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const oswald = Oswald({
   variable: "--font-oswald",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  display: "swap",
+  preload: false,
 });
 
 const rajdhani = Rajdhani({
   variable: "--font-rajdhani",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: false,
 });
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: false,
 });
 
 const sora = Sora({
   variable: "--font-sora",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: false,
 });
 
 export const viewport = {

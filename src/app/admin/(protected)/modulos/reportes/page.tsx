@@ -9,7 +9,7 @@ import { AdminSalesReportsSections } from "@/components/admin/admin-sales-report
 import { parseActivityPeriod } from "@/lib/admin-analytics";
 import { getDefaultAdminOrdersDateRange } from "@/lib/admin-orders-query";
 import { requireAdminModuleView } from "@/lib/admin-session";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 
 export const dynamic = "force-dynamic";
 

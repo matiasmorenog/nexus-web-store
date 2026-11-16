@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { normalizeCrmSegmentFilters } from "@/lib/crm/filters";
 import { createCrmSegment, listCrmSegments } from "@/lib/crm/segments";
 import type { CrmSegmentInput } from "@/lib/crm/types";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireCrmAdmin() {

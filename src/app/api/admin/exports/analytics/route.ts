@@ -7,7 +7,8 @@ import { buildAnalyticsReportCsv } from "@/lib/advanced-analytics/analytics-csv"
 import { getAdvancedAnalyticsReport } from "@/lib/advanced-analytics";
 import { auth } from "@/lib/auth";
 import { csvAttachmentFilename } from "@/lib/exports";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 export async function GET(request: NextRequest) {

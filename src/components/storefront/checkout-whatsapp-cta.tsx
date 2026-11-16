@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { WhatsAppMark } from "@/components/brand/whatsapp-mark";
 import { buildWhatsAppUrl } from "@/lib/marketing";
 import type { LocaleCopy } from "@/lib/storefront-locale-copy";
 
@@ -39,7 +39,7 @@ export function CheckoutWhatsAppCta({
         rel="noopener noreferrer"
         className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-transform hover:scale-[1.02] active:scale-[0.98]"
       >
-        <MessageCircle className="h-4 w-4" aria-hidden />
+        <WhatsAppMark className="h-4 w-4" tone="current" />
         {copy.whatsappCta}
       </a>
     </div>

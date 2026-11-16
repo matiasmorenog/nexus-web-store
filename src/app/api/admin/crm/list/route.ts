@@ -7,7 +7,8 @@ import {
   listCrmTags,
 } from "@/lib/crm/query";
 import { getCrmSegment, listCrmSegments } from "@/lib/crm/segments";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 export async function GET(request: NextRequest) {

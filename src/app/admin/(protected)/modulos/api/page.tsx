@@ -4,7 +4,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { getStoreAfipSettingsForAdmin } from "@/lib/afip/settings";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import {
   getStoreWebhookSettingsForAdmin,
   listStoreApiKeys,

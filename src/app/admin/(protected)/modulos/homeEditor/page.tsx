@@ -3,7 +3,7 @@ import { AdminHomeEditor } from "@/components/admin/admin-home-editor";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { getStoreHomeContentForAdmin } from "@/lib/home-content/query";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStorefrontKind } from "@/lib/store-verticals";
 import { getStoreId } from "@/lib/store-context";
 

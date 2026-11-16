@@ -7,7 +7,8 @@ import {
   parseOptionalInt,
   serializeCoupon,
 } from "@/lib/coupons/admin";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 

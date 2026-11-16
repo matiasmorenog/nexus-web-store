@@ -132,10 +132,24 @@ Tier → set de `ModuleId` (ver `PLAN_TIERS` en catálogo). `ENABLED_MODULES` qu
 
 ### Pantalla Plan (`/admin/plan`)
 
-- Comparativa Start / Grow / Pro
-- Módulos con badge de tier mínimo
-- CTA “Solicitar” (manual hasta billing)
+- Comparativa Start / Grow / Pro + toggle Mensual / Anual (−20%)
+- Precio ≈ ARS vía dólar blue (Bluelytics)
+- Módulos con badge de tier mínimo (acordeón “Detalle de módulos”)
+- CTA WhatsApp (default `5491163537809`; override `NEXT_PUBLIC_NEXUS_PLAN_WHATSAPP`)
 - Demo: activación vía `ENABLED_MODULES`
+
+### Crédito storefront (lead Nexus)
+
+- Footer micro-link (Goat / VAPORX / Manoviva) → mismo WhatsApp, mensaje “quiero levantar mi tienda”
+- Copy IT en Manoviva: “Negozio online di Nexus”
+- Glifo WhatsApp (canal) + texto “Nexus” — no lockup fusionado
+
+### Marca WhatsApp (UI)
+
+- Componente: `WhatsAppMark` (`src/components/brand/whatsapp-mark.tsx`)
+- Usar en CTAs Click-to-Chat (float, checkout, Plan, CRM)
+- No retocar el glifo; verde oficial `#25D366`; no partnership / no combinar con logos de tienda o Nexus
+- Guía: https://www.meta.com/brand/resources/whatsapp/whatsapp-brand/
 
 ### Billing (Fase C — pendiente)
 

@@ -6,7 +6,8 @@ import {
   buildCustomersCsv,
   csvAttachmentFilename,
 } from "@/lib/exports";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 const MAX_EXPORT_ROWS = 500;

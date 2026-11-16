@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NexusStorefrontCredit } from "@/components/storefront/nexus-storefront-credit";
 import type { VerticalFeatures } from "@/lib/store-verticals/types";
 import { cn } from "@/lib/utils";
 
@@ -167,7 +168,19 @@ export function Footer({
             : "border-neutral-200 text-neutral-500",
         )}
       >
-        © {new Date().getFullYear()} {storeName}. Todos los derechos reservados.
+        <p>
+          © {new Date().getFullYear()} {storeName}. Todos los derechos
+          reservados.
+        </p>
+        <p className="mt-2.5">
+          <NexusStorefrontCredit
+            className={
+              isDarkChrome
+                ? "text-neutral-400 hover:text-neutral-200"
+                : "text-neutral-500 hover:text-neutral-800"
+            }
+          />
+        </p>
       </div>
     </footer>
   );

@@ -23,11 +23,11 @@ import {
   cleanupReplacedProductImage,
 } from "@/lib/images/cleanup-product-image";
 import { normalizeProductImageUrl, parseProductImageUrl } from "@/lib/images/product-image";
+import { normalizeVariantColor } from "@/lib/variant-images";
 import {
   findProductColorImage,
-  normalizeVariantColor,
   syncProductColorImage,
-} from "@/lib/variant-images";
+} from "@/lib/variant-images-server";
 import { slugify } from "@/lib/utils";
 import type { AdminPermission } from "@/lib/store-users/permissions";
 import { storeHasCategorySlug } from "@/lib/store-categories";

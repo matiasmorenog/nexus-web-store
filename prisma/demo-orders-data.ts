@@ -80,17 +80,74 @@ export type DemoOrderItem = {
   quantity: number;
 };
 
+export type DemoOrderStatus = "PENDING" | "PAID" | "SHIPPED" | "CANCELLED";
+
+export type DemoPaymentMethod =
+  | "MERCADO_PAGO"
+  | "TRANSFER"
+  | "CASH"
+  | "CARD";
+
 export type DemoOrderPlan = {
   createdAt: Date;
   customerIndex: number;
-  status: "PAID" | "SHIPPED";
+  status: DemoOrderStatus;
   pickup?: boolean;
+  /** Index into DEMO_COUPON_DEFS; omit = no coupon. */
+  couponIndex?: number;
+  paymentMethod?: DemoPaymentMethod;
   items: DemoOrderItem[];
 };
 
+/** Coupon definitions for Goat demo enrich (codes unique per store). */
+export const DEMO_COUPON_DEFS = [
+  {
+    code: "WELCOME10",
+    type: "PERCENTAGE" as const,
+    value: 10,
+    minOrderAmount: 0,
+    maxDiscount: 15000,
+    usageLimit: 200,
+  },
+  {
+    code: "GOAT2K",
+    type: "FIXED_AMOUNT" as const,
+    value: 2000,
+    minOrderAmount: 15000,
+    maxDiscount: null,
+    usageLimit: 100,
+  },
+  {
+    code: "SPORT15",
+    type: "PERCENTAGE" as const,
+    value: 15,
+    minOrderAmount: 20000,
+    maxDiscount: 25000,
+    usageLimit: 80,
+  },
+  {
+    code: "ENVIO5K",
+    type: "FIXED_AMOUNT" as const,
+    value: 5000,
+    minOrderAmount: 10000,
+    maxDiscount: null,
+    usageLimit: 150,
+  },
+  {
+    code: "VIP20",
+    type: "PERCENTAGE" as const,
+    value: 20,
+    minOrderAmount: 30000,
+    maxDiscount: 40000,
+    usageLimit: 40,
+  },
+] as const;
+
 const ORDER_TEMPLATES: Array<{
-  status: "PAID" | "SHIPPED";
+  status: DemoOrderStatus;
   pickup?: boolean;
+  couponIndex?: number;
+  paymentMethod?: DemoPaymentMethod;
   items: DemoOrderItem[];
 }> = [
   {
@@ -112,10 +169,24 @@ const ORDER_TEMPLATES: Array<{
   {
     status: "PAID",
     pickup: true,
+    couponIndex: 0,
+    paymentMethod: "TRANSFER",
     items: [{ productSlug: "munequeras-wod", size: "M", color: "Negro", quantity: 2 }],
   },
   {
+    status: "PENDING",
+    paymentMethod: "MERCADO_PAGO",
+    items: [{ productSlug: "remera-dry-fit-wod", size: "M", color: "Negro", quantity: 1 }],
+  },
+  {
+    status: "CANCELLED",
+    paymentMethod: "MERCADO_PAGO",
+    items: [{ productSlug: "hoodie-oversize-post-wod", size: "L", color: "Negro", quantity: 1 }],
+  },
+  {
     status: "PAID",
+    couponIndex: 1,
+    paymentMethod: "CARD",
     items: [
       { productSlug: "remera-dry-fit-wod", size: "L", color: "Gris", quantity: 1 },
       { productSlug: "munequeras-wod", size: "L", color: "Negro", quantity: 1 },
@@ -127,14 +198,19 @@ const ORDER_TEMPLATES: Array<{
   },
   {
     status: "PAID",
+    couponIndex: 2,
+    paymentMethod: "MERCADO_PAGO",
     items: [{ productSlug: "hoodie-oversize-post-wod", size: "L", color: "Negro", quantity: 1 }],
   },
   {
     status: "SHIPPED",
+    couponIndex: 3,
     items: [{ productSlug: "cinturon-de-levantamiento", size: "M", color: "Negro", quantity: 1 }],
   },
   {
     status: "PAID",
+    couponIndex: 4,
+    paymentMethod: "TRANSFER",
     items: [
       { productSlug: "top-deportivo-sin-mangas", size: "M", color: "Rosa", quantity: 1 },
       { productSlug: "short-training-5", size: "S", color: "Azul", quantity: 1 },
@@ -287,20 +363,35 @@ function withBusinessHour(day: Date, slotInDay: number): Date {
   return result;
 }
 
-/** Pedidos por día: pocas al inicio del mes, pico de 10 el último día. */
-function ordersForDay(day: number, lastDay: number): number {
-  if (day === lastDay) return 10;
+function planFromTemplate(
+  template: (typeof ORDER_TEMPLATES)[number],
+  createdAt: Date,
+  customerIndex: number,
+): DemoOrderPlan {
+  return {
+    createdAt,
+    customerIndex,
+    status: template.status,
+    pickup: template.pickup,
+    couponIndex: template.couponIndex,
+    paymentMethod: template.paymentMethod,
+    items: template.items,
+  };
+}
+
+/** Pedidos por día en el mes corriente: pocas al inicio, pico cerca de hoy. */
+function ordersForCurrentMonthDay(day: number, lastDay: number): number {
+  if (day === lastDay) return 8;
 
   const progress = day / lastDay;
 
-  if (progress <= 0.12) return 0;
-  if (progress <= 0.28) return 1;
-  if (progress <= 0.42) return 2;
+  if (progress <= 0.1) return 0;
+  if (progress <= 0.25) return 1;
+  if (progress <= 0.4) return 2;
   if (progress <= 0.55) return 3;
-  if (progress <= 0.67) return 4;
-  if (progress <= 0.78) return 5;
-  if (progress <= 0.88) return 7;
-  return 8;
+  if (progress <= 0.7) return 4;
+  if (progress <= 0.85) return 5;
+  return 6;
 }
 
 function buildAscendingCurrentMonth(today: Date, sequenceStart: number): DemoOrderPlan[] {
@@ -311,17 +402,17 @@ function buildAscendingCurrentMonth(today: Date, sequenceStart: number): DemoOrd
   let sequence = sequenceStart;
 
   for (let day = 1; day <= todayDay; day++) {
-    const ordersToday = ordersForDay(day, todayDay);
+    const ordersToday = ordersForCurrentMonthDay(day, todayDay);
 
     for (let slot = 0; slot < ordersToday; slot++) {
-      const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length];
-      plans.push({
-        createdAt: withBusinessHour(new Date(year, month, day), slot),
-        customerIndex: (day + slot + sequence) % DEMO_CUSTOMERS.length,
-        status: template.status,
-        pickup: template.pickup,
-        items: template.items,
-      });
+      const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length]!;
+      plans.push(
+        planFromTemplate(
+          template,
+          withBusinessHour(new Date(year, month, day), slot),
+          (day + slot + sequence) % DEMO_CUSTOMERS.length,
+        ),
+      );
       sequence += 1;
     }
   }
@@ -329,37 +420,43 @@ function buildAscendingCurrentMonth(today: Date, sequenceStart: number): DemoOrd
   return plans;
 }
 
-/** Días del mes anterior dentro de la ventana de 30 días: muy pocas ventas. */
-function buildTrailingWindowPlans(today: Date, sequenceStart: number): DemoOrderPlan[] {
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-  const windowStart = new Date(today);
-  windowStart.setDate(today.getDate() - 29);
-
-  if (windowStart >= monthStart) return [];
+/**
+ * ~6 months of history before current month (≈180 days total with current month).
+ * Sparse early months, denser as we approach the current month.
+ */
+function buildSixMonthHistory(today: Date, sequenceStart: number): DemoOrderPlan[] {
+  const monthStart = startOfDay(new Date(today.getFullYear(), today.getMonth(), 1));
+  const windowStart = startOfDay(new Date(today));
+  windowStart.setDate(today.getDate() - 179);
 
   const plans: DemoOrderPlan[] = [];
   let sequence = sequenceStart;
   const cursor = new Date(windowStart);
   let dayIndex = 0;
 
-  const totalDays = Math.ceil(
-    (monthStart.getTime() - windowStart.getTime()) / (1000 * 60 * 60 * 24),
-  );
-
   while (cursor < monthStart) {
-    const progress = dayIndex / Math.max(totalDays - 1, 1);
-    const interval = progress < 0.55 ? 6 : 4;
+    const daysFromStart = dayIndex;
+    const progress = daysFromStart / 179;
+
+    // Interval: every 3–4 days early, daily/near-daily approaching current month.
+    let interval: number;
+    if (progress < 0.3) interval = 3;
+    else if (progress < 0.6) interval = 2;
+    else interval = 1;
 
     if (dayIndex % interval === 0) {
-      const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length];
-      plans.push({
-        createdAt: withBusinessHour(new Date(cursor), sequence),
-        customerIndex: (dayIndex + sequence) % DEMO_CUSTOMERS.length,
-        status: template.status,
-        pickup: template.pickup,
-        items: template.items,
-      });
-      sequence += 1;
+      const slots = progress > 0.7 ? 2 : 1;
+      for (let slot = 0; slot < slots; slot++) {
+        const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length]!;
+        plans.push(
+          planFromTemplate(
+            template,
+            withBusinessHour(new Date(cursor), sequence + slot),
+            (dayIndex + sequence + slot) % DEMO_CUSTOMERS.length,
+          ),
+        );
+        sequence += 1;
+      }
     }
 
     cursor.setDate(cursor.getDate() + 1);
@@ -369,49 +466,11 @@ function buildTrailingWindowPlans(today: Date, sequenceStart: number): DemoOrder
   return plans;
 }
 
-function buildPreviousMonthsHistory(today: Date, sequenceStart: number): DemoOrderPlan[] {
-  const plans: DemoOrderPlan[] = [];
-  let sequence = sequenceStart;
-
-  const history = [
-    { monthOffset: -1, day: 8, customerIndex: 1 },
-    { monthOffset: -1, day: 19, customerIndex: 4 },
-    { monthOffset: -2, day: 12, customerIndex: 2 },
-    { monthOffset: -3, day: 6, customerIndex: 5 },
-    { monthOffset: -4, day: 21, customerIndex: 3 },
-    { monthOffset: -5, day: 14, customerIndex: 6 },
-    { monthOffset: -6, day: 9, customerIndex: 0 },
-  ];
-
-  for (const entry of history) {
-    const date = new Date(
-      today.getFullYear(),
-      today.getMonth() + entry.monthOffset,
-      entry.day,
-    );
-    const template = ORDER_TEMPLATES[sequence % ORDER_TEMPLATES.length];
-
-    plans.push({
-      createdAt: withBusinessHour(date, sequence),
-      customerIndex: entry.customerIndex,
-      status: template.status,
-      pickup: template.pickup,
-      items: template.items,
-    });
-    sequence += 1;
-  }
-
-  return plans;
-}
-
 export function buildDemoOrderPlans(now = new Date()): DemoOrderPlan[] {
   const today = startOfDay(now);
-
-  const trailing = buildTrailingWindowPlans(today, 0);
-  const currentMonth = buildAscendingCurrentMonth(today, trailing.length);
-  const history = buildPreviousMonthsHistory(today, trailing.length + currentMonth.length);
-
-  return [...trailing, ...currentMonth, ...history];
+  const history = buildSixMonthHistory(today, 0);
+  const currentMonth = buildAscendingCurrentMonth(today, history.length);
+  return [...history, ...currentMonth];
 }
 
 export function summarizeDemoPlans(plans: DemoOrderPlan[], now = new Date()): string {
@@ -424,5 +483,14 @@ export function summarizeDemoPlans(plans: DemoOrderPlan[], now = new Date()): st
     return d.getFullYear() === year && d.getMonth() === month;
   }).length;
 
-  return `${plans.length} pedidos (${currentMonthCount} en el mes corriente, curva ascendente)`;
+  const byStatus = plans.reduce<Record<string, number>>((acc, plan) => {
+    acc[plan.status] = (acc[plan.status] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const statusSummary = Object.entries(byStatus)
+    .map(([status, count]) => `${status}=${count}`)
+    .join(", ");
+
+  return `${plans.length} pedidos (${currentMonthCount} mes corriente; ${statusSummary})`;
 }

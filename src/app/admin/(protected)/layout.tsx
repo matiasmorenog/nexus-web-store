@@ -11,7 +11,7 @@ import {
   getAdminAccessContext,
   requireAdminSession,
 } from "@/lib/admin-session";
-import { getEnabledModuleIds } from "@/lib/modules";
+import { getEnabledModuleIds } from "@/lib/modules/access-server";
 import { getBrandPrefix, getStore } from "@/lib/store-context";
 import { buildFilteredAdminNavModel } from "@/lib/store-users/admin-nav-access";
 

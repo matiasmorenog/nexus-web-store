@@ -6,7 +6,8 @@ import type { InviteStoreStaffInput } from "@/lib/store-users/types";
 import { isStoreStaffRole } from "@/lib/store-users/permissions";
 import { requireStoreOwnerSession } from "@/lib/store-users/admin-auth";
 import { adminMayAccessCurrentStore } from "@/lib/store-users/membership";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireModuleAccess() {

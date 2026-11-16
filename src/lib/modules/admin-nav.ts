@@ -1,4 +1,4 @@
-import { ADMIN_PLAN_PATH, moduleAdminPath } from "@/lib/modules/access";
+import { ADMIN_PLAN_PATH, moduleAdminPath } from "@/lib/modules/paths";
 import { MODULE_CATALOG, type ModuleId } from "@/lib/modules/catalog";
 
 export type AdminNavIconKey =

@@ -4,7 +4,7 @@ import {
   adminCanManageModule,
   requireAdminModuleView,
 } from "@/lib/admin-session";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
 import { getStoreId } from "@/lib/store-context";
 

@@ -4,7 +4,7 @@ import {
   getAdminAccessContext,
   requireAdminPermission,
 } from "@/lib/admin-session";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 import {
   canManageStoreUsers,

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
+import { WhatsAppMark } from "@/components/brand/whatsapp-mark";
 import { AdminCrmCustomerProfileForm } from "@/components/admin/admin-crm-customer-profile-form";
 import {
   AdminDataTable,
@@ -131,7 +131,7 @@ export function AdminCrmCustomerDetail({
                       rel="noopener noreferrer"
                       className="inline-flex h-7 items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 text-xs font-medium text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
                     >
-                      <MessageCircle className="size-3.5" />
+                      <WhatsAppMark className="size-3.5" tone="brand" />
                       WhatsApp
                     </a>
                   ) : null}

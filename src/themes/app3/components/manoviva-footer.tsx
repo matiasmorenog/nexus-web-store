@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NexusStorefrontCredit } from "@/components/storefront/nexus-storefront-credit";
 import { ManovivaMark } from "@/themes/app3/components/manoviva-mark";
 
 const links = [
@@ -61,7 +62,13 @@ export function ManovivaFooter() {
         </div>
       </div>
       <div className="border-t border-white/10 px-5 py-5 text-center text-xs text-white/45">
-        © {new Date().getFullYear()} Manoviva · Fatto a mano con cura
+        <p>© {new Date().getFullYear()} Manoviva · Fatto a mano con cura</p>
+        <p className="mt-2.5">
+          <NexusStorefrontCredit
+            locale="it"
+            className="text-white/55 hover:text-white/80"
+          />
+        </p>
       </div>
     </footer>
   );

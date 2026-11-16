@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOptionalCustomerSession } from "@/lib/customer-session";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 import { listCustomerWishlist } from "@/lib/wishlist/query";
 import {

@@ -5,7 +5,8 @@ import {
   saveStoreAfipSettings,
 } from "@/lib/afip/settings";
 import type { StoreAfipSettingsData } from "@/lib/afip/types";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireAdminStore() {

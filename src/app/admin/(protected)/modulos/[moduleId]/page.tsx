@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { AdminModulePlaceholder } from "@/components/admin/admin-module-placeholder";
 import { requireAdminModuleView } from "@/lib/admin-session";
-import { isModuleId, requireModule } from "@/lib/modules";
+import { isModuleId } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 
 export const dynamic = "force-dynamic";
 

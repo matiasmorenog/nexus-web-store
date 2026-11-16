@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getStoreHomeContentForAdmin } from "@/lib/home-content/query";
 import { saveStoreHomeContent } from "@/lib/home-content/admin-persist";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireAdminStore() {

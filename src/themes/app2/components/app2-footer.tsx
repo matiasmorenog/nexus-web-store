@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AtSign, Link2, Share2 } from "lucide-react";
+import { NexusStorefrontCredit } from "@/components/storefront/nexus-storefront-credit";
 import { App2BrandWordmark } from "@/themes/app2/components/home/app2-brand-wordmark";
 import { getBrandPrefix } from "@/lib/brand";
 import { APP2_PRODUCT_CATEGORIES, app2CatalogHref } from "@/lib/store-verticals/app2/config";
@@ -96,9 +97,15 @@ export function App2Footer({ storeName, tagline }: App2FooterProps) {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-app2 pt-6 sm:flex-row">
-          <p className="text-xs text-app2-muted">
-            © {new Date().getFullYear()} {brand}. Todos los derechos reservados.
-          </p>
+          <div className="text-center sm:text-left">
+            <p className="text-xs text-app2-muted">
+              © {new Date().getFullYear()} {brand}. Todos los derechos
+              reservados.
+            </p>
+            <p className="mt-2.5">
+              <NexusStorefrontCredit className="text-app2-muted hover:text-[var(--brand-primary-light,#f0f0f5)]" />
+            </p>
+          </div>
           <p className="text-xs text-app2-muted">
             Solo para mayores de 18 años. Venta de productos de tabaco regulada.
           </p>

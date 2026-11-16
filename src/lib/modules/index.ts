@@ -1,18 +1,15 @@
 export {
   ADMIN_PLAN_PATH,
-  assertModule,
-  checkModuleAccess,
-  getEnabledModuleIds,
   getEnabledModulesForStore,
   isModuleRequiredError,
   moduleAdminPath,
   moduleUpgradeHref,
-  requireModule,
   storeHasModule,
   storeHidesMercadoPago,
   storeHidesPlanCatalog,
 } from "@/lib/modules/access";
 export { moduleErrorResponse } from "@/lib/modules/api-error";
+
 export {
   ADMIN_CONFIG_SUBMENU_MODULE_IDS,
   ADMIN_CORE_NAV_ITEMS,
@@ -40,6 +37,7 @@ export {
   getModuleDefinition,
   getModuleMinPlan,
   isModuleId,
+  parseHighlightedModule,
   listModulesByCategory,
   MODULE_CATALOG,
   MODULE_CATEGORY_LABELS,

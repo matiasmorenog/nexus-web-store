@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { saveStoreMarketingSettings } from "@/lib/marketing/admin-persist";
 import { getStoreMarketingSettingsForAdmin } from "@/lib/marketing/query";
 import type { StoreMarketingSettingsData } from "@/lib/marketing/types";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireAdminStore() {

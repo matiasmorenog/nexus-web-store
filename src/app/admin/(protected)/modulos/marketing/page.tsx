@@ -3,7 +3,7 @@ import { AdminMarketingSettingsForm } from "@/components/admin/admin-marketing-s
 import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { getStoreMarketingSettingsForAdmin } from "@/lib/marketing/query";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 export const dynamic = "force-dynamic";

@@ -4,7 +4,7 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { getModuleDefinition, type ModuleId } from "@/lib/modules";
-import { ADMIN_PLAN_PATH } from "@/lib/modules/access";
+import { ADMIN_PLAN_PATH } from "@/lib/modules/paths";
 
 type AdminModulePlaceholderProps = {
   moduleId: ModuleId;

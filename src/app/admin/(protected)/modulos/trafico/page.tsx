@@ -3,7 +3,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminSkeletonWebTraffic } from "@/components/admin/admin-skeleton";
 import { AdminWebTrafficSection } from "@/components/admin/admin-web-traffic-section";
 import { requireAdminModuleView } from "@/lib/admin-session";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getWebAnalyticsReport } from "@/lib/web-analytics";
 import { parseWebTrafficPeriod } from "@/lib/web-analytics/period";
 

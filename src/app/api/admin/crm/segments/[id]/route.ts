@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { deleteCrmSegment } from "@/lib/crm/segments";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 type RouteContext = {

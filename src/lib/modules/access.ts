@@ -1,18 +1,19 @@
-import { redirect } from "next/navigation";
 import { getActiveStoreSlug } from "@/lib/store-env";
 import { APP3_STORE_SLUG } from "@/lib/store-slugs";
 import {
-  getModuleDefinition,
   isModuleId,
   MODULE_IDS,
   PLAN_TIERS,
   type ModuleId,
 } from "@/lib/modules/catalog";
-import type { ModuleAccessResult } from "@/lib/modules/types";
+import {
+  ADMIN_PLAN_PATH,
+  moduleAdminPath,
+  moduleUpgradeHref,
+} from "@/lib/modules/paths";
 import { MODULE_REQUIRED_ERROR_CODE } from "@/lib/modules/types";
-import { getStoreId } from "@/lib/store-context";
 
-export const ADMIN_PLAN_PATH = "/admin/plan";
+export { ADMIN_PLAN_PATH, moduleAdminPath, moduleUpgradeHref };
 
 /** Manoviva no muestra el catálogo de planes. Queda fija en Start. */
 export function storeHidesPlanCatalog(
@@ -78,71 +79,6 @@ export async function storeHasModule(
 ): Promise<boolean> {
   const enabled = await getEnabledModulesForStore(storeId);
   return enabled.has(moduleId);
-}
-
-export async function getEnabledModuleIds(
-  storeId?: string,
-): Promise<ModuleId[]> {
-  const resolvedStoreId = storeId ?? (await getStoreId());
-  const enabled = await getEnabledModulesForStore(resolvedStoreId);
-  return Array.from(enabled);
-}
-
-export function moduleAdminPath(moduleId: ModuleId): string {
-  if (moduleId === "analytics") return "/admin/modulos/trafico";
-  if (moduleId === "shippingCarriers") return "/admin/configuracion/envios";
-  return `/admin/modulos/${moduleId}`;
-}
-
-export function moduleUpgradeHref(moduleId: ModuleId): string {
-  return `${ADMIN_PLAN_PATH}?module=${moduleId}`;
-}
-
-export async function checkModuleAccess(
-  moduleId: ModuleId,
-  storeId?: string,
-): Promise<ModuleAccessResult> {
-  const resolvedStoreId = storeId ?? (await getStoreId());
-  const allowed = await storeHasModule(resolvedStoreId, moduleId);
-
-  if (allowed) {
-    return { allowed: true };
-  }
-
-  return {
-    allowed: false,
-    moduleId,
-    upgradeHref: moduleUpgradeHref(moduleId),
-  };
-}
-
-/** Redirige a Plan si el módulo no está activo. Usar en layouts de rutas plus. */
-export async function requireModule(moduleId: ModuleId): Promise<void> {
-  const access = await checkModuleAccess(moduleId);
-  if (!access.allowed) {
-    redirect(access.upgradeHref);
-  }
-}
-
-/** Para API routes: lanza error serializable si el módulo no está activo. */
-export async function assertModule(moduleId: ModuleId): Promise<void> {
-  const access = await checkModuleAccess(moduleId);
-  if (!access.allowed) {
-    const moduleDef = getModuleDefinition(moduleId);
-    const error = new Error(`Module required: ${moduleId}`) as Error & {
-      code: typeof MODULE_REQUIRED_ERROR_CODE;
-      moduleId: ModuleId;
-      moduleName: string;
-      upgradeHref: string;
-      status: number;
-    };
-    error.code = MODULE_REQUIRED_ERROR_CODE;
-    error.moduleId = moduleId;
-    error.moduleName = moduleDef.name;
-    error.upgradeHref = access.upgradeHref;
-    error.status = 403;
-    throw error;
-  }
 }
 
 export function isModuleRequiredError(

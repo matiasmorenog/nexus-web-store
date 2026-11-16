@@ -4,7 +4,8 @@ import { saveCrmCustomerProfile } from "@/lib/crm/admin-persist";
 import { getCrmCustomerDetail } from "@/lib/crm/query";
 import type { CrmCustomerProfileInput } from "@/lib/crm/types";
 import { normalizeCustomerEmail } from "@/lib/crm/format";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 type RouteContext = {

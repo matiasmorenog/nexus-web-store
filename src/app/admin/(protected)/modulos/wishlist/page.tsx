@@ -2,7 +2,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminWishlistInsights } from "@/components/admin/admin-wishlist-insights";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getWishlistAdminInsights } from "@/lib/wishlist/query";
 
 export const dynamic = "force-dynamic";

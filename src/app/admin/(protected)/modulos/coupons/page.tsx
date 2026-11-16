@@ -6,7 +6,7 @@ import { requireAdminModuleView } from "@/lib/admin-session";
 
 import { serializeCoupon } from "@/lib/coupons/admin";
 import { db } from "@/lib/db";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStorePromotionSettingsForAdmin } from "@/lib/promotions";
 import { getStoreId } from "@/lib/store-context";
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { saveStorePromotionSettings } from "@/lib/promotions/admin-persist";
 import { getStorePromotionSettingsForAdmin } from "@/lib/promotions/query";
 import type { StorePromotionSettingsData } from "@/lib/promotions/types";

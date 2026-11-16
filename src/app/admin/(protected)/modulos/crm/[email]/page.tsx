@@ -7,7 +7,7 @@ import {
 } from "@/lib/admin-session";
 import { normalizeCustomerEmail } from "@/lib/crm/format";
 import { getCrmCustomerDetail } from "@/lib/crm/query";
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 
 export const dynamic = "force-dynamic";
 

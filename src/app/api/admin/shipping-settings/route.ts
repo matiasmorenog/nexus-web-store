@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { saveStoreShippingSettings } from "@/lib/shipping-carriers/admin-persist";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
 import type { StoreShippingSettingsSaveInput } from "@/lib/shipping-carriers/types";
-import { assertModule, moduleErrorResponse } from "@/lib/modules";
+import { moduleErrorResponse } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
 
 async function requireAdminStore() {

@@ -246,6 +246,13 @@ export function isModuleId(value: string): value is ModuleId {
   return value in MODULE_CATALOG;
 }
 
+export function parseHighlightedModule(
+  value: string | undefined,
+): ModuleId | undefined {
+  if (!value || !isModuleId(value)) return undefined;
+  return value;
+}
+
 export function getModuleDefinition(moduleId: ModuleId) {
   return MODULE_CATALOG[moduleId];
 }

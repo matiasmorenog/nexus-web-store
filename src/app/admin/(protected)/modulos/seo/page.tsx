@@ -2,7 +2,7 @@ import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal"
 import { AdminSeoSettingsForm } from "@/components/admin/admin-seo-settings-form";
 import { requireAdminModuleView } from "@/lib/admin-session";
 
-import { requireModule } from "@/lib/modules";
+import { requireModule } from "@/lib/modules/access-server";
 import { getStoreSeoSettingsForAdmin } from "@/lib/seo/query";
 import { getStoreId } from "@/lib/store-context";
 

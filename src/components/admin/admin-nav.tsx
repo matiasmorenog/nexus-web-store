@@ -51,7 +51,7 @@ import {
   type AdminNavModel,
   type ModuleId,
 } from "@/lib/modules";
-import { moduleUpgradeHref } from "@/lib/modules/access";
+import { moduleUpgradeHref } from "@/lib/modules/paths";
 import { cn } from "@/lib/utils";
 
 const ADMIN_NAV_ICONS: Record<AdminNavIconKey, LucideIcon> = {

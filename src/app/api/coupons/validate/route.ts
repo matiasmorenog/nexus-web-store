@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { normalizeCouponCode } from "@/lib/coupons/format";
 import { validateCouponForCheckout } from "@/lib/coupons/validate";
-import { assertModule, moduleErrorResponse, storeHasModule } from "@/lib/modules";
+import { moduleErrorResponse, storeHasModule } from "@/lib/modules";
+import { assertModule } from "@/lib/modules/access-server";
 import { db } from "@/lib/db";
 import { getStoreId } from "@/lib/store-context";
 

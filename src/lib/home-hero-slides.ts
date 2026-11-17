@@ -1,7 +1,8 @@
 import { promoBanner } from "@/lib/promo-banner";
 
+/** Box / CrossFit — athlete de frente con kettlebell (sin ángulo trasero). */
 const BRAND_HERO_IMAGE =
-  "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1600&q=80";
+  "https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=1600&q=80";
 
 const PROMO_HERO_IMAGE =
   "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80";

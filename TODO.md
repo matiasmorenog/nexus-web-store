@@ -41,6 +41,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 ## Admin / módulos
 
 - [x] CRM full: KPIs, filtros, segmentos, WhatsApp ficha, export CSV (dejar de ser “lite”).
+- [x] Goat demo seed completo (`db:seed:demo-goat`) + refresh liviano de fechas (`db:refresh:demo-goat`); solo Neon development / `demo-store`. Tráfico Vercel no seedeable.
 
 ## Hecho (referencia)
 

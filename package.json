@@ -21,8 +21,10 @@
     "db:seed:app3": "bash scripts/seed-app3.sh",
     "db:wipe:app1": "bash scripts/wipe-store.sh app1",
     "db:wipe:app2": "bash scripts/wipe-store.sh app2",
-    "db:demo-orders": "tsx prisma/seed-demo-orders.ts && npm run cache:revalidate",
-    "db:setup": "npm run db:push && npm run db:seed && npm run db:demo-orders",
+    "db:seed:demo-goat": "SEED_TARGET=development tsx prisma/seed-demo-goat.ts && npm run cache:revalidate",
+    "db:refresh:demo-goat": "SEED_TARGET=development tsx prisma/refresh-demo-goat.ts && npm run cache:revalidate",
+    "db:demo-orders": "npm run db:seed:demo-goat",
+    "db:setup": "npm run db:push && npm run db:seed && npm run db:seed:demo-goat",
     "db:studio": "prisma studio",
     "cache:revalidate": "tsx scripts/revalidate-cache.ts"
   },

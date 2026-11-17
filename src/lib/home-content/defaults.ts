@@ -12,12 +12,12 @@ import { HOME_CONTENT_VERSION } from "@/lib/home-content/types";
 import type { StoreVertical } from "@/lib/store-verticals/types";
 
 const APP1_CATEGORY_IMAGES: Record<string, string> = {
-  mujer: "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
+  mujer: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&q=80",
   hombre: "https://images.unsplash.com/photo-1647438174616-7bc61ca38455?w=600&q=80",
   remeras:
     "https://images.unsplash.com/photo-1611858447638-1113f15f7177?w=600&q=80",
   musculosas:
-    "https://images.unsplash.com/photo-1682530678019-d3482a8d8cff?w=600&q=80",
+    "https://images.unsplash.com/photo-1593431763017-c689a61b729a?w=600&q=80",
   tops: "https://images.unsplash.com/photo-1531520563951-4c0e3d3fcacc?w=600&q=80",
   leggings:
     "https://images.unsplash.com/photo-1762331660576-cbf66a7db84d?w=600&q=80",

@@ -52,7 +52,7 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro.
 | `marketing` | WhatsApp y Meta Pixel | ✓ | ✓ | ✓ |
 | `seo` | SEO avanzado | ✓ | ✓ | ✓ |
 | `coupons` | Cupones y promociones (incl. 2x1) | | ✓ | ✓ |
-| `homeEditor` | Home editable | | ✓ | ✓ |
+| `homeEditor` | Home editable (slider + secciones) | | ✓ | ✓ |
 | `wishlist` | Wishlist | | ✓ | ✓ |
 | `shippingCarriers` | Envíos carrier | | ✓ | ✓ |
 | `crm` | CRM (clientes, LTV, segmentos, WhatsApp, CSV) | | ✓ | ✓ |
@@ -60,9 +60,32 @@ Sin estos ítems la tienda no opera. Incluidos en Start / Grow / Pro.
 | `analytics` | Tráfico y reportes (ventas + tráfico web Vercel) | | | ✓ |
 | `api` | API y webhooks | | | ✓ |
 
-**Upgrade ladder:** Start→Grow = promos, home, envíos, CRM, equipo. Grow→Pro = reportes fuertes + API.
+**Upgrade ladder:** Start→Grow = promos, home completa, envíos, CRM, equipo. Grow→Pro = reportes + API + servicio de diseño de home.
 
 Addons sueltos: **no** (salvo seats extra más adelante).
+
+### Home por plan (producto + servicio)
+
+Diferencia **editor self-serve** vs **diseño Nexus** (laburo humano). No son lo mismo.
+
+| Plan | Admin (self-serve) | Servicio Nexus |
+|------|--------------------|----------------|
+| **Start** | **Hero editable**: 1 slide (imagen + título + subtítulo + CTA) | — |
+| **Grow** | **Home editable** (`homeEditor`): hero con **slider** + secciones (categorías, destacados, promo). Más opciones de hero = roadmap | Fee opcional si pide diseño a medida |
+| **Pro** | Mismo editor que Grow | **1 diseño de home al alta** + **hasta 3 homes de temporada/año** (Navidad, Halloween, Hot Sale, etc.) |
+
+**Reglas del servicio Pro (temporada / alta):**
+
+- Cliente manda fotos y copy; Nexus arma la home sobre el theme.
+- Por entrega: **1 entrega + 1 ronda de cambios**.
+- Temporada = home temática (hero + banners/secciones), no theme CSS full distinto.
+- Cupo anual de temporada: el cliente elige hasta 3 fechas; se agenda con Nexus.
+
+**Estado de implementación (hoy):**
+
+- Grow/Pro: módulo `homeEditor` en código (admin puede estar apagado / en polish).
+- Start “hero only”: oferta comercial acordada; **pendiente** subset del editor (hoy Start no tiene `homeEditor`).
+- Perks de diseño Pro: copy en pantalla Plan; entrega operativa vía WhatsApp / proceso Nexus (no hay módulo de gating).
 
 ---
 

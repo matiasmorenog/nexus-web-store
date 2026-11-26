@@ -70,9 +70,9 @@ const MODULE_HEADERS: Record<string, AdminModuleHeaderCopy> = {
       "Meta tags, sitemap dinámico, robots.txt y structured data para buscadores.",
   },
   "/admin/modulos/multiUser": {
-    title: "Multi-usuario",
+    title: "Accesos",
     description:
-      "Invitá usuarios con rol administrador, vendedor, depósito o solo lectura.",
+      "Gestioná roles del panel (administrador, vendedor, depósito, solo lectura). Varias personas pueden compartir el mismo nivel.",
   },
   "/admin/modulos/homeEditor": {
     title: "Home editable",

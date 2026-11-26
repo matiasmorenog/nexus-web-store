@@ -170,8 +170,8 @@ export function AdminStoreUsersPanel({
   return (
     <div className="max-w-lg space-y-6">
       <AdminCard
-        title="Usuarios staff"
-        description="Personas con acceso al panel admin además del owner."
+        title="Accesos"
+        description="Roles del panel (administrador, vendedor, depósito, solo lectura). Sin dueño único: varias socias pueden compartir el mismo nivel."
         action={
           canManage ? (
             <Button
@@ -185,7 +185,7 @@ export function AdminStoreUsersPanel({
               }}
             >
               <UserPlus className="mr-1.5 h-4 w-4" aria-hidden />
-              Invitar usuario
+              Invitar acceso
             </Button>
           ) : undefined
         }
@@ -199,7 +199,7 @@ export function AdminStoreUsersPanel({
 
         {members.length === 0 ? (
           <p className="text-sm text-neutral-600">
-            Todavía no hay usuarios staff. Invitá a alguien con el botón de
+            Todavía no hay accesos invitados. Sumá a alguien con el botón de
             arriba.
           </p>
         ) : (
@@ -259,7 +259,7 @@ export function AdminStoreUsersPanel({
 
         {!canManage ? (
           <p className="mt-3 text-sm text-neutral-600">
-            Solo un administrador puede invitar o quitar usuarios.
+            Solo un administrador puede invitar o quitar accesos.
           </p>
         ) : null}
       </AdminCard>
@@ -279,8 +279,8 @@ export function AdminStoreUsersPanel({
           >
             <AdminCommitModalHeader
               titleId={INVITE_TITLE_ID}
-              title="Invitar usuario"
-              description="Email, contraseña temporal y rol."
+              title="Invitar acceso"
+              description="Email, contraseña temporal y rol del panel."
             />
             <AdminCommitModalBody className="space-y-4">
               <div>
@@ -344,7 +344,7 @@ export function AdminStoreUsersPanel({
                 Descartar
               </Button>
               <Button type="submit" size="sm" disabled={loading}>
-                {loading ? "Invitando…" : "Invitar usuario"}
+                {loading ? "Invitando…" : "Invitar acceso"}
               </Button>
             </AdminCommitModalFooter>
           </form>

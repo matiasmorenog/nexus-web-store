@@ -29,7 +29,7 @@ export const STORE_STAFF_ROLE_LABELS: Record<StoreStaffRole, string> = {
 };
 
 export const STORE_STAFF_ROLE_DESCRIPTIONS: Record<StoreStaffRole, string> = {
-  ADMIN: "Acceso completo al panel, igual que el owner.",
+  ADMIN: "Acceso completo al panel (mismo nivel que otras administradoras).",
   SELLER: "Pedidos y CRM. Sin acceso a productos ni configuración.",
   WAREHOUSE: "Productos, pedidos y envíos carrier.",
   READ_ONLY: "Solo lectura en todo el panel.",

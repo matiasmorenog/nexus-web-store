@@ -850,6 +850,72 @@ export function AdminSkeletonModuleSettingsPage() {
   );
 }
 
+function AdminSkeletonMarketingCard({
+  titleWidth,
+  descriptionWidth,
+  fields = 2,
+  grid = false,
+}: {
+  titleWidth: string;
+  descriptionWidth: string;
+  fields?: number;
+  grid?: boolean;
+}) {
+  return (
+    <AdminSkeletonCardShell
+      titleWidth={titleWidth}
+      descriptionWidth={descriptionWidth}
+      className="max-w-lg"
+    >
+      <div className="space-y-4">
+        <div className="flex items-center gap-2.5">
+          <AdminSkeleton className="h-5 w-9 rounded-full" />
+          <AdminSkeleton className="h-4 w-44" />
+        </div>
+        <div
+          className={cn(
+            "gap-4",
+            grid ? "grid sm:grid-cols-2" : "space-y-4",
+          )}
+        >
+          {Array.from({ length: fields }, (_, index) => (
+            <AdminSkeletonFormField
+              key={index}
+              labelWidth={index % 2 === 0 ? "w-36" : "w-28"}
+              hint={index === fields - 1 && !grid}
+            />
+          ))}
+        </div>
+        <div className="flex justify-end border-t border-neutral-100 pt-4">
+          <AdminSkeleton className="h-8 w-24 rounded-md" />
+        </div>
+      </div>
+    </AdminSkeletonCardShell>
+  );
+}
+
+/** /admin/modulos/marketing — WhatsApp + Meta Pixel cards, Save right. */
+export function AdminSkeletonModuleMarketingPage() {
+  return (
+    <AdminSkeletonRegion
+      label="Cargando WhatsApp y Meta Pixel"
+      className="space-y-6"
+    >
+      <AdminSkeletonMarketingCard
+        titleWidth="w-28"
+        descriptionWidth="w-72"
+        fields={2}
+        grid
+      />
+      <AdminSkeletonMarketingCard
+        titleWidth="w-32"
+        descriptionWidth="w-80"
+        fields={1}
+      />
+    </AdminSkeletonRegion>
+  );
+}
+
 /** /admin/categorias — header + create trigger + list (create lives in draft modal). */
 export function AdminSkeletonCategoriesPage() {
   return (
@@ -986,7 +1052,7 @@ export function AdminSkeletonModuleApiPage() {
 /** /admin/modulos/multiUser — list card + invite trigger (invite is commit modal). */
 export function AdminSkeletonModuleMultiUserPage() {
   return (
-    <AdminSkeletonRegion label="Cargando usuarios" className="space-y-8">
+    <AdminSkeletonRegion label="Cargando accesos" className="space-y-8">
       <div className="max-w-lg space-y-6">
         <AdminSkeletonCardShell
           titleWidth="w-28"

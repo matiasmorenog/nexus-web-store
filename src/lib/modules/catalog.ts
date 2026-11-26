@@ -110,9 +110,9 @@ const MODULE_LIST = [
   },
   {
     id: "multiUser",
-    name: "Multi-usuario",
+    name: "Accesos",
     description:
-      "Usuarios adicionales con roles (administrador, vendedor, depósito, solo lectura).",
+      "Roles del panel (administrador, vendedor, depósito, solo lectura). Sin dueño único: varias personas pueden compartir el mismo nivel.",
     monthlyPriceUsd: 0,
     includedInPlans: ["grow", "pro"],
     category: "operations",
@@ -166,7 +166,7 @@ export type PlanTierDefinition = {
   description: string;
   target: string;
   moduleIds: readonly ModuleId[];
-  /** Límite de staff adicionales (owner no cuenta). null = alto / ilimitado. */
+  /** Límite de accesos invitados. null = alto / ilimitado. */
   maxStaffSeats: number | null;
   /** Human perks shown above module list (support, seats framing, etc.). */
   perks: readonly string[];

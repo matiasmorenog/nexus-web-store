@@ -78,10 +78,10 @@ const NAV_LABELS: Record<string, { es: string; it: string; shortEs: string; shor
     shortIt: "WhatsApp",
   },
   "/admin/modulos/multiUser": {
-    es: "Multi-usuario",
-    it: "Multi-utente",
-    shortEs: "Usuarios",
-    shortIt: "Utenti",
+    es: "Accesos",
+    it: "Accessi",
+    shortEs: "Accesos",
+    shortIt: "Accessi",
   },
   "/admin/modulos/api": {
     es: "API y webhooks",

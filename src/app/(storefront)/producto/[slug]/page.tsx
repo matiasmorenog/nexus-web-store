@@ -155,7 +155,7 @@ export default async function ProductPage({ params }: PageProps) {
             {getProductTaxonomyLabel(product.category, product.audience)}
           </p>
           <div className="mt-2 flex items-start justify-between gap-4">
-            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+            <h1 className="storefront-copy text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
               {product.name}
             </h1>
             {wishlistEnabled ? (
@@ -169,7 +169,7 @@ export default async function ProductPage({ params }: PageProps) {
               />
             ) : null}
           </div>
-          <p className="mt-4 leading-relaxed text-neutral-600">
+          <p className="storefront-copy mt-4 leading-relaxed text-neutral-600">
             {product.description}
           </p>
           <div className="mt-8 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
@@ -203,7 +203,9 @@ export default async function ProductPage({ params }: PageProps) {
             >
               {sizeGuide.title}
             </h2>
-            <p className="mt-2 max-w-2xl text-neutral-600">{sizeGuide.description}</p>
+            <p className="storefront-copy mt-2 max-w-2xl text-neutral-600">
+              {sizeGuide.description}
+            </p>
             <div className="mt-6 storefront-card border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
               <InfoSections sections={sizeGuide.sections} />
             </div>

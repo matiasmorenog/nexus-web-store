@@ -97,7 +97,7 @@ export function ContactPage({
       <StorefrontPageHeader title={title} description={description} />
 
       {isProvisional ? (
-        <div className="mb-6 storefront-card border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950">
+        <div className="storefront-copy mb-6 storefront-card border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-950">
           <strong>Sito in preparazione.</strong> Email, sede e modalità di consegna sono dati
           provvisori e verranno sostituiti prima dell&apos;apertura degli ordini.
         </div>
@@ -135,7 +135,7 @@ export function ContactPage({
                     ? "Creazione su misura"
                     : "Creación personalizada"}
               </p>
-              <p className="text-sm leading-relaxed text-neutral-600">
+              <p className="storefront-copy text-sm leading-relaxed text-neutral-600">
                 {isProvisional
                   ? "Italia · città e laboratorio da definire"
                   : allowPickup

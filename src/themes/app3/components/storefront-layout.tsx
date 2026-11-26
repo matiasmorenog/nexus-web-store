@@ -30,7 +30,7 @@ export function App3StorefrontLayout({
       data-storefront-ui="app3"
       lang="it"
       style={config.ui.cssVars as CSSProperties}
-      className="storefront-theme manoviva-theme relative flex min-h-full flex-1 flex-col bg-[#F2F0E9]"
+      className="storefront-theme storefront-ui manoviva-theme relative flex min-h-full flex-1 flex-col bg-[#F2F0E9]"
     >
       {wishlistEnabled ? <WishlistSync /> : null}
       <PromoConfigSync promo2x1Active={false} />

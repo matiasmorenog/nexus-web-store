@@ -38,7 +38,7 @@ export function App1StorefrontLayout({
     <div
       data-storefront-ui={config.ui.id}
       style={themeStyle}
-      className="storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
+      className="storefront-theme storefront-ui relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg,var(--background))]"
     >
       {wishlistEnabled ? <WishlistSync /> : null}
       <PromoConfigSync promo2x1Active={promo2x1Active} />

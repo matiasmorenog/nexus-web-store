@@ -53,7 +53,7 @@ export function StorefrontPageHeader({
           {description ? (
             <p
               className={cn(
-                "mt-1.5 max-w-2xl text-sm text-neutral-500",
+                "storefront-copy mt-1.5 max-w-2xl text-sm text-neutral-500",
                 !isAccount && "sm:text-base",
               )}
             >

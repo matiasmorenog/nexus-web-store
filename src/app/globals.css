@@ -27,6 +27,20 @@ body {
   border-radius: var(--storefront-card-radius, 0.75rem);
 }
 
+/* Storefront chrome (nav, filters, chips, cards UI) — no accidental text selection.
+   Opt long copy back in with `.storefront-copy` / `select-text`. */
+.storefront-ui {
+  user-select: none;
+}
+
+.storefront-copy {
+  user-select: text;
+}
+
+.storefront-ui :where(input, textarea, select, [contenteditable="true"]),
+.storefront-ui :where(a[href^="mailto:"], a[href^="tel:"]) {
+  user-select: text;
+}
 .sliding-indicator-animate,
 .admin-nav-indicator-animate {
   transition:

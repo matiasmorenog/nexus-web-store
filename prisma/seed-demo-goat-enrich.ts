@@ -248,11 +248,27 @@ async function seedCrm(
   const segmentCreatedAt = new Date(now);
   segmentCreatedAt.setMonth(segmentCreatedAt.getMonth() - 2);
 
-  for (const customer of DEMO_CUSTOMERS) {
+  for (let i = 0; i < DEMO_CUSTOMERS.length; i++) {
+    const customer = DEMO_CUSTOMERS[i]!;
     const isVip =
       customer.email === SEED_CUSTOMER_EMAIL ||
       customer.email.startsWith("martin") ||
-      customer.email.startsWith("valentina");
+      customer.email.startsWith("valentina") ||
+      customer.email.startsWith("lucia");
+    const isWholesale = customer.email.startsWith("bruno");
+    const tags = [
+      "demo",
+      ...(isVip ? (["vip"] as const) : []),
+      ...(isWholesale ? (["mayorista"] as const) : []),
+      ...(i % 3 === 0 ? (["newsletter"] as const) : []),
+      ...(i % 4 === 1 ? (["box"] as const) : []),
+    ];
+    const notes = isVip
+      ? "Cliente demo frecuente — útil para demos de CRM / VIP."
+      : isWholesale
+        ? "Consulta mayorista demo (box / grupo)."
+        : `Contacto demo Goat · ${customer.city}.`;
+
     await prisma.storeCustomer.upsert({
       where: {
         storeId_email: { storeId, email: customer.email },
@@ -260,17 +276,13 @@ async function seedCrm(
       create: {
         storeId,
         email: customer.email,
-        tags: isVip ? ["vip", "demo"] : ["demo"],
-        notes: isVip
-          ? "Cliente demo frecuente — útil para demos de CRM."
-          : "Contacto demo Goat.",
+        tags: [...tags],
+        notes,
         updatedAt: now,
       },
       update: {
-        tags: isVip ? ["vip", "demo"] : ["demo"],
-        notes: isVip
-          ? "Cliente demo frecuente — útil para demos de CRM."
-          : "Contacto demo Goat.",
+        tags: [...tags],
+        notes,
         updatedAt: now,
       },
     });

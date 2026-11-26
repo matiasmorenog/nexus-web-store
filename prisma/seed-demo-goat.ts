@@ -50,6 +50,9 @@ async function main() {
   );
   console.log(`  Wishlist items: ${enrich.wishlistItems}`);
   console.log(
+    "  Also seeded: WhatsApp + Meta Pixel demo, promo 2x1, SEO, multi-carrier shipping, pickup address.",
+  );
+  console.log(
     "\nNote: /admin/modulos/trafico uses Vercel Web Analytics API — not seeded.",
   );
   console.log("Goat demo seed done.");

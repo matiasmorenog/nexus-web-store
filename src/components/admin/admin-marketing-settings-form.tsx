@@ -138,7 +138,7 @@ export function AdminMarketingSettingsForm({
             </AdminFormAlert>
           ) : null}
           <AdminFormActions>
-            <Button type="submit" disabled={loadingSection !== null}>
+            <Button type="submit" size="sm" disabled={loadingSection !== null}>
               {loadingSection === "whatsapp" ? "Guardando…" : "Guardar"}
             </Button>
           </AdminFormActions>
@@ -200,7 +200,7 @@ export function AdminMarketingSettingsForm({
             </AdminFormAlert>
           ) : null}
           <AdminFormActions>
-            <Button type="submit" disabled={loadingSection !== null}>
+            <Button type="submit" size="sm" disabled={loadingSection !== null}>
               {loadingSection === "metaPixel" ? "Guardando…" : "Guardar"}
             </Button>
           </AdminFormActions>

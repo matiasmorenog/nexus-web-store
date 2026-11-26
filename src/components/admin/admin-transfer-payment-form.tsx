@@ -135,7 +135,7 @@ export function AdminTransferPaymentForm({
         ) : null}
 
         <AdminFormActions>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" size="sm" disabled={loading}>
             {loading ? copy.savingLabel : copy.saveLabel}
           </Button>
         </AdminFormActions>

@@ -171,8 +171,8 @@ export function ChangePasswordForm({
             </AdminFormAlert>
           ) : null}
           <AdminFormActions>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Guardando..." : "Cambiar contraseña"}
+            <Button type="submit" size="sm" disabled={loading}>
+              {loading ? "Guardando…" : "Cambiar contraseña"}
             </Button>
           </AdminFormActions>
         </AdminForm>

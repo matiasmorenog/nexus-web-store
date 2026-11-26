@@ -215,7 +215,7 @@ export function AdminPaymentSettingsForm({
           <p className="text-sm text-neutral-500">{copy.readOnly}</p>
         ) : (
           <AdminFormActions>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" size="sm" disabled={loading}>
               {loading ? copy.saving : copy.save}
             </Button>
           </AdminFormActions>

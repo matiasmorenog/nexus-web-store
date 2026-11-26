@@ -48,6 +48,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 
 ## Hecho (referencia)
 
+- Storefront scroll reveal: `StorefrontReveal` con Intersection Observer (opacity + translateY, stagger, `prefers-reduced-motion`); home app1/app2/app3 + catálogo/PDP/carrito/checkout existentes.
 - Fase A/B: storefront, admin, checkout MP, multi-tienda (3 deploys), módulos Plus, categorías dinámicas, CI lint + typecheck con branch protection.
 - Pricing Start / Grow / Pro.
 - Stripe (Italia), login demo.

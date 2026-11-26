@@ -17,20 +17,21 @@ export async function FeaturedProductsSection() {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
-      {featuredProducts.map((product) => (
-        <ProductCard
-          key={product.id}
-          slug={product.slug}
-          name={product.name}
-          category={product.category}
-          audience={product.audience}
-          imageUrl={product.imageUrl}
-          hoverImageUrl={product.hoverImageUrl}
-          price={product.price}
-          inStock={product.inStock}
-          promo2x1={promo2x1Active && product.promo2x1}
-          colorCount={product.colorCount}
-        />
+      {featuredProducts.map((product, index) => (
+        <StorefrontReveal key={product.id} index={Math.min(index, 7)}>
+          <ProductCard
+            slug={product.slug}
+            name={product.name}
+            category={product.category}
+            audience={product.audience}
+            imageUrl={product.imageUrl}
+            hoverImageUrl={product.hoverImageUrl}
+            price={product.price}
+            inStock={product.inStock}
+            promo2x1={promo2x1Active && product.promo2x1}
+            colorCount={product.colorCount}
+          />
+        </StorefrontReveal>
       ))}
     </div>
   );
@@ -54,28 +55,26 @@ export function FeaturedProductsSectionShell({
     (storeDisplayName ? getBrandPrefix(storeDisplayName) : undefined);
 
   return (
-    <StorefrontReveal index={1}>
-      <section className="bg-neutral-50 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mb-8 flex items-end justify-between">
-            <h2 className="text-2xl font-bold">
-              <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
-                {title}
-              </span>{" "}
-              {accent ? (
-                <span className="text-[var(--brand-primary)]">{accent}</span>
-              ) : null}
-            </h2>
-            <Link
-              href={viewAllHref}
-              className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
-            >
-              Ver todos
-            </Link>
-          </div>
-          {children}
+    <section className="bg-neutral-50 py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-8 flex items-end justify-between">
+          <h2 className="text-2xl font-bold">
+            <span className="inline-block border-b-2 border-[var(--brand-primary)] pb-1">
+              {title}
+            </span>{" "}
+            {accent ? (
+              <span className="text-[var(--brand-primary)]">{accent}</span>
+            ) : null}
+          </h2>
+          <Link
+            href={viewAllHref}
+            className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+          >
+            Ver todos
+          </Link>
         </div>
-      </section>
-    </StorefrontReveal>
+        {children}
+      </div>
+    </section>
   );
 }

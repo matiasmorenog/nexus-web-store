@@ -1121,38 +1121,63 @@ export function AdminSkeletonModuleCobrosPage() {
   );
 }
 
-/** /admin/configuracion/envios */
+function AdminSkeletonShippingCard({
+  titleWidth,
+  descriptionWidth,
+  children,
+}: {
+  titleWidth: string;
+  descriptionWidth: string;
+  children: ReactNode;
+}) {
+  return (
+    <AdminSkeletonCardShell
+      titleWidth={titleWidth}
+      descriptionWidth={descriptionWidth}
+      className="max-w-lg"
+    >
+      <div className="space-y-4">
+        {children}
+        <div className="flex justify-end border-t border-neutral-100 pt-4">
+          <AdminSkeleton className="h-8 w-24 rounded-md" />
+        </div>
+      </div>
+    </AdminSkeletonCardShell>
+  );
+}
+
+/** /admin/configuracion/envios — one Save per card. */
 export function AdminSkeletonModuleShippingPage() {
   return (
     <AdminSkeletonRegion label="Cargando envíos" className="space-y-8">
       <div className="space-y-6">
-        <AdminSkeletonCardShell
-          titleWidth="w-28"
-          descriptionWidth="w-full max-w-sm"
-          className="max-w-lg"
-        >
-          <div className="space-y-3">
-            <AdminSkeleton className="h-16 w-full rounded-md" />
-            <AdminSkeletonFormField labelWidth="w-24" hint />
-          </div>
-        </AdminSkeletonCardShell>
-        <AdminSkeletonCardShell
+        <AdminSkeletonShippingCard
           titleWidth="w-36"
           descriptionWidth="w-full max-w-sm"
-          className="max-w-lg"
         >
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <AdminSkeleton className="size-4 rounded" />
-              <AdminSkeleton className="h-4 w-56" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AdminSkeletonFormField labelWidth="w-32" />
-              <AdminSkeletonFormField labelWidth="w-36" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <AdminSkeleton className="h-5 w-9 rounded-full" />
+            <AdminSkeleton className="h-4 w-48" />
           </div>
-        </AdminSkeletonCardShell>
-        <AdminSkeleton className="h-10 w-32 rounded-lg max-w-lg" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminSkeletonFormField labelWidth="w-32" />
+            <AdminSkeletonFormField labelWidth="w-36" />
+          </div>
+        </AdminSkeletonShippingCard>
+        <AdminSkeletonShippingCard
+          titleWidth="w-36"
+          descriptionWidth="w-full max-w-sm"
+        >
+          <AdminSkeleton className="h-16 w-full rounded-md" />
+          <AdminSkeletonFormField labelWidth="w-28" hint />
+        </AdminSkeletonShippingCard>
+        <AdminSkeletonShippingCard
+          titleWidth="w-40"
+          descriptionWidth="w-full max-w-sm"
+        >
+          <AdminSkeleton className="h-16 w-full rounded-md" />
+          <AdminSkeletonFormField labelWidth="w-24" />
+        </AdminSkeletonShippingCard>
       </div>
     </AdminSkeletonRegion>
   );

@@ -785,7 +785,15 @@ function AdminSkeletonFormField({
   );
 }
 
-/** Content-only — title stays in configuracion/plan layout (no title skeleton). */
+function AdminSkeletonCardSave() {
+  return (
+    <div className="flex justify-end border-t border-neutral-100 pt-4">
+      <AdminSkeleton className="h-8 w-24 rounded-md" />
+    </div>
+  );
+}
+
+/** Content-only — title stays in configuracion layout (no title skeleton). */
 export function AdminSkeletonSettingsPage() {
   return (
     <AdminSkeletonRegion label="Cargando configuración" className="space-y-6">
@@ -798,7 +806,7 @@ export function AdminSkeletonSettingsPage() {
           <AdminSkeletonFormField labelWidth="w-32" />
           <AdminSkeletonFormField labelWidth="w-28" />
           <AdminSkeletonFormField labelWidth="w-44" hint />
-          <AdminSkeleton className="h-10 w-40 rounded-lg" />
+          <AdminSkeletonCardSave />
         </div>
       </AdminSkeletonCardShell>
     </AdminSkeletonRegion>
@@ -835,9 +843,79 @@ function AdminSkeletonModuleFormCard({
             hint={index === fields - 1}
           />
         ))}
-        <AdminSkeleton className="h-10 w-36 rounded-lg" />
+        <AdminSkeletonCardSave />
       </div>
     </AdminSkeletonCardShell>
+  );
+}
+
+/** /admin/plan — tiers grid + core + modules accordion. */
+export function AdminSkeletonPlanPage() {
+  return (
+    <AdminSkeletonRegion label="Cargando planes" className="space-y-8">
+      <AdminSkeleton className="h-20 w-full rounded-xl" />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <AdminSkeleton className="h-4 w-56" />
+        <AdminSkeleton className="h-10 w-full rounded-lg sm:w-56" />
+      </div>
+
+      <div className="grid items-stretch gap-4 lg:grid-cols-3">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div
+            key={index}
+            className="flex flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm"
+          >
+            <AdminSkeleton className="h-[1.625rem] w-full rounded-none" />
+            <div className="flex flex-1 flex-col space-y-4 p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 space-y-2">
+                  <AdminSkeleton className="h-7 w-24" />
+                  <AdminSkeleton className="h-4 w-36" />
+                </div>
+                <AdminSkeleton className="h-6 w-16 rounded-full" />
+              </div>
+              <AdminSkeleton className="h-10 w-28" />
+              <AdminSkeleton className="h-3 w-40" />
+              <AdminSkeleton className="h-4 w-full" />
+              <div className="space-y-2 border-t border-neutral-100 pt-4">
+                <AdminSkeleton className="h-4 w-48" />
+                <AdminSkeleton className="h-4 w-40" />
+                <AdminSkeleton className="h-4 w-44" />
+              </div>
+              <div className="mt-auto pt-2">
+                <AdminSkeleton className="h-10 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <AdminSkeletonCardShell titleWidth="w-48" descriptionWidth="w-64">
+        <div className="grid gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }, (_, index) => (
+            <div
+              key={index}
+              className="space-y-3 rounded-xl border border-neutral-200 p-4"
+            >
+              <AdminSkeleton className="size-9 rounded-lg" />
+              <AdminSkeleton className="h-4 w-28" />
+              <AdminSkeleton className="h-3 w-full" />
+            </div>
+          ))}
+        </div>
+      </AdminSkeletonCardShell>
+
+      <AdminSkeleton className="h-14 w-full rounded-xl" />
+
+      <AdminSkeletonCardShell titleWidth="w-44" descriptionWidth="w-72">
+        <div className="space-y-2">
+          <AdminSkeleton className="h-4 w-full max-w-md" />
+          <AdminSkeleton className="h-4 w-full max-w-sm" />
+          <AdminSkeleton className="h-4 w-full max-w-lg" />
+        </div>
+      </AdminSkeletonCardShell>
+    </AdminSkeletonRegion>
   );
 }
 
@@ -1099,7 +1177,7 @@ export function AdminSkeletonModuleCobrosPage() {
           <div className="space-y-4">
             <AdminSkeleton className="h-[4.5rem] w-full rounded-lg" />
             <AdminSkeletonFormField labelWidth="w-24" hint />
-            <AdminSkeleton className="h-10 w-32 rounded-lg" />
+            <AdminSkeletonCardSave />
           </div>
         </AdminSkeletonCardShell>
         <AdminSkeletonCardShell
@@ -1113,7 +1191,7 @@ export function AdminSkeletonModuleCobrosPage() {
               <AdminSkeleton className="h-4 w-48" />
             </div>
             <AdminSkeleton className="h-24 w-full rounded-lg" />
-            <AdminSkeleton className="h-10 w-40 rounded-lg" />
+            <AdminSkeletonCardSave />
           </div>
         </AdminSkeletonCardShell>
       </div>

@@ -34,12 +34,16 @@ const PLOT = {
 const HORIZONTAL_INSET = 2.5;
 const SERIES_STROKE = 2.5;
 const TOOLTIP_FLIP_THRESHOLD = 28;
+/** Keep tooltip inside plot when point sits near left/right edge. */
+const TOOLTIP_EDGE_THRESHOLD = 22;
 
 type PlotPoint = {
   x: number;
   y: number;
   point: ActivityPoint;
 };
+
+type TooltipXAlign = "center" | "left" | "right";
 
 function bucketX(index: number, count: number): number {
   if (count === 1) return PLOT.width / 2;
@@ -58,17 +62,29 @@ function buildPlotPoints(data: ActivityPoint[], maxRevenue: number): PlotPoint[]
   }));
 }
 
+function tooltipXAlign(x: number): TooltipXAlign {
+  if (x <= TOOLTIP_EDGE_THRESHOLD) return "left";
+  if (x >= PLOT.width - TOOLTIP_EDGE_THRESHOLD) return "right";
+  return "center";
+}
+
 function ChartTooltip({
   plot,
   showBelow,
+  xAlign,
 }: {
   plot: PlotPoint;
   showBelow: boolean;
+  xAlign: TooltipXAlign;
 }) {
   return (
     <div
       className={cn(
-        "pointer-events-none absolute z-20 w-max max-w-[9.5rem] -translate-x-1/2 rounded-lg border border-neutral-200/80 bg-white px-3 py-2 text-center shadow-md",
+        "pointer-events-none absolute z-30 w-max max-w-[9.5rem] rounded-lg border border-neutral-200/80 bg-white px-3 py-2 text-center shadow-md",
+        xAlign === "left" && "translate-x-0",
+        xAlign === "center" && "-translate-x-1/2",
+        // Sit fully left of the point so the card/scrollport never clips it.
+        xAlign === "right" && "-translate-x-full",
         showBelow ? "translate-y-2" : "-translate-y-full -mt-2",
       )}
       style={{
@@ -368,6 +384,9 @@ export function AdminActivityChart({
 
   const activePlot = plotPoints.find((plot) => plot.point.key === activeKey) ?? null;
   const showTooltipBelow = activePlot ? activePlot.y < TOOLTIP_FLIP_THRESHOLD : false;
+  const activeTooltipXAlign = activePlot
+    ? tooltipXAlign(activePlot.x)
+    : "center";
 
   return (
     <div>
@@ -471,7 +490,11 @@ export function AdminActivityChart({
                 })}
 
                 {activePlot && activePlot.point.revenue > 0 ? (
-                  <ChartTooltip plot={activePlot} showBelow={showTooltipBelow} />
+                  <ChartTooltip
+                    plot={activePlot}
+                    showBelow={showTooltipBelow}
+                    xAlign={activeTooltipXAlign}
+                  />
                 ) : null}
               </div>
 

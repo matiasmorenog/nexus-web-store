@@ -12,24 +12,22 @@ import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
+import {
+  filterOptionHoverClass,
+  filterOptionSelectedBgClass,
+  slidingFilterPillClass,
+} from "@/lib/ui/filter-option-styles";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
-
-/** Soft selected pill — calm brand tint. */
-const filterPillClass =
-  "rounded-lg bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)]";
-
-/** Unselected hover — neutral, not pink. */
-const filterHoverClass = "hover:bg-neutral-100 hover:text-neutral-900";
 
 function filterButtonClass(active: boolean) {
   return cn(
     "relative z-[1] flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
     active
       ? "text-[var(--brand-primary)]"
-      : cn("text-neutral-700", filterHoverClass),
+      : cn("text-neutral-700", filterOptionHoverClass),
   );
 }
 
@@ -200,8 +198,8 @@ export function ProductFilters({
               className={cn(
                 "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
                 activeDestacados
-                  ? "bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)] text-[var(--brand-primary)]"
-                  : cn("text-neutral-700", filterHoverClass),
+                  ? cn(filterOptionSelectedBgClass, "text-[var(--brand-primary)]")
+                  : cn("text-neutral-700", filterOptionHoverClass),
               )}
             >
               <span>{copy.featured}</span>
@@ -214,8 +212,8 @@ export function ProductFilters({
                 className={cn(
                   "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
                   activePromo2x1
-                    ? "bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)] text-[var(--brand-primary)]"
-                    : cn("text-neutral-700", filterHoverClass),
+                    ? cn(filterOptionSelectedBgClass, "text-[var(--brand-primary)]")
+                    : cn("text-neutral-700", filterOptionHoverClass),
                 )}
               >
                 <span>2x1</span>
@@ -233,7 +231,7 @@ export function ProductFilters({
             <SlidingOptionGroup
               activeKey={activeGenero || "__all__"}
               className="flex flex-col gap-1"
-              pillClassName={filterPillClass}
+              pillClassName={slidingFilterPillClass}
             >
               <button
                 type="button"
@@ -275,7 +273,7 @@ export function ProductFilters({
           <SlidingOptionGroup
             activeKey={activeCategory || "__all__"}
             className="flex flex-col gap-1"
-            pillClassName={filterPillClass}
+            pillClassName={slidingFilterPillClass}
           >
             <button
               type="button"
@@ -317,7 +315,7 @@ export function ProductFilters({
             <SlidingOptionGroup
               activeKey={activeSize || "__none__"}
               className="flex flex-wrap gap-2"
-              pillClassName={filterPillClass}
+              pillClassName={slidingFilterPillClass}
             >
               {sizeOptions.map((size) => {
                 const isActive = activeSize === size;
@@ -356,7 +354,7 @@ export function ProductFilters({
             <SlidingOptionGroup
               activeKey={activeSabor || "__none__"}
               className="flex flex-wrap gap-2"
-              pillClassName={filterPillClass}
+              pillClassName={slidingFilterPillClass}
             >
               {saborOptions.map((sabor) => {
                 const isActive = activeSabor === sabor;

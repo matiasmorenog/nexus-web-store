@@ -17,6 +17,10 @@ import {
   type CrmListSort,
   type CrmSegment,
 } from "@/lib/crm";
+import {
+  filterOptionHoverClass,
+  filterOptionSelectedBgClass,
+} from "@/lib/ui/filter-option-styles";
 import { cn } from "@/lib/utils";
 
 type AdminCrmSearchToolbarProps = {
@@ -195,10 +199,16 @@ export function AdminCrmSearchToolbar({
                   type="button"
                   onClick={() => applyFilters(segment.filters, segment.id)}
                   className={cn(
-                    "rounded-md border px-2.5 py-1 text-sm transition-colors",
+                    "rounded-md border px-2.5 py-1 text-sm font-medium transition-colors",
                     active
-                      ? "border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] font-medium text-[var(--brand-primary)]"
-                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50",
+                      ? cn(
+                          "border-[var(--brand-primary)]/35 text-[var(--brand-primary)]",
+                          filterOptionSelectedBgClass,
+                        )
+                      : cn(
+                          "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300",
+                          filterOptionHoverClass,
+                        ),
                   )}
                 >
                   {segment.name}

@@ -18,7 +18,7 @@ import {
   getShippingAdminCopy,
   type ShippingCarrierId,
   type StoreShippingSettingsAdminData,
-  type StoreShippingSettingsSaveInput,
+  type StoreShippingSettingsSectionSave,
 } from "@/lib/shipping-carriers";
 
 type AdminShippingSettingsFormProps = {
@@ -66,30 +66,69 @@ export function AdminShippingSettingsForm({
     none: meCopy.sourceNone,
   } as const;
 
+  const buildSectionPayload = (
+    section: ShippingSaveSection,
+  ): StoreShippingSettingsSectionSave => {
+    switch (section) {
+      case "global":
+        return {
+          section: "global",
+          carriersEnabled: settings.carriersEnabled,
+          originZip: settings.originZip,
+          defaultWeightGrams: settings.defaultWeightGrams,
+        };
+      case "mercado_envios":
+        return {
+          section: "mercado_envios",
+          enabled: settings.enabledCarrierIds.includes("mercado_envios"),
+          mercadoLibreQuoteItemId: settings.mercadoLibreQuoteItemId,
+          mercadoEnviosAccessToken: accessToken || undefined,
+          clearMercadoEnviosToken: clearToken,
+        };
+      case "correo":
+        return {
+          section: "correo",
+          enabled: settings.enabledCarrierIds.includes("correo_argentino"),
+          correoSandbox: settings.correoSandbox,
+          correoCustomerId: settings.correoCustomerId,
+          correoUser: correoUser || undefined,
+          correoPassword: correoPassword || undefined,
+          clearCorreoCredentials: clearCorreo,
+        };
+      case "andreani":
+        return {
+          section: "andreani",
+          enabled: settings.enabledCarrierIds.includes("andreani"),
+          andreaniSandbox: settings.andreaniSandbox,
+          andreaniContrato: settings.andreaniContrato,
+          andreaniClientId: andreaniClientId || undefined,
+          andreaniClientSecret: andreaniClientSecret || undefined,
+          clearAndreaniCredentials: clearAndreani,
+        };
+      case "pickup":
+        return {
+          section: "pickup",
+          allowPickup: settings.allowPickup,
+          pickupAddress: settings.pickupAddress,
+          pickupCity: settings.pickupCity,
+          pickupZip: settings.pickupZip,
+          pickupNotes: settings.pickupNotes,
+        };
+    }
+  };
+
   const saveSettings = async (section: ShippingSaveSection) => {
     if (readOnly) return;
     setLoadingSection(section);
     setError(null);
     setSavedSection(null);
 
-    const payload: StoreShippingSettingsSaveInput = {
-      ...settings,
-      mercadoEnviosAccessToken: accessToken || undefined,
-      clearMercadoEnviosToken: clearToken,
-      correoUser: correoUser || undefined,
-      correoPassword: correoPassword || undefined,
-      clearCorreoCredentials: clearCorreo,
-      andreaniClientId: andreaniClientId || undefined,
-      andreaniClientSecret: andreaniClientSecret || undefined,
-      clearAndreaniCredentials: clearAndreani,
-    };
-
     try {
       const response = await fetch("/api/admin/shipping-settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(buildSectionPayload(section)),
       });
       const data = (await response.json()) as {
         error?: string;

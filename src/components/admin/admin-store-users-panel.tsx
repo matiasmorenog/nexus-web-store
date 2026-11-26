@@ -185,7 +185,7 @@ export function AdminStoreUsersPanel({
               }}
             >
               <UserPlus className="mr-1.5 h-4 w-4" aria-hidden />
-              Invitar acceso
+              Invitar usuario
             </Button>
           ) : undefined
         }
@@ -279,7 +279,7 @@ export function AdminStoreUsersPanel({
           >
             <AdminCommitModalHeader
               titleId={INVITE_TITLE_ID}
-              title="Invitar acceso"
+              title="Invitar usuario"
               description="Email, contraseña temporal y rol del panel."
             />
             <AdminCommitModalBody className="space-y-4">
@@ -344,7 +344,7 @@ export function AdminStoreUsersPanel({
                 Descartar
               </Button>
               <Button type="submit" size="sm" disabled={loading}>
-                {loading ? "Invitando…" : "Invitar acceso"}
+                {loading ? "Invitando…" : "Invitar usuario"}
               </Button>
             </AdminCommitModalFooter>
           </form>

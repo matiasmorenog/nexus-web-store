@@ -203,13 +203,20 @@ function buildBuckets(period: ActivityPeriod): {
   return { buckets, rangeStart };
 }
 
+/**
+ * Keys must match PostgreSQL `date_trunc(...)` results (UTC midnights via Prisma).
+ * Using local `startOfDay` shifted evening UTC buckets into the previous local day
+ * and left sales-activity charts empty while KPI totals still looked fine.
+ */
 function bucketKeyForOrder(date: Date, period: ActivityPeriod): string {
   if (period === "year") {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
   }
 
-  return isoDate(startOfDay(date));
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function aggregateSalesActivityFromRows(
@@ -227,8 +234,10 @@ function aggregateSalesActivityFromRows(
     bucket.revenue = row.revenue;
   }
 
-  const totalOrders = buckets.reduce((sum, bucket) => sum + bucket.orders, 0);
-  const totalRevenue = buckets.reduce((sum, bucket) => sum + bucket.revenue, 0);
+  // Totals from SQL rows — never depend on bucket key match (chart can miss a day;
+  // Pedidos/Ingresos KPIs must still show).
+  const totalOrders = rows.reduce((sum, row) => sum + row.orders, 0);
+  const totalRevenue = rows.reduce((sum, row) => sum + row.revenue, 0);
 
   return {
     period,

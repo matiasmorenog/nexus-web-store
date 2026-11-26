@@ -31,25 +31,27 @@ export function useCountUp(
 
   useEffect(() => {
     let frame = 0;
+    let failsafe = 0;
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    const finish = () => {
+      setDisplayValue(target);
+      setIsComplete(true);
+    };
+
+    // Prefer setTimeout(0) over rAF — rAF can stall in bg tabs / headless.
     if (reducedMotion) {
-      frame = requestAnimationFrame(() => {
-        setDisplayValue(target);
-        setIsComplete(true);
-      });
-      return () => cancelAnimationFrame(frame);
+      const jump = window.setTimeout(finish, 0);
+      return () => window.clearTimeout(jump);
     }
 
     let startTime: number | null = null;
 
     const timeout = window.setTimeout(() => {
       setDisplayValue(0);
-      frame = requestAnimationFrame(() => {
-        setIsComplete(false);
-      });
+      setIsComplete(false);
 
       const step = (timestamp: number) => {
         if (startTime === null) startTime = timestamp;
@@ -65,15 +67,16 @@ export function useCountUp(
           return;
         }
 
-        setDisplayValue(target);
-        setIsComplete(true);
+        finish();
       };
 
       frame = requestAnimationFrame(step);
+      failsafe = window.setTimeout(finish, resolvedDuration + 400);
     }, delay);
 
     return () => {
       window.clearTimeout(timeout);
+      window.clearTimeout(failsafe);
       cancelAnimationFrame(frame);
     };
   }, [target, resolvedDuration, delay]);

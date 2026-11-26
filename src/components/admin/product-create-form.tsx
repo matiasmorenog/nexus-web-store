@@ -234,7 +234,7 @@ export function ProductCreateForm({
         />
         <AdminDraftModalBody>
           <AdminFormGrid>
-            <div>
+            <div className="sm:col-span-2">
               <Label htmlFor="name">Nombre</Label>
               <Input
                 id="name"

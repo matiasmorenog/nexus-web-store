@@ -52,9 +52,11 @@ export function ProductTaxonomyFields({
       ? categoryOverride
       : (categoryOptions[0]?.slug ?? "");
 
+  const showAudience = features.showAudienceFilter;
+
   return (
     <>
-      {features.showAudienceFilter ? (
+      {showAudience ? (
         <div>
           <Label htmlFor="audience">Género</Label>
           <MenuSelect
@@ -77,7 +79,7 @@ export function ProductTaxonomyFields({
       ) : (
         <input type="hidden" name="audience" value="unisex" />
       )}
-      <div>
+      <div className={showAudience ? undefined : "sm:col-span-2"}>
         <Label htmlFor="category">Categoría</Label>
         <MenuSelect
           id="category"

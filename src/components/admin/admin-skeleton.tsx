@@ -741,11 +741,12 @@ export function AdminSkeletonProductsPage() {
 
       <div className={adminListLayoutRowClass}>
         <div className={adminListMainColumnClass}>
-          <div className="lg:hidden">
-            <AdminSkeletonFiltersPanel variant="products" className="mb-4" />
+          <div className="flex flex-wrap items-end gap-3 lg:block">
+            <div className="min-w-0 flex-1">
+              <AdminSkeletonListToolbar variant="products" />
+            </div>
+            <AdminSkeleton className="h-10 w-28 shrink-0 rounded-md lg:hidden" />
           </div>
-
-          <AdminSkeletonListToolbar variant="products" />
 
           <AdminSkeletonProductsCatalogAwaiting />
         </div>
@@ -839,24 +840,23 @@ export function AdminSkeletonModuleSettingsPage() {
   );
 }
 
-/** /admin/categorias — form create + table (title lives in layout). */
+/** /admin/categorias — header + create trigger + list (create lives in draft modal). */
 export function AdminSkeletonCategoriesPage() {
   return (
     <AdminSkeletonRegion label="Cargando categorías" className="space-y-8">
-      <div className="max-w-3xl">
-        <AdminSkeletonModuleFormCard
-          titleWidth="w-36"
-          descriptionWidth="w-48"
-          fields={4}
-          withToggle
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-2">
+          <AdminSkeleton className="h-8 w-36" />
+          <AdminSkeleton className="h-4 w-72 max-w-full" />
+        </div>
+        <AdminSkeleton className="h-9 w-40 shrink-0 rounded-md" />
       </div>
       <AdminSkeletonCardShell
         titleWidth="w-44"
         descriptionWidth="w-40"
         padding={false}
       >
-        <AdminSkeletonTable columns={6} rows={6} />
+        <AdminSkeletonTable columns={5} rows={6} />
       </AdminSkeletonCardShell>
     </AdminSkeletonRegion>
   );

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { AdminBodyScrollLock } from "@/components/admin/admin-body-scroll-lock";
 import { AdminContentScrollArea } from "@/components/admin/admin-content-scroll-area";
+import { AdminCreateDraftsHost } from "@/components/admin/admin-create-drafts-host";
 import { AdminNav } from "@/components/admin/admin-nav";
 import {
   ADMIN_LOCALE_COOKIE,
@@ -8,12 +9,16 @@ import {
   parseAdminLocale,
 } from "@/lib/admin-locale";
 import {
+  adminCanManage,
   getAdminAccessContext,
   requireAdminSession,
 } from "@/lib/admin-session";
+import { storeHasModule } from "@/lib/modules";
 import { getEnabledModuleIds } from "@/lib/modules/access-server";
+import { getStoreCategories } from "@/lib/store-categories";
 import { getBrandPrefix, getStore } from "@/lib/store-context";
 import { buildFilteredAdminNavModel } from "@/lib/store-users/admin-nav-access";
+import { getStorefrontConfig } from "@/lib/store-verticals";
 
 export default async function AdminProtectedLayout({
   children,
@@ -40,6 +45,16 @@ export default async function AdminProtectedLayout({
     ),
   };
 
+  const canManageProducts = adminCanManage(session, "products:manage");
+  const [categories, couponsEnabled] = canManageProducts
+    ? await Promise.all([
+        getStoreCategories(store.id),
+        storeHasModule(store.id, "coupons"),
+      ])
+    : [[], false];
+  const promo2x1Selectable =
+    getStorefrontConfig().features.promo2x1 && couponsEnabled;
+
   return (
     <>
       <AdminBodyScrollLock />
@@ -59,6 +74,12 @@ export default async function AdminProtectedLayout({
           <main>{children}</main>
         </AdminContentScrollArea>
       </div>
+      {canManageProducts ? (
+        <AdminCreateDraftsHost
+          categories={categories}
+          promo2x1Selectable={promo2x1Selectable}
+        />
+      ) : null}
     </>
   );
 }

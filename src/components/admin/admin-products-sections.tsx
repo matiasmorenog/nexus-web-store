@@ -8,6 +8,7 @@ import {
   AdminSkeletonFiltersPanel,
   AdminSkeletonProductsCatalogAwaiting,
 } from "@/components/admin/admin-skeleton";
+import { AdminProductsFilterDrawer } from "@/components/admin/admin-products-filter-drawer";
 import { ProductsFiltersPanel } from "@/components/admin/products-filters-panel";
 import {
   ADMIN_PRODUCT_FILTER_PARAMS,
@@ -27,9 +28,7 @@ import {
   getAdminProductsSummary,
   type AdminProductsFilterParams,
 } from "@/lib/admin-products-query";
-import { storeHasModule } from "@/lib/modules";
 import { getStoreCategories } from "@/lib/store-categories";
-import { getStorefrontConfig } from "@/lib/store-verticals";
 
 type AdminProductsPageContentProps = {
   storeId: string;
@@ -43,18 +42,14 @@ async function AdminProductsListBody({
   storeId,
   filters,
   hasFilters,
-  promo2x1Selectable,
   canManageProducts,
-  categories,
   catalogTotal,
   locale,
 }: {
   storeId: string;
   filters: AdminProductsFilterParams;
   hasFilters: boolean;
-  promo2x1Selectable: boolean;
   canManageProducts: boolean;
-  categories: Awaited<ReturnType<typeof getStoreCategories>>;
   catalogTotal: number;
   locale: AdminLocale;
 }) {
@@ -75,9 +70,7 @@ async function AdminProductsListBody({
         hasMore={page.hasMore}
         filters={filters}
         hasFilters={hasFilters}
-        promo2x1Selectable={promo2x1Selectable}
         canManage={canManageProducts}
-        categories={categories}
       />
     </>
   );
@@ -97,12 +90,9 @@ export async function AdminProductsPageContent({
   const copy = getAdminProductsCopy(locale);
   const hasFilters = hasAdminProductListQuery(filters);
 
-  // Serialize DB: summary often cache-hit; then categories; then module flag.
+  // Serialize DB: summary often cache-hit; then categories for filter facets.
   const summary = await getAdminProductsSummary(storeId);
   const categories = await getStoreCategories(storeId);
-  const couponsEnabled = await storeHasModule(storeId, "coupons");
-  const promo2x1Selectable =
-    getStorefrontConfig().features.promo2x1 && couponsEnabled;
 
   // Shell pinta total de catálogo (summary cache). Con filtros, el count exacto
   // llega con el listado (card + línea bajo header en mobile).
@@ -126,19 +116,25 @@ export async function AdminProductsPageContent({
 
       <AdminDashboardReveal index={1} className={adminListLayoutRowClass}>
         <div className={adminListMainColumnClass}>
-          <div className="lg:hidden">
-            <Suspense
-              fallback={
-                <AdminSkeletonFiltersPanel variant="products" className="mb-4" />
-              }
-            >
-              {filtersPanel}
+          <div className="flex flex-wrap items-end gap-3 lg:block">
+            <div className="min-w-0 flex-1">
+              <Suspense fallback={null}>
+                <AdminProductsToolbar />
+              </Suspense>
+            </div>
+            <Suspense fallback={null}>
+              <AdminProductsFilterDrawer
+                totalProducts={summary.totalProducts}
+                categoryCounts={summary.categoryCounts}
+                audienceCounts={summary.audienceCounts}
+                estadoCounts={summary.estadoCounts}
+                categories={categories}
+                activeCount={filterChips.filter(
+                  (chip) => !chip.removeParams.includes("q"),
+                ).length}
+              />
             </Suspense>
           </div>
-
-          <Suspense fallback={null}>
-            <AdminProductsToolbar />
-          </Suspense>
 
           <Suspense fallback={null}>
             <AdminActiveFilterChips
@@ -155,9 +151,7 @@ export async function AdminProductsPageContent({
               storeId={storeId}
               filters={filters}
               hasFilters={hasFilters}
-              promo2x1Selectable={promo2x1Selectable}
               canManageProducts={canManageProducts}
-              categories={categories}
               catalogTotal={summary.totalProducts}
               locale={locale}
             />

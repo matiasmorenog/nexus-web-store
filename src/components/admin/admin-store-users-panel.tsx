@@ -49,6 +49,12 @@ export function AdminStoreUsersPanel({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const inviteDirty =
+    name.trim().length > 0 ||
+    email.trim().length > 0 ||
+    password.length > 0 ||
+    staffRole !== "SELLER";
+
   const resetInviteFields = () => {
     setEmail("");
     setName("");
@@ -261,6 +267,8 @@ export function AdminStoreUsersPanel({
       {canManage ? (
         <AdminCommitModal
           open={inviteOpen}
+          dirty={inviteDirty}
+          onDismiss={discardInvite}
           labelledBy={INVITE_TITLE_ID}
           maxWidthClassName="max-w-md"
         >

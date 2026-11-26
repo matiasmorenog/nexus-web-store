@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FolderPlus } from "lucide-react";
 import {
@@ -22,28 +22,54 @@ import { STORE_AUDIENCES } from "@/lib/categories";
 
 const TITLE_ID = "category-create-title";
 
-/** Commit modal (no draft/minimize) — shake on outside / Escape. */
+function scoreCategoryDirty(
+  form: HTMLFormElement | null,
+  audiences: string[],
+): boolean {
+  if (audiences.length > 0) return true;
+  if (!form) return false;
+  const data = new FormData(form);
+  const label = String(data.get("label") ?? "").trim();
+  const slug = String(data.get("slug") ?? "").trim();
+  const sortOrder = String(data.get("sortOrder") ?? "0").trim();
+  const showInNav = data.get("showInNav") === "on";
+  if (label || slug) return true;
+  if (sortOrder !== "0" && sortOrder !== "") return true;
+  if (!showInNav) return true;
+  return false;
+}
+
+/** Commit modal (no draft/minimize). Shake only when dirty. */
 export function AdminCategoryCreateControls() {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedAudiences, setSelectedAudiences] = useState<string[]>([]);
+  const [dirty, setDirty] = useState(false);
+
+  const refreshDirty = useCallback((audiences = selectedAudiences) => {
+    setDirty(scoreCategoryDirty(formRef.current, audiences));
+  }, [selectedAudiences]);
 
   const resetAndClose = () => {
     setSelectedAudiences([]);
     setError(null);
+    setDirty(false);
     setFormKey((key) => key + 1);
     setOpen(false);
   };
 
   const toggleAudience = (slug: string) => {
-    setSelectedAudiences((current) =>
-      current.includes(slug)
+    setSelectedAudiences((current) => {
+      const next = current.includes(slug)
         ? current.filter((item) => item !== slug)
-        : [...current, slug],
-    );
+        : [...current, slug];
+      queueMicrotask(() => refreshDirty(next));
+      return next;
+    });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -95,12 +121,17 @@ export function AdminCategoryCreateControls() {
 
       <AdminCommitModal
         open={open}
+        dirty={dirty}
+        onDismiss={resetAndClose}
         labelledBy={TITLE_ID}
         maxWidthClassName="max-w-lg"
       >
         <form
           key={formKey}
+          ref={formRef}
           onSubmit={handleSubmit}
+          onInput={() => refreshDirty()}
+          onChange={() => refreshDirty()}
           className="flex max-h-[min(92dvh,40rem)] flex-col"
         >
           <AdminCommitModalHeader

@@ -15,16 +15,22 @@ export {
 const EXIT_MS = 250;
 
 /**
- * Small admin modal: no minimize/draft. Backdrop / Escape shake + vibrate;
- * close only via explicit Descartar / submit in children.
+ * Small admin modal: no minimize/draft.
+ * Pristine → backdrop / Escape closes.
+ * Dirty → shake + vibrate; close only via Descartar / submit.
  */
 export function AdminCommitModal({
   open,
+  dirty = false,
+  onDismiss,
   labelledBy,
   maxWidthClassName = "max-w-lg",
   children,
 }: {
   open: boolean;
+  /** When false, outside/Escape dismisses. When true, shake instead. */
+  dirty?: boolean;
+  onDismiss: () => void;
   labelledBy: string;
   maxWidthClassName?: string;
   children: ReactNode;
@@ -51,6 +57,14 @@ export function AdminCommitModal({
     }
   }, []);
 
+  const handleDismissAttempt = useCallback(() => {
+    if (dirty) {
+      refuseDismiss();
+      return;
+    }
+    onDismiss();
+  }, [dirty, onDismiss, refuseDismiss]);
+
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -59,7 +73,7 @@ export function AdminCommitModal({
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        refuseDismiss();
+        handleDismissAttempt();
       }
     }
     window.addEventListener("keydown", onKey);
@@ -67,7 +81,7 @@ export function AdminCommitModal({
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, refuseDismiss]);
+  }, [open, handleDismissAttempt]);
 
   if (!isClient || !present) return null;
 
@@ -87,8 +101,10 @@ export function AdminCommitModal({
           "absolute inset-0 bg-neutral-900/45 backdrop-blur-sm transition-opacity duration-200",
           exiting || !open ? "opacity-0" : "opacity-100",
         )}
-        aria-label="Cerrar no permitido — guardá o descartá"
-        onClick={refuseDismiss}
+        aria-label={
+          dirty ? "Cerrar no permitido — guardá o descartá" : "Cerrar"
+        }
+        onClick={handleDismissAttempt}
         tabIndex={open ? 0 : -1}
       />
       <div

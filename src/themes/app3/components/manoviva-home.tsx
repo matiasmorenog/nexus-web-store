@@ -35,29 +35,28 @@ async function ManovivaFeaturedProducts() {
   if (products.length === 0) return null;
 
   return (
-    <StorefrontReveal index={2}>
-      <section className="bg-[#F8F7F2] py-16 sm:py-24">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6">
-          <div className="mb-9 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C86243]">
-                Pezzi scelti
-              </p>
-              <h2 className="font-manoviva mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#202523] sm:text-4xl">
-                Creazioni in evidenza
-              </h2>
-            </div>
-            <Link
-              href="/prodotti?destacados=1"
-              className="hidden items-center gap-2 text-sm font-semibold text-[#2351D1] sm:flex"
-            >
-              Vedi tutte <ArrowRight className="h-4 w-4" />
-            </Link>
+    <section className="bg-[#F8F7F2] py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6">
+        <div className="mb-9 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C86243]">
+              Pezzi scelti
+            </p>
+            <h2 className="font-manoviva mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#202523] sm:text-4xl">
+              Creazioni in evidenza
+            </h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-            {products.map((product) => (
+          <Link
+            href="/prodotti?destacados=1"
+            className="hidden items-center gap-2 text-sm font-semibold text-[#2351D1] sm:flex"
+          >
+            Vedi tutte <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          {products.map((product, index) => (
+            <StorefrontReveal key={product.id} index={Math.min(index, 7)}>
               <ProductCard
-                key={product.id}
                 slug={product.slug}
                 name={product.name}
                 category={product.category}
@@ -68,11 +67,11 @@ async function ManovivaFeaturedProducts() {
                 inStock={product.inStock}
                 colorCount={product.colorCount}
               />
-            ))}
-          </div>
+            </StorefrontReveal>
+          ))}
         </div>
-      </section>
-    </StorefrontReveal>
+      </div>
+    </section>
   );
 }
 
@@ -155,22 +154,21 @@ export async function ManovivaHome() {
         </section>
       </StorefrontReveal>
 
-      <StorefrontReveal index={1}>
-        <section className="py-16 sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C86243]">
-                La collezione
-              </p>
-              <h2 className="font-manoviva mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#202523] sm:text-5xl">
-                Un gesto speciale,
-                <span className="block text-[#2351D1]">in ogni dettaglio.</span>
-              </h2>
-            </div>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              {categories.map((category, index) => (
+      <section className="py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C86243]">
+              La collezione
+            </p>
+            <h2 className="font-manoviva mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#202523] sm:text-5xl">
+              Un gesto speciale,
+              <span className="block text-[#2351D1]">in ogni dettaglio.</span>
+            </h2>
+          </div>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {categories.map((category, index) => (
+              <StorefrontReveal key={category.slug} index={Math.min(index, 7)}>
                 <Link
-                  key={category.slug}
                   href={`/prodotti?categoria=${category.slug}`}
                   className="group relative min-h-[390px] overflow-hidden storefront-card bg-[#202523]"
                 >
@@ -194,11 +192,11 @@ export async function ManovivaHome() {
                     </span>
                   </div>
                 </Link>
-              ))}
-            </div>
+              </StorefrontReveal>
+            ))}
           </div>
-        </section>
-      </StorefrontReveal>
+        </div>
+      </section>
 
       <ManovivaFeaturedProducts />
 

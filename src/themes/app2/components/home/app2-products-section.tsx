@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { app2ButtonClassName, App2ButtonLink } from "@/themes/app2/components/app2-button";
 import { App2ProductCard, type App2ProductCardData } from "@/themes/app2/components/home/app2-product-card";
 import { App2SectionHeading } from "@/themes/app2/components/home/app2-section-heading";
@@ -56,8 +57,10 @@ export function App2ProductsSection({
 
       {filtered.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-          {filtered.map((product) => (
-            <App2ProductCard key={product.id} {...product} />
+          {filtered.map((product, index) => (
+            <StorefrontReveal key={product.id} index={Math.min(index, 7)}>
+              <App2ProductCard {...product} />
+            </StorefrontReveal>
           ))}
         </div>
       ) : (

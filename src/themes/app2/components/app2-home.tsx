@@ -67,18 +67,14 @@ function renderApp2Section(
               <App2AgeNotice />
             </StorefrontReveal>
           ) : null}
-          <StorefrontReveal index={revealIndex + (showAgeNotice ? 1 : 0)}>
-            <App2CategoriesSection content={section.content} />
-          </StorefrontReveal>
+          <App2CategoriesSection content={section.content} />
         </div>
       );
     case "featured.products":
       return (
-        <StorefrontReveal key={section.id} index={revealIndex}>
-          <Suspense fallback={<StorefrontSkeletonFeaturedProducts />}>
-            <App2Products title={section.content.title} />
-          </Suspense>
-        </StorefrontReveal>
+        <Suspense key={section.id} fallback={<StorefrontSkeletonFeaturedProducts />}>
+          <App2Products title={section.content.title} />
+        </Suspense>
       );
     case "promo.banner":
       return (

@@ -60,7 +60,10 @@ function seedVariantStock(
   sizeIndex: number,
 ): number {
   if (product.outOfStock) return 0;
-  return 10 + ((colorIndex + sizeIndex) % 5);
+  // Varied inventory for portfolio screenshots (not flat 10–14).
+  const ladder = [3, 6, 9, 14, 18, 22, 28, 35, 41, 7, 12, 16] as const;
+  const base = ladder[(colorIndex * 5 + sizeIndex + product.name.length) % ladder.length]!;
+  return product.featured ? base + 10 : base;
 }
 
 function getStoreConfig(slug: string): SeedStoreConfig {
@@ -149,14 +152,76 @@ async function seedDemoShippingSettings(storeId: string) {
       storeId,
       carriersEnabled: true,
       preferredCarrierId: "mercado_envios",
-      enabledCarrierIds: ["mercado_envios"],
+      enabledCarrierIds: ["mercado_envios", "correo_argentino", "andreani"],
       originZip: "1425",
       defaultWeightGrams: 500,
+      correoSandbox: true,
+      andreaniSandbox: true,
     },
     update: {
       carriersEnabled: true,
+      preferredCarrierId: "mercado_envios",
+      enabledCarrierIds: ["mercado_envios", "correo_argentino", "andreani"],
       originZip: "1425",
       defaultWeightGrams: 500,
+      correoSandbox: true,
+      andreaniSandbox: true,
+    },
+  });
+}
+
+/** WhatsApp + Meta Pixel demo (fake ids) so marketing admin is not empty. */
+async function seedDemoMarketingSettings(storeId: string) {
+  await prisma.storeMarketingSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      whatsappEnabled: true,
+      whatsappPhone: "5491155667788",
+      whatsappMessage:
+        "Hola Goat! Quiero consultar por un producto / mi pedido.",
+      metaPixelEnabled: true,
+      metaPixelId: "123456789012345",
+    },
+    update: {
+      whatsappEnabled: true,
+      whatsappPhone: "5491155667788",
+      whatsappMessage:
+        "Hola Goat! Quiero consultar por un producto / mi pedido.",
+      metaPixelEnabled: true,
+      metaPixelId: "123456789012345",
+    },
+  });
+}
+
+async function seedDemoPromotionSettings(storeId: string) {
+  await prisma.storePromotionSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      promo2x1Enabled: true,
+    },
+    update: {
+      promo2x1Enabled: true,
+    },
+  });
+}
+
+async function seedDemoSeoSettings(storeId: string) {
+  await prisma.storeSeoSettings.upsert({
+    where: { storeId },
+    create: {
+      storeId,
+      metaDescription:
+        "Goat Indumentaria — ropa training, CrossFit y lifestyle. Envíos a todo el país.",
+      robotsIndex: true,
+      structuredDataEnabled: true,
+    },
+    update: {
+      metaDescription:
+        "Goat Indumentaria — ropa training, CrossFit y lifestyle. Envíos a todo el país.",
+      robotsIndex: true,
+      structuredDataEnabled: true,
     },
   });
 }
@@ -169,6 +234,14 @@ async function createStoreWithAdmin(config: SeedStoreConfig) {
       primaryColor: config.primaryColor,
       secondaryColor: config.secondaryColor ?? "#ffffff",
       allowPickup: config.allowPickup ?? true,
+      ...(config.slug === DEFAULT_STORE_SLUG
+        ? {
+            pickupAddress: "Av. Córdoba 4500",
+            pickupCity: "Palermo, CABA",
+            pickupZip: "1414",
+            pickupNotes: "Lun–Vie 10–19 · Sáb 10–14. Retiro en mostrador Goat.",
+          }
+        : {}),
     },
   });
 
@@ -335,6 +408,9 @@ export async function seedApp1Store(options: SeedStoreOptions = {}) {
   const productCount = await seedApp1Products(store.id);
   await seedDemoPaymentSettings(store.id);
   await seedDemoShippingSettings(store.id);
+  await seedDemoMarketingSettings(store.id);
+  await seedDemoPromotionSettings(store.id);
+  await seedDemoSeoSettings(store.id);
 
   return { store, admin, config, productCount };
 }

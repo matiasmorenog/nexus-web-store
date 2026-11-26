@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { saveStoreShippingSettings } from "@/lib/shipping-carriers/admin-persist";
+import { saveStoreShippingSettingsSection } from "@/lib/shipping-carriers/admin-persist";
 import { getStoreShippingSettingsForAdmin } from "@/lib/shipping-carriers/query";
-import type { StoreShippingSettingsSaveInput } from "@/lib/shipping-carriers/types";
+import type { StoreShippingSettingsSectionSave } from "@/lib/shipping-carriers/types";
 import { moduleErrorResponse } from "@/lib/modules";
 import { assertModule } from "@/lib/modules/access-server";
 import { getStoreId } from "@/lib/store-context";
@@ -33,13 +33,33 @@ export async function GET() {
   return NextResponse.json({ settings });
 }
 
+function isSectionSave(
+  body: unknown,
+): body is StoreShippingSettingsSectionSave {
+  if (!body || typeof body !== "object") return false;
+  const section = (body as { section?: unknown }).section;
+  return (
+    section === "global" ||
+    section === "mercado_envios" ||
+    section === "correo" ||
+    section === "andreani" ||
+    section === "pickup"
+  );
+}
+
 export async function PUT(request: NextRequest) {
   const authResult = await requireAdminStore();
   if ("error" in authResult) return authResult.error;
 
   try {
-    const body = (await request.json()) as StoreShippingSettingsSaveInput;
-    await saveStoreShippingSettings(authResult.storeId, body);
+    const body = (await request.json()) as unknown;
+    if (!isSectionSave(body)) {
+      return NextResponse.json(
+        { error: "Payload inválido: falta section." },
+        { status: 400 },
+      );
+    }
+    await saveStoreShippingSettingsSection(authResult.storeId, body);
     const settings = await getStoreShippingSettingsForAdmin(authResult.storeId);
     return NextResponse.json({ ok: true, settings });
   } catch (error) {

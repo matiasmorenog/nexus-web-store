@@ -40,6 +40,7 @@ export type StoreShippingSettingsAdminData = StoreShippingSettingsData & {
   carrierConfigured: Record<ShippingCarrierId, boolean>;
 };
 
+/** Full-form save (legacy). Prefer sectioned payloads from admin cards. */
 export type StoreShippingSettingsSaveInput = StoreShippingSettingsData & {
   mercadoEnviosAccessToken?: string | null;
   clearMercadoEnviosToken?: boolean;
@@ -50,6 +51,48 @@ export type StoreShippingSettingsSaveInput = StoreShippingSettingsData & {
   andreaniClientSecret?: string | null;
   clearAndreaniCredentials?: boolean;
 };
+
+/** Per-card admin saves — only the named section is written. */
+export type StoreShippingSettingsSectionSave =
+  | {
+      section: "global";
+      carriersEnabled: boolean;
+      originZip: string;
+      defaultWeightGrams: number;
+    }
+  | {
+      section: "mercado_envios";
+      enabled: boolean;
+      mercadoLibreQuoteItemId: string;
+      mercadoEnviosAccessToken?: string | null;
+      clearMercadoEnviosToken?: boolean;
+    }
+  | {
+      section: "correo";
+      enabled: boolean;
+      correoSandbox: boolean;
+      correoCustomerId: string;
+      correoUser?: string | null;
+      correoPassword?: string | null;
+      clearCorreoCredentials?: boolean;
+    }
+  | {
+      section: "andreani";
+      enabled: boolean;
+      andreaniSandbox: boolean;
+      andreaniContrato: string;
+      andreaniClientId?: string | null;
+      andreaniClientSecret?: string | null;
+      clearAndreaniCredentials?: boolean;
+    }
+  | {
+      section: "pickup";
+      allowPickup: boolean;
+      pickupAddress: string;
+      pickupCity: string;
+      pickupZip: string;
+      pickupNotes: string;
+    };
 
 export const DEFAULT_SHIPPING_SETTINGS: StoreCarrierSettingsData = {
   carriersEnabled: true,

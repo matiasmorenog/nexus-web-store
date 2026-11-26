@@ -203,7 +203,7 @@ export function AdminApiSettingsPanel({
             />
           </div>
           <AdminFormActions>
-            <Button type="submit" disabled={loadingKey}>
+            <Button type="submit" size="sm" disabled={loadingKey}>
               {loadingKey ? "Creando…" : "Generar clave"}
             </Button>
           </AdminFormActions>
@@ -276,7 +276,7 @@ export function AdminApiSettingsPanel({
           ) : null}
 
           <AdminFormActions>
-            <Button type="submit" disabled={loadingWebhook}>
+            <Button type="submit" size="sm" disabled={loadingWebhook}>
               {loadingWebhook ? "Guardando…" : "Guardar webhook"}
             </Button>
           </AdminFormActions>

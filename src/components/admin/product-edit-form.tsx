@@ -119,7 +119,7 @@ export function ProductEditForm({
           ) : null}
 
           <AdminFormGrid>
-            <div>
+            <div className="sm:col-span-2">
               <Label htmlFor="name">Nombre</Label>
               <Input id="name" name="name" defaultValue={product.name} required />
             </div>

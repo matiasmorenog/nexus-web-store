@@ -18,13 +18,20 @@ import {
   getShippingAdminCopy,
   type ShippingCarrierId,
   type StoreShippingSettingsAdminData,
-  type StoreShippingSettingsSaveInput,
+  type StoreShippingSettingsSectionSave,
 } from "@/lib/shipping-carriers";
 
 type AdminShippingSettingsFormProps = {
   initialSettings: StoreShippingSettingsAdminData;
   readOnly?: boolean;
 };
+
+type ShippingSaveSection =
+  | "global"
+  | "mercado_envios"
+  | "correo"
+  | "andreani"
+  | "pickup";
 
 export function AdminShippingSettingsForm({
   initialSettings,
@@ -45,9 +52,12 @@ export function AdminShippingSettingsForm({
   const [andreaniClientId, setAndreaniClientId] = useState("");
   const [andreaniClientSecret, setAndreaniClientSecret] = useState("");
   const [clearAndreani, setClearAndreani] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loadingSection, setLoadingSection] =
+    useState<ShippingSaveSection | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [savedSection, setSavedSection] = useState<ShippingSaveSection | null>(
+    null,
+  );
 
   const meSourceLabels = {
     admin: meCopy.sourceAdmin,
@@ -56,31 +66,69 @@ export function AdminShippingSettingsForm({
     none: meCopy.sourceNone,
   } as const;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (readOnly) return;
-    setLoading(true);
-    setError(null);
-    setSaved(false);
+  const buildSectionPayload = (
+    section: ShippingSaveSection,
+  ): StoreShippingSettingsSectionSave => {
+    switch (section) {
+      case "global":
+        return {
+          section: "global",
+          carriersEnabled: settings.carriersEnabled,
+          originZip: settings.originZip,
+          defaultWeightGrams: settings.defaultWeightGrams,
+        };
+      case "mercado_envios":
+        return {
+          section: "mercado_envios",
+          enabled: settings.enabledCarrierIds.includes("mercado_envios"),
+          mercadoLibreQuoteItemId: settings.mercadoLibreQuoteItemId,
+          mercadoEnviosAccessToken: accessToken || undefined,
+          clearMercadoEnviosToken: clearToken,
+        };
+      case "correo":
+        return {
+          section: "correo",
+          enabled: settings.enabledCarrierIds.includes("correo_argentino"),
+          correoSandbox: settings.correoSandbox,
+          correoCustomerId: settings.correoCustomerId,
+          correoUser: correoUser || undefined,
+          correoPassword: correoPassword || undefined,
+          clearCorreoCredentials: clearCorreo,
+        };
+      case "andreani":
+        return {
+          section: "andreani",
+          enabled: settings.enabledCarrierIds.includes("andreani"),
+          andreaniSandbox: settings.andreaniSandbox,
+          andreaniContrato: settings.andreaniContrato,
+          andreaniClientId: andreaniClientId || undefined,
+          andreaniClientSecret: andreaniClientSecret || undefined,
+          clearAndreaniCredentials: clearAndreani,
+        };
+      case "pickup":
+        return {
+          section: "pickup",
+          allowPickup: settings.allowPickup,
+          pickupAddress: settings.pickupAddress,
+          pickupCity: settings.pickupCity,
+          pickupZip: settings.pickupZip,
+          pickupNotes: settings.pickupNotes,
+        };
+    }
+  };
 
-    const payload: StoreShippingSettingsSaveInput = {
-      ...settings,
-      mercadoEnviosAccessToken: accessToken || undefined,
-      clearMercadoEnviosToken: clearToken,
-      correoUser: correoUser || undefined,
-      correoPassword: correoPassword || undefined,
-      clearCorreoCredentials: clearCorreo,
-      andreaniClientId: andreaniClientId || undefined,
-      andreaniClientSecret: andreaniClientSecret || undefined,
-      clearAndreaniCredentials: clearAndreani,
-    };
+  const saveSettings = async (section: ShippingSaveSection) => {
+    if (readOnly) return;
+    setLoadingSection(section);
+    setError(null);
+    setSavedSection(null);
 
     try {
       const response = await fetch("/api/admin/shipping-settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(buildSectionPayload(section)),
       });
       const data = (await response.json()) as {
         error?: string;
@@ -95,24 +143,48 @@ export function AdminShippingSettingsForm({
         setSettings(data.settings);
       }
 
-      setAccessToken("");
-      setClearToken(false);
-      setCorreoUser("");
-      setCorreoPassword("");
-      setClearCorreo(false);
-      setAndreaniClientId("");
-      setAndreaniClientSecret("");
-      setClearAndreani(false);
-      setSaved(true);
+      if (section === "mercado_envios") {
+        setAccessToken("");
+        setClearToken(false);
+      }
+      if (section === "correo") {
+        setCorreoUser("");
+        setCorreoPassword("");
+        setClearCorreo(false);
+      }
+      if (section === "andreani") {
+        setAndreaniClientId("");
+        setAndreaniClientSecret("");
+        setClearAndreani(false);
+      }
+
+      setSavedSection(section);
       router.refresh();
     } catch (submitError) {
       setError(
         submitError instanceof Error ? submitError.message : copy.errorFallback,
       );
     } finally {
-      setLoading(false);
+      setLoadingSection(null);
     }
   };
+
+  const renderCardSave = (section: ShippingSaveSection) => (
+    <>
+      {savedSection === section ? (
+        <AdminFormAlert variant="success">{copy.saved}</AdminFormAlert>
+      ) : null}
+      <AdminFormActions>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={readOnly || loadingSection !== null}
+        >
+          {loadingSection === section ? copy.saving : copy.save}
+        </Button>
+      </AdminFormActions>
+    </>
+  );
 
   const toggleCarrier = (carrierId: ShippingCarrierId, on: boolean) => {
     setSettings((current) => {
@@ -155,71 +227,87 @@ export function AdminShippingSettingsForm({
   };
 
   return (
-    <AdminForm onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {error ? (
+        <div className="max-w-lg">
+          <AdminFormAlert variant="error">{error}</AdminFormAlert>
+        </div>
+      ) : null}
+
       <AdminCard
         title={copy.globalTitle}
         description={copy.globalDescription}
         className="max-w-lg"
       >
-        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            disabled={readOnly}
-            checked={settings.carriersEnabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                carriersEnabled: event.target.checked,
-              }))
-            }
-          />
-          {copy.carriersEnabled}
-        </label>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="originZip">{copy.originZipLabel}</Label>
-            <Input
-              id="originZip"
-              inputMode="numeric"
-              autoComplete="postal-code"
-              placeholder="1425"
-              disabled={readOnly || !settings.carriersEnabled}
-              value={settings.originZip}
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("global");
+          }}
+        >
+          <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              disabled={readOnly}
+              checked={settings.carriersEnabled}
               onChange={(event) =>
                 setSettings((current) => ({
                   ...current,
-                  originZip: event.target.value.replace(/\D/g, "").slice(0, 8),
+                  carriersEnabled: event.target.checked,
                 }))
               }
-              className="text-base sm:text-sm"
             />
-            <p className="mt-1.5 text-xs text-neutral-500">{copy.originZipHint}</p>
-          </div>
+            {copy.carriersEnabled}
+          </label>
 
-          <div>
-            <Label htmlFor="defaultWeightGrams">{copy.weightLabel}</Label>
-            <Input
-              id="defaultWeightGrams"
-              type="number"
-              min="100"
-              step="50"
-              inputMode="numeric"
-              disabled={readOnly || !settings.carriersEnabled}
-              value={String(settings.defaultWeightGrams)}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  defaultWeightGrams:
-                    parseInt(event.target.value, 10) >= 100
-                      ? parseInt(event.target.value, 10)
-                      : 100,
-                }))
-              }
-              className="text-base sm:text-sm"
-            />
-            <p className="mt-1.5 text-xs text-neutral-500">{copy.weightHint}</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="originZip">{copy.originZipLabel}</Label>
+              <Input
+                id="originZip"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                placeholder="1425"
+                disabled={readOnly || !settings.carriersEnabled}
+                value={settings.originZip}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    originZip: event.target.value.replace(/\D/g, "").slice(0, 8),
+                  }))
+                }
+                className="text-base sm:text-sm"
+              />
+              <p className="mt-1.5 text-xs text-neutral-500">
+                {copy.originZipHint}
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="defaultWeightGrams">{copy.weightLabel}</Label>
+              <Input
+                id="defaultWeightGrams"
+                type="number"
+                min="100"
+                step="50"
+                inputMode="numeric"
+                disabled={readOnly || !settings.carriersEnabled}
+                value={String(settings.defaultWeightGrams)}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    defaultWeightGrams:
+                      parseInt(event.target.value, 10) >= 100
+                        ? parseInt(event.target.value, 10)
+                        : 100,
+                  }))
+                }
+                className="text-base sm:text-sm"
+              />
+              <p className="mt-1.5 text-xs text-neutral-500">{copy.weightHint}</p>
+            </div>
           </div>
-        </div>
+          {renderCardSave("global")}
+        </AdminForm>
       </AdminCard>
 
       <AdminCard
@@ -227,7 +315,13 @@ export function AdminShippingSettingsForm({
         description={meCopy.description}
         className="max-w-lg"
       >
-        <div className="space-y-3">
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("mercado_envios");
+          }}
+          className="space-y-3"
+        >
           {renderEnableSwitch("mercado_envios")}
 
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
@@ -302,7 +396,8 @@ export function AdminShippingSettingsForm({
             intro={meCopy.guideIntro}
             steps={meCopy.guideSteps}
           />
-        </div>
+          {renderCardSave("mercado_envios")}
+        </AdminForm>
       </AdminCard>
 
       <AdminCard
@@ -310,7 +405,13 @@ export function AdminShippingSettingsForm({
         description={correoCopy.description}
         className="max-w-lg"
       >
-        <div className="space-y-3">
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("correo");
+          }}
+          className="space-y-3"
+        >
           {renderEnableSwitch("correo_argentino")}
 
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
@@ -406,7 +507,8 @@ export function AdminShippingSettingsForm({
             intro={correoCopy.guideIntro}
             steps={correoCopy.guideSteps}
           />
-        </div>
+          {renderCardSave("correo")}
+        </AdminForm>
       </AdminCard>
 
       <AdminCard
@@ -414,7 +516,13 @@ export function AdminShippingSettingsForm({
         description={andreaniCopy.description}
         className="max-w-lg"
       >
-        <div className="space-y-3">
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("andreani");
+          }}
+          className="space-y-3"
+        >
           {renderEnableSwitch("andreani")}
 
           <div className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
@@ -512,7 +620,8 @@ export function AdminShippingSettingsForm({
             intro={andreaniCopy.guideIntro}
             steps={andreaniCopy.guideSteps}
           />
-        </div>
+          {renderCardSave("andreani")}
+        </AdminForm>
       </AdminCard>
 
       <AdminCard
@@ -520,7 +629,13 @@ export function AdminShippingSettingsForm({
         description={copy.pickupDescription}
         className="max-w-lg"
       >
-        <div className="space-y-4">
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("pickup");
+          }}
+          className="space-y-4"
+        >
           <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
             <Switch
               disabled={readOnly}
@@ -605,25 +720,9 @@ export function AdminShippingSettingsForm({
               </div>
             </div>
           ) : null}
-        </div>
+          {renderCardSave("pickup")}
+        </AdminForm>
       </AdminCard>
-
-      {error ? (
-        <div className="max-w-lg">
-          <AdminFormAlert variant="error">{error}</AdminFormAlert>
-        </div>
-      ) : null}
-      {saved ? (
-        <div className="max-w-lg">
-          <AdminFormAlert variant="success">{copy.saved}</AdminFormAlert>
-        </div>
-      ) : null}
-
-      <AdminFormActions className="max-w-lg">
-        <Button type="submit" disabled={readOnly || loading}>
-          {loading ? copy.saving : copy.save}
-        </Button>
-      </AdminFormActions>
-    </AdminForm>
+    </div>
   );
 }

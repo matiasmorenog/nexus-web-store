@@ -235,7 +235,7 @@ export function AdminStripePaymentForm({
         {saved ? <AdminFormAlert variant="success">{copy.saved}</AdminFormAlert> : null}
 
         <AdminFormActions>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" size="sm" disabled={loading}>
             {loading ? copy.saving : copy.save}
           </Button>
         </AdminFormActions>

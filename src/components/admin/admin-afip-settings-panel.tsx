@@ -147,7 +147,7 @@ export function AdminAfipSettingsPanel({
         ) : null}
 
         <AdminFormActions>
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" size="sm" disabled={loading}>
             {loading ? "Guardando…" : "Guardar AFIP"}
           </Button>
         </AdminFormActions>

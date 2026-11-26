@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminTextarea } from "@/components/admin/admin-form";
+import {
+  AdminFormActions,
+  AdminTextarea,
+} from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -153,9 +156,11 @@ export function AdminSeoSettingsForm({
             <p className="text-sm text-emerald-600">Configuración guardada.</p>
           ) : null}
 
-          <Button type="submit" disabled={pending}>
-            {pending ? "Guardando..." : "Guardar SEO"}
-          </Button>
+          <AdminFormActions>
+            <Button type="submit" size="sm" disabled={pending}>
+              {pending ? "Guardando…" : "Guardar"}
+            </Button>
+          </AdminFormActions>
         </form>
       </AdminCard>
 

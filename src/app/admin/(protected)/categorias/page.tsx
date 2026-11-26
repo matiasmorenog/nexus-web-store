@@ -1,6 +1,7 @@
-import { AdminCategoryCreateForm } from "@/components/admin/admin-category-create-form";
+import { AdminCategoryCreateControls } from "@/components/admin/admin-category-create-form";
 import { AdminCategoriesList } from "@/components/admin/admin-categories-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { requireAdminPermission } from "@/lib/admin-session";
 import { db } from "@/lib/db";
 import {
@@ -27,13 +28,17 @@ export default async function AdminCategoriesPage() {
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={0}>
-        <div className="max-w-3xl">
-          <AdminCategoryCreateForm />
-        </div>
+        <AdminPageHeader
+          title="Categorías"
+          description="Organizá el catálogo y la navegación de la tienda."
+          action={<AdminCategoryCreateControls />}
+        />
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={1}>
-        <AdminCategoriesList categories={categories.map(serializeStoreCategory)} />
+        <AdminCategoriesList
+          categories={categories.map(serializeStoreCategory)}
+        />
       </AdminDashboardReveal>
     </div>
   );

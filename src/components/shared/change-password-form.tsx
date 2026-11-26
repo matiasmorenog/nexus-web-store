@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
-import { AdminForm, AdminFormAlert } from "@/components/admin/admin-form";
+import {
+  AdminForm,
+  AdminFormActions,
+  AdminFormAlert,
+} from "@/components/admin/admin-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -166,9 +170,11 @@ export function ChangePasswordForm({
               Contraseña actualizada correctamente.
             </AdminFormAlert>
           ) : null}
-          <Button type="submit" disabled={loading}>
-            {loading ? "Guardando..." : "Cambiar contraseña"}
-          </Button>
+          <AdminFormActions>
+            <Button type="submit" size="sm" disabled={loading}>
+              {loading ? "Guardando…" : "Cambiar contraseña"}
+            </Button>
+          </AdminFormActions>
         </AdminForm>
       </AdminCard>
     );

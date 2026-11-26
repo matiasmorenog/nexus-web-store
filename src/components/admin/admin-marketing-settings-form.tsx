@@ -21,6 +21,8 @@ type AdminMarketingSettingsFormProps = {
   initialSettings: StoreMarketingSettingsData;
 };
 
+type SaveSection = "whatsapp" | "metaPixel";
+
 export function AdminMarketingSettingsForm({
   initialSettings,
 }: AdminMarketingSettingsFormProps) {
@@ -29,15 +31,16 @@ export function AdminMarketingSettingsForm({
     readAdminLocaleFromDocument(),
   ).metaPixel;
   const [settings, setSettings] = useState(initialSettings);
-  const [loading, setLoading] = useState(false);
+  const [loadingSection, setLoadingSection] = useState<SaveSection | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [savedSection, setSavedSection] = useState<SaveSection | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setLoading(true);
+  const saveSettings = async (section: SaveSection) => {
+    setLoadingSection(section);
     setError(null);
-    setSaved(false);
+    setSavedSection(null);
 
     try {
       const response = await fetch("/api/admin/marketing-settings", {
@@ -52,7 +55,7 @@ export function AdminMarketingSettingsForm({
         throw new Error(data.error ?? "No se pudo guardar la configuración.");
       }
 
-      setSaved(true);
+      setSavedSection(section);
       router.refresh();
     } catch (submitError) {
       setError(
@@ -61,61 +64,85 @@ export function AdminMarketingSettingsForm({
           : "No se pudo guardar la configuración.",
       );
     } finally {
-      setLoading(false);
+      setLoadingSection(null);
     }
   };
 
   return (
-    <AdminForm onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
+
       <AdminCard
         title="WhatsApp"
         description="Botón flotante en tu tienda para que los clientes te escriban."
         className="max-w-lg"
       >
-        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            checked={settings.whatsappEnabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                whatsappEnabled: event.target.checked,
-              }))
-            }
-          />
-          Activar botón de WhatsApp
-        </label>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="whatsapp-phone">Teléfono (con código de país)</Label>
-            <Input
-              id="whatsapp-phone"
-              placeholder="5491112345678"
-              value={settings.whatsappPhone ?? ""}
-              disabled={!settings.whatsappEnabled}
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("whatsapp");
+          }}
+        >
+          <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              checked={settings.whatsappEnabled}
               onChange={(event) =>
                 setSettings((current) => ({
                   ...current,
-                  whatsappPhone: event.target.value,
+                  whatsappEnabled: event.target.checked,
                 }))
               }
             />
+            Activar botón de WhatsApp
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="whatsapp-phone">
+                Teléfono (con código de país)
+              </Label>
+              <Input
+                id="whatsapp-phone"
+                placeholder="5491112345678"
+                value={settings.whatsappPhone ?? ""}
+                disabled={!settings.whatsappEnabled}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    whatsappPhone: event.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="whatsapp-message">
+                Mensaje precargado (opcional)
+              </Label>
+              <Input
+                id="whatsapp-message"
+                placeholder="Hola, quiero consultar por..."
+                value={settings.whatsappMessage ?? ""}
+                disabled={!settings.whatsappEnabled}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    whatsappMessage: event.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="whatsapp-message">Mensaje precargado (opcional)</Label>
-            <Input
-              id="whatsapp-message"
-              placeholder="Hola, quiero consultar por..."
-              value={settings.whatsappMessage ?? ""}
-              disabled={!settings.whatsappEnabled}
-              onChange={(event) =>
-                setSettings((current) => ({
-                  ...current,
-                  whatsappMessage: event.target.value,
-                }))
-              }
-            />
-          </div>
-        </div>
+          {savedSection === "whatsapp" ? (
+            <AdminFormAlert variant="success">
+              WhatsApp guardado. Los cambios se verán en la tienda en unos
+              segundos.
+            </AdminFormAlert>
+          ) : null}
+          <AdminFormActions>
+            <Button type="submit" size="sm" disabled={loadingSection !== null}>
+              {loadingSection === "whatsapp" ? "Guardando…" : "Guardar"}
+            </Button>
+          </AdminFormActions>
+        </AdminForm>
       </AdminCard>
 
       <AdminCard
@@ -123,57 +150,62 @@ export function AdminMarketingSettingsForm({
         description="Seguimiento de conversiones. Registra PageView y Purchase al confirmar pedido."
         className="max-w-lg"
       >
-        <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-          <Switch
-            checked={settings.metaPixelEnabled}
-            onChange={(event) =>
-              setSettings((current) => ({
-                ...current,
-                metaPixelEnabled: event.target.checked,
-              }))
-            }
-          />
-          Activar Meta Pixel
-        </label>
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="meta-pixel-id">Pixel ID</Label>
-            <Input
-              id="meta-pixel-id"
-              placeholder="123456789012345"
-              value={settings.metaPixelId ?? ""}
-              disabled={!settings.metaPixelEnabled}
+        <AdminForm
+          onSubmit={(event) => {
+            event.preventDefault();
+            void saveSettings("metaPixel");
+          }}
+        >
+          <label className="mb-4 flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+            <Switch
+              checked={settings.metaPixelEnabled}
               onChange={(event) =>
                 setSettings((current) => ({
                   ...current,
-                  metaPixelId: event.target.value,
+                  metaPixelEnabled: event.target.checked,
                 }))
               }
             />
-            <p className="mt-1 text-xs text-neutral-500">
-              Solo números, sin espacios (ej. 123456789012345).
-            </p>
+            Activar Meta Pixel
+          </label>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="meta-pixel-id">Pixel ID</Label>
+              <Input
+                id="meta-pixel-id"
+                placeholder="123456789012345"
+                value={settings.metaPixelId ?? ""}
+                disabled={!settings.metaPixelEnabled}
+                onChange={(event) =>
+                  setSettings((current) => ({
+                    ...current,
+                    metaPixelId: event.target.value,
+                  }))
+                }
+              />
+              <p className="mt-1 text-xs text-neutral-500">
+                Solo números, sin espacios (ej. 123456789012345).
+              </p>
+            </div>
+            <AdminSetupGuide
+              toggleLabel={pixelGuide.guideToggle}
+              intro={pixelGuide.guideIntro}
+              steps={pixelGuide.guideSteps}
+            />
           </div>
-          <AdminSetupGuide
-            toggleLabel={pixelGuide.guideToggle}
-            intro={pixelGuide.guideIntro}
-            steps={pixelGuide.guideSteps}
-          />
-        </div>
+          {savedSection === "metaPixel" ? (
+            <AdminFormAlert variant="success">
+              Meta Pixel guardado. Los cambios se verán en la tienda en unos
+              segundos.
+            </AdminFormAlert>
+          ) : null}
+          <AdminFormActions>
+            <Button type="submit" size="sm" disabled={loadingSection !== null}>
+              {loadingSection === "metaPixel" ? "Guardando…" : "Guardar"}
+            </Button>
+          </AdminFormActions>
+        </AdminForm>
       </AdminCard>
-
-      {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
-      {saved ? (
-        <AdminFormAlert variant="success">
-          Configuración guardada. Los cambios se verán en la tienda en unos segundos.
-        </AdminFormAlert>
-      ) : null}
-
-      <AdminFormActions>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Guardando..." : "Guardar marketing"}
-        </Button>
-      </AdminFormActions>
-    </AdminForm>
+    </div>
   );
 }

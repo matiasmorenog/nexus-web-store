@@ -1,4 +1,4 @@
-import { AdminCouponCreateForm } from "@/components/admin/admin-coupon-create-form";
+import { AdminCouponCreateControls } from "@/components/admin/admin-coupon-create-form";
 import { AdminCouponsList } from "@/components/admin/admin-coupons-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPromotionSettingsForm } from "@/components/admin/admin-promotion-settings-form";
@@ -28,18 +28,16 @@ export default async function AdminCouponsPage() {
   return (
     <div className="space-y-8">
       <AdminDashboardReveal index={1}>
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-          <div className="min-w-0 w-full max-w-3xl">
-            <AdminCouponCreateForm />
-          </div>
-          <div className="w-full shrink-0 lg:w-80">
-            <AdminPromotionSettingsForm initialSettings={promotionSettings} />
-          </div>
+        <div className="w-full max-w-sm">
+          <AdminPromotionSettingsForm initialSettings={promotionSettings} />
         </div>
       </AdminDashboardReveal>
 
       <AdminDashboardReveal index={2}>
-        <AdminCouponsList coupons={coupons.map(serializeCoupon)} />
+        <AdminCouponsList
+          coupons={coupons.map(serializeCoupon)}
+          action={<AdminCouponCreateControls />}
+        />
       </AdminDashboardReveal>
     </div>
   );

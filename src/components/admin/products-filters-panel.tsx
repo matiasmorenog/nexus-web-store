@@ -33,6 +33,8 @@ type ProductsFiltersPanelProps = {
   };
   categories?: readonly ProductCategoryDef[];
   className?: string;
+  /** Sidebar card chrome. Drawer content uses `false`. */
+  chrome?: boolean;
 };
 
 function audienceLabel(
@@ -52,6 +54,7 @@ export function ProductsFiltersPanel({
   estadoCounts,
   categories = PRODUCT_CATEGORIES,
   className,
+  chrome = true,
 }: ProductsFiltersPanelProps) {
   const searchParams = useSearchParams();
   const navigateCatalog = useAdminListNavigation();
@@ -93,6 +96,120 @@ export function ProductsFiltersPanel({
     estado: activeEstado || undefined,
   });
 
+  const body = (
+    <>
+      <AdminFilterSection
+        title={copy.categorySection}
+        activeKey={activeCategory || "__all__"}
+      >
+        <AdminFilterButton
+          active={!activeCategory}
+          label={copy.allFeminine}
+          count={totalProducts}
+          onClick={() => navigate({ categoria: "" })}
+        />
+        {categories.map((category) => (
+          <AdminFilterButton
+            key={category.slug}
+            active={activeCategory === category.slug}
+            label={category.label}
+            count={categoryCounts[category.slug] ?? 0}
+            onClick={() =>
+              navigate({
+                categoria:
+                  activeCategory === category.slug ? "" : category.slug,
+              })
+            }
+          />
+        ))}
+      </AdminFilterSection>
+
+      <AdminFilterSection
+        title={copy.audienceSection}
+        activeKey={activeAudience || "__all__"}
+      >
+        <AdminFilterButton
+          active={!activeAudience}
+          label={copy.allMasculine}
+          count={totalProducts}
+          onClick={() => navigate({ genero: "" })}
+        />
+        {STORE_AUDIENCES.map((audience) => (
+          <AdminFilterButton
+            key={audience.slug}
+            active={activeAudience === audience.slug}
+            label={audienceLabel(audience.slug, copy)}
+            count={audienceCounts[audience.slug] ?? 0}
+            onClick={() =>
+              navigate({
+                genero: activeAudience === audience.slug ? "" : audience.slug,
+              })
+            }
+          />
+        ))}
+      </AdminFilterSection>
+
+      <AdminFilterSection
+        title={copy.statusSection}
+        activeKey={activeEstado || "__all__"}
+      >
+        <AdminFilterButton
+          active={!activeEstado}
+          label={copy.allMasculine}
+          count={totalProducts}
+          onClick={() => navigate({ estado: "" })}
+        />
+        <AdminFilterButton
+          active={activeEstado === "destacado"}
+          label={copy.statusFeatured}
+          count={estadoCounts.destacado}
+          onClick={() =>
+            navigate({
+              estado: activeEstado === "destacado" ? "" : "destacado",
+            })
+          }
+        />
+        <AdminFilterButton
+          active={activeEstado === "2x1"}
+          label={copy.statusPromo2x1}
+          count={estadoCounts.promo2x1}
+          onClick={() =>
+            navigate({ estado: activeEstado === "2x1" ? "" : "2x1" })
+          }
+        />
+        <AdminFilterButton
+          active={activeEstado === "normal"}
+          label={copy.statusNormal}
+          count={estadoCounts.normal}
+          onClick={() =>
+            navigate({ estado: activeEstado === "normal" ? "" : "normal" })
+          }
+        />
+        <AdminFilterButton
+          active={activeEstado === "desactivado"}
+          label={copy.statusInactiveFilter}
+          count={estadoCounts.desactivado}
+          onClick={() =>
+            navigate({
+              estado: activeEstado === "desactivado" ? "" : "desactivado",
+            })
+          }
+        />
+      </AdminFilterSection>
+
+      {hasFacetFilters ? (
+        <AdminClearFiltersButton
+          label={copy.clearFilters}
+          onClick={() => navigate({ categoria: "", genero: "", estado: "" })}
+        />
+      ) : null}
+    </>
+  );
+
+  if (!chrome) {
+    return <div className={cn("space-y-0", className)}>{body}</div>;
+  }
+
   return (
     <div className={cn(adminFiltersPanelShellClass, className)}>
       <AdminCard
@@ -100,116 +217,7 @@ export function ProductsFiltersPanel({
         description={copy.filtersDescription}
         padding={false}
       >
-        <div className={adminFiltersPanelScrollClass}>
-        <AdminFilterSection
-          title={copy.categorySection}
-          activeKey={activeCategory || "__all__"}
-        >
-          <AdminFilterButton
-            active={!activeCategory}
-            label={copy.allFeminine}
-            count={totalProducts}
-            onClick={() => navigate({ categoria: "" })}
-          />
-          {categories.map((category) => (
-            <AdminFilterButton
-              key={category.slug}
-              active={activeCategory === category.slug}
-              label={category.label}
-              count={categoryCounts[category.slug] ?? 0}
-              onClick={() =>
-                navigate({
-                  categoria:
-                    activeCategory === category.slug ? "" : category.slug,
-                })
-              }
-            />
-          ))}
-        </AdminFilterSection>
-
-        <AdminFilterSection
-          title={copy.audienceSection}
-          activeKey={activeAudience || "__all__"}
-        >
-          <AdminFilterButton
-            active={!activeAudience}
-            label={copy.allMasculine}
-            count={totalProducts}
-            onClick={() => navigate({ genero: "" })}
-          />
-          {STORE_AUDIENCES.map((audience) => (
-            <AdminFilterButton
-              key={audience.slug}
-              active={activeAudience === audience.slug}
-              label={audienceLabel(audience.slug, copy)}
-              count={audienceCounts[audience.slug] ?? 0}
-              onClick={() =>
-                navigate({
-                  genero:
-                    activeAudience === audience.slug ? "" : audience.slug,
-                })
-              }
-            />
-          ))}
-        </AdminFilterSection>
-
-        <AdminFilterSection
-          title={copy.statusSection}
-          activeKey={activeEstado || "__all__"}
-        >
-          <AdminFilterButton
-            active={!activeEstado}
-            label={copy.allMasculine}
-            count={totalProducts}
-            onClick={() => navigate({ estado: "" })}
-          />
-          <AdminFilterButton
-            active={activeEstado === "destacado"}
-            label={copy.statusFeatured}
-            count={estadoCounts.destacado}
-            onClick={() =>
-              navigate({
-                estado: activeEstado === "destacado" ? "" : "destacado",
-              })
-            }
-          />
-          <AdminFilterButton
-            active={activeEstado === "2x1"}
-            label={copy.statusPromo2x1}
-            count={estadoCounts.promo2x1}
-            onClick={() =>
-              navigate({ estado: activeEstado === "2x1" ? "" : "2x1" })
-            }
-          />
-          <AdminFilterButton
-            active={activeEstado === "normal"}
-            label={copy.statusNormal}
-            count={estadoCounts.normal}
-            onClick={() =>
-              navigate({ estado: activeEstado === "normal" ? "" : "normal" })
-            }
-          />
-          <AdminFilterButton
-            active={activeEstado === "desactivado"}
-            label={copy.statusInactiveFilter}
-            count={estadoCounts.desactivado}
-            onClick={() =>
-              navigate({
-                estado: activeEstado === "desactivado" ? "" : "desactivado",
-              })
-            }
-          />
-        </AdminFilterSection>
-
-        {hasFacetFilters ? (
-          <AdminClearFiltersButton
-            label={copy.clearFilters}
-            onClick={() =>
-              navigate({ categoria: "", genero: "", estado: "" })
-            }
-          />
-        ) : null}
-        </div>
+        <div className={adminFiltersPanelScrollClass}>{body}</div>
       </AdminCard>
     </div>
   );

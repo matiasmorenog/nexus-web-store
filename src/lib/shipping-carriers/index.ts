@@ -20,6 +20,7 @@ export {
   type StoreShippingSettingsAdminData,
   type StoreShippingSettingsData,
   type StoreShippingSettingsSaveInput,
+  type StoreShippingSettingsSectionSave,
   type ShippingQuoteLineInput,
 } from "@/lib/shipping-carriers/types";
 export { getShippingAdminCopy } from "@/lib/shipping-carriers/shipping-admin-copy";

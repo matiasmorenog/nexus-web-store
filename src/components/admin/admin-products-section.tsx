@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
@@ -8,7 +8,7 @@ import { AdminCard } from "@/components/admin/admin-card";
 import { AdminLoadMore } from "@/components/admin/admin-load-more";
 import { ProductThumbnail } from "@/components/admin/product-thumbnail";
 import { DeleteProductButton } from "@/components/admin/delete-product-button";
-import { ProductCreateForm } from "@/components/admin/product-create-form";
+import { AdminProductCreateTrigger } from "@/components/admin/product-create-form";
 import {
   AdminDataTable,
   AdminTableActions,
@@ -18,15 +18,13 @@ import {
   AdminTableRow,
 } from "@/components/admin/admin-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   getAdminProductsCopy,
   readAdminLocaleFromDocument,
 } from "@/lib/admin-locale";
 import { getProductTaxonomyLabel } from "@/lib/categories";
 import type { AdminProductsFilterParams } from "@/lib/admin-products-query";
-import type { ProductCategoryDef } from "@/lib/store-verticals/types";
-import { cn, formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 export type AdminProductRow = {
   id: string;
@@ -47,10 +45,7 @@ type AdminProductsSectionProps = {
   hasMore: boolean;
   filters: AdminProductsFilterParams;
   hasFilters?: boolean;
-  /** 2x1 disponible: vertical con promo + módulo coupons activo. */
-  promo2x1Selectable?: boolean;
   canManage?: boolean;
-  categories?: readonly ProductCategoryDef[];
 };
 
 export function AdminProductsSection({
@@ -59,9 +54,7 @@ export function AdminProductsSection({
   hasMore: initialHasMore,
   filters,
   hasFilters = false,
-  promo2x1Selectable = false,
   canManage = true,
-  categories,
 }: AdminProductsSectionProps) {
   const copy = getAdminProductsCopy(readAdminLocaleFromDocument());
   const productColumns = [
@@ -73,8 +66,6 @@ export function AdminProductsSection({
     copy.columns.actions,
   ] as const;
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [blockedHint, setBlockedHint] = useState(0);
   const [products, setProducts] = useState(initialProducts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -94,17 +85,6 @@ export function AdminProductsSection({
     setPage(1);
     setHasMore(initialHasMore);
   }
-
-  const signalBlockedCreate = useCallback(() => {
-    setBlockedHint((count) => count + 1);
-  }, []);
-
-  const handleCreateOpenChange = (open: boolean) => {
-    setCreateOpen(open);
-    if (!open) {
-      setBlockedHint(0);
-    }
-  };
 
   const loadMore = async () => {
     if (loading || !hasMore) return;
@@ -151,48 +131,17 @@ export function AdminProductsSection({
   return (
     <div className="space-y-6 pb-2">
       <AdminDashboardReveal index={0} className="space-y-6">
-        {createOpen && canManage ? (
-          <ProductCreateForm
-            onClose={() => handleCreateOpenChange(false)}
-            blockedHint={blockedHint}
-            promo2x1Selectable={promo2x1Selectable}
-            categories={categories}
-          />
-        ) : null}
-
-        <div
-          className={cn(
-            createOpen &&
-              "[&_h2]:text-neutral-400 [&_p]:text-neutral-400 [&_a]:cursor-not-allowed [&_a]:opacity-50 [&_button]:cursor-not-allowed [&_button]:opacity-50",
-          )}
-          onClickCapture={
-            createOpen
-              ? (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  signalBlockedCreate();
-                }
-              : undefined
+        <AdminCard
+          title={copy.catalogTitle}
+          description={catalogDescription}
+          padding={false}
+          action={
+            canManage ? (
+              <AdminProductCreateTrigger className="w-full whitespace-nowrap sm:w-auto" />
+            ) : undefined
           }
         >
-          <AdminCard
-            title={copy.catalogTitle}
-            className={cn(createOpen && "bg-neutral-100/50")}
-            description={catalogDescription}
-            padding={false}
-            action={
-              canManage && !createOpen ? (
-                <Button
-                  size="sm"
-                  className="w-full whitespace-nowrap sm:w-auto"
-                  onClick={() => handleCreateOpenChange(true)}
-                >
-                  {copy.newProduct}
-                </Button>
-              ) : undefined
-            }
-          >
-            <AdminDataTable columns={[...productColumns]}>
+          <AdminDataTable columns={[...productColumns]}>
             {products.length === 0 ? (
               <AdminTableEmpty colSpan={productColumns.length}>
                 {hasFilters
@@ -201,70 +150,69 @@ export function AdminProductsSection({
               </AdminTableEmpty>
             ) : (
               products.map((product) => (
-              <AdminTableRow key={product.id}>
-                <AdminTableCell>
-                  <div className="flex items-center gap-3">
-                    <ProductThumbnail
-                      src={product.variants[0]?.imageUrl}
-                      alt={product.name}
-                    />
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <Link
-                        href={`/producto/${product.slug}`}
-                        className="text-xs text-neutral-500 hover:underline"
-                        target="_blank"
-                      >
-                        {copy.viewInStore}
-                      </Link>
-                    </div>
-                  </div>
-                </AdminTableCell>
-                <AdminTableCell>
-                  {getProductTaxonomyLabel(
-                    product.category,
-                    product.audience,
-                    categories,
-                  )}
-                </AdminTableCell>
-                <AdminTableCell className="font-medium">
-                  {formatPrice(Number(product.variants[0]?.price ?? 0))}
-                </AdminTableCell>
-                <AdminTableCell>{product._count.variants}</AdminTableCell>
-                <AdminTableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {!product.active && (
-                      <Badge variant="warning">{copy.statusInactive}</Badge>
-                    )}
-                    {product.promo2x1 && (
-                      <Badge variant="success">{copy.statusPromo2x1}</Badge>
-                    )}
-                    {product.featured ? (
-                      <Badge variant="success">{copy.statusFeatured}</Badge>
-                    ) : (
-                      !product.promo2x1 && (
-                        <Badge>{copy.statusNormal}</Badge>
-                      )
-                    )}
-                  </div>
-                </AdminTableCell>
-                <AdminTableCell>
-                  <AdminTableActions>
-                    <AdminTableIconAction
-                      label={copy.editProductAria(product.name)}
-                      icon={Pencil}
-                      href={`/admin/productos/${product.id}/edit`}
-                    />
-                    {canManage ? (
-                      <DeleteProductButton
-                        productId={product.id}
-                        productName={product.name}
+                <AdminTableRow key={product.id}>
+                  <AdminTableCell>
+                    <div className="flex items-center gap-3">
+                      <ProductThumbnail
+                        src={product.variants[0]?.imageUrl}
+                        alt={product.name}
                       />
-                    ) : null}
-                  </AdminTableActions>
-                </AdminTableCell>
-              </AdminTableRow>
-            ))
+                      <div>
+                        <p className="font-medium">{product.name}</p>
+                        <Link
+                          href={`/producto/${product.slug}`}
+                          className="text-xs text-neutral-500 hover:underline"
+                          target="_blank"
+                        >
+                          {copy.viewInStore}
+                        </Link>
+                      </div>
+                    </div>
+                  </AdminTableCell>
+                  <AdminTableCell>
+                    {getProductTaxonomyLabel(
+                      product.category,
+                      product.audience,
+                    )}
+                  </AdminTableCell>
+                  <AdminTableCell className="font-medium">
+                    {formatPrice(Number(product.variants[0]?.price ?? 0))}
+                  </AdminTableCell>
+                  <AdminTableCell>{product._count.variants}</AdminTableCell>
+                  <AdminTableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {!product.active && (
+                        <Badge variant="warning">{copy.statusInactive}</Badge>
+                      )}
+                      {product.promo2x1 && (
+                        <Badge variant="success">{copy.statusPromo2x1}</Badge>
+                      )}
+                      {product.featured ? (
+                        <Badge variant="success">{copy.statusFeatured}</Badge>
+                      ) : (
+                        !product.promo2x1 && (
+                          <Badge>{copy.statusNormal}</Badge>
+                        )
+                      )}
+                    </div>
+                  </AdminTableCell>
+                  <AdminTableCell>
+                    <AdminTableActions>
+                      <AdminTableIconAction
+                        label={copy.editProductAria(product.name)}
+                        icon={Pencil}
+                        href={`/admin/productos/${product.id}/edit`}
+                      />
+                      {canManage ? (
+                        <DeleteProductButton
+                          productId={product.id}
+                          productName={product.name}
+                        />
+                      ) : null}
+                    </AdminTableActions>
+                  </AdminTableCell>
+                </AdminTableRow>
+              ))
             )}
           </AdminDataTable>
 
@@ -279,8 +227,7 @@ export function AdminProductsSection({
             loadingLabel={copy.loading}
             showingLabel={copy.showingOf(products.length, total)}
           />
-          </AdminCard>
-        </div>
+        </AdminCard>
       </AdminDashboardReveal>
     </div>
   );

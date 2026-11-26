@@ -363,6 +363,27 @@ button:not(:disabled),
   animation: page-reveal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+/* Storefront scroll reveal — slightly longer so the fade is readable on scroll. */
+@keyframes storefront-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.storefront-reveal-prep {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.storefront-reveal-enter {
+  animation: storefront-reveal-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 @keyframes admin-dashboard-reveal-in {
   from {
     opacity: 0;
@@ -380,7 +401,7 @@ button:not(:disabled),
 }
 
 .admin-dashboard-reveal-enter {
-  animation: admin-dashboard-reveal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: admin-dashboard-reveal-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes admin-stat-land {
@@ -567,6 +588,8 @@ button:not(:disabled),
 
   .page-reveal-prep,
   .page-reveal-enter,
+  .storefront-reveal-prep,
+  .storefront-reveal-enter,
   .admin-dashboard-reveal-prep,
   .admin-dashboard-reveal-enter,
   .admin-stat-landed,

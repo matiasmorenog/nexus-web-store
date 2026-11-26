@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import type { CategoriesGridContent } from "@/lib/home-content/types";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { App2SectionHeading } from "@/themes/app2/components/home/app2-section-heading";
 import { app2CatalogHref } from "@/lib/store-verticals/app2/config";
 
@@ -23,31 +24,36 @@ export function App2CategoriesSection({ content }: App2CategoriesSectionProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {content.items.map((cat) => (
-          <Link
+        {content.items.map((cat, index) => (
+          <StorefrontReveal
             key={cat.slug}
-            href={cat.href ?? app2CatalogHref(cat.slug)}
-            className="storefront-card group relative aspect-[3/4] overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)]"
+            index={Math.min(index, 7)}
+            className="aspect-[3/4]"
           >
-            <Image
-              src={cat.imageUrl}
-              alt={cat.label}
-              fill
-              className="object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-80"
-              sizes="(max-width: 1024px) 50vw, 25vw"
-            />
-            <div
-              className={`absolute inset-0 bg-gradient-to-t ${cat.gradientClass} from-[var(--brand-primary-darker)]/90 via-[var(--brand-primary-darker)]/40 to-transparent`}
-            />
-            <div className="absolute inset-x-0 bottom-0 p-4">
-              <h3 className="font-app2-display text-lg font-bold text-[var(--brand-primary-light,#f0f0f5)]">
-                {cat.label}
-              </h3>
-              <div className="mt-3 flex items-center gap-1 text-xs font-medium text-[var(--brand-primary)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                Explorar <ArrowRight className="h-3 w-3" />
+            <Link
+              href={cat.href ?? app2CatalogHref(cat.slug)}
+              className="storefront-card group relative block h-full w-full overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)]"
+            >
+              <Image
+                src={cat.imageUrl}
+                alt={cat.label}
+                fill
+                className="object-cover opacity-60 transition-all duration-500 group-hover:scale-105 group-hover:opacity-80"
+                sizes="(max-width: 1024px) 50vw, 25vw"
+              />
+              <div
+                className={`absolute inset-0 bg-gradient-to-t ${cat.gradientClass} from-[var(--brand-primary-darker)]/90 via-[var(--brand-primary-darker)]/40 to-transparent`}
+              />
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                <h3 className="font-app2-display text-lg font-bold text-[var(--brand-primary-light,#f0f0f5)]">
+                  {cat.label}
+                </h3>
+                <div className="mt-3 flex items-center gap-1 text-xs font-medium text-[var(--brand-primary)] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  Explorar <ArrowRight className="h-3 w-3" />
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </StorefrontReveal>
         ))}
       </div>
     </section>

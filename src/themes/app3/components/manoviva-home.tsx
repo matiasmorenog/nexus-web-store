@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Hand, Heart, Sparkles } from "lucide-react";
 import { ProductCard } from "@/components/storefront/product-card";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { getStoreId } from "@/lib/store-context";
 import { getStorefrontProducts } from "@/lib/storefront-products-query";
 import { ManovivaMark } from "@/themes/app3/components/manoviva-mark";
@@ -53,19 +54,20 @@ async function ManovivaFeaturedProducts() {
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              slug={product.slug}
-              name={product.name}
-              category={product.category}
-              audience={product.audience}
-              imageUrl={product.imageUrl}
-              hoverImageUrl={product.hoverImageUrl}
-              price={product.price}
-              inStock={product.inStock}
-              colorCount={product.colorCount}
-            />
+          {products.map((product, index) => (
+            <StorefrontReveal key={product.id} index={Math.min(index, 7)}>
+              <ProductCard
+                slug={product.slug}
+                name={product.name}
+                category={product.category}
+                audience={product.audience}
+                imageUrl={product.imageUrl}
+                hoverImageUrl={product.hoverImageUrl}
+                price={product.price}
+                inStock={product.inStock}
+                colorCount={product.colorCount}
+              />
+            </StorefrontReveal>
           ))}
         </div>
       </div>
@@ -134,21 +136,23 @@ export async function ManovivaHome() {
         </div>
       </section>
 
-      <section className="bg-[#202523] text-[#F2F0E9]">
-        <div className="mx-auto grid max-w-7xl gap-px bg-white/10 sm:grid-cols-3">
-          {[
-            [Hand, "Fatto a mano", "Ogni creazione è lavorata una alla volta."],
-            [Sparkles, "Personalizzabile", "Colori, nomi e dettagli scelti insieme."],
-            [Heart, "Fatto per te", "Un regalo unico, pensato per chi lo riceve."],
-          ].map(([Icon, title, text]) => (
-            <div key={String(title)} className="bg-[#202523] px-6 py-8 sm:px-8">
-              <Icon className="h-5 w-5 text-[#C86243]" />
-              <h2 className="font-manoviva mt-4 text-lg font-semibold">{String(title)}</h2>
-              <p className="mt-2 text-sm leading-6 text-white/60">{String(text)}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StorefrontReveal index={0}>
+        <section className="bg-[#202523] text-[#F2F0E9]">
+          <div className="mx-auto grid max-w-7xl gap-px bg-white/10 sm:grid-cols-3">
+            {[
+              [Hand, "Fatto a mano", "Ogni creazione è lavorata una alla volta."],
+              [Sparkles, "Personalizzabile", "Colori, nomi e dettagli scelti insieme."],
+              [Heart, "Fatto per te", "Un regalo unico, pensato per chi lo riceve."],
+            ].map(([Icon, title, text]) => (
+              <div key={String(title)} className="bg-[#202523] px-6 py-8 sm:px-8">
+                <Icon className="h-5 w-5 text-[#C86243]" />
+                <h2 className="font-manoviva mt-4 text-lg font-semibold">{String(title)}</h2>
+                <p className="mt-2 text-sm leading-6 text-white/60">{String(text)}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </StorefrontReveal>
 
       <section className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-6">
@@ -163,31 +167,36 @@ export async function ManovivaHome() {
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {categories.map((category, index) => (
-              <Link
+              <StorefrontReveal
                 key={category.slug}
-                href={`/prodotti?categoria=${category.slug}`}
-                className="group relative min-h-[390px] overflow-hidden storefront-card bg-[#202523]"
+                index={Math.min(index, 7)}
+                className="min-h-[390px]"
               >
-                <Image
-                  src={category.image}
-                  alt={category.label}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#202523]/90 via-transparent to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 text-white">
-                  <div>
-                    <span className="text-xs font-semibold text-[#C86243]">0{index + 1}</span>
-                    <h3 className="font-manoviva mt-1 text-2xl font-semibold tracking-[-0.04em]">
-                      {category.label}
-                    </h3>
+                <Link
+                  href={`/prodotti?categoria=${category.slug}`}
+                  className="group relative block h-full min-h-[390px] w-full overflow-hidden storefront-card bg-[#202523]"
+                >
+                  <Image
+                    src={category.image}
+                    alt={category.label}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#202523]/90 via-transparent to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 text-white">
+                    <div>
+                      <span className="text-xs font-semibold text-[#C86243]">0{index + 1}</span>
+                      <h3 className="font-manoviva mt-1 text-2xl font-semibold tracking-[-0.04em]">
+                        {category.label}
+                      </h3>
+                    </div>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/10 backdrop-blur transition-colors group-hover:bg-white group-hover:text-[#202523]">
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
                   </div>
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/10 backdrop-blur transition-colors group-hover:bg-white group-hover:text-[#202523]">
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </div>
-              </Link>
+                </Link>
+              </StorefrontReveal>
             ))}
           </div>
         </div>
@@ -195,39 +204,41 @@ export async function ManovivaHome() {
 
       <ManovivaFeaturedProducts />
 
-      <section className="overflow-hidden bg-[#2351D1] text-white">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
-          <div className="relative min-h-[420px] lg:min-h-[560px]">
-            <Image
-              src="/app3/saponi-cuore.png"
-              alt="Saponi artigianali a forma di cuore"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+      <StorefrontReveal index={3}>
+        <section className="overflow-hidden bg-[#2351D1] text-white">
+          <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
+            <div className="relative min-h-[420px] lg:min-h-[560px]">
+              <Image
+                src="/app3/saponi-cuore.png"
+                alt="Saponi artigianali a forma di cuore"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            </div>
+            <div className="flex flex-col justify-center px-6 py-14 sm:px-12 lg:px-16">
+              <ManovivaMark inverse className="h-16 w-16" />
+              <p className="mt-8 text-xs font-semibold uppercase tracking-[0.22em] text-white/65">
+                Su misura
+              </p>
+              <h2 className="font-manoviva mt-3 text-4xl font-semibold leading-tight tracking-[-0.055em] sm:text-5xl">
+                Hai un&apos;idea?
+                <span className="block text-[#F1B09C]">Diamole vita insieme.</span>
+              </h2>
+              <p className="mt-6 max-w-lg leading-7 text-white/75">
+                Raccontaci l&apos;occasione, i colori e la persona a cui stai pensando.
+                Prepariamo una proposta personalizzata prima di iniziare.
+              </p>
+              <Link
+                href="/contatti"
+                className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#2351D1]"
+              >
+                Parliamo del tuo progetto <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-col justify-center px-6 py-14 sm:px-12 lg:px-16">
-            <ManovivaMark inverse className="h-16 w-16" />
-            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.22em] text-white/65">
-              Su misura
-            </p>
-            <h2 className="font-manoviva mt-3 text-4xl font-semibold leading-tight tracking-[-0.055em] sm:text-5xl">
-              Hai un&apos;idea?
-              <span className="block text-[#F1B09C]">Diamole vita insieme.</span>
-            </h2>
-            <p className="mt-6 max-w-lg leading-7 text-white/75">
-              Raccontaci l&apos;occasione, i colori e la persona a cui stai pensando.
-              Prepariamo una proposta personalizzata prima di iniziare.
-            </p>
-            <Link
-              href="/contatti"
-              className="mt-8 inline-flex w-fit items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#2351D1]"
-            >
-              Parliamo del tuo progetto <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      </StorefrontReveal>
     </>
   );
 }

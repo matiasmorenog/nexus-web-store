@@ -1,30 +1,84 @@
 "use client";
 
-import { useLayoutEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type PageRevealProps = {
+export type PageRevealProps = {
   children: ReactNode;
+  /** Stagger slot after the element enters the viewport (0 = immediate). */
   index?: number;
   className?: string;
+  /** Delay between stagger slots once visible. */
   delayMs?: number;
+  /** IntersectionObserver rootMargin — keep tight; do not anticipate far. */
+  rootMargin?: string;
+  /** Fraction of the element that must be visible to trigger (~15–25%). */
+  threshold?: number;
+  /** Prep class while hidden (opacity 0). */
+  prepClassName?: string;
+  /** Enter class once revealed (CSS animation). */
+  enterClassName?: string;
 };
 
-/** Never leave content stuck at opacity 0 if timers/rAF stall. */
-const REVEAL_FAILSAFE_MS = 1600;
+/** Backup after intersect if the stagger timer never fires. */
+const REVEAL_FAILSAFE_MS = 500;
+/** Mount path: above-fold must not stay blank. */
+const NEAR_FAILSAFE_MS = 600;
+/** Far off-screen last resort only. */
+const FAR_FAILSAFE_MS = 12_000;
 
+/** True only when any part of the node is clearly inside the viewport (no slack). */
+function isClearlyIntersecting(node: HTMLElement): boolean {
+  const rect = node.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  return rect.top < vh && rect.bottom > 0 && rect.top < rect.bottom;
+}
+
+/**
+ * Soft opacity + translateY reveal on scroll (Intersection Observer).
+ * Above-fold / clearly intersecting on mount → reveal now (no blank gap).
+ * Below-fold → wait until ~threshold is visible.
+ * Used by storefront + admin wrappers with different CSS classes.
+ */
 export function PageReveal({
   children,
   index = 0,
   className,
   delayMs = 100,
+  rootMargin = "0px",
+  threshold = 0.2,
+  prepClassName = "page-reveal-prep",
+  enterClassName = "page-reveal-enter",
 }: PageRevealProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
     let cancelled = false;
+    let delayTimer: number | undefined;
+    let intersectFailsafe: number | undefined;
+    let activeObserver: IntersectionObserver | null = null;
+
+    const clearRevealTimers = () => {
+      if (delayTimer !== undefined) {
+        window.clearTimeout(delayTimer);
+        delayTimer = undefined;
+      }
+      if (intersectFailsafe !== undefined) {
+        window.clearTimeout(intersectFailsafe);
+        intersectFailsafe = undefined;
+      }
+    };
+
     const show = () => {
-      if (!cancelled) setVisible(true);
+      if (cancelled) return;
+      setVisible(true);
+      activeObserver?.disconnect();
+      activeObserver = null;
+      clearRevealTimers();
     };
 
     const reducedMotion = window.matchMedia(
@@ -38,21 +92,62 @@ export function PageReveal({
       };
     }
 
-    const delay = Math.max(0, index * delayMs);
-    const timeout = window.setTimeout(show, delay);
-    const failsafe = window.setTimeout(show, delay + REVEAL_FAILSAFE_MS);
+    // Clearly in viewport on mount → reveal now (no white gap above the fold).
+    if (isClearlyIntersecting(node)) {
+      const staggerMs = Math.max(0, Math.min(index, 2) * delayMs);
+      if (staggerMs === 0) {
+        show();
+      } else {
+        delayTimer = window.setTimeout(show, staggerMs);
+      }
+      const nearFailsafe = window.setTimeout(show, NEAR_FAILSAFE_MS);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(nearFailsafe);
+        clearRevealTimers();
+      };
+    }
+
+    const staggerMs = Math.max(0, index * delayMs);
+    const farFailsafe = window.setTimeout(show, FAR_FAILSAFE_MS);
+
+    const scheduleReveal = () => {
+      clearRevealTimers();
+      delayTimer = window.setTimeout(show, staggerMs);
+      intersectFailsafe = window.setTimeout(
+        show,
+        staggerMs + REVEAL_FAILSAFE_MS,
+      );
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        observer.disconnect();
+        activeObserver = null;
+        scheduleReveal();
+      },
+      { rootMargin, threshold },
+    );
+    activeObserver = observer;
+    observer.observe(node);
 
     return () => {
       cancelled = true;
-      window.clearTimeout(timeout);
-      window.clearTimeout(failsafe);
+      observer.disconnect();
+      activeObserver = null;
+      window.clearTimeout(farFailsafe);
+      clearRevealTimers();
     };
-  }, [index, delayMs]);
+  }, [index, delayMs, rootMargin, threshold]);
 
   return (
     <div
+      ref={ref}
       className={cn(
-        visible ? "page-reveal-enter" : "page-reveal-prep",
+        // Grid-safe: sized item; put aspect-* here if child is a nested link.
+        "block w-full min-w-0",
+        visible ? enterClassName : prepClassName,
         className,
       )}
     >

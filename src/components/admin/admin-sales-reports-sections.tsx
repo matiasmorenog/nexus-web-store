@@ -48,18 +48,13 @@ export async function AdminSalesReportsSections({
         <AdminAnalyticsComparisonCards comparison={report.comparison} />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal index={2}>
-        <AdminAnalyticsInsightsGrid
-          metrics={report.comparison.current}
-          cohort={report.cohort}
-        />
-      </AdminDashboardReveal>
+      <AdminAnalyticsInsightsGrid
+        metrics={report.comparison.current}
+        cohort={report.cohort}
+      />
 
-      <AdminDashboardReveal
-        index={3}
-        className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]"
-      >
-        <div className="space-y-6">
+      <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <AdminDashboardReveal index={2} className="space-y-6">
           <AdminCard
             title="Actividad de ventas"
             description={periodLabels.description}
@@ -81,9 +76,9 @@ export async function AdminSalesReportsSections({
             storeId={storeId}
             customers={report.loyalCustomers}
           />
-        </div>
+        </AdminDashboardReveal>
 
-        <div className="space-y-6">
+        <AdminDashboardReveal index={3} className="space-y-6">
           <AdminCard
             title="Top productos"
             description={`Ranking extendido (${periodLabels.summary})`}
@@ -91,8 +86,8 @@ export async function AdminSalesReportsSections({
             <AdminTopProducts products={periodAnalytics.topProducts} />
           </AdminCard>
           <AdminAnalyticsTopCategories categories={report.topCategories} />
-        </div>
-      </AdminDashboardReveal>
+        </AdminDashboardReveal>
+      </div>
     </div>
   );
 }

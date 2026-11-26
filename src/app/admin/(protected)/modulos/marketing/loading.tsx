@@ -1,5 +1,5 @@
-import { AdminSkeletonModuleSettingsPage } from "@/components/admin/admin-skeleton";
+import { AdminSkeletonModuleMarketingPage } from "@/components/admin/admin-skeleton";
 
 export default function AdminMarketingLoading() {
-  return <AdminSkeletonModuleSettingsPage />;
+  return <AdminSkeletonModuleMarketingPage />;
 }

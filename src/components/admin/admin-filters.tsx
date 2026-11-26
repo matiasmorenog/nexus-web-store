@@ -7,6 +7,10 @@ import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
+import {
+  filterOptionHoverClass,
+  slidingFilterPillClass,
+} from "@/lib/ui/filter-option-styles";
 import { cn } from "@/lib/utils";
 
 type AdminSearchFieldProps = {
@@ -176,14 +180,21 @@ export function AdminFilterButton({
       onClick={onClick}
       data-sliding-selected={active ? "true" : undefined}
       className={cn(
-        "relative z-[1] flex w-full select-none items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors",
+        "relative z-[1] flex w-full select-none items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors",
         active
-          ? "font-medium text-[var(--brand-primary)]"
-          : "text-neutral-700 hover:bg-neutral-50",
+          ? "text-[var(--brand-primary)]"
+          : cn("text-neutral-700", filterOptionHoverClass),
       )}
     >
       <span>{label}</span>
-      <span>{count}</span>
+      <span
+        className={cn(
+          "shrink-0 tabular-nums text-xs",
+          active ? "text-[var(--brand-primary)]/65" : "text-neutral-400",
+        )}
+      >
+        {count}
+      </span>
     </button>
   );
 }
@@ -205,7 +216,7 @@ export function AdminFilterSection({
       <SlidingOptionGroup
         activeKey={activeKey}
         className="flex flex-col gap-1"
-        pillClassName="rounded-lg bg-[var(--brand-primary-soft)]"
+        pillClassName={slidingFilterPillClass}
       >
         {children}
       </SlidingOptionGroup>

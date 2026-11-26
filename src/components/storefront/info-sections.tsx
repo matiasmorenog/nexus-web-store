@@ -6,7 +6,7 @@ type InfoSectionsProps = {
 
 export function InfoSections({ sections }: InfoSectionsProps) {
   return (
-    <div className="space-y-4 text-neutral-700">
+    <div className="storefront-copy space-y-4 text-neutral-700">
       {sections.map((section, index) => {
         if (section.type === "heading") {
           return (

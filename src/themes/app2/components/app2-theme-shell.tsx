@@ -38,7 +38,7 @@ export function App2ThemeShell({
       data-app2-theme={ready ? themeId : undefined}
       style={style}
       className={cn(
-        "storefront-theme relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg)]",
+        "storefront-theme storefront-ui relative flex min-h-full flex-1 flex-col bg-[var(--storefront-bg)]",
         className,
       )}
     >

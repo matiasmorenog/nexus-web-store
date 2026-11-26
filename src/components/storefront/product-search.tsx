@@ -159,7 +159,7 @@ export function ProductSearch({
           placeholder={copy.searchDescription}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-9 pr-8"
+          className="h-10 py-0 pl-9 pr-8 leading-10"
         />
         {query && (
           <button

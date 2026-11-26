@@ -14,6 +14,11 @@ export type PageRevealProps = {
   rootMargin?: string;
   /** Fraction of the element that must be visible to trigger (~15–25%). */
   threshold?: number;
+  /**
+   * Max stagger slots when already in viewport on mount.
+   * Default 2 (above-fold sections). Catalog grids pass higher for cascade.
+   */
+  nearStaggerMax?: number;
   /** Prep class while hidden (opacity 0). */
   prepClassName?: string;
   /** Enter class once revealed (CSS animation). */
@@ -47,6 +52,7 @@ export function PageReveal({
   delayMs = 100,
   rootMargin = "0px",
   threshold = 0.2,
+  nearStaggerMax = 2,
   prepClassName = "page-reveal-prep",
   enterClassName = "page-reveal-enter",
 }: PageRevealProps) {
@@ -61,6 +67,7 @@ export function PageReveal({
     let delayTimer: number | undefined;
     let intersectFailsafe: number | undefined;
     let activeObserver: IntersectionObserver | null = null;
+    const nearCap = Math.max(0, nearStaggerMax);
 
     const clearRevealTimers = () => {
       if (delayTimer !== undefined) {
@@ -94,13 +101,16 @@ export function PageReveal({
 
     // Clearly in viewport on mount → reveal now (no white gap above the fold).
     if (isClearlyIntersecting(node)) {
-      const staggerMs = Math.max(0, Math.min(index, 2) * delayMs);
+      const staggerMs = Math.max(0, Math.min(index, nearCap) * delayMs);
       if (staggerMs === 0) {
         show();
       } else {
         delayTimer = window.setTimeout(show, staggerMs);
       }
-      const nearFailsafe = window.setTimeout(show, NEAR_FAILSAFE_MS);
+      const nearFailsafe = window.setTimeout(
+        show,
+        Math.max(NEAR_FAILSAFE_MS, staggerMs + REVEAL_FAILSAFE_MS),
+      );
       return () => {
         cancelled = true;
         window.clearTimeout(nearFailsafe);
@@ -139,7 +149,7 @@ export function PageReveal({
       window.clearTimeout(farFailsafe);
       clearRevealTimers();
     };
-  }, [index, delayMs, rootMargin, threshold]);
+  }, [index, delayMs, rootMargin, threshold, nearStaggerMax]);
 
   return (
     <div

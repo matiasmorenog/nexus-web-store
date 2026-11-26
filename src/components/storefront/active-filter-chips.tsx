@@ -45,9 +45,10 @@ export function ActiveFilterChips({ chips, className }: ActiveFilterChipsProps) 
           type="button"
           onClick={() => removeParam(chip.param)}
           className={cn(
-            "inline-flex items-center gap-1 rounded-full border border-[var(--brand-primary)]/25",
-            "bg-[var(--brand-primary-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-primary)]",
-            "transition-colors hover:border-[var(--brand-primary)]/40 hover:bg-[var(--brand-primary)]/15",
+            // Mid pink: softer than --brand-primary-soft, stronger than old hover /15.
+            "inline-flex items-center gap-1 rounded-full border border-[var(--brand-primary)]/20",
+            "bg-[color-mix(in_srgb,var(--brand-primary)_8%,white)] px-2.5 py-1 text-xs font-medium text-[var(--brand-primary)]/90",
+            "transition-colors hover:border-[var(--brand-primary)]/30 hover:bg-[color-mix(in_srgb,var(--brand-primary)_12%,white)]",
           )}
           aria-label={`Quitar filtro ${chip.label}`}
         >

@@ -8,22 +8,26 @@ import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
 import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/types";
 import { Label } from "@/components/ui/label";
 import { ProductSearch } from "@/components/storefront/product-search";
+import { StorefrontReveal } from "@/components/storefront/storefront-reveal";
 import { useCatalogNavigation } from "@/components/storefront/use-catalog-navigation";
 import { MenuSelect } from "@/components/ui/menu-select";
 import { SlidingOptionGroup } from "@/components/ui/sliding-indicator";
+import {
+  filterOptionHoverClass,
+  filterOptionSelectedBgClass,
+  slidingFilterPillClass,
+} from "@/lib/ui/filter-option-styles";
 import { cn } from "@/lib/utils";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 
-const filterPillClass = "rounded-lg bg-[var(--brand-primary)]";
-
 function filterButtonClass(active: boolean) {
   return cn(
     "relative z-[1] flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
     active
-      ? "text-white"
-      : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+      ? "text-[var(--brand-primary)]"
+      : cn("text-neutral-700", filterOptionHoverClass),
   );
 }
 
@@ -31,8 +35,8 @@ function sizeButtonClass(active: boolean) {
   return cn(
     "relative z-[1] flex min-w-[2.5rem] select-none flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
-      ? "border-[var(--brand-primary)] text-white"
-      : "border-neutral-200 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
+      ? "border-[var(--brand-primary)]/35 text-[var(--brand-primary)]"
+      : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 hover:text-neutral-900",
   );
 }
 
@@ -50,7 +54,7 @@ function FilterCount({
       className={cn(
         "shrink-0 tabular-nums",
         compact ? "text-[10px] leading-none" : "text-xs",
-        active ? "text-white/75" : "text-neutral-400",
+        active ? "text-[var(--brand-primary)]/65" : "text-neutral-400",
       )}
     >
       {count}
@@ -177,230 +181,247 @@ export function ProductFilters({
 
   const Root = chrome ? "aside" : "div";
 
+  let revealSlot = 0;
+  const nextReveal = () => revealSlot++;
+
   return (
     <Root className={asideClass}>
       {showProductSearch ? <ProductSearch /> : null}
 
-      <div>
-        <Label className={labelClass}>{copy.promotion}</Label>
-        <div className="flex flex-col gap-1">
-          <button
-            type="button"
-            onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
-            className={cn(
-              "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
-              activeDestacados
-                ? "bg-[var(--brand-primary)] text-white"
-                : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
-            )}
-          >
-            <span>{copy.featured}</span>
-            <FilterCount count={counts.destacados} active={activeDestacados} />
-          </button>
-          {showPromo2x1 ? (
+      <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+        <div>
+          <Label className={labelClass}>{copy.promotion}</Label>
+          <div className="flex flex-col gap-1">
             <button
               type="button"
-              onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
+              onClick={() => update({ destacados: activeDestacados ? "" : "1" })}
               className={cn(
                 "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
-                activePromo2x1
-                  ? "bg-[var(--brand-primary)] text-white"
-                  : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+                activeDestacados
+                  ? cn(filterOptionSelectedBgClass, "text-[var(--brand-primary)]")
+                  : cn("text-neutral-700", filterOptionHoverClass),
               )}
             >
-              <span>2x1</span>
-              <FilterCount count={counts.promo2x1} active={activePromo2x1} />
+              <span>{copy.featured}</span>
+              <FilterCount count={counts.destacados} active={activeDestacados} />
             </button>
-          ) : null}
+            {showPromo2x1 ? (
+              <button
+                type="button"
+                onClick={() => update({ promo: activePromo2x1 ? "" : "2x1" })}
+                className={cn(
+                  "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+                  activePromo2x1
+                    ? cn(filterOptionSelectedBgClass, "text-[var(--brand-primary)]")
+                    : cn("text-neutral-700", filterOptionHoverClass),
+                )}
+              >
+                <span>2x1</span>
+                <FilterCount count={counts.promo2x1} active={activePromo2x1} />
+              </button>
+            ) : null}
+          </div>
         </div>
-      </div>
+      </StorefrontReveal>
 
       {showAudienceFilter ? (
+        <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+          <div>
+            <Label className={labelClass}>Género</Label>
+            <SlidingOptionGroup
+              activeKey={activeGenero || "__all__"}
+              className="flex flex-col gap-1"
+              pillClassName={slidingFilterPillClass}
+            >
+              <button
+                type="button"
+                onClick={() => selectGenero("")}
+                data-sliding-selected={!activeGenero ? "true" : undefined}
+                className={filterButtonClass(!activeGenero)}
+              >
+                <span>Todo</span>
+                <FilterCount count={counts.genero.all} active={!activeGenero} />
+              </button>
+              {genderOptions.map((audience) => {
+                const count =
+                  audience.slug === "mujer"
+                    ? counts.genero.mujer
+                    : counts.genero.hombre;
+                const isActive = activeGenero === audience.slug;
+
+                return (
+                  <button
+                    key={audience.slug}
+                    type="button"
+                    onClick={() => selectGenero(audience.slug)}
+                    data-sliding-selected={isActive ? "true" : undefined}
+                    className={filterButtonClass(isActive)}
+                  >
+                    <span>{audience.label}</span>
+                    <FilterCount count={count} active={isActive} />
+                  </button>
+                );
+              })}
+            </SlidingOptionGroup>
+          </div>
+        </StorefrontReveal>
+      ) : null}
+
+      <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
         <div>
-          <Label className={labelClass}>Género</Label>
+          <Label className={labelClass}>{copy.category}</Label>
           <SlidingOptionGroup
-            activeKey={activeGenero || "__all__"}
+            activeKey={activeCategory || "__all__"}
             className="flex flex-col gap-1"
-            pillClassName={filterPillClass}
+            pillClassName={slidingFilterPillClass}
           >
             <button
               type="button"
-              onClick={() => selectGenero("")}
-              data-sliding-selected={!activeGenero ? "true" : undefined}
-              className={filterButtonClass(!activeGenero)}
+              onClick={() => update({ ...baseFilterParams(), categoria: "" })}
+              data-sliding-selected={!activeCategory ? "true" : undefined}
+              className={filterButtonClass(!activeCategory)}
             >
-              <span>Todo</span>
-              <FilterCount count={counts.genero.all} active={!activeGenero} />
+              <span>{copy.all}</span>
+              <FilterCount count={counts.categoriaAll} active={!activeCategory} />
             </button>
-            {genderOptions.map((audience) => {
-              const count =
-                audience.slug === "mujer"
-                  ? counts.genero.mujer
-                  : counts.genero.hombre;
-              const isActive = activeGenero === audience.slug;
+
+            {categoryOptions.map((category) => {
+              const isActive = activeCategory === category.slug;
+              const count = counts.categoria[category.slug] ?? 0;
 
               return (
                 <button
-                  key={audience.slug}
+                  key={category.slug}
                   type="button"
-                  onClick={() => selectGenero(audience.slug)}
+                  onClick={() =>
+                    update({ ...baseFilterParams(), categoria: category.slug })
+                  }
                   data-sliding-selected={isActive ? "true" : undefined}
                   className={filterButtonClass(isActive)}
                 >
-                  <span>{audience.label}</span>
+                  <span>{category.label}</span>
                   <FilterCount count={count} active={isActive} />
                 </button>
               );
             })}
           </SlidingOptionGroup>
         </div>
-      ) : null}
-
-      <div>
-        <Label className={labelClass}>{copy.category}</Label>
-        <SlidingOptionGroup
-          activeKey={activeCategory || "__all__"}
-          className="flex flex-col gap-1"
-          pillClassName={filterPillClass}
-        >
-          <button
-            type="button"
-            onClick={() => update({ ...baseFilterParams(), categoria: "" })}
-            data-sliding-selected={!activeCategory ? "true" : undefined}
-            className={filterButtonClass(!activeCategory)}
-          >
-            <span>{copy.all}</span>
-            <FilterCount count={counts.categoriaAll} active={!activeCategory} />
-          </button>
-
-          {categoryOptions.map((category) => {
-            const isActive = activeCategory === category.slug;
-            const count = counts.categoria[category.slug] ?? 0;
-
-            return (
-              <button
-                key={category.slug}
-                type="button"
-                onClick={() =>
-                  update({ ...baseFilterParams(), categoria: category.slug })
-                }
-                data-sliding-selected={isActive ? "true" : undefined}
-                className={filterButtonClass(isActive)}
-              >
-                <span>{category.label}</span>
-                <FilterCount count={count} active={isActive} />
-              </button>
-            );
-          })}
-        </SlidingOptionGroup>
-      </div>
+      </StorefrontReveal>
 
       {sizeOptions.length > 0 ? (
-        <div>
-          <Label className={labelClass}>{sizeLabel}</Label>
-          <SlidingOptionGroup
-            activeKey={activeSize || "__none__"}
-            className="flex flex-wrap gap-2"
-            pillClassName={filterPillClass}
-          >
-            {sizeOptions.map((size) => {
-              const isActive = activeSize === size;
+        <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+          <div>
+            <Label className={labelClass}>{sizeLabel}</Label>
+            <SlidingOptionGroup
+              activeKey={activeSize || "__none__"}
+              className="flex flex-wrap gap-2"
+              pillClassName={slidingFilterPillClass}
+            >
+              {sizeOptions.map((size) => {
+                const isActive = activeSize === size;
 
-              return (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() =>
-                    update({
-                      ...baseFilterParams(),
-                      [sizeParam]: isActive ? "" : size,
-                    })
-                  }
-                  data-sliding-selected={isActive ? "true" : undefined}
-                  className={sizeButtonClass(isActive)}
-                >
-                  <span>{size}</span>
-                  <FilterCount
-                    count={sizeCounts[size] ?? 0}
-                    active={isActive}
-                    compact
-                  />
-                </button>
-              );
-            })}
-          </SlidingOptionGroup>
-        </div>
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() =>
+                      update({
+                        ...baseFilterParams(),
+                        [sizeParam]: isActive ? "" : size,
+                      })
+                    }
+                    data-sliding-selected={isActive ? "true" : undefined}
+                    className={sizeButtonClass(isActive)}
+                  >
+                    <span>{size}</span>
+                    <FilterCount
+                      count={sizeCounts[size] ?? 0}
+                      active={isActive}
+                      compact
+                    />
+                  </button>
+                );
+              })}
+            </SlidingOptionGroup>
+          </div>
+        </StorefrontReveal>
       ) : null}
 
       {isApp2 && variantColorLabel && saborOptions.length > 0 ? (
-        <div>
-          <Label className={labelClass}>{variantColorLabel}</Label>
-          <SlidingOptionGroup
-            activeKey={activeSabor || "__none__"}
-            className="flex flex-wrap gap-2"
-            pillClassName={filterPillClass}
-          >
-            {saborOptions.map((sabor) => {
-              const isActive = activeSabor === sabor;
+        <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+          <div>
+            <Label className={labelClass}>{variantColorLabel}</Label>
+            <SlidingOptionGroup
+              activeKey={activeSabor || "__none__"}
+              className="flex flex-wrap gap-2"
+              pillClassName={slidingFilterPillClass}
+            >
+              {saborOptions.map((sabor) => {
+                const isActive = activeSabor === sabor;
 
-              return (
-                <button
-                  key={sabor}
-                  type="button"
-                  onClick={() =>
-                    update({
-                      ...baseFilterParams(),
-                      sabor: isActive ? "" : sabor,
-                    })
-                  }
-                  data-sliding-selected={isActive ? "true" : undefined}
-                  className={sizeButtonClass(isActive)}
-                >
-                  <span>{sabor}</span>
-                  <FilterCount
-                    count={counts.sabor[sabor] ?? 0}
-                    active={isActive}
-                    compact
-                  />
-                </button>
-              );
-            })}
-          </SlidingOptionGroup>
-        </div>
+                return (
+                  <button
+                    key={sabor}
+                    type="button"
+                    onClick={() =>
+                      update({
+                        ...baseFilterParams(),
+                        sabor: isActive ? "" : sabor,
+                      })
+                    }
+                    data-sliding-selected={isActive ? "true" : undefined}
+                    className={sizeButtonClass(isActive)}
+                  >
+                    <span>{sabor}</span>
+                    <FilterCount
+                      count={counts.sabor[sabor] ?? 0}
+                      active={isActive}
+                      compact
+                    />
+                  </button>
+                );
+              })}
+            </SlidingOptionGroup>
+          </div>
+        </StorefrontReveal>
       ) : null}
 
-      <div>
-        <Label htmlFor={`${idPrefix}precio-max`} className={labelClass}>
-          {copy.maxPrice}
-        </Label>
-        <MenuSelect
-          id={`${idPrefix}precio-max`}
-          aria-label={copy.maxPrice}
-          value={searchParams.get("precioMax") ?? ""}
-          onChange={(precioMax) =>
-            update({
-              ...baseFilterParams(),
-              precioMax,
-            })
-          }
-          options={[
-            { value: "", label: "Sin límite" },
-            ...priceTiers.map((option) => ({
-              value: option.value,
-              label: option.label,
-            })),
-          ]}
-        />
-      </div>
+      <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+        <div>
+          <Label htmlFor={`${idPrefix}precio-max`} className={labelClass}>
+            {copy.maxPrice}
+          </Label>
+          <MenuSelect
+            id={`${idPrefix}precio-max`}
+            aria-label={copy.maxPrice}
+            value={searchParams.get("precioMax") ?? ""}
+            onChange={(precioMax) =>
+              update({
+                ...baseFilterParams(),
+                precioMax,
+              })
+            }
+            options={[
+              { value: "", label: "Sin límite" },
+              ...priceTiers.map((option) => ({
+                value: option.value,
+                label: option.label,
+              })),
+            ]}
+          />
+        </div>
+      </StorefrontReveal>
 
       {hasActiveFilters ? (
-        <button
-          type="button"
-          onClick={() => navigateCatalog(catalogHref())}
-          className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
-        >
-          Limpiar filtros
-        </button>
+        <StorefrontReveal index={nextReveal()} nearStaggerMax={6} delayMs={60}>
+          <button
+            type="button"
+            onClick={() => navigateCatalog(catalogHref())}
+            className="text-sm font-medium text-[var(--brand-primary)] hover:underline"
+          >
+            Limpiar filtros
+          </button>
+        </StorefrontReveal>
       ) : null}
     </Root>
   );

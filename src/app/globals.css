@@ -27,6 +27,20 @@ body {
   border-radius: var(--storefront-card-radius, 0.75rem);
 }
 
+/* Storefront chrome (nav, filters, chips, cards UI) — no accidental text selection.
+   Opt long copy back in with `.storefront-copy` / `select-text`. */
+.storefront-ui {
+  user-select: none;
+}
+
+.storefront-copy {
+  user-select: text;
+}
+
+.storefront-ui :where(input, textarea, select, [contenteditable="true"]),
+.storefront-ui :where(a[href^="mailto:"], a[href^="tel:"]) {
+  user-select: text;
+}
 .sliding-indicator-animate,
 .admin-nav-indicator-animate {
   transition:
@@ -709,6 +723,61 @@ button:not(:disabled),
   animation: cart-drawer-panel-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Catalog mobile filter drawer — smoother than cart, still snappy (~300–340ms). */
+@keyframes catalog-filter-drawer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes catalog-filter-drawer-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes catalog-filter-drawer-panel-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes catalog-filter-drawer-panel-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.catalog-filter-drawer-backdrop-enter {
+  animation: catalog-filter-drawer-backdrop-in 0.28s ease-out both;
+}
+
+.catalog-filter-drawer-backdrop-exit {
+  animation: catalog-filter-drawer-backdrop-out 0.26s ease-in both;
+}
+
+.catalog-filter-drawer-panel-enter {
+  animation: catalog-filter-drawer-panel-in 0.34s cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.catalog-filter-drawer-panel-exit {
+  animation: catalog-filter-drawer-panel-out 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+    both;
+}
+
 @keyframes cart-drawer-body-in {
   from {
     opacity: 0;
@@ -784,6 +853,10 @@ button:not(:disabled),
   .cart-drawer-backdrop,
   .cart-drawer-panel,
   .cart-drawer-body-enter,
+  .catalog-filter-drawer-backdrop-enter,
+  .catalog-filter-drawer-backdrop-exit,
+  .catalog-filter-drawer-panel-enter,
+  .catalog-filter-drawer-panel-exit,
   .checkout-delivery-enter,
   .admin-picker-float-enter,
   .admin-picker-float-exit {

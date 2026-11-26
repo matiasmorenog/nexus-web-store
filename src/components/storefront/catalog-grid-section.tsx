@@ -105,7 +105,13 @@ export function CatalogGridSection({
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:gap-5">
         {visibleProducts.map((product, index) => (
-          <StorefrontReveal key={product.id} index={Math.min(index, 8)}>
+          <StorefrontReveal
+            key={product.id}
+            index={Math.min(index, 8)}
+            nearStaggerMax={8}
+            delayMs={70}
+            className="h-full"
+          >
             {renderCatalogProductCard(catalogVertical, product, promo2x1Active)}
           </StorefrontReveal>
         ))}

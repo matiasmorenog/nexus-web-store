@@ -4,11 +4,15 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ProductFilters } from "@/components/storefront/product-filters";
 import { Button } from "@/components/ui/button";
+import { useExitPresence } from "@/hooks/use-exit-presence";
 import type { CatalogFilterCounts } from "@/lib/catalog-index";
 import type { CatalogPriceTier } from "@/lib/store-verticals/catalog-facets";
 import type { ProductCategoryDef, StoreVertical } from "@/lib/store-verticals/types";
 import { getStorefrontCopy } from "@/lib/storefront-copy";
 import { cn } from "@/lib/utils";
+
+/** Keep in sync with `.catalog-filter-drawer-*-exit` in globals.css */
+const CATALOG_FILTER_DRAWER_EXIT_MS = 320;
 
 type CatalogFilterDrawerProps = {
   counts: CatalogFilterCounts;
@@ -27,6 +31,10 @@ type CatalogFilterDrawerProps = {
 
 export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
   const [open, setOpen] = useState(false);
+  const { present, exiting, animKey } = useExitPresence(
+    open,
+    CATALOG_FILTER_DRAWER_EXIT_MS,
+  );
   const copy = getStorefrontCopy();
   const isApp2 = props.catalogVertical === "app2";
 
@@ -57,7 +65,8 @@ export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
       <button
         type="button"
         className={cn(
-          "inline-flex h-10 items-center gap-2 border px-3 text-sm font-medium lg:hidden",
+          // Match Buscar/Ordenar: rounded-md (not square). Chips stay pill.
+          "inline-flex h-10 items-center gap-2 rounded-md border px-3 text-sm font-medium lg:hidden",
           isApp2
             ? "border-app2 bg-app2-card text-[var(--brand-primary-light)]"
             : "border-neutral-200 bg-white text-neutral-800",
@@ -69,19 +78,25 @@ export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
         <SlidersHorizontal className="h-4 w-4" />
         {copy.filter}
         {props.activeCount > 0 ? (
-          <span className="inline-flex h-5 min-w-5 items-center justify-center bg-[var(--brand-primary)] px-1 text-xs text-white">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-sm bg-[var(--brand-primary)] px-1 text-xs text-white">
             {props.activeCount}
           </span>
         ) : null}
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+      {present ? (
+        <div className="fixed inset-0 z-50 lg:hidden" key={animKey}>
           <button
             type="button"
             aria-label={copy.closeFilters}
-            className="absolute inset-0 bg-neutral-900/40"
+            className={cn(
+              "absolute inset-0 bg-neutral-900/40",
+              exiting
+                ? "catalog-filter-drawer-backdrop-exit pointer-events-none"
+                : "catalog-filter-drawer-backdrop-enter",
+            )}
             onClick={() => setOpen(false)}
+            tabIndex={exiting ? -1 : undefined}
           />
           <aside
             id="catalog-filter-drawer"
@@ -91,6 +106,9 @@ export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
             className={cn(
               "absolute top-0 right-0 flex h-full w-full max-w-sm flex-col shadow-2xl",
               isApp2 ? "bg-app2-card text-[var(--brand-primary-light)]" : "bg-white",
+              exiting
+                ? "catalog-filter-drawer-panel-exit"
+                : "catalog-filter-drawer-panel-enter",
             )}
           >
             <div
@@ -103,8 +121,9 @@ export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
               <button
                 type="button"
                 aria-label={copy.closeFilters}
-                className="rounded p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
                 onClick={() => setOpen(false)}
+                disabled={exiting}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -132,7 +151,12 @@ export function CatalogFilterDrawer(props: CatalogFilterDrawerProps) {
                 isApp2 ? "border-app2" : "border-neutral-200",
               )}
             >
-              <Button type="button" className="w-full" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => setOpen(false)}
+                disabled={exiting}
+              >
                 {copy.viewFilteredProducts(props.resultCount)}
               </Button>
             </div>

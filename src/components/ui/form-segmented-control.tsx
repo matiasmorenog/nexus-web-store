@@ -71,7 +71,7 @@ export function FormSegmentedControl<T extends string>({
         aria-label={ariaLabel}
         className={cn(
           segmentedTrackClassName("card"),
-          "h-10 rounded-md border-neutral-300",
+          "h-10 w-full rounded-md border-neutral-300",
           disabled && "cursor-not-allowed opacity-50",
         )}
       >
@@ -87,13 +87,13 @@ export function FormSegmentedControl<T extends string>({
                 if (!disabled && option.value !== value) onChange(option.value);
               }}
               className={cn(
-                "min-w-0",
+                "min-w-0 flex-1",
                 segmentedItemClassName(active, "md"),
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-1",
                 disabled && "pointer-events-none",
               )}
             >
-              <span className="block truncate">{option.label}</span>
+              <span className="block truncate text-center">{option.label}</span>
             </button>
           );
         })}

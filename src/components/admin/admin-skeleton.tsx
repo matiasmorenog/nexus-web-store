@@ -941,31 +941,23 @@ export function AdminSkeletonModuleCrmDetailPage() {
   );
 }
 
-/** /admin/modulos/coupons */
+/** /admin/modulos/coupons — promo settings + list with create trigger (modal). */
 export function AdminSkeletonModuleCouponsPage() {
   return (
     <AdminSkeletonRegion label="Cargando cupones" className="space-y-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div className="min-w-0 w-full max-w-3xl">
-          <AdminSkeletonModuleFormCard
-            titleWidth="w-32"
-            descriptionWidth="w-56"
-            fields={4}
-          />
-        </div>
-        <div className="w-full shrink-0 lg:w-80">
-          <AdminSkeletonModuleFormCard
-            titleWidth="w-36"
-            descriptionWidth="w-48"
-            fields={1}
-            withToggle
-          />
-        </div>
+      <div className="w-full max-w-sm">
+        <AdminSkeletonModuleFormCard
+          titleWidth="w-36"
+          descriptionWidth="w-48"
+          fields={1}
+          withToggle
+        />
       </div>
       <AdminSkeletonCardShell
         titleWidth="w-24"
         descriptionWidth="w-40"
         padding={false}
+        action={<AdminSkeleton className="h-9 w-32 shrink-0 rounded-md" />}
       >
         <AdminSkeletonTable columns={5} rows={4} />
       </AdminSkeletonCardShell>

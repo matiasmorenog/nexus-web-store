@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
@@ -21,6 +21,7 @@ import { formatPrice } from "@/lib/utils";
 
 type AdminCouponsListProps = {
   coupons: CouponListItem[];
+  action?: ReactNode;
 };
 
 function formatUsage(coupon: CouponListItem) {
@@ -51,7 +52,10 @@ function formatValidity(coupon: CouponListItem) {
   return `Hasta ${formatter.format(new Date(coupon.expiresAt!))}`;
 }
 
-export function AdminCouponsList({ coupons }: AdminCouponsListProps) {
+export function AdminCouponsList({
+  coupons,
+  action,
+}: AdminCouponsListProps) {
   const router = useRouter();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +125,7 @@ export function AdminCouponsList({ coupons }: AdminCouponsListProps) {
 
   if (coupons.length === 0) {
     return (
-      <AdminCard title="Cupones activos">
+      <AdminCard title="Cupones" action={action}>
         <AdminEmptyState>
           <p className="font-medium text-neutral-900">Todavía no hay cupones</p>
           <p className="mt-1 text-sm text-neutral-500">
@@ -133,7 +137,7 @@ export function AdminCouponsList({ coupons }: AdminCouponsListProps) {
   }
 
   return (
-    <AdminCard title="Cupones activos" padding={false}>
+    <AdminCard title="Cupones" action={action} padding={false}>
       {error ? (
         <p className="border-b border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}

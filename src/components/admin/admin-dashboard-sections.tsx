@@ -43,38 +43,39 @@ export async function AdminDashboardAnalyticsSection({
   const analytics = await getAdminDashboardAnalytics(storeId, period);
 
   return (
-    <AdminDashboardReveal
-      index={2}
-      className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]"
-    >
-      <AdminCard
-        title="Actividad de ventas"
-        description={periodLabels.description}
-        className="h-full overflow-visible"
-        action={
-          <Suspense fallback={<AdminSkeletonTabs />}>
-            <AdminActivityPeriodTabs period={period} />
-          </Suspense>
-        }
-      >
-        <AdminActivityChart
-          period={analytics.salesActivity.period}
-          data={analytics.salesActivity.points}
-          totalOrders={analytics.salesActivity.totalOrders}
-          totalRevenue={analytics.salesActivity.totalRevenue}
-          summaryLabel={periodLabels.summary}
-          emptyLabel={periodLabels.empty}
-        />
-      </AdminCard>
+    <div className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <AdminDashboardReveal index={2} className="h-full">
+        <AdminCard
+          title="Actividad de ventas"
+          description={periodLabels.description}
+          className="h-full overflow-visible"
+          action={
+            <Suspense fallback={<AdminSkeletonTabs />}>
+              <AdminActivityPeriodTabs period={period} />
+            </Suspense>
+          }
+        >
+          <AdminActivityChart
+            period={analytics.salesActivity.period}
+            data={analytics.salesActivity.points}
+            totalOrders={analytics.salesActivity.totalOrders}
+            totalRevenue={analytics.salesActivity.totalRevenue}
+            summaryLabel={periodLabels.summary}
+            emptyLabel={periodLabels.empty}
+          />
+        </AdminCard>
+      </AdminDashboardReveal>
 
-      <AdminCard
-        title="Productos más vendidos"
-        description={`Ranking por unidades vendidas (${periodLabels.summary})`}
-        className="h-full"
-      >
-        <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
-      </AdminCard>
-    </AdminDashboardReveal>
+      <AdminDashboardReveal index={3} className="h-full">
+        <AdminCard
+          title="Productos más vendidos"
+          description={`Ranking por unidades vendidas (${periodLabels.summary})`}
+          className="h-full"
+        >
+          <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
+        </AdminCard>
+      </AdminDashboardReveal>
+    </div>
   );
 }
 
@@ -86,7 +87,7 @@ export async function AdminDashboardRecentOrdersSection({
   const recentOrders = await getAdminDashboardRecentOrders(storeId);
 
   return (
-    <AdminDashboardReveal index={3}>
+    <AdminDashboardReveal index={4}>
       <AdminCard
         title="Pedidos recientes"
         padding={false}
@@ -124,40 +125,41 @@ export async function AdminDashboardSections({
         <AdminDashboardAttention attention={attention} />
       </AdminDashboardReveal>
 
-      <AdminDashboardReveal
-        index={2}
-        className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]"
-      >
-        <AdminCard
-          title="Actividad de ventas"
-          description={periodLabels.description}
-          className="h-full overflow-visible"
-          action={
-            <Suspense fallback={<AdminSkeletonTabs />}>
-              <AdminActivityPeriodTabs period={period} />
-            </Suspense>
-          }
-        >
-          <AdminActivityChart
-            period={analytics.salesActivity.period}
-            data={analytics.salesActivity.points}
-            totalOrders={analytics.salesActivity.totalOrders}
-            totalRevenue={analytics.salesActivity.totalRevenue}
-            summaryLabel={periodLabels.summary}
-            emptyLabel={periodLabels.empty}
-          />
-        </AdminCard>
+      <div className="mb-8 grid items-stretch gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <AdminDashboardReveal index={2} className="h-full">
+          <AdminCard
+            title="Actividad de ventas"
+            description={periodLabels.description}
+            className="h-full overflow-visible"
+            action={
+              <Suspense fallback={<AdminSkeletonTabs />}>
+                <AdminActivityPeriodTabs period={period} />
+              </Suspense>
+            }
+          >
+            <AdminActivityChart
+              period={analytics.salesActivity.period}
+              data={analytics.salesActivity.points}
+              totalOrders={analytics.salesActivity.totalOrders}
+              totalRevenue={analytics.salesActivity.totalRevenue}
+              summaryLabel={periodLabels.summary}
+              emptyLabel={periodLabels.empty}
+            />
+          </AdminCard>
+        </AdminDashboardReveal>
 
-        <AdminCard
-          title="Productos más vendidos"
-          description={`Ranking por unidades vendidas (${periodLabels.summary})`}
-          className="h-full"
-        >
-          <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
-        </AdminCard>
-      </AdminDashboardReveal>
+        <AdminDashboardReveal index={3} className="h-full">
+          <AdminCard
+            title="Productos más vendidos"
+            description={`Ranking por unidades vendidas (${periodLabels.summary})`}
+            className="h-full"
+          >
+            <AdminTopProducts products={analytics.topProducts.slice(0, 5)} />
+          </AdminCard>
+        </AdminDashboardReveal>
+      </div>
 
-      <AdminDashboardReveal index={3}>
+      <AdminDashboardReveal index={4}>
         <AdminCard
           title="Pedidos recientes"
           padding={false}

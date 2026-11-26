@@ -401,7 +401,7 @@ button:not(:disabled),
 }
 
 .admin-dashboard-reveal-enter {
-  animation: admin-dashboard-reveal-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: admin-dashboard-reveal-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes admin-stat-land {

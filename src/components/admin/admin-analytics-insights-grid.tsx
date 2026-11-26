@@ -1,5 +1,6 @@
 import { AdminAnalyticsFunnel } from "@/components/admin/admin-analytics-funnel";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import {
   AdminCardSection,
   AdminDetailField,
@@ -25,30 +26,34 @@ export function AdminAnalyticsInsightsGrid({
 }: AdminAnalyticsInsightsGridProps) {
   return (
     <div className="grid items-stretch gap-6 lg:grid-cols-2">
-      <AdminAnalyticsFunnel metrics={metrics} className="h-full" />
+      <AdminDashboardReveal index={0} className="h-full">
+        <AdminAnalyticsFunnel metrics={metrics} className="h-full" />
+      </AdminDashboardReveal>
 
-      <AdminCard
-        title="Clientes del período"
-        description="Compradores únicos con al menos un pedido pagado."
-        className="h-full"
-      >
-        <AdminCardSection>
-          <AdminDetailGrid>
-            <AdminDetailField label="Clientes únicos">
-              {cohort.uniqueCustomers}
-            </AdminDetailField>
-            <AdminDetailField label="Nuevos">
-              {cohort.newCustomers}
-            </AdminDetailField>
-            <AdminDetailField label="Recurrentes">
-              {cohort.returningCustomers}
-            </AdminDetailField>
-            <AdminDetailField label="Tasa de recompra">
-              {formatRate(cohort.repeatRate)}
-            </AdminDetailField>
-          </AdminDetailGrid>
-        </AdminCardSection>
-      </AdminCard>
+      <AdminDashboardReveal index={1} className="h-full">
+        <AdminCard
+          title="Clientes del período"
+          description="Compradores únicos con al menos un pedido pagado."
+          className="h-full"
+        >
+          <AdminCardSection>
+            <AdminDetailGrid>
+              <AdminDetailField label="Clientes únicos">
+                {cohort.uniqueCustomers}
+              </AdminDetailField>
+              <AdminDetailField label="Nuevos">
+                {cohort.newCustomers}
+              </AdminDetailField>
+              <AdminDetailField label="Recurrentes">
+                {cohort.returningCustomers}
+              </AdminDetailField>
+              <AdminDetailField label="Tasa de recompra">
+                {formatRate(cohort.repeatRate)}
+              </AdminDetailField>
+            </AdminDetailGrid>
+          </AdminCardSection>
+        </AdminCard>
+      </AdminDashboardReveal>
     </div>
   );
 }

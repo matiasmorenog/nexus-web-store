@@ -84,8 +84,9 @@ Diferencia **editor self-serve** vs **diseño Nexus** (laburo humano). No son lo
 **Estado de implementación (hoy):**
 
 - Grow/Pro: módulo `homeEditor` en código (admin puede estar apagado / en polish).
-- Start “hero only”: oferta comercial acordada; **pendiente** subset del editor (hoy Start no tiene `homeEditor`).
+- Start “hero only”: `homeEditor` en Start con caps (`maxHeroSlides: 1`, sin otras secciones).
 - Perks de diseño Pro: copy en pantalla Plan; entrega operativa vía WhatsApp / proceso Nexus (no hay módulo de gating).
+- **Manoviva:** comercialmente Grow; código hoy = subset `marketing`+`seo` + menú Plan oculto (UX). Pendiente flag `easyMode` — no ampliar módulos en PRs ajenos.
 
 ---
 
@@ -115,7 +116,7 @@ ENABLED_MODULES=marketing,seo,coupons,homeEditor
 |-----------------|------|-------------------|-----|
 | `goat-indumentaria` | `demo-store` | omitido / vacío | Demo full (Pro). Ve Plan y módulos |
 | `vaporx-store` | `vape-demo` | `none` | Beta núcleo. Ve Plan y módulos |
-| `manoviva-store` | `manoviva-italia` | ignorado | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto |
+| `manoviva-store` | `manoviva-italia` | ignorado | **Grow** comercial; hoy subset fijo `marketing`,`seo` + sin Plan (UX). Futuro: flag `easyMode`. No tocar en PRs casuales |
 
 **Regla:** los módulos no se restringen por vertical. Gating = `storeHasModule()`.
 

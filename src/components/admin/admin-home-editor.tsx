@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { HomeEditorCapabilities } from "@/lib/home-content/capabilities";
 import {
   HOME_CONTENT_VERSION,
   type HomeContentPayload,
@@ -37,6 +38,7 @@ const SECTION_LABELS: Record<HomeSectionType, string> = {
 type AdminHomeEditorProps = {
   initialPayload: HomeContentPayload;
   vertical: "app1" | "app2" | "app3";
+  capabilities: HomeEditorCapabilities;
 };
 
 function TextField({
@@ -73,9 +75,11 @@ function TextField({
 function SectionFields({
   section,
   onChange,
+  capabilities,
 }: {
   section: HomeSection;
   onChange: (section: HomeSection) => void;
+  capabilities: HomeEditorCapabilities;
 }) {
   switch (section.type) {
     case "hero.static":
@@ -237,39 +241,59 @@ function SectionFields({
         </AdminFormGrid>
       );
 
-    case "hero.carousel":
+    case "hero.carousel": {
+      const slides = section.content.slides.slice(0, capabilities.maxHeroSlides);
+      const singleHero = capabilities.maxHeroSlides === 1;
       return (
         <div className="space-y-6">
-          <div>
-            <Label htmlFor={`${section.id}-autoplay`}>Autoplay (ms)</Label>
-            <Input
-              id={`${section.id}-autoplay`}
-              type="number"
-              min={2000}
-              max={30000}
-              value={section.content.autoplayMs}
-              onChange={(event) =>
-                onChange({
-                  ...section,
-                  content: {
-                    ...section.content,
-                    autoplayMs: Number(event.target.value) || 4000,
-                  },
-                })
+          {capabilities.canEditHeroAutoplay ? (
+            <div>
+              <Label htmlFor={`${section.id}-autoplay`}>Autoplay (ms)</Label>
+              <Input
+                id={`${section.id}-autoplay`}
+                type="number"
+                min={2000}
+                max={30000}
+                value={section.content.autoplayMs}
+                onChange={(event) =>
+                  onChange({
+                    ...section,
+                    content: {
+                      ...section.content,
+                      autoplayMs: Number(event.target.value) || 4000,
+                    },
+                  })
+                }
+              />
+            </div>
+          ) : null}
+          {slides.map((slide, slideIndex) => (
+            <AdminCard
+              key={slide.id}
+              title={
+                singleHero
+                  ? "Hero"
+                  : `Slide ${slideIndex + 1}: ${slide.label}`
               }
-            />
-          </div>
-          {section.content.slides.map((slide, slideIndex) => (
-            <AdminCard key={slide.id} title={`Slide ${slideIndex + 1}: ${slide.label}`}>
+            >
               <AdminFormGrid>
                 <TextField
                   id={`${slide.id}-image`}
                   label="Imagen (URL)"
                   value={slide.imageUrl}
                   onChange={(imageUrl) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = { ...slides[slideIndex], imageUrl };
-                    onChange({ ...section, content: { ...section.content, slides } });
+                    const nextSlides = [...section.content.slides];
+                    nextSlides[slideIndex] = {
+                      ...nextSlides[slideIndex],
+                      imageUrl,
+                    };
+                    onChange({
+                      ...section,
+                      content: {
+                        ...section.content,
+                        slides: nextSlides.slice(0, capabilities.maxHeroSlides),
+                      },
+                    });
                   }}
                 />
                 <TextField
@@ -277,9 +301,18 @@ function SectionFields({
                   label="Eyebrow"
                   value={slide.eyebrow}
                   onChange={(eyebrow) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = { ...slides[slideIndex], eyebrow };
-                    onChange({ ...section, content: { ...section.content, slides } });
+                    const nextSlides = [...section.content.slides];
+                    nextSlides[slideIndex] = {
+                      ...nextSlides[slideIndex],
+                      eyebrow,
+                    };
+                    onChange({
+                      ...section,
+                      content: {
+                        ...section.content,
+                        slides: nextSlides.slice(0, capabilities.maxHeroSlides),
+                      },
+                    });
                   }}
                 />
                 <TextField
@@ -287,34 +320,66 @@ function SectionFields({
                   label="Título"
                   value={slide.title}
                   onChange={(title) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = { ...slides[slideIndex], title };
-                    onChange({ ...section, content: { ...section.content, slides } });
-                  }}
-                />
-                <TextField
-                  id={`${slide.id}-emphasis`}
-                  label="Énfasis (opcional)"
-                  value={slide.titleEmphasis ?? ""}
-                  onChange={(titleEmphasis) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = {
-                      ...slides[slideIndex],
-                      titleEmphasis: titleEmphasis || undefined,
+                    const nextSlides = [...section.content.slides];
+                    nextSlides[slideIndex] = {
+                      ...nextSlides[slideIndex],
+                      title,
                     };
-                    onChange({ ...section, content: { ...section.content, slides } });
+                    onChange({
+                      ...section,
+                      content: {
+                        ...section.content,
+                        slides: nextSlides.slice(0, capabilities.maxHeroSlides),
+                      },
+                    });
                   }}
                 />
+                {!singleHero ? (
+                  <TextField
+                    id={`${slide.id}-emphasis`}
+                    label="Énfasis (opcional)"
+                    value={slide.titleEmphasis ?? ""}
+                    onChange={(titleEmphasis) => {
+                      const nextSlides = [...section.content.slides];
+                      nextSlides[slideIndex] = {
+                        ...nextSlides[slideIndex],
+                        titleEmphasis: titleEmphasis || undefined,
+                      };
+                      onChange({
+                        ...section,
+                        content: {
+                          ...section.content,
+                          slides: nextSlides.slice(
+                            0,
+                            capabilities.maxHeroSlides,
+                          ),
+                        },
+                      });
+                    }}
+                  />
+                ) : null}
                 <div className="sm:col-span-2">
                   <TextField
                     id={`${slide.id}-desc`}
-                    label="Descripción"
+                    label="Subtítulo / descripción"
                     value={slide.description}
                     multiline
                     onChange={(description) => {
-                      const slides = [...section.content.slides];
-                      slides[slideIndex] = { ...slides[slideIndex], description };
-                      onChange({ ...section, content: { ...section.content, slides } });
+                      const nextSlides = [...section.content.slides];
+                      nextSlides[slideIndex] = {
+                        ...nextSlides[slideIndex],
+                        description,
+                      };
+                      onChange({
+                        ...section,
+                        content: {
+                          ...section.content,
+                          slides: nextSlides.slice(
+                            0,
+                            capabilities.maxHeroSlides,
+                          ),
+                        },
+                      });
                     }}
                   />
                 </div>
@@ -323,12 +388,18 @@ function SectionFields({
                   label="CTA — texto"
                   value={slide.cta.label}
                   onChange={(label) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = {
-                      ...slides[slideIndex],
-                      cta: { ...slides[slideIndex].cta, label },
+                    const nextSlides = [...section.content.slides];
+                    nextSlides[slideIndex] = {
+                      ...nextSlides[slideIndex],
+                      cta: { ...nextSlides[slideIndex].cta, label },
                     };
-                    onChange({ ...section, content: { ...section.content, slides } });
+                    onChange({
+                      ...section,
+                      content: {
+                        ...section.content,
+                        slides: nextSlides.slice(0, capabilities.maxHeroSlides),
+                      },
+                    });
                   }}
                 />
                 <TextField
@@ -336,12 +407,18 @@ function SectionFields({
                   label="CTA — link"
                   value={slide.cta.href}
                   onChange={(href) => {
-                    const slides = [...section.content.slides];
-                    slides[slideIndex] = {
-                      ...slides[slideIndex],
-                      cta: { ...slides[slideIndex].cta, href },
+                    const nextSlides = [...section.content.slides];
+                    nextSlides[slideIndex] = {
+                      ...nextSlides[slideIndex],
+                      cta: { ...nextSlides[slideIndex].cta, href },
                     };
-                    onChange({ ...section, content: { ...section.content, slides } });
+                    onChange({
+                      ...section,
+                      content: {
+                        ...section.content,
+                        slides: nextSlides.slice(0, capabilities.maxHeroSlides),
+                      },
+                    });
                   }}
                 />
               </AdminFormGrid>
@@ -349,6 +426,7 @@ function SectionFields({
           ))}
         </div>
       );
+    }
 
     case "features.bar":
       return (
@@ -591,29 +669,34 @@ function SectionFields({
   }
 }
 
-export function AdminHomeEditor({ initialPayload, vertical }: AdminHomeEditorProps) {
+export function AdminHomeEditor({
+  initialPayload,
+  vertical,
+  capabilities,
+}: AdminHomeEditorProps) {
   const router = useRouter();
   const [payload, setPayload] = useState(initialPayload);
-  const [openSectionId, setOpenSectionId] = useState<string | null>(
-    initialPayload.sections[0]?.id ?? null,
-  );
+  const heroOnly = !capabilities.canEditNonHeroSections;
+  const [openSectionId, setOpenSectionId] = useState<string | null>(() => {
+    const sorted = sortHomeSections(initialPayload.sections);
+    const hero = sorted.find(
+      (section) =>
+        section.type === "hero.carousel" || section.type === "hero.static",
+    );
+    return hero?.id ?? sorted[0]?.id ?? null;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const sections = useMemo(
-    () => sortHomeSections(payload.sections),
-    [payload.sections],
-  );
-
-  const updateSection = (index: number, section: HomeSection) => {
-    setPayload((current) => {
-      const next = [...current.sections];
-      next[index] = section;
-      return { ...current, sections: next };
-    });
-    setSaved(false);
-  };
+  const sections = useMemo(() => {
+    const sorted = sortHomeSections(payload.sections);
+    if (!heroOnly) return sorted;
+    return sorted.filter(
+      (section) =>
+        section.type === "hero.carousel" || section.type === "hero.static",
+    );
+  }, [payload.sections, heroOnly]);
 
   const moveSection = (index: number, direction: -1 | 1) => {
     const target = index + direction;
@@ -665,14 +748,35 @@ export function AdminHomeEditor({ initialPayload, vertical }: AdminHomeEditorPro
     }
   };
 
+  const updateSectionById = (sectionId: string, section: HomeSection) => {
+    setPayload((current) => {
+      const next = current.sections.map((item) =>
+        item.id === sectionId ? section : item,
+      );
+      return { ...current, sections: next };
+    });
+    setSaved(false);
+  };
+
   return (
     <div className="space-y-4">
       <AdminCard>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-600">
-            Editá bloques de la home para la tienda{" "}
-            <span className="font-medium text-neutral-900">{vertical}</span>. Los
-            productos destacados siguen saliendo del catálogo (`featured` en admin).
+            {heroOnly ? (
+              <>
+                Plan <span className="font-medium text-neutral-900">Start</span>
+                : editá el hero (imagen, título, subtítulo y CTA). El resto de la
+                home usa el layout por defecto.
+              </>
+            ) : (
+              <>
+                Editá bloques de la home para la tienda{" "}
+                <span className="font-medium text-neutral-900">{vertical}</span>.
+                Los productos destacados siguen saliendo del catálogo (`featured`
+                en admin).
+              </>
+            )}
           </p>
           <Link
             href="/"
@@ -686,49 +790,62 @@ export function AdminHomeEditor({ initialPayload, vertical }: AdminHomeEditorPro
 
       {sections.map((section, index) => {
         const isOpen = openSectionId === section.id;
+        const sectionLabel =
+          heroOnly &&
+          (section.type === "hero.carousel" || section.type === "hero.static")
+            ? "Hero editable"
+            : SECTION_LABELS[section.type];
 
         return (
           <AdminCard key={section.id} padding={false}>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6">
               <div className="min-w-0">
-                <p className="font-semibold text-neutral-900">
-                  {SECTION_LABELS[section.type]}
-                </p>
-                <p className="text-xs text-neutral-500">Orden {section.order}</p>
+                <p className="font-semibold text-neutral-900">{sectionLabel}</p>
+                {!heroOnly ? (
+                  <p className="text-xs text-neutral-500">
+                    Orden {section.order}
+                  </p>
+                ) : null}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
-                  <Switch
-                    checked={section.enabled}
-                    onChange={(event) =>
-                      updateSection(index, {
-                        ...section,
-                        enabled: event.target.checked,
-                      })
-                    }
-                  />
-                  Visible
-                </label>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={index === 0}
-                  onClick={() => moveSection(index, -1)}
-                  aria-label="Subir sección"
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={index === sections.length - 1}
-                  onClick={() => moveSection(index, 1)}
-                  aria-label="Bajar sección"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
+                {capabilities.canToggleSectionVisibility ? (
+                  <label className="flex cursor-pointer items-center gap-2.5 text-sm text-neutral-700">
+                    <Switch
+                      checked={section.enabled}
+                      onChange={(event) =>
+                        updateSectionById(section.id, {
+                          ...section,
+                          enabled: event.target.checked,
+                        })
+                      }
+                    />
+                    Visible
+                  </label>
+                ) : null}
+                {capabilities.canReorderSections ? (
+                  <>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={index === 0}
+                      onClick={() => moveSection(index, -1)}
+                      aria-label="Subir sección"
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={index === sections.length - 1}
+                      onClick={() => moveSection(index, 1)}
+                      aria-label="Bajar sección"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : null}
                 <Button
                   type="button"
                   size="sm"
@@ -746,7 +863,8 @@ export function AdminHomeEditor({ initialPayload, vertical }: AdminHomeEditorPro
               <div className="p-4 sm:p-6">
                 <SectionFields
                   section={section}
-                  onChange={(next) => updateSection(index, next)}
+                  capabilities={capabilities}
+                  onChange={(next) => updateSectionById(section.id, next)}
                 />
               </div>
             ) : null}

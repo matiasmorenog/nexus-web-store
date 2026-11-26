@@ -29,6 +29,7 @@ export async function FeaturedProductsSection() {
           price={product.price}
           inStock={product.inStock}
           promo2x1={promo2x1Active && product.promo2x1}
+          colorCount={product.colorCount}
         />
       ))}
     </div>

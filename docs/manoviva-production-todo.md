@@ -7,7 +7,7 @@ Tienda real en producción (`manoviva-store`, slug `manoviva-italia`, Neon `main
 - Checkout con retiro, transferencia (descuento opcional), efectivo opcional y WhatsApp.
 - Páginas Consegne / Condizioni / Resi con contenido real.
 - Owner `morenor127@gmail.com`. Contraseña **nunca** en el repo; reset por admin o seed one-off con env (`APP3_STORE_OWNER_PASSWORD` / `MANOVIVA_OWNER_PASSWORD`). Si una contraseña llegó a un commit: rotarla y actualizar el hash.
-- Plan Start fijo (`marketing`, `seo`); menú Plan y módulos oculto.
+- Plan **Grow** comercial; hoy subset UX (`marketing`/`seo`, sin menú Plan; home custom). Futuro: flag `easyMode` — no ampliar módulos en PRs ajenos.
 
 ## Comportamiento a tener en cuenta
 

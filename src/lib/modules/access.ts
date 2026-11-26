@@ -1,11 +1,6 @@
 import { getActiveStoreSlug } from "@/lib/store-env";
 import { APP3_STORE_SLUG } from "@/lib/store-slugs";
-import {
-  isModuleId,
-  MODULE_IDS,
-  PLAN_TIERS,
-  type ModuleId,
-} from "@/lib/modules/catalog";
+import { isModuleId, MODULE_IDS, type ModuleId } from "@/lib/modules/catalog";
 import {
   ADMIN_PLAN_PATH,
   moduleAdminPath,
@@ -15,7 +10,11 @@ import { MODULE_REQUIRED_ERROR_CODE } from "@/lib/modules/types";
 
 export { ADMIN_PLAN_PATH, moduleAdminPath, moduleUpgradeHref };
 
-/** Manoviva no muestra el catálogo de planes. Queda fija en Start. */
+/**
+ * Manoviva: sin pantalla Plan (no upsell). Comercialmente es Grow; el admin
+ * hoy usa un subset reducido (UX amigable). Futuro: flag `easyMode` en vez de
+ * hardcode.
+ */
 export function storeHidesPlanCatalog(
   slug: string = getActiveStoreSlug(),
 ): boolean {
@@ -29,8 +28,14 @@ export function storeHidesMercadoPago(
   return slug === APP3_STORE_SLUG;
 }
 
-function startPlanModuleIds(): Set<ModuleId> {
-  return new Set(PLAN_TIERS.start.moduleIds);
+/**
+ * Frozen Manoviva module set — do not expand in casual PRs.
+ * Commercial plan = Grow; this list is UX simplification until `easyMode`.
+ */
+const MANOVIVA_MODULE_IDS: ModuleId[] = ["marketing", "seo"];
+
+function manovivaModuleIds(): Set<ModuleId> {
+  return new Set(MANOVIVA_MODULE_IDS);
 }
 
 /** Override por env. Vacío = todos activos (demo). `none` = solo plan base. */
@@ -68,7 +73,7 @@ export async function getEnabledModulesForStore(
 ): Promise<Set<ModuleId>> {
   void _storeId;
   if (storeHidesPlanCatalog()) {
-    return startPlanModuleIds();
+    return manovivaModuleIds();
   }
   return parseEnabledModulesFromEnv();
 }

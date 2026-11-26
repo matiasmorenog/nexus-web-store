@@ -3,6 +3,7 @@ import Link from "next/link";
 import { app2ButtonClassName } from "@/themes/app2/components/app2-button";
 import { Star } from "lucide-react";
 import type { StorefrontProductCard } from "@/lib/storefront-products-query";
+import { getStorefrontCopy } from "@/lib/storefront-copy";
 import { formatPrice, cn } from "@/lib/utils";
 
 export type App2ProductCardData = StorefrontProductCard & {
@@ -60,6 +61,8 @@ export function App2ProductCard(props: App2ProductCardProps) {
   const badge = badgeOverride !== undefined ? badgeOverride : resolved.label;
   const badgeClass = badgeClassName ?? resolved.className;
   const hasHoverImage = Boolean(inStock && hoverImageUrl && hoverImageUrl !== imageUrl);
+  const copy = getStorefrontCopy();
+  const showColorCount = (props.colorCount ?? 0) >= 2;
 
   return (
     <article className="storefront-card group overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_30%,transparent)]">
@@ -131,6 +134,11 @@ export function App2ProductCard(props: App2ProductCardProps) {
         <h3 className="mb-2 truncate text-sm font-semibold leading-tight text-[var(--brand-primary-light,#f0f0f5)]">
           {name}
         </h3>
+        {showColorCount ? (
+          <p className="mb-2 text-xs text-app2-muted">
+            {copy.colorCount(props.colorCount)}
+          </p>
+        ) : null}
         <div className="mb-3 flex items-center gap-1.5">
           <StarRating />
         </div>

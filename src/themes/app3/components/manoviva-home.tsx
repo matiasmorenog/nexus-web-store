@@ -64,6 +64,7 @@ async function ManovivaFeaturedProducts() {
               hoverImageUrl={product.hoverImageUrl}
               price={product.price}
               inStock={product.inStock}
+              colorCount={product.colorCount}
             />
           ))}
         </div>

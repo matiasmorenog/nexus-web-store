@@ -12,7 +12,7 @@ Operación día a día: [`DEPLOY.md`](../DEPLOY.md). Cache y rutas: [`caching-an
 |-----------------|------|-----|-------------------|----------------------------|
 | `goat-indumentaria` | `demo-store` | https://goat-indumentaria.vercel.app | app1 | omitido → todos (demo full) |
 | `vaporx-store` | `vape-demo` | https://vaporx-store.vercel.app | app2 | `none` → plan base (activar módulos por env) |
-| `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | Start fijo (`marketing`, `seo`). Menú Plan y módulos oculto. Tienda real en producción (ver [`manoviva-production-todo.md`](manoviva-production-todo.md)) |
+| `manoviva-store` | `manoviva-italia` | https://manoviva-store.vercel.app | app3 | **Grow** comercial; subset UX hoy (`marketing`/`seo`, sin Plan). Futuro `easyMode`. Ver [`manoviva-production-todo.md`](manoviva-production-todo.md) |
 
 App2 usa `vaporx-store` (no `vape-store`): `vape-store.vercel.app` pertenece a otro proyecto ajeno. Ver nota en [`DEPLOY.md`](../DEPLOY.md).
 

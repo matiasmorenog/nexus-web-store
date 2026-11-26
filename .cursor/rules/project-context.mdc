@@ -29,7 +29,7 @@ Next.js 16 App Router, TypeScript, Tailwind 4, Prisma 6 + PostgreSQL, NextAuth v
 - Env cliente: `NEXT_PUBLIC_DEFAULT_STORE_SLUG` (mismo valor que `DEFAULT_STORE_SLUG`).
 - **No usar** `STORE_VERTICAL` ni `APP2_STOREFRONT_MODE` (obsoletos).
 - Dev local: `npm run dev:app1` / `dev:app2` / `dev:app3` / `dev:both` (`scripts/dev-store.sh`).
-- **Módulos Plus:** gating por `ENABLED_MODULES` por deploy; app1 demo = todos activos, app2 = plan base (`none`), Manoviva = Start fijo. Ver `modules-gating.mdc`.
+- **Módulos Plus:** gating por `ENABLED_MODULES` por deploy; app1 demo = todos activos, app2 = plan base (`none`), Manoviva = Grow comercial con subset UX (`marketing`/`seo`, sin Plan; futuro `easyMode`). Ver `modules-gating.mdc`.
 
 ## Archivos clave
 

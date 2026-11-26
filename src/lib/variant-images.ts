@@ -24,14 +24,23 @@ export function getUniqueProductColors(
   const colors: string[] = [];
 
   for (const variant of variants) {
-    const key = normalizeVariantColor(variant.color);
+    const trimmed = variant.color.trim();
+    if (!trimmed) continue;
+    const key = normalizeVariantColor(trimmed);
     if (!seen.has(key)) {
       seen.add(key);
-      colors.push(variant.color);
+      colors.push(trimmed);
     }
   }
 
   return colors.sort((a, b) => a.localeCompare(b, "es"));
+}
+
+/** Distinct non-empty colors on the product (all variants). */
+export function countDistinctVariantColors(
+  variants: { color: string }[],
+): number {
+  return getUniqueProductColors(variants).length;
 }
 
 type ProductCardVariant = {

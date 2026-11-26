@@ -17,13 +17,12 @@ import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 
-/** Soft selected pill — lighter than hover so selected stays calm. */
+/** Soft selected pill — calm brand tint. */
 const filterPillClass =
   "rounded-lg bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)]";
 
-/** Unselected hover — a bit more brand than the soft selected fill. */
-const filterHoverClass =
-  "hover:bg-[color-mix(in_srgb,var(--brand-primary)_24%,white)] hover:text-[var(--brand-primary)]";
+/** Unselected hover — neutral, not pink. */
+const filterHoverClass = "hover:bg-neutral-100 hover:text-neutral-900";
 
 function filterButtonClass(active: boolean) {
   return cn(
@@ -39,7 +38,7 @@ function sizeButtonClass(active: boolean) {
     "relative z-[1] flex min-w-[2.5rem] select-none flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
       ? "border-[var(--brand-primary)]/35 text-[var(--brand-primary)]"
-      : "border-neutral-200 hover:border-[var(--brand-primary)]/50 hover:bg-[color-mix(in_srgb,var(--brand-primary)_24%,white)] hover:text-[var(--brand-primary)]",
+      : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50 hover:text-neutral-900",
   );
 }
 

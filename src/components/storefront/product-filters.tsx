@@ -17,14 +17,20 @@ import { getStorefrontCopy } from "@/lib/storefront-copy";
 
 const APP1_SIZES = ["XS", "S", "M", "L", "XL"];
 
-const filterPillClass = "rounded-lg bg-[var(--brand-primary)]";
+/** Soft selected pill — lighter than hover so selected stays calm. */
+const filterPillClass =
+  "rounded-lg bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)]";
+
+/** Unselected hover — a bit more brand than the soft selected fill. */
+const filterHoverClass =
+  "hover:bg-[color-mix(in_srgb,var(--brand-primary)_24%,white)] hover:text-[var(--brand-primary)]";
 
 function filterButtonClass(active: boolean) {
   return cn(
     "relative z-[1] flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
     active
-      ? "text-white"
-      : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+      ? "text-[var(--brand-primary)]"
+      : cn("text-neutral-700", filterHoverClass),
   );
 }
 
@@ -32,8 +38,8 @@ function sizeButtonClass(active: boolean) {
   return cn(
     "relative z-[1] flex min-w-[2.5rem] select-none flex-col items-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
     active
-      ? "border-[var(--brand-primary)] text-white"
-      : "border-neutral-200 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]",
+      ? "border-[var(--brand-primary)]/35 text-[var(--brand-primary)]"
+      : "border-neutral-200 hover:border-[var(--brand-primary)]/50 hover:bg-[color-mix(in_srgb,var(--brand-primary)_24%,white)] hover:text-[var(--brand-primary)]",
   );
 }
 
@@ -51,7 +57,7 @@ function FilterCount({
       className={cn(
         "shrink-0 tabular-nums",
         compact ? "text-[10px] leading-none" : "text-xs",
-        active ? "text-white/75" : "text-neutral-400",
+        active ? "text-[var(--brand-primary)]/65" : "text-neutral-400",
       )}
     >
       {count}
@@ -195,8 +201,8 @@ export function ProductFilters({
               className={cn(
                 "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
                 activeDestacados
-                  ? "bg-[var(--brand-primary)] text-white"
-                  : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+                  ? "bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)] text-[var(--brand-primary)]"
+                  : cn("text-neutral-700", filterHoverClass),
               )}
             >
               <span>{copy.featured}</span>
@@ -209,8 +215,8 @@ export function ProductFilters({
                 className={cn(
                   "flex w-full select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
                   activePromo2x1
-                    ? "bg-[var(--brand-primary)] text-white"
-                    : "text-neutral-700 hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-primary)]",
+                    ? "bg-[color-mix(in_srgb,var(--brand-primary)_14%,white)] text-[var(--brand-primary)]"
+                    : cn("text-neutral-700", filterHoverClass),
                 )}
               >
                 <span>2x1</span>

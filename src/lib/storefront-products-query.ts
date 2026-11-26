@@ -1,7 +1,11 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
-import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
+import {
+  countDistinctVariantColors,
+  getProductCardImages,
+  partitionVariantsForCard,
+} from "@/lib/variant-images";
 
 export const STOREFRONT_PRODUCTS_CACHE_TAG = "storefront-products";
 
@@ -17,6 +21,7 @@ export type StorefrontProductCard = {
   hoverImageUrl?: string;
   price: number;
   inStock: boolean;
+  colorCount: number;
 };
 
 type GetStorefrontProductsOptions = {
@@ -65,6 +70,7 @@ const getCachedStorefrontProducts = (
           hoverImageUrl: cardImages.hoverImageUrl,
           price: cardImages.price,
           inStock,
+          colorCount: countDistinctVariantColors(product.variants),
         };
       });
     },

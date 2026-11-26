@@ -36,6 +36,7 @@ export function renderCatalogProductCard(
       price={product.price}
       inStock={product.inStock}
       promo2x1={showPromo2x1}
+      colorCount={product.colorCount}
     />
   );
 }

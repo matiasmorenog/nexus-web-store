@@ -1,7 +1,11 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { STOREFRONT_CATALOG_REVALIDATE_SECONDS } from "@/lib/cache-ttl";
 import { db } from "@/lib/db";
-import { getProductCardImages, partitionVariantsForCard } from "@/lib/variant-images";
+import {
+  countDistinctVariantColors,
+  getProductCardImages,
+  partitionVariantsForCard,
+} from "@/lib/variant-images";
 
 export const FEATURED_PRODUCTS_CACHE_TAG = "featured-products";
 
@@ -16,6 +20,7 @@ export type FeaturedProductCard = {
   hoverImageUrl?: string;
   price: number;
   inStock: boolean;
+  colorCount: number;
 };
 
 const getCachedFeaturedProducts = (storeId: string) =>
@@ -49,6 +54,7 @@ const getCachedFeaturedProducts = (storeId: string) =>
           hoverImageUrl: cardImages.hoverImageUrl,
           price: cardImages.price,
           inStock,
+          colorCount: countDistinctVariantColors(product.variants),
         };
       });
     },

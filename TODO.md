@@ -44,6 +44,7 @@ Backlog único del proyecto (reemplaza Linear). Marcar `[x]` al mergear a `devel
 - [x] Goat demo seed completo (`db:seed:demo-goat`) + refresh liviano de fechas (`db:refresh:demo-goat`); solo Neon development / `demo-store`. Tráfico Vercel no seedeable.
 - [ ] Start: hero editable solo (imagen + título + subtítulo + CTA); hoy `homeEditor` es Grow/Pro completo — ver oferta en `docs/modules-pricing.md`.
 - [ ] Grow: pulir home editor (slider actual; más opciones de hero después).
+- [ ] Manoviva: flag `easyMode` (UI simplificada) en vez de subset hardcode; comercialmente ya es Grow.
 
 ## Hecho (referencia)
 

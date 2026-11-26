@@ -59,9 +59,9 @@ const MODULE_LIST = [
     id: "homeEditor",
     name: "Home editable",
     description:
-      "Hero con slider y secciones (categorías, destacados, promo) sin tocar código ni redeploy. Start tiene solo hero simple (imagen + copy + CTA).",
+      "Start: 1 hero (imagen + título + subtítulo + CTA). Grow/Pro: slider y secciones (categorías, destacados, promo) sin redeploy.",
     monthlyPriceUsd: 0,
-    includedInPlans: ["grow", "pro"],
+    includedInPlans: ["start", "grow", "pro"],
     category: "marketing",
     adminRoutes: ["/admin/home"],
     storefrontSurfaces: ["home"],

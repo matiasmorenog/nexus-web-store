@@ -1,6 +1,7 @@
 import { audiencesForProductFilter } from "@/lib/categories";
 import { CATALOG_PAGE_SIZE, catalogListSkip } from "@/lib/catalog-pagination";
 import {
+  countDistinctVariantColors,
   getProductCardImages,
   partitionVariantsForCard,
 } from "@/lib/variant-images";
@@ -58,6 +59,8 @@ export type CatalogProductRow = {
   hoverImageUrl?: string;
   price: number;
   inStock: boolean;
+  /** Distinct colors across variants; UI shows only when >= 2. */
+  colorCount: number;
 };
 
 export type CatalogFilterCounts = {
@@ -301,6 +304,7 @@ export function mapCatalogProductRow(
     hoverImageUrl: cardImages.hoverImageUrl,
     price: cardImages.price,
     inStock,
+    colorCount: countDistinctVariantColors(product.variants),
   };
 }
 

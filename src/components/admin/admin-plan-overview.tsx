@@ -190,24 +190,32 @@ export function AdminPlanOverview({
             <div
               key={tier.id}
               className={cn(
-                "relative flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition duration-200 ease-out",
-                "hover:-translate-y-0.5 hover:shadow-md",
+                "group relative flex flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition duration-300 ease-out",
+                "hover:-translate-y-1 hover:bg-white/70 hover:shadow-xl hover:backdrop-blur-md",
                 isFeatured
-                  ? "border-[var(--brand-primary)]/40 shadow-[0_12px_40px_-20px_color-mix(in_srgb,var(--brand-primary)_55%,transparent)] hover:border-[var(--brand-primary)]/70 hover:shadow-[0_16px_44px_-18px_color-mix(in_srgb,var(--brand-primary)_60%,transparent)] lg:-mt-1 lg:mb-[-0.25rem]"
-                  : "border-neutral-200 hover:border-neutral-300",
+                  ? "border-[var(--brand-primary)]/35 shadow-[0_12px_40px_-20px_color-mix(in_srgb,var(--brand-primary)_55%,transparent)] hover:border-[var(--brand-primary)]/50 hover:shadow-[0_20px_48px_-18px_color-mix(in_srgb,var(--brand-primary)_45%,transparent)] lg:-mt-1 lg:mb-[-0.25rem]"
+                  : "border-neutral-200 hover:border-neutral-300/70",
+                // No ring-offset: on #f6f6f7 it reads as a gray sub-border (Pro “Actual”).
                 isCurrent &&
-                  "ring-2 ring-[var(--brand-primary)] ring-offset-2",
+                  "border-[var(--brand-primary)]/60 shadow-[0_0_0_2px_color-mix(in_srgb,var(--brand-primary)_35%,transparent)]",
               )}
             >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition duration-300 group-hover:opacity-100"
+              >
+                <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-br from-white/35 via-transparent to-[color-mix(in_srgb,var(--brand-primary)_10%,transparent)]" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+              </div>
               {isFeatured ? (
-                <div className="bg-[var(--brand-primary)] px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
+                <div className="relative z-10 bg-[var(--brand-primary)] px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-wide text-white">
                   Más popular
                 </div>
               ) : (
-                <div className="h-[1.625rem]" aria-hidden />
+                <div className="relative z-10 h-[1.625rem]" aria-hidden />
               )}
 
-              <div className="flex flex-1 flex-col p-5 sm:p-6">
+              <div className="relative z-10 flex flex-1 flex-col p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="text-xl font-bold tracking-tight text-neutral-900">

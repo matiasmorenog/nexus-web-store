@@ -223,7 +223,7 @@ export const CURRENT_MONTH_HERO_RANKING = [
   },
 ] as const;
 
-const HERO_PRODUCT_SLUGS = new Set(
+const HERO_PRODUCT_SLUGS = new Set<string>(
   CURRENT_MONTH_HERO_RANKING.map((hero) => hero.productSlug),
 );
 

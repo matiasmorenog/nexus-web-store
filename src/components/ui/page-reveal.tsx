@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type PageRevealProps = {
@@ -10,6 +10,9 @@ type PageRevealProps = {
   delayMs?: number;
 };
 
+/** Never leave content stuck at opacity 0 if timers/rAF stall. */
+const REVEAL_FAILSAFE_MS = 1600;
+
 export function PageReveal({
   children,
   index = 0,
@@ -18,21 +21,32 @@ export function PageReveal({
 }: PageRevealProps) {
   const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    let cancelled = false;
+    const show = () => {
+      if (!cancelled) setVisible(true);
+    };
+
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
     if (reducedMotion) {
-      const frame = requestAnimationFrame(() => setVisible(true));
-      return () => cancelAnimationFrame(frame);
+      show();
+      return () => {
+        cancelled = true;
+      };
     }
 
-    const timeout = window.setTimeout(() => {
-      requestAnimationFrame(() => setVisible(true));
-    }, index * delayMs);
+    const delay = Math.max(0, index * delayMs);
+    const timeout = window.setTimeout(show, delay);
+    const failsafe = window.setTimeout(show, delay + REVEAL_FAILSAFE_MS);
 
-    return () => window.clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      window.clearTimeout(failsafe);
+    };
   }, [index, delayMs]);
 
   return (

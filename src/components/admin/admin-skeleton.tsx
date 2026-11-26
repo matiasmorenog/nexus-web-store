@@ -116,15 +116,17 @@ function AdminSkeletonChartArea() {
 
 function AdminSkeletonTopProducts() {
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {Array.from({ length: 5 }, (_, index) => (
-        <div key={index} className="flex items-center gap-3">
-          <AdminSkeleton className="size-8 shrink-0 rounded-md" />
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <AdminSkeleton className="h-4 w-full max-w-40" />
-            <AdminSkeleton className="h-3 w-16" />
+        <div key={index}>
+          <div className="mb-1.5 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <AdminSkeleton className="h-4 w-4 shrink-0" />
+              <AdminSkeleton className="h-4 w-full max-w-40" />
+            </div>
+            <AdminSkeleton className="h-3 w-36 max-w-full" />
           </div>
-          <AdminSkeleton className="h-4 w-10 shrink-0" />
+          <AdminSkeleton className="h-2 w-full rounded-full" />
         </div>
       ))}
     </div>

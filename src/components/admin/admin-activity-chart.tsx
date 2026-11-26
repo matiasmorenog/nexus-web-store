@@ -186,15 +186,16 @@ function ActivityLineSvg({
 
   useEffect(() => {
     let frame = 0;
+    let timer = 0;
 
     if (phase === "waiting") {
-      frame = requestAnimationFrame(() => setDrawProgress(0));
-      return () => cancelAnimationFrame(frame);
+      timer = window.setTimeout(() => setDrawProgress(0), 0);
+      return () => window.clearTimeout(timer);
     }
 
     if (phase === "complete") {
-      frame = requestAnimationFrame(() => setDrawProgress(1));
-      return () => cancelAnimationFrame(frame);
+      timer = window.setTimeout(() => setDrawProgress(1), 0);
+      return () => window.clearTimeout(timer);
     }
 
     if (plotPoints.length === 0) return;
@@ -204,8 +205,8 @@ function ActivityLineSvg({
     ).matches;
 
     if (reducedMotion) {
-      frame = requestAnimationFrame(() => setDrawProgress(1));
-      return () => cancelAnimationFrame(frame);
+      timer = window.setTimeout(() => setDrawProgress(1), 0);
+      return () => window.clearTimeout(timer);
     }
 
     let startTime: number | null = null;
@@ -223,8 +224,12 @@ function ActivityLineSvg({
     };
 
     frame = requestAnimationFrame(step);
+    timer = window.setTimeout(() => setDrawProgress(1), CHART_LINE_DRAW_MS + 400);
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
   }, [phase, plotPoints]);
 
   const paths =
@@ -232,7 +237,10 @@ function ActivityLineSvg({
       ? buildFullPaths(plotPoints, bottomY)
       : buildPartialPaths(plotPoints, drawProgress, bottomY);
 
-  const showSeries = phase !== "waiting" && drawProgress > 0 && paths.linePath.length > 0;
+  const showSeries =
+    phase !== "waiting" &&
+    paths.linePath.length > 0 &&
+    (phase === "complete" || drawProgress > 0);
 
   return (
     <svg
@@ -325,31 +333,28 @@ export function AdminActivityChart({
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    let startAnim: number | undefined;
-    let finish: number | undefined;
-    let waitingFrame = 0;
+    // Prefer timers over leading rAF — rAF can stall in bg tabs / headless.
+    if (reducedMotion) {
+      const done = window.setTimeout(() => setChartPhase("complete"), 0);
+      return () => window.clearTimeout(done);
+    }
 
-    waitingFrame = requestAnimationFrame(() => {
+    let startAnim = 0;
+    let finish = 0;
+    const reset = window.setTimeout(() => {
       setChartPhase("waiting");
-
-      if (reducedMotion) {
-        requestAnimationFrame(() => setChartPhase("complete"));
-        return;
-      }
-
       startAnim = window.setTimeout(() => {
         setChartPhase("animating");
       }, CHART_WAIT_MS);
-
       finish = window.setTimeout(() => {
         setChartPhase("complete");
       }, CHART_WAIT_MS + CHART_LINE_DRAW_MS);
-    });
+    }, 0);
 
     return () => {
-      cancelAnimationFrame(waitingFrame);
-      if (startAnim) window.clearTimeout(startAnim);
-      if (finish) window.clearTimeout(finish);
+      window.clearTimeout(reset);
+      window.clearTimeout(startAnim);
+      window.clearTimeout(finish);
     };
   }, [chartData, period, showMonthAsWeeks]);
 

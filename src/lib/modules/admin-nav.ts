@@ -169,7 +169,8 @@ const ADMIN_MAIN_SIDEBAR_ORDER: Array<
 
 /**
  * Orden bajo Configuración (toggle only):
- * idioma → seguridad → QR → cobros → envíos → gente → canales → SEO → técnico → plan.
+ * cobros → envíos → seguridad → QR → gente → canales → SEO → técnico → idioma → plan.
+ * Idioma al final (casi nunca se cambia); plan cierra el grupo.
  */
 const ADMIN_CONFIG_CHILDREN_ORDER: Array<
   | { kind: "plan" }
@@ -183,15 +184,15 @@ const ADMIN_CONFIG_CHILDREN_ORDER: Array<
     }
   | { kind: "module"; moduleId: AdminConfigSubmenuModuleId }
 > = [
-  { kind: "core", href: "/admin/configuracion/idioma" },
-  { kind: "core", href: "/admin/configuracion/seguridad" },
-  { kind: "core", href: "/admin/configuracion/qr" },
   { kind: "core", href: "/admin/configuracion/cobros" },
   { kind: "module", moduleId: "shippingCarriers" },
+  { kind: "core", href: "/admin/configuracion/seguridad" },
+  { kind: "core", href: "/admin/configuracion/qr" },
   { kind: "module", moduleId: "multiUser" },
   { kind: "module", moduleId: "marketing" },
   { kind: "module", moduleId: "seo" },
   { kind: "module", moduleId: "api" },
+  { kind: "core", href: "/admin/configuracion/idioma" },
   { kind: "plan" },
 ];
 
@@ -204,14 +205,14 @@ const ADMIN_SIDEBAR_ORDER: Array<
     (entry) =>
       !(entry.kind === "core" && entry.href === "/admin/configuracion"),
   ),
-  { kind: "core", href: "/admin/configuracion/idioma" },
+  { kind: "core", href: "/admin/configuracion/cobros" },
   { kind: "core", href: "/admin/configuracion/seguridad" },
   { kind: "core", href: "/admin/configuracion/qr" },
-  { kind: "core", href: "/admin/configuracion/cobros" },
   ...ADMIN_CONFIG_SUBMENU_MODULE_IDS.map((moduleId) => ({
     kind: "module" as const,
     moduleId,
   })),
+  { kind: "core", href: "/admin/configuracion/idioma" },
 ];
 
 export const ADMIN_PLAN_NAV_ITEM: AdminPlanNavItem = {

@@ -139,6 +139,8 @@ export function StorefrontReveal({
     <div
       ref={ref}
       className={cn(
+        // Grid children need explicit width or aspect-square tiles collapse to thin strips.
+        "w-full min-w-0",
         visible ? "storefront-reveal-enter" : "storefront-reveal-prep",
         className,
       )}

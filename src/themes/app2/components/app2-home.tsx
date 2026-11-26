@@ -54,7 +54,11 @@ function renderApp2Section(
         />
       );
     case "features.bar":
-      return <App2FeaturesBar key={section.id} content={section.content} />;
+      return (
+        <StorefrontReveal key={section.id} index={revealIndex}>
+          <App2FeaturesBar content={section.content} />
+        </StorefrontReveal>
+      );
     case "categories.grid":
       return (
         <div key={section.id}>
@@ -83,7 +87,11 @@ function renderApp2Section(
         </StorefrontReveal>
       );
     case "newsletter":
-      return <App2Newsletter key={section.id} content={section.content} />;
+      return (
+        <StorefrontReveal key={section.id} index={revealIndex}>
+          <App2Newsletter content={section.content} />
+        </StorefrontReveal>
+      );
     default:
       return null;
   }
@@ -99,10 +107,7 @@ export async function App2Home({ storeDisplayName }: App2HomeProps) {
     <>
       <App2JunglePageAtmosphere />
       {sections.map((section, index) => {
-        const usesReveal =
-          section.type !== "hero.static" &&
-          section.type !== "features.bar" &&
-          section.type !== "newsletter";
+        const usesReveal = section.type !== "hero.static";
         const revealIndex = usesReveal ? index : 0;
 
         return renderApp2Section(

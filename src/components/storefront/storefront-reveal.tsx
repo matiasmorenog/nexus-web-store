@@ -8,44 +8,40 @@ type StorefrontRevealProps = {
   /** Stagger slot after the element enters the viewport (0 = immediate). */
   index?: number;
   className?: string;
-  /** Delay between stagger slots once visible. */
+  /** Delay between stagger slots once visible. Soft grid cascade. */
   delayMs?: number;
-  /**
-   * IntersectionObserver rootMargin. Positive bottom anticipates the
-   * reveal before the block fully enters (avoids blank below-hero gaps).
-   */
+  /** IntersectionObserver rootMargin — keep tight; do not anticipate far. */
   rootMargin?: string;
-  /** Fraction of the element that must be visible to trigger. */
+  /** Fraction of the element that must be visible to trigger (~15–25%). */
   threshold?: number;
 };
 
 /** Backup after intersect if the stagger timer never fires. */
-const REVEAL_FAILSAFE_MS = 400;
-/** Near-viewport mount: never leave Destacados-style gaps blank. */
-const NEAR_FAILSAFE_MS = 500;
+const REVEAL_FAILSAFE_MS = 500;
+/** Mount path: Destacados-style gaps must not stay blank. */
+const NEAR_FAILSAFE_MS = 600;
 /** Far off-screen last resort only. */
 const FAR_FAILSAFE_MS = 12_000;
-/** Extra px below the fold that still counts as "already near" on mount. */
-const NEAR_VIEWPORT_PX = 160;
 
-function isNearOrInViewport(node: HTMLElement, slackPx: number): boolean {
+/** True only when any part of the node is clearly inside the viewport (no slack). */
+function isClearlyIntersecting(node: HTMLElement): boolean {
   const rect = node.getBoundingClientRect();
   const vh = window.innerHeight || document.documentElement.clientHeight;
-  return rect.top < vh + slackPx && rect.bottom > -slackPx;
+  return rect.top < vh && rect.bottom > 0 && rect.top < rect.bottom;
 }
 
 /**
- * Soft opacity + translateY reveal when the block scrolls into view.
- * Reuses `.page-reveal-*` CSS; respects `prefers-reduced-motion`.
- * Sections already (or almost) in view on mount reveal immediately.
+ * Soft opacity + translateY reveal on scroll.
+ * Above-fold / clearly intersecting on mount → reveal now (no blank gap).
+ * Below-fold → wait until ~20% is visible (no eager rootMargin).
  */
 export function StorefrontReveal({
   children,
   index = 0,
   className,
-  delayMs = 90,
-  rootMargin = "0px 0px 160px 0px",
-  threshold = 0,
+  delayMs = 75,
+  rootMargin = "0px",
+  threshold = 0.2,
 }: StorefrontRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -89,9 +85,9 @@ export function StorefrontReveal({
       };
     }
 
-    // Already on screen (or just under the fold) → reveal now.
-    // Fixes blank band under hero when Destacados is partially in view.
-    if (isNearOrInViewport(node, NEAR_VIEWPORT_PX)) {
+    // Clearly in viewport on mount → reveal now (keeps Destacados visible).
+    // No positive slack: sections fully below the fold wait for scroll IO.
+    if (isClearlyIntersecting(node)) {
       const staggerMs = Math.max(0, Math.min(index, 2) * delayMs);
       if (staggerMs === 0) {
         show();
@@ -130,19 +126,8 @@ export function StorefrontReveal({
     activeObserver = observer;
     observer.observe(node);
 
-    // IO initial callback can lag a frame; re-check after layout.
-    const raf = window.requestAnimationFrame(() => {
-      if (cancelled) return;
-      if (isNearOrInViewport(node, NEAR_VIEWPORT_PX)) {
-        observer.disconnect();
-        activeObserver = null;
-        scheduleReveal();
-      }
-    });
-
     return () => {
       cancelled = true;
-      window.cancelAnimationFrame(raf);
       observer.disconnect();
       activeObserver = null;
       window.clearTimeout(farFailsafe);
@@ -154,7 +139,7 @@ export function StorefrontReveal({
     <div
       ref={ref}
       className={cn(
-        visible ? "page-reveal-enter" : "page-reveal-prep",
+        visible ? "storefront-reveal-enter" : "storefront-reveal-prep",
         className,
       )}
     >

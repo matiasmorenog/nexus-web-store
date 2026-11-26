@@ -25,10 +25,14 @@ export function App2CategoriesSection({ content }: App2CategoriesSectionProps) {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {content.items.map((cat, index) => (
-          <StorefrontReveal key={cat.slug} index={Math.min(index, 7)}>
+          <StorefrontReveal
+            key={cat.slug}
+            index={Math.min(index, 7)}
+            className="aspect-[3/4]"
+          >
             <Link
               href={cat.href ?? app2CatalogHref(cat.slug)}
-              className="storefront-card group relative aspect-[3/4] overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)]"
+              className="storefront-card group relative block h-full w-full overflow-hidden border border-app2 bg-app2-card transition-all duration-300 hover:border-[color-mix(in_srgb,var(--brand-primary)_40%,transparent)]"
             >
               <Image
                 src={cat.imageUrl}

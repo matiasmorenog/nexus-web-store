@@ -139,8 +139,10 @@ export function StorefrontReveal({
     <div
       ref={ref}
       className={cn(
-        // Grid children need explicit width or aspect-square tiles collapse to thin strips.
-        "w-full min-w-0",
+        // Must be the sized grid item. Nested aspect-square <a> is not
+        // blockified by the grid and collapses to thin strips — put
+        // aspect-* on this wrapper (or use a block child with h-full w-full).
+        "block w-full min-w-0",
         visible ? "storefront-reveal-enter" : "storefront-reveal-prep",
         className,
       )}

@@ -167,10 +167,14 @@ export async function ManovivaHome() {
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {categories.map((category, index) => (
-              <StorefrontReveal key={category.slug} index={Math.min(index, 7)}>
+              <StorefrontReveal
+                key={category.slug}
+                index={Math.min(index, 7)}
+                className="min-h-[390px]"
+              >
                 <Link
                   href={`/prodotti?categoria=${category.slug}`}
-                  className="group relative min-h-[390px] overflow-hidden storefront-card bg-[#202523]"
+                  className="group relative block h-full min-h-[390px] w-full overflow-hidden storefront-card bg-[#202523]"
                 >
                   <Image
                     src={category.image}

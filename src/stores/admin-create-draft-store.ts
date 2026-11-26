@@ -3,8 +3,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export type AdminCreateDraftKind = "product" | "category";
-
 export type AdminCreateDraftSlot = {
   open: boolean;
   /** Keep modal shell/chip alive across routes while dirty. */
@@ -14,7 +12,6 @@ export type AdminCreateDraftSlot = {
   chipSubtitle: string;
   /** Text field snapshot (no File uploads). */
   values: Record<string, string>;
-  audiences: string[];
   hasSize: boolean | null;
 };
 
@@ -25,107 +22,104 @@ const emptySlot = (): AdminCreateDraftSlot => ({
   itemCount: 0,
   chipSubtitle: "",
   values: {},
-  audiences: [],
   hasSize: null,
 });
 
 type AdminCreateDraftState = {
   product: AdminCreateDraftSlot;
-  category: AdminCreateDraftSlot;
-  openDraft: (kind: AdminCreateDraftKind) => void;
-  setOpen: (kind: AdminCreateDraftKind, open: boolean) => void;
-  setSessionMeta: (
-    kind: AdminCreateDraftKind,
-    meta: { pending: boolean; itemCount: number; chipSubtitle?: string },
-  ) => void;
-  setSessionActive: (kind: AdminCreateDraftKind, active: boolean) => void;
-  patchValues: (
-    kind: AdminCreateDraftKind,
-    values: Record<string, string>,
-  ) => void;
-  setAudiences: (audiences: string[]) => void;
+  openDraft: () => void;
+  setOpen: (open: boolean) => void;
+  setSessionMeta: (meta: {
+    pending: boolean;
+    itemCount: number;
+    chipSubtitle?: string;
+  }) => void;
+  setSessionActive: (active: boolean) => void;
+  patchValues: (values: Record<string, string>) => void;
   setHasSize: (hasSize: boolean) => void;
-  clearDraft: (kind: AdminCreateDraftKind) => void;
+  clearDraft: () => void;
 };
-
-function updateSlot(
-  state: AdminCreateDraftState,
-  kind: AdminCreateDraftKind,
-  patch: Partial<AdminCreateDraftSlot>,
-): Partial<AdminCreateDraftState> {
-  return { [kind]: { ...state[kind], ...patch } };
-}
 
 export const useAdminCreateDraftStore = create<AdminCreateDraftState>()(
   persist(
     (set) => ({
       product: emptySlot(),
-      category: emptySlot(),
 
-      openDraft: (kind) =>
-        set((state) =>
-          updateSlot(state, kind, { open: true, sessionActive: true }),
-        ),
+      openDraft: () =>
+        set((state) => ({
+          product: { ...state.product, open: true, sessionActive: true },
+        })),
 
-      setOpen: (kind, open) =>
+      setOpen: (open) =>
         set((state) => {
-          const slot = state[kind];
+          const slot = state.product;
           if (open) {
-            return updateSlot(state, kind, { open: true, sessionActive: true });
+            return {
+              product: { ...slot, open: true, sessionActive: true },
+            };
           }
-          // Minimize: keep session only if dirty/pending.
           const keep = slot.pending || slot.itemCount > 0;
-          return updateSlot(state, kind, {
-            open: false,
-            sessionActive: keep ? true : false,
-            pending: keep ? slot.pending : false,
-          });
+          return {
+            product: {
+              ...slot,
+              open: false,
+              sessionActive: keep,
+              pending: keep ? slot.pending : false,
+            },
+          };
         }),
 
-      setSessionMeta: (kind, meta) =>
-        set((state) =>
-          updateSlot(state, kind, {
-            pending: meta.pending,
-            itemCount: meta.itemCount,
-            chipSubtitle: meta.chipSubtitle ?? state[kind].chipSubtitle,
-            sessionActive:
-              meta.pending || meta.itemCount > 0 || state[kind].open
-                ? true
-                : state[kind].sessionActive,
-          }),
-        ),
+      setSessionMeta: (meta) =>
+        set((state) => {
+          const slot = state.product;
+          return {
+            product: {
+              ...slot,
+              pending: meta.pending,
+              itemCount: meta.itemCount,
+              chipSubtitle: meta.chipSubtitle ?? slot.chipSubtitle,
+              sessionActive:
+                meta.pending || meta.itemCount > 0 || slot.open
+                  ? true
+                  : slot.sessionActive,
+            },
+          };
+        }),
 
-      setSessionActive: (kind, active) =>
-        set((state) => updateSlot(state, kind, { sessionActive: active })),
+      setSessionActive: (active) =>
+        set((state) => ({
+          product: { ...state.product, sessionActive: active },
+        })),
 
-      patchValues: (kind, values) =>
-        set((state) =>
-          updateSlot(state, kind, {
-            values: { ...state[kind].values, ...values },
-          }),
-        ),
-
-      setAudiences: (audiences) =>
-        set((state) => updateSlot(state, "category", { audiences })),
+      patchValues: (values) =>
+        set((state) => ({
+          product: {
+            ...state.product,
+            values: { ...state.product.values, ...values },
+          },
+        })),
 
       setHasSize: (hasSize) =>
-        set((state) => updateSlot(state, "product", { hasSize })),
+        set((state) => ({
+          product: { ...state.product, hasSize },
+        })),
 
-      clearDraft: (kind) => set(() => ({ [kind]: emptySlot() })),
+      clearDraft: () => set({ product: emptySlot() }),
     }),
     {
       name: "nexus-admin-create-drafts",
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
         product: state.product,
-        category: state.category,
       }),
+      // Drop legacy category drafts from earlier persist shape.
+      merge: (persisted, current) => {
+        const raw = persisted as { product?: AdminCreateDraftSlot } | undefined;
+        return {
+          ...current,
+          product: raw?.product ? { ...emptySlot(), ...raw.product } : current.product,
+        };
+      },
     },
   ),
 );
-
-export function adminCreateDraftPending(
-  kind: AdminCreateDraftKind,
-): boolean {
-  return useAdminCreateDraftStore.getState()[kind].pending;
-}

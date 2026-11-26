@@ -59,21 +59,31 @@ function AdminSkeletonCardShell({
   descriptionWidth,
   padding = true,
   className,
+  action,
   children,
 }: {
   titleWidth?: string;
   descriptionWidth?: string;
   padding?: boolean;
   className?: string;
+  action?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <div className={cn(adminCardClass, className)}>
-      <div className={adminCardHeaderClass}>
-        <AdminSkeleton className={cn("h-4", titleWidth)} />
-        {descriptionWidth ? (
-          <AdminSkeleton className={cn("mt-2 h-3", descriptionWidth)} />
-        ) : null}
+      <div
+        className={cn(
+          adminCardHeaderClass,
+          action && "flex flex-wrap items-start justify-between gap-3",
+        )}
+      >
+        <div className="min-w-0">
+          <AdminSkeleton className={cn("h-4", titleWidth)} />
+          {descriptionWidth ? (
+            <AdminSkeleton className={cn("mt-2 h-3", descriptionWidth)} />
+          ) : null}
+        </div>
+        {action}
       </div>
       {children ? (
         <div className={cn(padding && "p-4 sm:p-6")}>{children}</div>
@@ -981,12 +991,16 @@ export function AdminSkeletonModuleApiPage() {
   );
 }
 
-/** /admin/modulos/multiUser — mirror AdminStoreUsersPanel (max-w-lg list + invite). */
+/** /admin/modulos/multiUser — list card + invite trigger (invite is commit modal). */
 export function AdminSkeletonModuleMultiUserPage() {
   return (
     <AdminSkeletonRegion label="Cargando usuarios" className="space-y-8">
       <div className="max-w-lg space-y-6">
-        <AdminSkeletonCardShell titleWidth="w-28" descriptionWidth="w-64">
+        <AdminSkeletonCardShell
+          titleWidth="w-28"
+          descriptionWidth="w-64"
+          action={<AdminSkeleton className="h-9 w-36 shrink-0 rounded-md" />}
+        >
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
             {Array.from({ length: 3 }, (_, index) => (
               <li
@@ -1008,15 +1022,6 @@ export function AdminSkeletonModuleMultiUserPage() {
               </li>
             ))}
           </ul>
-        </AdminSkeletonCardShell>
-        <AdminSkeletonCardShell titleWidth="w-32" descriptionWidth="w-56">
-          <div className="space-y-4">
-            <AdminSkeletonFormField labelWidth="w-16" />
-            <AdminSkeletonFormField labelWidth="w-12" />
-            <AdminSkeletonFormField labelWidth="w-36" />
-            <AdminSkeletonFormField labelWidth="w-10" hint />
-            <AdminSkeleton className="h-10 w-36 rounded-lg" />
-          </div>
         </AdminSkeletonCardShell>
       </div>
     </AdminSkeletonRegion>

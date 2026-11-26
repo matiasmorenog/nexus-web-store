@@ -126,7 +126,7 @@ export function ProductCreateForm({
         info.itemCount > 0
           ? `${info.itemCount} campo${info.itemCount === 1 ? "" : "s"}`
           : "Sin datos aún";
-      setSessionMeta("product", {
+      setSessionMeta({
         pending: info.pending,
         itemCount: info.itemCount,
         chipSubtitle: subtitle,
@@ -146,7 +146,7 @@ export function ProductCreateForm({
     animKey,
   } = useDraftSession({
     open,
-    onOpenChange: (next) => setOpenStore("product", next),
+    onOpenChange: setOpenStore,
     itemCount: Math.max(dirtyCount, storeItemCount),
     onDraftChange,
     initialSessionActive: sessionActive,
@@ -155,7 +155,7 @@ export function ProductCreateForm({
   const refreshDirty = useCallback(() => {
     const count = scoreFormDirty(formRef.current);
     setDirtyCount(count);
-    patchValues("product", snapshotFormValues(formRef.current));
+    patchValues(snapshotFormValues(formRef.current));
   }, [patchValues]);
 
   const resetFields = useCallback(() => {
@@ -164,14 +164,14 @@ export function ProductCreateForm({
     setError(null);
     setImageUploading(false);
     setDirtyCount(0);
-    clearDraft("product");
+    clearDraft();
     setFormKey((k) => k + 1);
   }, [sizeToggle, setHasSizeStore, clearDraft]);
 
   const discardDraft = () => {
     resetFields();
     endSession();
-    clearDraft("product");
+    clearDraft();
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -183,7 +183,7 @@ export function ProductCreateForm({
       throwIfAdminActionError(await createProduct(new FormData(form)));
       resetFields();
       endSession();
-      clearDraft("product");
+      clearDraft();
     } catch (err) {
       setError(adminActionErrorMessage(err, errorsCopy));
     } finally {
@@ -416,7 +416,7 @@ export function AdminProductCreateTrigger({
     <AdminDraftTrigger
       size="sm"
       className={className}
-      onClick={() => openDraft("product")}
+      onClick={() => openDraft()}
       pending={pending}
       idleLabel={copy.newProduct}
       pendingLabel="Continuar producto"

@@ -263,6 +263,29 @@ button:not(:disabled),
   animation: admin-draft-modal-out 0.25s ease-in forwards;
 }
 
+@keyframes admin-commit-modal-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.admin-commit-modal-shake {
+  animation: admin-commit-modal-shake 0.4s ease-in-out both;
+}
+
 .admin-inline-form-enter {
   animation: admin-inline-form-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
@@ -626,7 +649,8 @@ button:not(:disabled),
   .admin-table-row-expand-enter,
   .admin-row-edit-enter,
   .admin-draft-modal-enter,
-  .admin-draft-modal-exit {
+  .admin-draft-modal-exit,
+  .admin-commit-modal-shake {
     animation: none;
     opacity: 1;
     transform: none;

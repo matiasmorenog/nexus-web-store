@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { StoreStaffRole } from "@prisma/client";
+import { UserPlus } from "lucide-react";
 import { AdminCard } from "@/components/admin/admin-card";
+import { AdminFormAlert } from "@/components/admin/admin-form";
 import {
-  AdminForm,
-  AdminFormActions,
-  AdminFormAlert,
-} from "@/components/admin/admin-form";
+  AdminCommitModal,
+  AdminCommitModalBody,
+  AdminCommitModalFooter,
+  AdminCommitModalHeader,
+} from "@/components/ui/admin-commit-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +25,8 @@ import {
   type StoreStaffMember,
 } from "@/lib/store-users";
 
+const INVITE_TITLE_ID = "invite-user-title";
+
 type AdminStoreUsersPanelProps = {
   members: StoreStaffMember[];
   canManage: boolean;
@@ -32,6 +37,8 @@ export function AdminStoreUsersPanel({
   canManage,
 }: AdminStoreUsersPanelProps) {
   const router = useRouter();
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +48,20 @@ export function AdminStoreUsersPanel({
   const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const resetInviteFields = () => {
+    setEmail("");
+    setName("");
+    setPassword("");
+    setStaffRole("SELLER");
+    setError(null);
+    setFormKey((key) => key + 1);
+  };
+
+  const discardInvite = () => {
+    resetInviteFields();
+    setInviteOpen(false);
+  };
 
   const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -61,10 +82,8 @@ export function AdminStoreUsersPanel({
         throw new Error(data.error ?? "No se pudo invitar al usuario.");
       }
 
-      setEmail("");
-      setName("");
-      setPassword("");
-      setStaffRole("SELLER");
+      resetInviteFields();
+      setInviteOpen(false);
       setSuccess("Usuario invitado correctamente.");
       router.refresh();
     } catch (inviteError) {
@@ -147,11 +166,35 @@ export function AdminStoreUsersPanel({
       <AdminCard
         title="Usuarios staff"
         description="Personas con acceso al panel admin además del owner."
+        action={
+          canManage ? (
+            <Button
+              type="button"
+              size="sm"
+              className="w-full whitespace-nowrap sm:w-auto"
+              onClick={() => {
+                setSuccess(null);
+                setError(null);
+                setInviteOpen(true);
+              }}
+            >
+              <UserPlus className="mr-1.5 h-4 w-4" aria-hidden />
+              Invitar usuario
+            </Button>
+          ) : undefined
+        }
       >
+        {error && !inviteOpen ? (
+          <AdminFormAlert variant="error">{error}</AdminFormAlert>
+        ) : null}
+        {success ? (
+          <AdminFormAlert variant="success">{success}</AdminFormAlert>
+        ) : null}
+
         {members.length === 0 ? (
           <p className="text-sm text-neutral-600">
-            Todavía no hay usuarios staff. Invitá a alguien con el formulario de
-            abajo.
+            Todavía no hay usuarios staff. Invitá a alguien con el botón de
+            arriba.
           </p>
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
@@ -207,78 +250,98 @@ export function AdminStoreUsersPanel({
             ))}
           </ul>
         )}
+
+        {!canManage ? (
+          <p className="mt-3 text-sm text-neutral-600">
+            Solo un administrador puede invitar o quitar usuarios.
+          </p>
+        ) : null}
       </AdminCard>
 
       {canManage ? (
-        <AdminCard
-          title="Invitar usuario"
-          description="Creá un usuario staff con email, contraseña y rol."
+        <AdminCommitModal
+          open={inviteOpen}
+          labelledBy={INVITE_TITLE_ID}
+          maxWidthClassName="max-w-md"
         >
-          <AdminForm onSubmit={handleInvite} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="staff-name">Nombre</Label>
-              <Input
-                id="staff-name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="staff-email">Email</Label>
-              <Input
-                id="staff-email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="staff-password">Contraseña temporal</Label>
-              <Input
-                id="staff-password"
-                type="password"
-                minLength={PASSWORD_MIN_LENGTH}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="staff-role">Rol</Label>
-              <MenuSelect
-                id="staff-role"
-                aria-label="Rol"
-                value={staffRole}
-                onChange={(next) => setStaffRole(next as StoreStaffRole)}
-                options={STORE_STAFF_ROLES.map((role) => ({
-                  value: role,
-                  label: STORE_STAFF_ROLE_LABELS[role],
-                }))}
-              />
-              <p className="text-xs text-neutral-500">
-                {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
-              </p>
-            </div>
-
-            {error ? <AdminFormAlert variant="error">{error}</AdminFormAlert> : null}
-            {success ? (
-              <AdminFormAlert variant="success">{success}</AdminFormAlert>
-            ) : null}
-
-            <AdminFormActions>
-              <Button type="submit" disabled={loading}>
+          <form
+            key={formKey}
+            onSubmit={handleInvite}
+            className="flex max-h-[min(92dvh,36rem)] flex-col"
+          >
+            <AdminCommitModalHeader
+              titleId={INVITE_TITLE_ID}
+              title="Invitar usuario"
+              description="Email, contraseña temporal y rol."
+            />
+            <AdminCommitModalBody className="space-y-4">
+              <div>
+                <Label htmlFor="staff-name">Nombre</Label>
+                <Input
+                  id="staff-name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="staff-email">Email</Label>
+                <Input
+                  id="staff-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="staff-password">Contraseña temporal</Label>
+                <Input
+                  id="staff-password"
+                  type="password"
+                  minLength={PASSWORD_MIN_LENGTH}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="staff-role">Rol</Label>
+                <MenuSelect
+                  id="staff-role"
+                  aria-label="Rol"
+                  value={staffRole}
+                  onChange={(next) => setStaffRole(next as StoreStaffRole)}
+                  options={STORE_STAFF_ROLES.map((role) => ({
+                    value: role,
+                    label: STORE_STAFF_ROLE_LABELS[role],
+                  }))}
+                />
+                <p className="mt-1.5 text-xs text-neutral-500">
+                  {STORE_STAFF_ROLE_DESCRIPTIONS[staffRole]}
+                </p>
+              </div>
+              {error && inviteOpen ? (
+                <AdminFormAlert variant="error">{error}</AdminFormAlert>
+              ) : null}
+            </AdminCommitModalBody>
+            <AdminCommitModalFooter>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={loading}
+                onClick={discardInvite}
+              >
+                Descartar
+              </Button>
+              <Button type="submit" size="sm" disabled={loading}>
                 {loading ? "Invitando…" : "Invitar usuario"}
               </Button>
-            </AdminFormActions>
-          </AdminForm>
-        </AdminCard>
-      ) : (
-        <p className="text-sm text-neutral-600">
-          Solo un administrador puede invitar o quitar usuarios.
-        </p>
-      )}
+            </AdminCommitModalFooter>
+          </form>
+        </AdminCommitModal>
+      ) : null}
     </div>
   );
 }

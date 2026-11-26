@@ -1,4 +1,4 @@
-import { AdminCategoryCreateTrigger } from "@/components/admin/admin-category-create-form";
+import { AdminCategoryCreateControls } from "@/components/admin/admin-category-create-form";
 import { AdminCategoriesList } from "@/components/admin/admin-categories-list";
 import { AdminDashboardReveal } from "@/components/admin/admin-dashboard-reveal";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
@@ -31,7 +31,7 @@ export default async function AdminCategoriesPage() {
         <AdminPageHeader
           title="Categorías"
           description="Organizá el catálogo y la navegación de la tienda."
-          action={<AdminCategoryCreateTrigger />}
+          action={<AdminCategoryCreateControls />}
         />
       </AdminDashboardReveal>
 
